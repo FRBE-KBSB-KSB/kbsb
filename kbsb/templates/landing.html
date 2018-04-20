@@ -1,0 +1,18 @@
+{% extends "cms.html" %}
+{% load cms_tags i18n %}
+
+{% block banner %}
+<div class="landing-box">
+  <div class="landing-title hidden-xs-only">
+    {% trans "Royal Belgian Chess Federation" %}
+  </div>
+  <div class="landing-title hidden-sm-and-up">
+    {% trans "RBCF" %}
+  </div>
+</div>
+{% endblock banner %}
+
+{% block toolbar_classes %}navlanding{% endblock toolbar_classes%}
+
+{% block content_classes %}contentlanding{% endblock content_classes %}
+

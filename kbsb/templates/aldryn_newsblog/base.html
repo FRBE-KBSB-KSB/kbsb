@@ -1,0 +1,20 @@
+{% extends "cms.html" %}
+{% load cms_tags staticfiles sekizai_tags i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block vuecontent %}
+
+  {% block newsblog_content %}
+      {# article_list.html and article_detail.html extend this template #}
+  {% endblock %}
+
+{% addtoblock "js" %}
+{% if PRODUCTION %}
+  {% render_bundle 'manifest' %}
+  {% render_bundle 'vendor' %}
+{% endif %}
+{% render_bundle 'cms' %}
+{% endaddtoblock %}
+
+
+{% endblock vuecontent %}

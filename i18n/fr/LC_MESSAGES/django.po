@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-04-19 21:38+0200\n"
+"PO-Revision-Date: 2018-04-19 21:41+0200\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.6\n"
+
+#: kbsb/settings.py:17 kbsb/settings.py:118
+msgid "nl"
+msgstr ""
+
+#: kbsb/settings.py:24 kbsb/settings.py:119
+msgid "en"
+msgstr ""
+
+#: kbsb/settings.py:31 kbsb/settings.py:120
+msgid "fr"
+msgstr ""
+
+#: kbsb/settings.py:38 kbsb/settings.py:121
+msgid "de"
+msgstr ""
+
+#: kbsb/templates/base.html:54 kbsb/templates/base.html:69
+#: kbsb/templates/base.html:89
+msgid "News"
+msgstr "Nouvelles"
+
+#: kbsb/templates/base.html:81
+msgid "RBCF"
+msgstr "FRBE"
+
+#: kbsb/templates/landing.html:7
+msgid "Royal Belgian Chess Federation"
+msgstr "Fédération Royale Belge des Echecs"
+
+#: kbsb/templates/vue.html:23
+msgid "About RBCF"
+msgstr "Concernant La FRBE"
+
+#: kbsb/templates/vue.html:26
+msgid "The team"
+msgstr "L’ équipe"
+
+#: kbsb/templates/vue.html:29
+msgid "Contact"
+msgstr "Contact"
