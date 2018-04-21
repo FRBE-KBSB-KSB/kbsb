@@ -5,8 +5,16 @@
 {% block title %}{% page_attribute "page_title" %}{% endblock title %}
 
 {% block vueapp %}
-
-{% placeholder "content" %}
+<v-container>
+ <v-layout row wrap>
+   <v-flex xs12 sm8 class="px-1">
+     {% placeholder "content" %}
+   </v-flex>
+   <v-flex xs12 sm4 class="px-1">
+     {% placeholder "sidebar" %}
+   </v-flex>
+ </v-layout>
+</v-container>
 
 {% addtoblock "js" %}
 {% if PRODUCTION %}

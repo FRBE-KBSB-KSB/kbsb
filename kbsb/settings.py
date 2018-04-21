@@ -53,12 +53,15 @@ CMS_PLACEHOLDER_CONF = {}
 
 CMS_TEMPLATES = (
     ('landing.html', 'Landing'),
+    ('cms_sidebar.html', 'CMS with sidebar'),
     ('page.html', 'Page'),
 )
 
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = False
+
+DJANGOCMS_STYLE_CHOICES = ['logo-wrapper']
 
 EMAIL_HOST = '127.0.0.1'
 EMAIL_PORT = 25

@@ -1,0 +1,27 @@
+{% extends "cms_sidebar.html" %}
+{% load i18n cms_tags apphooks_config_tags sekizai_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block vueapp %}
+
+<main>
+  <v-content>
+    <v-container>
+      {% include "aldryn_newsblog/includes/article_detailed.html" with detail_view="true" %}
+      {% static_placeholder "newsblog_social" %}  
+    </v-container>
+  </v-content>
+</main>
+
+{% addtoblock "js" %}
+{% if PRODUCTION %}
+  {% render_bundle 'manifest' %}
+  {% render_bundle 'vendor' %}
+{% endif %}
+{% render_bundle 'cms' %}
+{% endaddtoblock %}
+
+{% endblock vueapp %}
+
+
+

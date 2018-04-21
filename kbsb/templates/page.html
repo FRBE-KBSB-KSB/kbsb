@@ -1,24 +1,2 @@
-{% extends "base.html" %}
+{% extends "cms_sidebar.html" %}
 {% load cms_tags i18n %}
-
-{% block title %}{% page_attribute "page_title" %}{% endblock title %}
-
-{% block content %}
-    {% placeholder "content" %}
-{% endblock content %}
-
-{% block after_cmsmenu %}
-<ul class="nav navbar-nav navbar-collapse collapse">
-  <li class="dropdown">
-     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-         <span class="fa fa-flag fa-lg"></span>
-     <span class="caret"></span></a>
-     <ul class="dropdown-menu">
-       <li><a href="/en">EN</a></li>
-       <li><a href="/nl">NL</a></li>
-       <li><a href="/fr">FR</a></li>
-       <li><a href="/fr">DE</a></li>
-     </ul>
-  </li>
-</ul>
-{% endblock after_cmsmenu %}

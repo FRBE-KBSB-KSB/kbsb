@@ -3,36 +3,28 @@
 
 {% block title %}{% page_attribute "page_title" %}{% endblock title %}
 
-{% block vueapp %}
-<main>
-  <v-content class="{% block content_classes %}{% endblock content_classes %}">
-    <v-container fluid>
-     {% block vuecontent %}{% endblock vuecontent %}
-    </v-container>
-  </v-content>
-</main>
-{% endblock vueapp %}
-
 {% block vuefooter %}
 
 <ad-carousel></ad-carousel>
 
-<v-footer height="auto" class="green darken-1 white--text">
-  <v-layout row class="py-2">
-    <v-flex md3 sm6 xs12 class="ml-2" light>
-      <a href="/bycco/us">{% trans "About RBCF" %}</a>
-    </v-flex>
-    <v-flex md3 sm6 xs12 class="ml-2">
-      <a href="/bycco/team">{%  trans "The team" %}</a>
-    </v-flex>
-    <v-flex md3 sm6 xs12 class="ml-2">
-      {% trans "Contact" %} <a href="mailto:board@frbe-kbsb.be">board@frbe-kbsb.be</a>
-    </v-flex>
-    <v-flex md3 sm6 xs12 class="ml-2">
-      <a href="https://www.facebook.com/bjk2018.cbj2018.bjlm2018"><img src="{% static "img/facebook.png" %}"></a>
-      {% comment %} <a href="https://twitter.com/@ByccoBel"><img src="{% static "img/twitter.png" %}"></a> {% endcomment %}
-    </v-flex>
-  </v-layout>
+<v-footer height="auto" class="green darken-1">
+  <v-container>
+    <v-layout row wrap class="py-2 footer green darken-1  white--text">
+      <v-flex md3 sm6 xs12 class="pl-2">
+        <a href="/bycco/us">{% trans "About RBCF" %}</a>
+      </v-flex>
+      <v-flex md3 sm6 xs12 class="pl-2">
+        <a href="/bycco/team">{%  trans "The team" %}</a>
+      </v-flex>
+      <v-flex md3 sm6 xs12 class="pl-2">
+        {% trans "Contact" %} <a href="mailto:board@frbe-kbsb.be">board@frbe-kbsb.be</a>
+      </v-flex>
+      <v-flex md3 sm6 xs12 class="pl-2">
+        <a href="https://www.facebook.com/bjk2018.cbj2018.bjlm2018"><img src="{% static "img/facebook.png" %}"></a>
+        {% comment %} <a href="https://twitter.com/@ByccoBel"><img src="{% static "img/twitter.png" %}"></a> {% endcomment %}
+      </v-flex>
+    </v-layout>
+  </v-container>
 </v-footer>
 {%  endblock vuefooter %}
 

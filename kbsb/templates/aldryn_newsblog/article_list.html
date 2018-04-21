@@ -1,0 +1,33 @@
+{% extends "cms_sidebar.html" %}
+{% load cms_tags staticfiles sekizai_tags i18n apphooks_config_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block vueapp %}
+
+<main>
+  <v-content>
+    <v-container>
+      <h1>{% trans "News" %}</h1>
+      {% for article in article_list %}
+        <div class="my-2">
+            {% include "aldryn_newsblog/includes/article_basic.html" with namespace=instance.app_config.namespace %}
+        </div>
+      {% empty %}
+        <p>{% trans "No items available" %}</p>
+      {% endfor %}
+      {% include "aldryn_newsblog/includes/pagination.html" %}
+    </v-container>
+  </v-content>
+</main>
+
+{% addtoblock "js" %}
+{% if PRODUCTION %}
+  {% render_bundle 'manifest' %}
+  {% render_bundle 'vendor' %}
+{% endif %}
+{% render_bundle 'cms' %}
+{% endaddtoblock %}
+
+
+{% endblock vueapp %}
+
