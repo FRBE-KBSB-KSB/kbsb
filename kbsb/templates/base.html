@@ -18,100 +18,30 @@
 </head>
 <body>
 <style>[v-cloak] > * { display:none }</style>
+
 {% cms_toolbar %}
 
-<div id="app">
- <v-app>
-    <v-navigation-drawer v-cloak dark temporary fixed v-model="drawer"
-                         class="navmax green darken-1">
-      <v-toolbar flat class="green">
-        <v-list>
-          <v-list-tile>
-            <v-list-tile-title class="title">
-              Menu
-            </v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-      </v-toolbar>
-      <v-divider></v-divider>
-      <div class="btn-language green darken-1">
-        <v-btn flat small class="hover-darker" href="/nl/">NL</v-btn>
-        <v-btn flat small href="/fr/">FR</v-btn>
-        <v-btn flat small href="/de/">DE</v-btn>
-        <v-btn flat small href="/en/">EN</v-btn>
-      </div>
-      <v-list dark dense class="green darken-1">
-        {% show_menu 0 100 100 100 %}
-        <v-list-tile  href="/old/interclub.php">
-          <v-list-tile-content>
-            <v-list-tile-title>Interclub
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>          
-        <v-list-tile  href="/news/">
-          <v-list-tile-content>
-            <v-list-tile-title>
-              {% trans "News" %}
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-      <v-divider></v-divider>
-      {% if request.user.is_authenticated %}
-      <v-list dark dense class="green darken-1">
-        <v-list-group>
-          <v-list-tile slot="activator" @click="">
-            <v-list-tile-content>Admin</v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile href="/mgmt/">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>{% trans "News" %}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list-group>
-      </v-list>
-      {% endif %}
-    </v-navigation-drawer>
-
-    <v-toolbar v-cloak fixed dark app
-               class="green darken-2 {% block toolbar_classes %}{% endblock toolbar_classes %}">
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-items>
-        <v-btn flat large href="/">{% trans "RBCF" %}</v-btn>
-      </v-toolbar-items>
-      <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat large href="/old/interclub">
-          Interclub
-        </v-btn>
-        <v-btn flat large href="/news/">
-          {% trans "News" %}
-        </v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
-
-  {% block banner %}{% endblock banner %}
-
-  {% block vueapp %}{% endblock vueapp %}
-
-  {% block vuefooter %}{% endblock vuefooter %}
-
- </v-app>
-
-</div>
-
-{% block novueapp %}{% endblock novueapp %}
-
-{% block novuefooter %} {% endblock novuefooter %}
-
-{%  get_current_language as LANGUAGE_CODE %}
+{% get_current_language as language %}
+{% block content %}
+  Here comes the content
+{% endblock content %}
 
 <script>
 window.config = {
   apiurl: '/api',
-  lang: '{{ LANGUAGE_CODE }}'
-}
+  lang: '{{ language }}',
+  oldsite: 'http://www.frbe-kbsb.be',
+  authenticated: {{ request.user.is_authenticated |yesno:"true,false,false" }},
+  toolbar_class: '{% block toolbar_class %}{% endblock toolbar_class %}',
+  content_class: '{% block content_class %}{% endblock content_class %}',
+};
+
+window._t  = {
+  News: '{% trans "News" %}',
+  'About RBCF': '{% trans "About RBCF" %}',
+  Contact: '{% trans "Contact" %}',
+  'The team': '{%  trans "The team" %}',
+};
 </script>
 
 {% render_block "js" %}

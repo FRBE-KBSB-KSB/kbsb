@@ -1,37 +1,38 @@
 import 'babel-polyfill';
 import Vue from 'vue';
 import Vuetify from 'vuetify';
+import VueLayout from './components/VueLayout';
+import VueCmsPatch from './vue-djangocms-patch';
 import './stylus/kbsb.styl';
 
-import AdCarousel from './components/AdCarousel';
+Vue.config.ignoredElements = [
+  'cms-template',
+  'cms-plugin',
+];
 
 Vue.use(Vuetify);
 
-new Vue({
-  el: '#app',
-  data: {
-    drawer: false,
-    lang: window.config.lang,
-  },
+Vue.component('cms-page', {
   components: {
-    "ad-carousel": AdCarousel,
+    'vue-layout': VueLayout
+  },
+  data () {
+    return {
+      showTranslated: '',
+    }
   },
   methods: {
-    gotoUrl (url) {
-      console.log('going to ', url)
-    },
-    clickedMenu (item) {
-      console.log('clicked menu', item)
-    },
-    _ls (dict) {  //
-      if (this.lang in dict) return dict[this.lang];
-      if ('def' in dict) return dict.def;
-      return '***';
-    },
-    _lo (l) {
-      return l == this.lang
+    openTranslation (lang) {
+      this.showTranslated = lang;
     }
 
   },
-
 });
+
+new Vue({
+  el: '#app',
+  created () {
+    new VueCmsPatch(this)
+  },
+});
+

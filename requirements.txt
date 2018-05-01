@@ -2,6 +2,7 @@ aldryn-apphooks-config
 aldryn-boilerplates
 aldryn-categories
 aldryn-common
+aldryn-events
 aldryn-newsblog
 aldryn-people
 aldryn-translation-tools

@@ -24,7 +24,6 @@ export default {
     var secCarousel = Math.floor((new Date()/1000) % (this.interval * this.items.length));
     this.current = Math.floor(secCarousel / this.items.length);
     if (this.current == this.items.length) this.current = 0;
-    console.log('current', this.current)
   }
 }
 </script>

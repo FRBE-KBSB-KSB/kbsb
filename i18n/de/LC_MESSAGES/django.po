@@ -7,39 +7,49 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-19 21:38+0200\n"
-"PO-Revision-Date: 2018-04-19 21:43+0200\n"
+"POT-Creation-Date: 2018-04-21 17:09+0200\n"
+"PO-Revision-Date: 2018-04-21 17:12+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.0.6\n"
 
-#: kbsb/settings.py:17 kbsb/settings.py:118
+#: kbsb/settings.py:17 kbsb/settings.py:121
 msgid "nl"
 msgstr ""
 
-#: kbsb/settings.py:24 kbsb/settings.py:119
+#: kbsb/settings.py:24 kbsb/settings.py:122
 msgid "en"
 msgstr ""
 
-#: kbsb/settings.py:31 kbsb/settings.py:120
+#: kbsb/settings.py:31 kbsb/settings.py:123
 msgid "fr"
 msgstr ""
 
-#: kbsb/settings.py:38 kbsb/settings.py:121
+#: kbsb/settings.py:38 kbsb/settings.py:124
 msgid "de"
 msgstr ""
 
+#: kbsb/templates/aldryn_newsblog/article_list.html:10
 #: kbsb/templates/base.html:54 kbsb/templates/base.html:69
 #: kbsb/templates/base.html:89
 msgid "News"
 msgstr "Nachrichten"
 
-#: kbsb/templates/base.html:81
+#: kbsb/templates/aldryn_newsblog/article_list.html:16
+#: kbsb/templates/aldryn_newsblog/plugins/latest_articles.html:8
+msgid "No items available"
+msgstr "Keine Artikel verfügbar"
+
+#: kbsb/templates/aldryn_newsblog/includes/article_basic.html:10
+msgid "Read more"
+msgstr "Weiter lesen"
+
+#: kbsb/templates/base.html:81 kbsb/templates/landing.html:10
 msgid "RBCF"
 msgstr "KSB"
 
@@ -47,14 +57,14 @@ msgstr "KSB"
 msgid "Royal Belgian Chess Federation"
 msgstr "Königlicher Schachbund Belgien"
 
-#: kbsb/templates/vue.html:23
+#: kbsb/templates/vue.html:14
 msgid "About RBCF"
 msgstr "Über KBS"
 
-#: kbsb/templates/vue.html:26
+#: kbsb/templates/vue.html:17
 msgid "The team"
 msgstr "Das Team"
 
-#: kbsb/templates/vue.html:29
+#: kbsb/templates/vue.html:20
 msgid "Contact"
 msgstr "Kontakt"

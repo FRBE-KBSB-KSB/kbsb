@@ -1,18 +1,59 @@
-{% extends "cms_sidebar.html" %}
-{% load cms_tags i18n %}
+{% extends "base.html" %}
+{% load cms_tags staticfiles menu_tags sekizai_tags i18n %}
+{% load render_bundle from webpack_loader %}
 
-{% block banner %}
-<div class="landing-box">
-  <div class="landing-title hidden-xs-only">
-    {% trans "Royal Belgian Chess Federation" %}
-  </div>
-  <div class="landing-title hidden-sm-and-up">
-    {% trans "RBCF" %}
-  </div>
+{% block title %}{% page_attribute "page_title" %}{% endblock title %}
+
+{% block content %}
+<div id='app'>
+
+<cms-page inline-template>
+  <vue-layout>
+    <div slot="menu">
+      {% show_menu 0 100 100 100 %}
+    </div>
+    <div slot="landing-box" class="landing-box">
+      <div class="landing-title hidden-xs-only">
+        {% trans "Royal Belgian Chess Federation" %}
+      </div>
+      <div class="landing-title hidden-sm-and-up">
+        {% trans "RBCF" %}
+      </div>
+    </div>
+    <v-layout wrap>
+      <v-flex sm8 xs12 class="px-2">
+        {% placeholder "content" %}
+      </v-flex>
+      <v-flex sm4 xs12 class="px-2">
+        {% placeholder "sidebar" %}
+      </v-flex>
+    </v-layout>
+  </vue-layout>
+</cms-page>
+
 </div>
-{% endblock banner %}
 
-{% block toolbar_classes %}navlanding{% endblock toolbar_classes%}
+{% addtoblock "js" %}
 
-{% block content_classes %}contentlanding{% endblock content_classes %}
+<script>
+  var _t = {
+  {%  for key, value in translations.items %}
+    '{{ key}}': '{{ value }}',
+  {% endfor %}
+  };
+</script>
+
+{% if PRODUCTION %}
+  {% render_bundle 'manifest' %}
+  {% render_bundle 'vendor' %}
+{% endif %}
+{% render_bundle 'cms' %}
+{% endaddtoblock %}
+
+{% endblock content %}
+
+{% block toolbar_class %}navlanding{% endblock toolbar_class%}
+
+
+
 

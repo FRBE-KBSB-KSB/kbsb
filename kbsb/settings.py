@@ -4,7 +4,7 @@ gettext = lambda s: s
 
 ALLOWED_HOSTS = ['*']
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+    'django_tablib',
 
     # djangocms
     'cms',
@@ -104,15 +105,21 @@ INSTALLED_APPS = [
     'aldryn_apphooks_config',
     'aldryn_categories',
     'aldryn_common',
+    'aldryn_events',
     'aldryn_newsblog',
     'aldryn_people',
     'aldryn_translation_tools',
+    'appconf',
+    'bootstrap3',
+    'extended_choices',
     'parler',
+    'standard_form',
     'sortedm2m',
     'taggit',
 
     #
     'webpack_loader',
+    'cd_i18n',
     'kbsb'
 ]
 

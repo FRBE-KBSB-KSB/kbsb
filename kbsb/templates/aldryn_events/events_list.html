@@ -1,0 +1,51 @@
+{% extends "cms_sidebar.html" %}
+{% load cms_tags staticfiles sekizai_tags i18n apphooks_config_tags aldryn_events %}
+{% load render_bundle from webpack_loader %}
+
+{% get_current_language as language %}
+
+{% block maincontent %}
+    <h1>{% trans "Calender" %}</h1> 
+      <!--
+      {% regroup page_obj.object_list|default:object_list by start_date as event_list_grouped %}
+      {% for ev_group in event_list_grouped %}
+      <div class="my-2">
+            {% include "aldryn_events/includes/event.html" with is_ongoing_events="true" %}
+        </div>
+      {% empty %}
+        <p>{% trans "No items available" %}</p>
+      {% endfor %}
+      {% include "aldryn_events/includes/pagination.html" %} 
+      -->
+
+    {% if view.config.app_data.config.show_ongoing_first %}
+        {% regroup ongoing_objects by start_date as ongoing_objects_grouped %}
+        {% for event in ongoing_objects_grouped %}
+            <h2>{{ event.start_date|date:"l, j F o" }}</h2>
+            {% include "aldryn_events/includes/event.html" with is_ongoing_events="true" %}
+        {% empty %}
+            <p>{% trans "No items available" %}</p>
+        {% endfor %}
+    {% endif %}
+
+    {# INFO: show upcoming events #}
+    {% regroup page_obj.object_list|default:object_list by start_date as event_list_grouped %}
+    {% for ev_group in event_list_grouped %}
+        <h2>{{ ev_group.grouper|date:"l, j F o" }}</h2>
+        {% for event in ev_group.list %}
+            {% include "aldryn_events/includes/event.html" with is_upcoming_events="true" %}
+        {% endfor %}
+    {% empty %}
+        <p>{% trans "No items available" %}</p>
+    {% endfor %}
+
+    {% include "aldryn_events/includes/pagination.html" %}
+
+{% endblock %}
+
+{% block sidecontent %}
+  AHA
+  {% block calendar %}
+    {% calendar event_year event_month namespace=view.namespace %}
+  {% endblock calendar %}   
+{% endblock sidecontent %}
