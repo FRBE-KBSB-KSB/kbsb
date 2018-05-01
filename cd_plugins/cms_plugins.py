@@ -11,7 +11,7 @@ class CdI18nPlugin(CMSPluginBase):
 
     model = CdTranslationAvailable
     name = _("Available Translations")
-    render_template = "cd_i18n/available_languages.html"
+    render_template = "cd_plugins/available_languages.html"
     cache = False
 
     def render(self, context, instance, placeholder):

@@ -117,9 +117,9 @@ INSTALLED_APPS = [
     'sortedm2m',
     'taggit',
 
-    #
+    # local
     'webpack_loader',
-    'cd_i18n',
+    'cd_plugins',
     'kbsb'
 ]
 
