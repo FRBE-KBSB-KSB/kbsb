@@ -11,3 +11,4 @@ venv/
 /frontend/node_modules/
 /frontend/yarn.lock
 /data/media
+frontend/webpack-stats.json
