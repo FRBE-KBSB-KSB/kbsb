@@ -1,8 +1,19 @@
 <!--
-  vue based layout containing 3 slot definitions:
-  - 'menu' for the cms menu
-  - 'landing-box' for the landing box code
-  - unnamed for the cms content
+
+   Copyright 2017 - 2018 Chessdevil Consulting BVBA
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
 -->
 
 <template>
@@ -52,22 +63,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-toolbar v-cloak fixed dark app :class="toolbar_classes"
-               class="green darken-2" >
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-      <v-toolbar-items>
-        <v-btn flat large href="/" v-text="_t['RBCF']"></v-btn>
-      </v-toolbar-items>
-      <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat large href="/old/interclub">
-          Interclub
-        </v-btn>
-        <v-btn flat large href="/news/">
-          <span  v-text="_t['News']"></span>
-        </v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
+    <slot name="toptoolbar"></slot>
 
     <slot name="landing-box"></slot>
 
@@ -107,7 +103,7 @@
         </v-flex>
       </v-layout>
     </v-footer>
-
+    
   </v-app>
    
 </template>
@@ -119,12 +115,11 @@ import _ from 'lodash';
 
 export default {
 
+  props: ['drawer'],
   data () {
     return {
-      drawer: false,
       lang: window.config.lang,
       authenticated: window.config.authenticated,
-      toolbar_classes: [window.config.toolbar_class],
       _t: {},
     }
   },
@@ -144,13 +139,8 @@ export default {
     _.forEach(window._t, function (v, k) {
       self._t[k] = v;
     });
-    if (window.CMS) {
-      console.log('fixing top for CMS toolbar');
-      this.toolbar_classes.push('fix-toolbar');
-    };
   },
 }
-
 
 </script>
 

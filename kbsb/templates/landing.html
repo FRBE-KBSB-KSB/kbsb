@@ -1,58 +1,36 @@
-{% extends "base.html" %}
+{% extends "cms.html" %}
 {% load cms_tags staticfiles menu_tags sekizai_tags i18n %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}{% page_attribute "page_title" %}{% endblock title %}
-
-{% block content %}
-<div id='app'>
-
-<cms-page inline-template>
-  <vue-layout>
-    <div slot="menu">
-      {% show_menu 0 100 100 100 %}
+{% block landing-box %}
+  <div class="landing-box">
+    <div class="landing-title hidden-xs-only">
+      {% trans "Royal Belgian Chess Federation" %}
     </div>
-    <div slot="landing-box" class="landing-box">
-      <div class="landing-title hidden-xs-only">
-        {% trans "Royal Belgian Chess Federation" %}
-      </div>
-      <div class="landing-title hidden-sm-and-up">
-        {% trans "RBCF" %}
-      </div>
+    <div class="landing-title hidden-sm-and-up">
+      {% trans "RBCF" %}
     </div>
-    <v-layout wrap>
-      <v-flex sm8 xs12 class="px-2">
-        {% placeholder "content" %}
-      </v-flex>
-      <v-flex sm4 xs12 class="px-2">
-        {% placeholder "sidebar" %}
-      </v-flex>
-    </v-layout>
-  </vue-layout>
-</cms-page>
+  </div>
+{% endblock landing-box %}
 
-</div>
+{% block placeholder-content %}
+  <v-layout wrap>
+    <v-flex sm8 xs12 class="px-2">
+      {% placeholder "content" %}
+    </v-flex>
+    <v-flex sm4 xs12 class="px-2">
+      {% placeholder "sidebar" %}
+    </v-flex>
+  </v-layout>
+{% endblock placeholder-content %}
 
-{% addtoblock "js" %}
+{% block toptoolbar %}
+  <v-toolbar v-cloak fixed dark app class="green darken-2 navlanding"
+             :class="{fixtoolbar: fixtoolbar}">
+    {% block toptoolbar_content %}{{ block.super }}{% endblock toptoolbar_content %}
+  </v-toolbar>
+{% endblock toptoolbar %}
 
-<script>
-  var _t = {
-  {%  for key, value in translations.items %}
-    '{{ key}}': '{{ value }}',
-  {% endfor %}
-  };
-</script>
-
-{% if PRODUCTION %}
-  {% render_bundle 'manifest' %}
-  {% render_bundle 'vendor' %}
-{% endif %}
-{% render_bundle 'cms' %}
-{% endaddtoblock %}
-
-{% endblock content %}
-
-{% block toolbar_class %}navlanding{% endblock toolbar_class%}
 
 
 

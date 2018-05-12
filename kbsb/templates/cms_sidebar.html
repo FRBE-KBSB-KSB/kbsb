@@ -1,67 +1,15 @@
-{% extends "base.html" %}
+{% extends "cms.html" %}
 {% load cms_tags staticfiles menu_tags sekizai_tags i18n %}
 {% load render_bundle from webpack_loader %}
 
-{% block title %}{% page_attribute "page_title" %}{% endblock title %}
-
-{% block content %}
-
-<div id='app'>
-
-<cms-page inline-template>
-  <vue-layout>
-    <div slot="menu">
-      {% show_menu 0 100 100 100 %}
-    </div>
-    <div slot="language-selector">
-        <v-btn flat small href="{% page_language_url 'nl' %}">NL</v-btn>
-        <v-btn flat small href="{% page_language_url 'fr' %}">FR</v-btn>
-        <v-btn flat small href="{% page_language_url 'de' %}">DE</v-btn>
-        <v-btn flat small href="{% page_language_url 'en' %}">EN</v-btn>
-    </div>
-    <h1>{% page_attribute "page_title" %}</h1>
-    <v-layout wrap>
-      <v-flex sm8 xs12 class="px-2">
-        {% placeholder "content" %}
-        {% with ls='nl fr de en' %}
-          {% for l in ls.split %}
-            <v-card v-show="showTranslated == '{{ l }}'">
-              <v-card-text>
-                <div slot="translated-page">
-                  {% with targetlang=l %}
-                    {% show_placeholder "content" request.current_page.id l %}
-                  {% endwith %}
-                </div>
-              </v-card-text>
-            </v-card>
-          {%  endfor %}
-        {% endwith %}
-      </v-flex>
-      <v-flex sm4 xs12 class="px-2">
-        {% placeholder "sidebar" %}
-      </v-flex>
-    </v-layout>
-  </vue-layout>
-</cms-page>
-
-</div>
-
-{% addtoblock "js" %}
-
-<script>
-
-{%  for key, value in translations.items %}
-window._t['{{ key}}'] = '{{ value }}';
-{% endfor %}
-
-</script>
-
-{% if PRODUCTION %}
-  {% render_bundle 'manifest' %}
-  {% render_bundle 'vendor' %}
-{% endif %}
-{% render_bundle 'cms' %}
-{% endaddtoblock %}
-
-{% endblock content %}
+{% block placeholder-content %}
+  <v-layout wrap>
+    <v-flex sm8 xs12 class="px-2">
+      {% placeholder "content" %}
+    </v-flex>
+    <v-flex sm4 xs12 class="px-2">
+      {% placeholder "sidebar" %}
+    </v-flex>
+  </v-layout>
+{% endblock placeholder-content %}
 

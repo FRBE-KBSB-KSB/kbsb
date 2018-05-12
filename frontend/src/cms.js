@@ -18,15 +18,22 @@ Vue.component('cms-page', {
   },
   data () {
     return {
+      drawer: false,
       showTranslated: '',
+      fixtoolbar: false,
     }
   },
   methods: {
     openTranslation (lang) {
       this.showTranslated = lang;
     }
-
   },
+  mounted () {
+    if (window.CMS) {
+      console.log('fixing top for CMS toolbar');
+      this.fixtoolbar = true;
+    };
+  }
 });
 
 new Vue({

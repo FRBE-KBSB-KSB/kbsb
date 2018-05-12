@@ -46,3 +46,4 @@ python-slugify
 pytz
 six
 Unidecode
+https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.1.tar.gz

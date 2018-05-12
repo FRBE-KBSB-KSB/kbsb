@@ -3,7 +3,7 @@
 <!doctype html>
 <html>
 <head>
-<title>{% block title %}Belgian Youth Championships{% endblock title %}</title>
+<title>{% block title %}Talistro{% endblock title %}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116219765-1"></script>
 <script>
@@ -32,8 +32,6 @@ window.config = {
   lang: '{{ language }}',
   oldsite: 'http://www.frbe-kbsb.be',
   authenticated: {{ request.user.is_authenticated |yesno:"true,false,false" }},
-  toolbar_class: '{% block toolbar_class %}{% endblock toolbar_class %}',
-  content_class: '{% block content_class %}{% endblock content_class %}',
 };
 
 window._t  = {

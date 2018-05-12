@@ -1,6 +1,20 @@
+#    Copyright 2018 Ruben Decrop
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 import os
 
-gettext = lambda s: s
+_ = lambda s: s
 
 ALLOWED_HOSTS = ['*']
 
@@ -14,47 +28,52 @@ CMS_LANGUAGES = {
             'code': 'nl',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': gettext('nl'),
+            'name': _('nl'),
             'public': True,
         },
         {
             'code': 'en',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': gettext('en'),
+            'name': _('en'),
             'public': True,
         },
         {
             'code': 'fr',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': gettext('fr'),
+            'name': _('fr'),
             'public': True,
         },
         {
             'code': 'de',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': gettext('de'),
+            'name': _('de'),
             'public': True,
         }
 
     ],
     'default': {
+        'redirect_on_fallback': True,
         'hide_untranslated': False,
         'public': True,
-        'redirect_on_fallback': True,
     },
 }
 
 CMS_PERMISSION = True
 
-CMS_PLACEHOLDER_CONF = {}
+CMS_PLACEHOLDER_CONF = {
+    'content': {
+        'language_fallback': False,
+    },
+}
 
 CMS_TEMPLATES = (
-    ('landing.html', 'Landing'),
-    ('cms_sidebar.html', 'CMS with sidebar'),
-    ('page.html', 'Page'),
+    ('cms.html', _('CMS page')),
+    ('cms_sidebar.html', _('CMS with sidebar')),
+    ('landing.html', _('CMS landing page')),
+    ('page.html', _('Page')),
 )
 
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -119,16 +138,16 @@ INSTALLED_APPS = [
 
     # local
     'webpack_loader',
-    'cd_plugins',
+    'rd_django',
     'kbsb'
 ]
 
 LANGUAGE_CODE = 'nl'
 LANGUAGES = (
-    ('nl', gettext('nl')),
-    ('en', gettext('en')),
-    ('fr', gettext('fr')),
-    ('de', gettext('de'))
+    ('nl', _('nl')),
+    ('en', _('en')),
+    ('fr', _('fr')),
+    ('de', _('de'))
 )
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, 'i18n'),)
