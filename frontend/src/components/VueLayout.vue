@@ -68,10 +68,8 @@
     <slot name="landing-box"></slot>
 
     <v-content>
-      <v-container>
-        <slot></slot>
-        <slot name="translated"></slot>
-      </v-container>
+      <slot></slot>
+      <slot name="translated"></slot>
     </v-content>
 
     <v-footer height="auto" >
