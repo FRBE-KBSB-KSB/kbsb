@@ -31,10 +31,10 @@ export default {
       current: 0,
       interval: 5, // number of seconds before switching
       items: [
-        {src:'/static/img/frame_talistro.png', name: 'talistro' },
-        {src:'/static/img/frame_chessconsult.png', name: 'chessconsult' },
-        {src:'/static/img/frame_matetmots.png', name: 'matetmots' },
-        {src:'/static/img/frame_marchand.png', name: 'marchand' },
+        {src: config.static_url + 'img/frame_talistro.png', name: 'talistro' },
+        {src: config.static_url + 'img/frame_chessconsult.png', name: 'chessconsult' },
+        {src: config.static_url + 'img/frame_matetmots.png', name: 'matetmots' },
+        {src: config.static_url + 'img/frame_marchand.png', name: 'marchand' },
       ]
     }
   },

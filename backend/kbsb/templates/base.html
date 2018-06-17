@@ -32,6 +32,7 @@ window.config = {
   lang: '{{ language }}',
   oldsite: 'http://www.frbe-kbsb.be',
   authenticated: {{ request.user.is_authenticated |yesno:"true,false,false" }},
+  static_url: "{{ STATIC_URL }}",
 };
 
 window._t  = {
@@ -40,6 +41,7 @@ window._t  = {
   Contact: '{% trans "Contact" %}',
   'The team': '{%  trans "The team" %}',
 };
+
 </script>
 
 {% render_block "js" %}

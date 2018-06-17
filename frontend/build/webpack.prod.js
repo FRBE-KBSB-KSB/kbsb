@@ -8,7 +8,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
-const root = path.resolve(__dirname, '../../static');
+const root = path.resolve(__dirname, '../../data/static');
 const staticpath = 'static';
 
 const prodWebpackConfig = {
@@ -147,7 +147,10 @@ const prodWebpackConfig = {
     ]),
     new ExtractTextPlugin("css/bycco.css"),
     new BundleTracker(
-      {filename: './webpack-stats.json'}
+      {
+        filename: '../production/loader/webpack-stats.json',
+        publicPath: 'http://localhost:8002/static/'
+      }
     ),
   ]
 };

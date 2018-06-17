@@ -12,15 +12,25 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import os
+import logging
+log = logging.getLogger(__name__)
 
+import os
 _ = lambda s: s
+
+# 2 base variable reused lowe in the settings
+# base_dir is the root directoy of the project
+# stage is one of dev, staging, production
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+STAGE = os.environ.get('KBSB_ENV')
+print('running kbsb in stage {0} with base_dir: {1}'.format(STAGE, BASE_DIR))
 
 ALLOWED_HOSTS = ['*']
 
 APPEND_SLASH = True
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 CMS_LANGUAGES = {
     1: [
@@ -78,7 +88,7 @@ CMS_TEMPLATES = (
 
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = False
+DEBUG = (STAGE == 'dev')
 
 DJANGOCMS_STYLE_CHOICES = ['logo-wrapper']
 
@@ -152,7 +162,33 @@ LANGUAGES = (
 
 LOCALE_PATHS = (os.path.join(BASE_DIR, 'i18n'),)
 
-MEDIA_ROOT = os.path.join(DATA_DIR, 'media')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'kbsb': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'rd_django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        }
+    }
+}
+
+MEDIA_ROOT = os.path.join(ROOT_DIR, 'deployment', 'data', 'media')
 MEDIA_URL = '/media/'
 
 MIDDLEWARE_CLASSES = [
@@ -182,7 +218,7 @@ PARLER_LANGUAGES = {
         {'code': 'de',},
     ),
     'default': {
-        'fallbacks': ['nl', 'fr', 'de'],
+        'fallbacks': ['nl', 'fr', 'de', 'en'],
     }
 }
 
@@ -192,10 +228,8 @@ SECRET_KEY = 'Ewelmerci,zukkedikkewosten'
 
 SITE_ID = 1
 
+STATIC_ROOT = os.path.join(ROOT_DIR, 'deployment', 'data',  'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'kbsb', 'static'),
-)
 
 TEMPLATES = [
     {
@@ -215,6 +249,7 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai',
                 'django.template.context_processors.static',
                 'cms.context_processors.cms_settings',
+                'rd_django.context_processor.stage',
             ],
             # 'loaders': [
             #     'django.template.loaders.filesystem.Loader',
@@ -239,17 +274,10 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'static/',
-        'STATS_FILE': os.path.join(BASE_DIR, 'frontend', 'webpack-stats.json')
-    }
-}
-
 WSGI_APPLICATION = 'kbsb.wsgi.application'
 
 try:
     from local_settings import *
 except ImportError:
-    print('No local settings found')
+    log.info('No local settings found')
     pass

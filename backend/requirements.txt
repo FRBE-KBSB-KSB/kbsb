@@ -16,7 +16,6 @@ django-classy-tags
 django-cms
 django-filer
 django-formtools
-django-mptt
 django-parler
 django-phonenumber-field
 django-polymorphic
@@ -24,6 +23,7 @@ django-reversion
 django-sekizai
 django-select2
 django-sortedm2m
+django-storages
 django-taggit
 django-taggit-autosuggest
 django-treebeard
@@ -35,15 +35,16 @@ djangocms-inherit
 djangocms-link
 djangocms-style
 djangocms-text-ckeditor
+django_webpack_loader
 easy-thumbnails==2.5
 html5lib==0.9999999
+gunicorn
 lxml
 phonenumbers
 Pillow
-psycopg2
+psycopg2-binary
 python-dateutil
 python-slugify
 pytz
 six
-Unidecode
-https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.1.tar.gz
+https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.3.tar.gz

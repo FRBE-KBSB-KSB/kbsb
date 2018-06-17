@@ -1,14 +1,15 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-venv/
 *.mo
 *.pot
 *.log
 .idea
 .vscode
-/local_settings.py
+/backend/venv/
+/backend/local_settings.py
 /frontend/node_modules/
 /frontend/yarn.lock
-/data/media
-frontend/webpack-stats.json
+/frontend/webpack-stats.json
+/kbsb.code-workspace
+/deployment/local/local_settings.py
+/deployment/local/kbsb/
