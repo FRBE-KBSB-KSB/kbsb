@@ -8,7 +8,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
-const root = path.resolve(__dirname, '../data');
+const root = path.resolve(__dirname, '../../data');
 const staticpath = 'static';
 
 const prodWebpackConfig = {
