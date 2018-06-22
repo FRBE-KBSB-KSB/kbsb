@@ -3,6 +3,7 @@ __pycache__/
 *.mo
 *.pot
 *.log
+*.retry
 .idea
 .vscode
 /backend/venv/
@@ -13,3 +14,4 @@ __pycache__/
 /kbsb.code-workspace
 /deployment/local/local_settings.py
 /deployment/local/kbsb/
+/deployment/build/venv_ansible

@@ -8,7 +8,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
-const root = path.resolve(__dirname, '../../data/static');
+const root = path.resolve(__dirname, '../data');
 const staticpath = 'static';
 
 const prodWebpackConfig = {
@@ -16,7 +16,7 @@ const prodWebpackConfig = {
     cms: './src/cms.js',
   },
   output: {
-    path: root,
+    path: path.resolve(root, './static'),
     filename: '[name]-[hash].js',
     publicPath: '/static/'
   },
@@ -139,17 +139,11 @@ const prodWebpackConfig = {
     new webpack.DefinePlugin({
       'process.env': {NODE_ENV: '"production"'}
     }),
-    new CopyWebpackPlugin([
-      {
-        from: './static',
-        to: root
-      },
-    ]),
     new ExtractTextPlugin("css/bycco.css"),
     new BundleTracker(
       {
-        filename: '../production/loader/webpack-stats.json',
-        publicPath: 'http://localhost:8002/static/'
+        filename: root + '/loader/webpack-stats.json',
+        publicPath: '{{base_url}}/static/'
       }
     ),
   ]
@@ -171,7 +165,7 @@ rm(path.resolve(root,staticpath ), err => {
       console.log('  Build failed with errors.\n');
       process.exit(1)
     }
-    console.log('  Build complete. + new Date()');
+    console.log('  Build completed on ' + new Date());
 
   })
 });

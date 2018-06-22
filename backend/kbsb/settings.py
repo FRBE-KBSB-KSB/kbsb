@@ -188,7 +188,7 @@ LOGGING = {
     }
 }
 
-MEDIA_ROOT = os.path.join(ROOT_DIR, 'deployment', 'data', 'media')
+MEDIA_ROOT = os.path.join(ROOT_DIR, 'backend', 'kbsb', 'media')
 MEDIA_URL = '/media/'
 
 MIDDLEWARE_CLASSES = [
