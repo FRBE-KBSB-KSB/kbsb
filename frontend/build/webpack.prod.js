@@ -142,7 +142,7 @@ const prodWebpackConfig = {
     new ExtractTextPlugin("css/bycco.css"),
     new BundleTracker(
       {
-        filename: root + '/loader/webpack-stats.json',
+        filename: path.resolve(root,'/data/loader/webpack-stats.json'),
         publicPath: '{{base_url}}/static/'
       }
     ),
