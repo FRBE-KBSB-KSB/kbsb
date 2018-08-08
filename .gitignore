@@ -15,3 +15,4 @@ __pycache__/
 /deployment/local/local_settings.py
 /deployment/local/kbsb/
 /deployment/build/venv_ansible
+/data/media/
