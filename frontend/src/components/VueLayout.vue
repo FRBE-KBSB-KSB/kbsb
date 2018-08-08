@@ -31,17 +31,14 @@
         </v-list>
       </v-toolbar>
       <v-divider></v-divider>
-      <div class="btn-language green darken-1">
-        <slot name="language-selector"></slot>
+      <div class="green darken-1">
+        <v-btn flat :href="urlI18n('nl')" class="btn-language">NL</v-btn>
+        <v-btn flat :href="urlI18n('fr')" class="btn-language">FR</v-btn>
+        <v-btn flat :href="urlI18n('de')" class="btn-language">DE</v-btn>
+        <v-btn flat :href="urlI18n('en')" class="btn-language">EN</v-btn>
       </div>
       <v-list dark dense class="green darken-1">
         <slot name="menu"></slot>
-        <v-list-tile  href="/old/interclub.php">
-          <v-list-tile-content>
-            <v-list-tile-title>Interclub
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>          
         <v-list-tile  href="/news/">
           <v-list-tile-content>
             <v-list-tile-title  v-text="_t['News']"></v-list-tile-title>
@@ -63,14 +60,29 @@
       </v-list>
     </v-navigation-drawer>
 
-    <slot name="toptoolbar"></slot>
+    <v-toolbar v-cloak fixed dark app class="green darken-2"
+               :class="{fixtoolbar: fixtoolbar}">
+      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <v-toolbar-items>
+        <v-btn flat large href="/">{{ _t['RBCF'] }}</v-btn>
+      </v-toolbar-items>
+      <v-spacer></v-spacer>
+      <v-toolbar-items class="hidden-sm-and-down">
+        <v-btn flat large :href="oldInterclub()">
+          Interclub
+        </v-btn>
+        <v-btn flat large href="/news/">
+          <span  v-text="_t['News']"></span>
+        </v-btn>
+      </v-toolbar-items>
+    </v-toolbar>
+
 
     <slot name="landing-box"></slot>
 
-    <v-content>
-      <slot></slot>
-      <slot name="translated"></slot>
-    </v-content>
+    <slot></slot>
+
+    <slot v-cloak name="translated"></slot>
 
     <v-footer height="auto" >
       <v-layout column>
@@ -81,10 +93,10 @@
           <v-container fluid class="green darken-1">
             <v-layout row wrap class="py-2 footer green darken-1  white--text">
               <v-flex md3 sm6 xs12 class="pl-2">
-                <a href="/bycco/us" v-text="_t['About RBCF']"></a>
+                <a href="/about">{{ _t['About RBCF'] }}</a>
               </v-flex>
               <v-flex md3 sm6 xs12 class="pl-2">
-                <a href="/bycco/team" v-text="_t['The team']"></a>
+                <a href="/team">{{ _t['The team'] }}</a>
               </v-flex>
               <v-flex md3 sm6 xs12 class="pl-2">
                 <span v-text="_t['Contact']"></span>
@@ -113,11 +125,12 @@ import _ from 'lodash';
 
 export default {
 
-  props: ['drawer'],
   data () {
     return {
       lang: window.config.lang,
+      drawer: false,
       authenticated: window.config.authenticated,
+      fixtoolbar: false,
       _t: {},
     }
   },
@@ -131,12 +144,22 @@ export default {
     clickedMenu (item) {
         console.log('clicked menu', item)
     },
+    oldInterclub () {
+      return window.config.oldsite + '/index.php/interclubs/2018-2019'
+    },
+    urlI18n (lang) {
+      return window.config.urli18[lang];
+    }
   },
   mounted() {
     var self = this;
     _.forEach(window._t, function (v, k) {
       self._t[k] = v;
     });
+    if (window.CMS) {
+      console.log('fixing top for CMS toolbar');
+      this.fixtoolbar = true;
+    };
   },
 }
 

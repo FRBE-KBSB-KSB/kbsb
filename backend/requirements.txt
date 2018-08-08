@@ -9,7 +9,7 @@ aldryn-translation-tools
 Babel
 backport-collections
 cmsplugin-filer
-Django<2
+Django>1.11,<2
 django-appconf
 django-appdata
 django-classy-tags
@@ -46,5 +46,6 @@ psycopg2-binary
 python-dateutil
 python-slugify
 pytz
+simplejson
 six
 https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.3.tar.gz

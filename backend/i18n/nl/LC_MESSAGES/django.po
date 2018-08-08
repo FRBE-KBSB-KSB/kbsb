@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-21 17:09+0200\n"
-"PO-Revision-Date: 2018-04-21 17:11+0200\n"
+"POT-Creation-Date: 2018-08-05 10:20+0200\n"
+"PO-Revision-Date: 2018-08-05 10:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,30 +16,68 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.1.1\n"
 
-#: kbsb/settings.py:17 kbsb/settings.py:121
-msgid "nl"
-msgstr ""
-
-#: kbsb/settings.py:24 kbsb/settings.py:122
-msgid "en"
-msgstr ""
-
-#: kbsb/settings.py:31 kbsb/settings.py:123
-msgid "fr"
-msgstr ""
-
-#: kbsb/settings.py:38 kbsb/settings.py:124
-msgid "de"
-msgstr ""
-
+#: kbsb/context_processor.py:20
 #: kbsb/templates/aldryn_newsblog/article_list.html:10
-#: kbsb/templates/base.html:54 kbsb/templates/base.html:69
-#: kbsb/templates/base.html:89
 msgid "News"
 msgstr "Nieuws"
 
+#: kbsb/context_processor.py:21
+msgid "About RBCF"
+msgstr "Over KBSB"
+
+#: kbsb/context_processor.py:22
+msgid "Contact"
+msgstr "Contact"
+
+#: kbsb/context_processor.py:23
+msgid "The team"
+msgstr "Het team"
+
+#: kbsb/settings.py:48 kbsb/settings.py:164
+msgid "nl"
+msgstr ""
+
+#: kbsb/settings.py:55 kbsb/settings.py:165
+msgid "en"
+msgstr ""
+
+#: kbsb/settings.py:62 kbsb/settings.py:166
+msgid "fr"
+msgstr ""
+
+#: kbsb/settings.py:69 kbsb/settings.py:167
+msgid "de"
+msgstr ""
+
+#: kbsb/templates/aldryn_events/events_detail.html:14
+msgid "Previous Event"
+msgstr "Vorig event"
+
+#: kbsb/templates/aldryn_events/events_detail.html:16
+msgid "Back to Overview"
+msgstr "Terug naar overzicht"
+
+#: kbsb/templates/aldryn_events/events_detail.html:18
+msgid "Next Event"
+msgstr "Volgend event"
+
+#: kbsb/templates/aldryn_events/events_detail.html:24
+msgid "Register for this event"
+msgstr "Registreer voor dir event"
+
+#: kbsb/templates/aldryn_events/events_detail.html:29
+msgid "More information"
+msgstr "Lees verder"
+
+#: kbsb/templates/aldryn_events/events_list.html:8
+msgid "Calender"
+msgstr "Kalender"
+
+#: kbsb/templates/aldryn_events/events_list.html:16
+#: kbsb/templates/aldryn_events/events_list.html:27
+#: kbsb/templates/aldryn_events/events_list.html:39
 #: kbsb/templates/aldryn_newsblog/article_list.html:16
 #: kbsb/templates/aldryn_newsblog/plugins/latest_articles.html:8
 msgid "No items available"
@@ -49,22 +87,10 @@ msgstr "Geen items beschikbaar"
 msgid "Read more"
 msgstr "Lees meer"
 
-#: kbsb/templates/base.html:81 kbsb/templates/landing.html:10
-msgid "RBCF"
-msgstr "KBSB"
-
-#: kbsb/templates/landing.html:7
+#: kbsb/templates/cms_landing.html:9
 msgid "Royal Belgian Chess Federation"
 msgstr "Koninklijke Belgische Schaakbond"
 
-#: kbsb/templates/vue.html:14
-msgid "About RBCF"
-msgstr "Over KBSB"
-
-#: kbsb/templates/vue.html:17
-msgid "The team"
-msgstr "Het team"
-
-#: kbsb/templates/vue.html:20
-msgid "Contact"
-msgstr ""
+#: kbsb/templates/cms_landing.html:12
+msgid "RBCF"
+msgstr "KBSB"

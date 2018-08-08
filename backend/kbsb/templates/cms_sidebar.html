@@ -1,15 +1,20 @@
-{% extends "cms.html" %}
+{% extends "cms_base.html" %}
 {% load cms_tags staticfiles menu_tags sekizai_tags i18n %}
 {% load render_bundle from webpack_loader %}
 
-{% block placeholder-content %}
-  <v-layout wrap>
-    <v-flex sm8 xs12 class="px-2">
+{% block cms_custom %}
+
+  <v-layout wrap class="font-chessdevil">
+    <v-flex sm12 xs12 class="px-2">
       {% placeholder "content" %}
     </v-flex>
     <v-flex sm4 xs12 class="px-2">
       {% placeholder "sidebar" %}
     </v-flex>
   </v-layout>
-{% endblock placeholder-content %}
 
+  <div slot="footer">
+    {% placeholder "footer" %}
+  </div>
+
+{% endblock cms_custom %}

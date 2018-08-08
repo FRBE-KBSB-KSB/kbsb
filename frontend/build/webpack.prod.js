@@ -9,7 +9,6 @@ const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
 const root = path.resolve(__dirname, '../../data');
-
 const staticpath = 'static';
 
 const prodWebpackConfig = {
@@ -143,7 +142,7 @@ const prodWebpackConfig = {
     new ExtractTextPlugin("css/bycco.css"),
     new BundleTracker(
       {
-        filename: '../data/loader/webpack-stats.json',
+        filename: '../data/loader/webpack-stats.json.j2',
         publicPath: '{{base_url}}/static/'
       }
     ),

@@ -12,23 +12,30 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import logging
-log = logging.getLogger(__name__)
-
-import os
+import os, sys
 _ = lambda s: s
 
 # 2 base variable reused lowe in the settings
 # base_dir is the root directoy of the project
 # stage is one of dev, staging, production
 
-
+# base_dir is the backend directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# root_dir is the project directory containing backend, frontend, ...
 ROOT_DIR = os.path.dirname(BASE_DIR)
+# stage is the environment in which the app runs: dev, local, staging, prod
 STAGE = os.environ.get('KBSB_ENV')
-print('running kbsb in stage {0} with base_dir: {1}'.format(STAGE, BASE_DIR))
+
+if STAGE:
+    print('running stage', STAGE)
+else:
+    print('missing environment variable KBSB_ENV')
+    sys.exit(1)
+
 
 ALLOWED_HOSTS = ['*']
+
+API_URL = '/api'
 
 APPEND_SLASH = True
 
@@ -80,10 +87,10 @@ CMS_PLACEHOLDER_CONF = {
 }
 
 CMS_TEMPLATES = (
-    ('cms.html', _('CMS page')),
-    ('cms_sidebar.html', _('CMS with sidebar')),
-    ('landing.html', _('CMS landing page')),
-    ('page.html', _('Page')),
+    ('cms_base.html', 'base CMS page'),
+    ('cms_sidebar.html', 'CMS page with sidebar'),
+    ('cms_landing.html', 'CMS Landing page'),
+    ('page.html', 'page'),
 )
 
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -149,7 +156,7 @@ INSTALLED_APPS = [
     # local
     'webpack_loader',
     'rd_django',
-    'kbsb'
+    'kbsb',
 ]
 
 LANGUAGE_CODE = 'nl'
@@ -188,7 +195,7 @@ LOGGING = {
     }
 }
 
-MEDIA_ROOT = os.path.join(ROOT_DIR, 'backend', 'kbsb', 'media')
+MEDIA_ROOT = os.path.join(ROOT_DIR, 'data', 'media')
 MEDIA_URL = '/media/'
 
 MIDDLEWARE_CLASSES = [
@@ -210,32 +217,25 @@ MIGRATION_MODULES = {
 
 }
 
-PARLER_LANGUAGES = {
-    1: (
-        {'code': 'nl',},
-        {'code': 'en',},
-        {'code': 'fr',},
-        {'code': 'de',},
-    ),
-    'default': {
-        'fallbacks': ['nl', 'fr', 'de', 'en'],
-    }
-}
+OLDSITE =  'https://www.frbe-kbsb.be'
 
 ROOT_URLCONF = 'kbsb.urls'
 
-SECRET_KEY = 'Ewelmerci,zukkedikkewosten'
+SECRET_KEY = 'You know, just a little bit of pressure'
 
 SITE_ID = 1
 
-STATIC_ROOT = os.path.join(ROOT_DIR, 'deployment', 'data',  'static')
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(ROOT_DIR, 'frontend', 'static'),
+)
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'kbsb', 'templates'),],
-        'APP_DIRS': True,
+        'DIRS': [
+            os.path.join(BASE_DIR, 'kbsb', 'templates'),
+        ],
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -249,13 +249,13 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai',
                 'django.template.context_processors.static',
                 'cms.context_processors.cms_settings',
-                'rd_django.context_processor.stage',
+                'kbsb.context_processor.local',
             ],
-            # 'loaders': [
-            #     'django.template.loaders.filesystem.Loader',
-            #     'django.template.loaders.app_directories.Loader',
-            #     'django.template.loaders.eggs.Loader'
-            # ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                'django.template.loaders.eggs.Loader'
+            ],
         },
     },
 ]
@@ -274,10 +274,17 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'static/',
+        'STATS_FILE': os.path.join(ROOT_DIR, 'frontend', 'webpack-stats.json')
+    }
+}
+
 WSGI_APPLICATION = 'kbsb.wsgi.application'
 
 try:
     from local_settings import *
 except ImportError:
-    log.info('No local settings found')
+    print('No local settings found')
     pass

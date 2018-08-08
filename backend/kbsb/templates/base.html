@@ -3,48 +3,20 @@
 <!doctype html>
 <html>
 <head>
-<title>{% block title %}Talistro{% endblock title %}</title>
+<title>{% block title %}FRBE - KBSB - KSB{% endblock title %}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-116219765-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-116219765-1');
-</script>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
-  {% render_block "css" %}
+{% render_block "css" %}
 </head>
 <body>
 <style>[v-cloak] > * { display:none }</style>
-
 {% cms_toolbar %}
-
-{% get_current_language as language %}
-{% block content %}
-  Here comes the content
-{% endblock content %}
-
+{% block content %} Here comes the content{% endblock content %}
 <script>
-window.config = {
-  apiurl: '/api',
-  lang: '{{ language }}',
-  oldsite: 'http://www.frbe-kbsb.be',
-  authenticated: {{ request.user.is_authenticated |yesno:"true,false,false" }},
-  static_url: "{{ STATIC_URL }}",
-};
-
-window._t  = {
-  News: '{% trans "News" %}',
-  'About RBCF': '{% trans "About RBCF" %}',
-  Contact: '{% trans "Contact" %}',
-  'The team': '{%  trans "The team" %}',
-};
-
+window.config = {{ serverconfig | safe }};
+window._t  = {{ servertranslations  | safe}};
 </script>
-
 {% render_block "js" %}
-
 </body>
 </html>

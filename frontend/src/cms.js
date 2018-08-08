@@ -29,10 +29,7 @@ Vue.component('cms-page', {
     }
   },
   mounted () {
-    if (window.CMS) {
-      console.log('fixing top for CMS toolbar');
-      this.fixtoolbar = true;
-    };
+
   }
 });
 
