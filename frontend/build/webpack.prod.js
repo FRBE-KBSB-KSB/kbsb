@@ -20,7 +20,7 @@ const prodWebpackConfig = {
     cms: './src/cms.js',
   },
   output: {
-    path: path.resolve(root, './static'),
+    path: root,
     filename: '[name]-[hash].js',
     publicPath: '/static/'
   },
