@@ -8,7 +8,11 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const BundleTracker = require('webpack-bundle-tracker');
 const webpack = require('webpack');
-const root = path.resolve(__dirname, '../../data');
+
+// config paramaters:
+// root: where the static files are written
+const root = path.resolve(__dirname, '../../data/static');
+// staticpath: prefix of the url of static files
 const staticpath = 'static';
 
 const prodWebpackConfig = {
@@ -139,11 +143,17 @@ const prodWebpackConfig = {
     new webpack.DefinePlugin({
       'process.env': {NODE_ENV: '"production"'}
     }),
-    new ExtractTextPlugin("css/bycco.css"),
+    new CopyWebpackPlugin([
+      {
+        from: './static',
+        to: root
+      },
+    ]),
+    new ExtractTextPlugin("css/kbsb.css"),
     new BundleTracker(
       {
         filename: '../data/loader/webpack-stats.json.j2',
-        publicPath: '{{base_url}}/static/'
+        publicPath: '{{base_url}}'
       }
     ),
   ]
