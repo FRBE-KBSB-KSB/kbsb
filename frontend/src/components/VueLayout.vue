@@ -39,23 +39,12 @@
       </div>
       <v-list dark dense class="green darken-1">
         <slot name="menu"></slot>
-        <v-list-tile  href="/news/">
-          <v-list-tile-content>
-            <v-list-tile-title  v-text="_t['News']"></v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
       </v-list>
       <v-list dark dense class="green darken-1" v-if="authenticated">
         <v-list-group>
-        <v-list-tile slot="activator" @click="">
-            <v-list-tile-content>Admin</v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile href="/mgmt/">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-            <v-list-tile-title v-text="_t['News']"></v-list-tile-title>
-            </v-list-tile-content>
-        </v-list-tile>
+          <v-list-tile slot="activator" @click="">
+              <v-list-tile-content>Admin</v-list-tile-content>
+          </v-list-tile>
         </v-list-group>
       </v-list>
     </v-navigation-drawer>

@@ -18,6 +18,7 @@
     {% endif %}
     {% render_model article "lead_in" %}
     <div class="article_date">{{ article.publishing_date|date }}</div>
+    <v-divider class="my-2"></v-divider>
     {% render_placeholder article.content language placeholder_language %}
   </v-card-text>
 
