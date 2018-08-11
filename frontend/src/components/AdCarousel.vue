@@ -35,6 +35,7 @@ export default {
         {src: config.static_url + 'img/frame_chessconsult.png', name: 'chessconsult' },
         {src: config.static_url + 'img/frame_matetmots.png', name: 'matetmots' },
         {src: config.static_url + 'img/frame_marchand.png', name: 'marchand' },
+        {src: config.static_url + 'img/frame_chessdevil.png', name: 'chessdevil' },
       ]
     }
   },
