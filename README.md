@@ -25,20 +25,20 @@ Setting up backend (python)
 --------------------------
 
  * create in Postgres a user and the kbsb database for that user
- * modify database parameters in the backend/local_settings file to match the created user 
+ * modify database parameters in the backend/local_settings.py file to match the created user 
  and password.
  * go to the backend directory
- * set the varibale:  ```KBSB_ENV=dev``` 
+ * set the variable:  ```KBSB_ENV=dev``` 
  * run: ```python manage.py makemigrations```
  * run: ```python manage.py migrate```
  * run: ```python manage.py createsuperuser```
 
 Setting up frontend (javascript)
 --------------------------------
- * got to the frontend directory
+ * go to the frontend directory
  * run: ```yarn``` 
 
-Running the qpp
+Running the app
 ---------------
 
  * in the frontend duirectory run: ```yarn run dev``` .  This will open a browser window with an error message but this 
