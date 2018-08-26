@@ -6,13 +6,8 @@ __pycache__/
 *.retry
 .idea
 .vscode
-/backend/venv/
+/venv
 /backend/local_settings.py
 /frontend/node_modules/
 /frontend/yarn.lock
 /frontend/webpack-stats.json
-/kbsb.code-workspace
-/deployment/local/local_settings.py
-/deployment/local/kbsb/
-/deployment/build/venv_ansible
-/data/media/
