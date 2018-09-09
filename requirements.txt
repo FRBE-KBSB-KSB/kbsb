@@ -36,6 +36,7 @@ djangocms-link
 djangocms-style
 djangocms-text-ckeditor
 django_webpack_loader
+djangorestframework
 easy-thumbnails==2.5
 html5lib==0.9999999
 gunicorn
@@ -46,6 +47,7 @@ psycopg2-binary
 python-dateutil
 python-slugify
 pytz
+requests
 simplejson
 six
-https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.3.tar.gz
+https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.4.1.tar.gz

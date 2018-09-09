@@ -1,5 +1,6 @@
 <!--
 
+   Copyright 2012 - 2016 Ruben Decrop
    Copyright 2017 - 2018 Chessdevil Consulting BVBA
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +44,13 @@
       <v-list dark dense class="green darken-1" v-if="authenticated">
         <v-list-group>
           <v-list-tile slot="activator" @click="">
-              <v-list-tile-content>Admin</v-list-tile-content>
+            <v-list-tile-content>Admin</v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile @click="gotoUrl('/cdmembers/admin_members')">
+            <v-list-tile-action>
+              <v-icon></v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>Member Management</v-list-tile-content>
           </v-list-tile>
         </v-list-group>
       </v-list>
@@ -111,6 +118,7 @@
 
 import AdCarousel from './AdCarousel';
 import _ from 'lodash';
+import VListTileAction from "vuetify/src/components/VList/VListTileAction";
 
 export default {
 
@@ -124,6 +132,7 @@ export default {
     }
   },
   components: {
+      VListTileAction,
     "ad-carousel": AdCarousel,
   },
   methods: {

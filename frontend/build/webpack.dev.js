@@ -13,6 +13,7 @@ const devWebpackConfig = {
   context: path.resolve(__dirname, '../'),
   entry: {
     cms: './src/cms.js',
+    admin_members: './src/admin_members.js'
   },
   output: {
     path: path.resolve(__dirname, '../dist'),

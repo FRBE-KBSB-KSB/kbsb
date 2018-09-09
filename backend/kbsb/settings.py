@@ -29,8 +29,8 @@ STAGE = os.environ.get('KBSB_ENV')
 if STAGE:
     print('running stage', STAGE)
 else:
-    print('missing environment variable KBSB_ENV')
-    sys.exit(1)
+    print('missing environment variable KBSB_ENV: setting STAGE to dev')
+    STAGE = 'dev'
 
 
 ALLOWED_HOSTS = ['*']
@@ -89,6 +89,7 @@ CMS_PLACEHOLDER_CONF = {
 CMS_TEMPLATES = (
     ('cms_base.html', 'base CMS page'),
     ('cms_sidebar.html', 'CMS page with sidebar'),
+    ('cms_nosidebar.html', 'CMS page without sidebar'),
     ('cms_landing.html', 'CMS Landing page'),
     ('page.html', 'page'),
 )
@@ -156,6 +157,7 @@ INSTALLED_APPS = [
     # local
     'webpack_loader',
     'rd_django',
+    'cdmembers',
     'kbsb',
 ]
 
@@ -218,6 +220,16 @@ MIGRATION_MODULES = {
 }
 
 OLDSITE =  'https://www.frbe-kbsb.be'
+
+PERSON_GROUPS = [
+    ('board',  _('Board members')),
+    ('mandates', _('Mandated personen')),
+    ('litigation', _('Litigation commission')),
+    ('appeal', _('Appeal commission')),
+    ('vsf', _('Board of VSF')),
+    ('fefb', _('Board of FEFB')),
+    ('vsf', _('Board of SVDB')),
+]
 
 ROOT_URLCONF = 'kbsb.urls'
 

@@ -1,5 +1,5 @@
 {% extends "cms_base.html" %}
-{% load cms_tags staticfiles menu_tags sekizai_tags i18n %}
+{% load cms_tags staticfiles menu_tags sekizai_tags i18n rd_django %}
 {% load render_bundle from webpack_loader %}
 
 {% block custom_cms %}
@@ -18,5 +18,7 @@
 
   </v-container>
 </div>
+
+{% render_language_block %}
 
 {% endblock custom_cms %}

@@ -1,0 +1,190 @@
+{% load cms_tags menu_tags staticfiles sekizai_tags i18n %}
+{% load render_bundle from webpack_loader %}
+<!doctype html>
+<html>
+<head>
+<title>{% block title %}FRBE - KBSB - KSB{% endblock title %}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+{% render_block "css" %}
+</head>
+<body>
+<style>
+
+.person-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.person-left {
+  flex: 0 0 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.person-right {
+  flex: 1 1 auto;
+}
+
+</style>
+<div id='app'>
+<v-app>
+  <v-container>
+    <h1>Test page 1</h1>
+    <v-layout row wrap>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title class="green lighten-2">Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon class="green lighten-4"><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon class="green lighten-4"><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon class="green lighten-4"><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title>Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title>Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title>Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title>Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 xl4>
+        <v-card class="ma-2">
+        <div class="person-container">
+          <div class="person-left">
+            <img src="/static/img/ruben.jpeg" width="160"></img>
+          </div>
+          <div class="person-right">
+            <v-card-title>Ruben Decrop</v-card-title>
+            <v-card-text>
+              <div>Webmaster</div>
+              <div>tel: +32 477 57.1313</div>
+              <div>email: ruben@decrop.net</div>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn flat icon><v-icon>phone</v-icon></v-btn>
+              <v-btn flat icon><v-icon>textsms</v-icon></v-btn>
+              <v-btn flat icon><v-icon>email</v-icon></v-btn>
+            </v-card-actions>
+          </div>
+        </div>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 lg6 md4>
+        <v-card class="ma-2">
+          <v-card-title>Title 7</v-card-title>
+          <v-card-text>Text 7</v-card-text>
+          <v-card-actions>
+            <v-btn flat icon>
+              <v-icon>phone</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</v-app>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+<script>
+  new Vue({el: "#app"});
+</script>
+</body>
+</html>

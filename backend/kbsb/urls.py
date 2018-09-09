@@ -20,7 +20,9 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
+from .views import testpost, testget, testpage1, testpage2
 
+import cdmembers.urls
 
 admin.autodiscover()
 
@@ -30,13 +32,20 @@ urlpatterns = [
     url(r'^select2/', include('django_select2.urls')),
     # url(r'^api/', include(subscription.apiurls)),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
+
+    url(r'^cdmembers/', include(cdmembers.urls)),
+
+    url(r'^testpost$', testpost),
+    url(r'^testget/(?P<idbel>.+)$', testget),
+    url(r'^testpage1$', testpage1),
+    url(r'^testpage2$', testpage2),
 ]
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', include(admin.site.urls)),
     # next url pattern has a negative lookahead pattern
     # to avoid redirecting 404s in /api/* to /{locale}/api/*
-    url(r'^(?!api)', include('cms.urls')),
+    url(r'^(?!api)(?!cdmembers)', include('cms.urls')),
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
