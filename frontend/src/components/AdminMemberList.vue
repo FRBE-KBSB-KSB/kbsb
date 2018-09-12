@@ -30,17 +30,16 @@ export default {
   props: ['mbrs'],
   methods: {
     add () {
-      vue.$emit('updatembr', 'add', )
+      this.$emit('updatembr', 'add');
     },
     edit (m) {
-      console.log('sending edit update', m)
       this.$emit('updatembr', 'edit', m)
     },
     fullname (m) {
       return m.first_name + ' ' + m.last_name;
     },
     photo (m) {
-      vue.$emit('updatembr', 'photo', m)
+      this.$emit('updatembr', 'photo', m)
     },
   }
 

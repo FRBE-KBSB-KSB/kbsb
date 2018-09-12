@@ -17,4 +17,5 @@ from . import views
 
 urlpatterns = [
     url(r'member$', views.members_all),
+    url(r'member/(?P<idbel>\w+)$', views.members_one),
 ]

@@ -8,6 +8,25 @@ export default {
     query: ['ss', 'start', 'count', 'cat'],
     required: [],
   },
+  addMember: {
+    method: 'POST',
+    url: '/members/member',
+    body: ['member'],
+    required: ['member'],
+  },
+  saveMember: {
+    method: 'PUT',
+    url: '/members/member/{idbel}',
+    path: ['idbel'],
+    body: ['member'],
+    required: ['member', 'idbel'],
+  },
+  delMember: {
+    method: 'DELETE',
+    url: '/members/member/{idbel}',
+    path: ['idbel'],
+    required: ['idbel'],
+  },
 
   // rating lists
   searchIdNational: {

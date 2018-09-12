@@ -43,23 +43,38 @@ class ImageRenderer(BaseRenderer):
     def render(self, data, media_type=None, renderer_context=None):
         return data
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def members_all(request):
-    members = [
-        {
-            'first_name': 'Ruben',
-            'last_name': 'Decrop',
-            'email': 'ruben@decrop.net',
-            'idbel': '45608',
-        }
-    ]
-    ca = settings.CHESSAPI_URL
-    rs = requests.get("{}/members/member".format(ca))
-    if rs.status_code == 200:
-        data = rs.json()
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(status=status.HTTP_200_OK, data=dict(members=data))
+    url = "{}/members/member".format(settings.CHESSAPI_URL)
+
+    if request.method == 'GET':
+        rs = requests.get(url)
+        if rs.status_code == 200:
+            data = rs.json()
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK, data=dict(members=data))
+
+    if request.method == 'POST':
+        rs = requests.post(url, json=request.data)
+        if rs.status_code == 201:
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=rs.status_code)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def members_one(request, idbel):
+
+    url = "{}/members/member/{}".format(settings.CHESSAPI_URL, idbel)
+
+    if request.method == 'PUT':
+        rs = requests.put(url, json=request.data)
+        if rs.status_code == 200:
+            data = rs.json()
+            return Response(status=status.HTTP_200_OK, data=dict(members=data))
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=rs.status_code)
+
 
 def admin_members(request):
     return render(request, 'cdmembers/admin_members.html')

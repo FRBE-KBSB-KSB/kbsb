@@ -10,10 +10,12 @@
 
   <v-tabs-items v-model="tabix">
     <v-tab-item>
-      <admin-member-list :mbrs="mbrs" @updatembr="updatembr"></admin-member-list>
+      <admin-member-list :mbrs="mbrs" @updatembr="updatembr">
+      </admin-member-list>
     </v-tab-item>
     <v-tab-item>
-      <admin-member-detail :mbr="currentMbr" :mode="mode"></admin-member-detail>
+      <admin-member-detail :mbr="currentMbr" :mode="mode" @updatembr="updatembr">
+      </admin-member-detail>
     </v-tab-item>
     <v-tab-item>
       <h3 class="mt-2">Photo</h3>
@@ -39,14 +41,11 @@ export default {
     return {
       tabix: 0,
       mbrs: [],
-      currentMbr: {},
+      currentMbr: {'org': [{}, {}, {}]},
       mode: 'add',
     }
   },
   methods: {
-    sayhi () {
-        alert('hi')
-    },
     getmbrs () {
       var self = this;
       api('getMembers').then(
@@ -69,10 +68,10 @@ export default {
       this.tabix = "0";
     },
     updatembr (cmd, param) {
-      console.log('received update', cmd, param)
       switch (cmd) {
         case 'add':
           this.mode = 'add';
+          this.currentMbr = {'org': [{}, {}, {}]},
           this.tabix = 1;
           break;
         case 'edit':

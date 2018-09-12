@@ -1,7 +1,7 @@
 <template>
 <div >
-  <h3>Add a new member</h3>
-  <h3>Edit a member</h3>
+  <h3 v-show="mode == 'add'">Add a new member</h3>
+  <h3 v-show="mode == 'edit'">Edit a member</h3>
   <v-text-field label="First name" v-model="mbr.first_name">
   </v-text-field>
   <v-text-field label="Last name" v-model="mbr.last_name">
@@ -39,11 +39,14 @@ import api from '../api/api';
 
 export default {
   name: "AdminMembersList",
-  props: ['mbr'],
+  props: ['mbr', 'mode'],
   methods: {
     save () {
       var self = this;
-      api(this.mode == 'add' ? 'addMember' : 'putmember', this.mbr).then(
+      api(this.mode == 'add' ? 'addMember' : 'saveMember', {
+          idbel: this.mbr.idbel,
+          member: this.mbr
+      }).then(
         function(data){
           self.$emit('updatembr', 'list')
         },
