@@ -1,15 +1,15 @@
 export default {
   // per api call define the required parameters per type
 
-  //attendee
+  // members
   getMembers: {
     method: 'GET',
-    url: '/api/members',
+    url: '/members/member',
     query: ['ss', 'start', 'count', 'cat'],
     required: [],
   },
 
-  // chess members
+  // rating lists
   searchIdNational: {
     method: 'GET',
     url: '/belplayer/{idbel}',

@@ -82,9 +82,9 @@
 
     <v-footer height="auto" >
       <v-layout column>
-        <v-flex class="mt-2">
-          <ad-carousel/>
-        </v-flex>
+        <!--<v-flex class="mt-2">-->
+          <!--<ad-carousel/>-->
+        <!--</v-flex>-->
         <v-flex>
           <v-container fluid class="green darken-1">
             <v-layout row wrap class="py-2 footer green darken-1  white--text">
@@ -137,7 +137,7 @@ export default {
   },
   methods: {
     gotoUrl (url) {
-      console.log('going to ', url)
+      window.location = url;
     },
     clickedMenu (item) {
         console.log('clicked menu', item)

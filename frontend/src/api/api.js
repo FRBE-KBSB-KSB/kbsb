@@ -5,6 +5,8 @@ import _ from 'lodash';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 axios.defaults.xsrfCookieName = 'csrftoken';
 
+// uses config.api_url
+
 export default function(name, params) {
 
   let schema, surl, options, _body = undefined,
@@ -72,7 +74,7 @@ export default function(name, params) {
   headers['Content-Type'] = 'application/json';
   options = {
     method: schema.method,
-    url: window.config.apiurl +  surl,
+    url: window.config.api_url +  surl,
     params: query,
     data: (_body === undefined) ? body : _body,
     headers: headers

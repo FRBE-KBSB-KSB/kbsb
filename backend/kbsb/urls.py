@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 from .views import testpost, testget, testpage1, testpage2
 
 import cdmembers.urls
+import cdmembers.urls_apimembers
 
 admin.autodiscover()
 
@@ -34,6 +35,7 @@ urlpatterns = [
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 
     url(r'^cdmembers/', include(cdmembers.urls)),
+    url(r'^api/members/', include(cdmembers.urls_apimembers)),
 
     url(r'^testpost$', testpost),
     url(r'^testget/(?P<idbel>.+)$', testget),

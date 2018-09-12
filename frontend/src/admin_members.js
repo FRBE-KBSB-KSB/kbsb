@@ -7,7 +7,7 @@ import './stylus/kbsb.styl'
 
 Vue.use(Vuetify);
 
-new Vue({
+window.vue  = new Vue({
   el: '#app',
   data () {
     return {
