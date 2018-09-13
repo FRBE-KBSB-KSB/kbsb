@@ -52,11 +52,11 @@ export default {
         function (data) {
           self.mbrs = [];
           data.members.forEach(function(m, ix) {
-              console.log(m);
               if (m.org)
                 while (m.org.length < 3) {
                     m.org.push({})
                 }
+              m.oldidbel = m.idbel + '';
           });
           console.log('members', data.members);
           self.mbrs = data.members
