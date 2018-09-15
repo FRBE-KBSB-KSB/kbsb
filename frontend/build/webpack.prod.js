@@ -18,6 +18,7 @@ const staticpath = 'static';
 const prodWebpackConfig = {
   entry: {
     cms: './src/cms.js',
+    admin_members: './src/admin_members.js',
   },
   output: {
     path: root,
