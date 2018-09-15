@@ -50,4 +50,4 @@ pytz
 requests
 simplejson
 six
-https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.4.1.tar.gz
+https://chessdevil.myqnapcloud.com/pip/rd_django/rd_django-0.5.tar.gz

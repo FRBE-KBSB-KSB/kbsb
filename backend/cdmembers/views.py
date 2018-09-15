@@ -75,7 +75,7 @@ def members_one(request, idbel):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST, data=rs.status_code)
 
-
+json
 def admin_members(request):
     return render(request, 'cdmembers/admin_members.html')
 
