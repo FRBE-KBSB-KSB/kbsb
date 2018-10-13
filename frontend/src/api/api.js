@@ -29,7 +29,7 @@ export default function(name, params) {
       return k in params;
     })) {
       console.log('api call', name, 'failed: missing_param', all);
-      return $q.reject(new Error('missing_param'));
+      return Promise.reject(new Error('missing_param'));
     }
   }
 

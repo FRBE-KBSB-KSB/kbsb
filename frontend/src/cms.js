@@ -21,6 +21,7 @@ Vue.component('cms-page', {
       drawer: false,
       showTranslated: '',
       fixtoolbar: false,
+      tabactive: 0,
     }
   },
   methods: {

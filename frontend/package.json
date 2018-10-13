@@ -13,6 +13,7 @@
     "croppie": "^2.6.2",
     "lodash": "^4.17.5",
     "moment": "^2.22.0",
+    "node-sass": "^4.9.3",
     "vue": "^2.5.2",
     "vue-drag-drop": "^0.2.4",
     "vue-router": "^3.0.1",
