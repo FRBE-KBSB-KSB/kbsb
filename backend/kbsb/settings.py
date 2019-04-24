@@ -12,32 +12,15 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import os, sys
-_ = lambda s: s
-
-# 2 base variable reused lowe in the settings
-# base_dir is the root directoy of the project
-# stage is one of dev, staging, production
-
-# base_dir is the backend directory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# root_dir is the project directory containing backend, frontend, ...
-ROOT_DIR = os.path.dirname(BASE_DIR)
-# stage is the environment in which the app runs: dev, local, staging, prod
-STAGE = os.environ.get('KBSB_ENV')
-
-if STAGE:
-    print('running stage', STAGE)
-else:
-    print('missing environment variable KBSB_ENV: setting STAGE to dev')
-    STAGE = 'dev'
-
+import os
 
 ALLOWED_HOSTS = ['*']
 
-API_URL = '/api'
-
 APPEND_SLASH = True
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+CHESSAPI_URL = 'https://chessapi.bycco.be/'
 
 CMS_LANGUAGES = {
     1: [
@@ -45,28 +28,28 @@ CMS_LANGUAGES = {
             'code': 'nl',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': _('nl'),
+            'name': 'nl',
             'public': True,
         },
         {
             'code': 'en',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': _('en'),
+            'name': 'en',
             'public': True,
         },
         {
             'code': 'fr',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': _('fr'),
+            'name': 'fr',
             'public': True,
         },
         {
             'code': 'de',
             'redirect_on_fallback': True,
             'hide_untranslated': False,
-            'name': _('de'),
+            'name': 'de',
             'public': True,
         }
 
@@ -78,29 +61,33 @@ CMS_LANGUAGES = {
     },
 }
 
-CMS_PERMISSION = True
+CMS_PERMISSION = False
 
-CMS_PLACEHOLDER_CONF = {
-    'content': {
-        'language_fallback': False,
-    },
-}
+CMS_PLACEHOLDER_CONF = {}
 
 CMS_TEMPLATES = (
-    ('cms_base.html', 'base CMS page'),
-    ('cms_sidebar.html', 'CMS page with sidebar'),
-    ('cms_nosidebar.html', 'CMS page without sidebar'),
-    ('cms_landing.html', 'CMS Landing page'),
-    ('page.html', 'page'),
+    ('vuecms.html', 'Cms Page'),
+    ('landing.html', 'Landing Page'),
+    ('page.html', 'Plain Page'),
 )
+
+DATABASES = {   
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': 'localhost',
+        'NAME': 'bycco',
+        'USER': '',
+        'PASSWORD': '',
+    }
+}
 
 DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = (STAGE == 'dev')
+DEBUG = True
 
 DJANGOCMS_STYLE_CHOICES = ['logo-wrapper']
 
-EMAIL_HOST = '127.0.0.1'
+EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
 
 INSTALLED_APPS = [
@@ -115,61 +102,34 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
     'django.contrib.messages',
-    'django_tablib',
 
     # djangocms
     'cms',
     'filer',
     'easy_thumbnails',
-    'cmsplugin_filer_file',
-    'cmsplugin_filer_folder',
-    'cmsplugin_filer_image',
-    'cmsplugin_filer_teaser',
-    'cmsplugin_filer_utils',
-    'cmsplugin_filer_video',
     'menus',
     'sekizai',
     'treebeard',
-    'djangocms_text_ckeditor',
     'djangocms_style',
     'djangocms_file',
     'djangocms_googlemap',
-    'djangocms_inherit',
     'djangocms_link',
-    'reversion',
-
-    # blog
-    'aldryn_apphooks_config',
-    'aldryn_categories',
-    'aldryn_common',
-    'aldryn_events',
-    'aldryn_newsblog',
-    'aldryn_people',
-    'aldryn_translation_tools',
-    'appconf',
-    'bootstrap3',
-    'extended_choices',
-    'parler',
-    'standard_form',
-    'sortedm2m',
-    'taggit',
+    'djangocms_text_ckeditor',
 
     # local
     'webpack_loader',
     'rd_django',
-    'cdmembers',
+    'kbsbmembers',
     'kbsb',
 ]
 
 LANGUAGE_CODE = 'nl'
 LANGUAGES = (
-    ('nl', _('nl')),
-    ('en', _('en')),
-    ('fr', _('fr')),
-    ('de', _('de'))
+    ('nl', 'nl'),
+    ('en', 'en'),
+    ('fr', 'fr'),
+    ('de', 'de')
 )
-
-LOCALE_PATHS = (os.path.join(BASE_DIR, 'i18n'),)
 
 LOGGING = {
     'version': 1,
@@ -190,6 +150,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'kbsbmembers': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'formatter': 'detailed',
+        },        
         'rd_django': {
             'handlers': ['console'],
             'level': 'INFO',
@@ -197,10 +162,13 @@ LOGGING = {
     }
 }
 
-MEDIA_ROOT = os.path.join(ROOT_DIR, 'data', 'media')
+MEDIA_ROOT = os.path.join(DATA_DIR, 'media')
 MEDIA_URL = '/media/'
 
-MIDDLEWARE_CLASSES = [
+META_SITE_PROTOCOL = 'https'
+META_USE_SITES = True
+
+MIDDLEWARE = [
     'cms.middleware.utils.ApphookReloadMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -221,26 +189,14 @@ MIGRATION_MODULES = {
 
 OLDSITE =  'https://www.frbe-kbsb.be'
 
-PERSON_GROUPS = [
-    ('board',  _('Board members')),
-    ('mandates', _('Mandated personen')),
-    ('litigation', _('Litigation commission')),
-    ('appeal', _('Appeal commission')),
-    ('vsf', _('Board of VSF')),
-    ('fefb', _('Board of FEFB')),
-    ('vsf', _('Board of SVDB')),
-]
-
 ROOT_URLCONF = 'kbsb.urls'
 
-SECRET_KEY = 'You know, just a little bit of pressure'
+SECRET_KEY = 'You know, a weakness here and ther, just a little bit of pressure'
 
 SITE_ID = 1
 
+STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(ROOT_DIR, 'frontend', 'static'),
-)
 
 TEMPLATES = [
     {
@@ -266,7 +222,7 @@ TEMPLATES = [
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader'
+                # 'django.template.loaders.eggs.Loader'
             ],
         },
     },
@@ -285,13 +241,6 @@ TIME_ZONE = 'Europe/Brussels'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'static/',
-        'STATS_FILE': os.path.join(ROOT_DIR, 'frontend', 'webpack-stats.json')
-    }
-}
 
 WSGI_APPLICATION = 'kbsb.wsgi.application'
 

@@ -13,8 +13,9 @@
 #    limitations under the License.
 
 from cms.sitemaps import CMSSitemap
+
+from django.urls import include, path, re_path
 from django.conf import settings
-from django.conf.urls import *  # NOQA
 from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
@@ -22,33 +23,24 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from .views import testpost, testget, testpage1, testpage2
 
-import cdmembers.urls
-import cdmembers.urls_apimembers
+# import cdmembers.urls
+# import cdmembers.urls_apimembers
 
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^sitemap\.xml$', sitemap,
+    path('sitemap.xml', sitemap,
         {'sitemaps': {'cmspages': CMSSitemap}}),
-    url(r'^select2/', include('django_select2.urls')),
-    # url(r'^api/', include(subscription.apiurls)),
-    url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
-
-    url(r'^cdmembers/', include(cdmembers.urls)),
-    url(r'^api/members/', include(cdmembers.urls_apimembers)),
-
-    url(r'^testpost$', testpost),
-    url(r'^testget/(?P<idbel>.+)$', testget),
-    url(r'^testpage1$', testpage1),
-    url(r'^testpage2$', testpage2),
+    path('admin/', admin.site.urls),
+    re_path(r'^(?!api)(?!koskmembers)', include('cms.urls')),    
 ]
 
-urlpatterns += i18n_patterns(
-    url(r'^admin/', include(admin.site.urls)),
-    # next url pattern has a negative lookahead pattern
-    # to avoid redirecting 404s in /api/* to /{locale}/api/*
-    url(r'^(?!api)(?!cdmembers)', include('cms.urls')),
-)
+# urlpatterns += i18n_patterns(
+
+#     # next url pattern has a negative lookahead pattern
+#     # to avoid redirecting 404s in /api/* to /{locale}/api/*
+
+# )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

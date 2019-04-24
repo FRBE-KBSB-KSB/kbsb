@@ -1,0 +1,30 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pbr="*"
+rd-django = {path = "./data/rd_django-0.10.2-py3-none-any.whl"}
+
+[packages]
+django-cms = "*"
+gunicorn = "*"
+requests = "*"
+django-webpack-loader = "*"
+simplejson = "*"
+phonenumbers = "*"
+pillow = "*"
+python-dateutil = "*"
+django-filer = "*"
+djangocms-file = "*"
+djangocms-style = "*"
+djangocms-googlemap = "*"
+djangocms-link = "*"
+psycopg2-binary = "==2.7.7"
+djangorestframework = "*"
+iso8601 = "*"
+djangocms-text-ckeditor = "*"
+
+[requires]
+python_version = "3.7"

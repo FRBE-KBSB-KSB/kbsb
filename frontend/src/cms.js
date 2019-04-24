@@ -1,43 +1,17 @@
-import 'babel-polyfill';
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-import VueLayout from './components/VueLayout';
+import Vue from 'vue'
+import { i18n } from './util/lang'
 import VueCmsPatch from './vue-djangocms-patch';
-import './stylus/kbsb.styl';
+import './util/vuetify'
+import './style/kbsb.styl'
 
-Vue.config.ignoredElements = [
-  'cms-template',
-  'cms-plugin',
-];
+import Cms from './pages/Cms.vue'
 
-Vue.use(Vuetify);
+Vue.config.productionTip = false;
 
-Vue.component('cms-page', {
-  components: {
-    'vue-layout': VueLayout
-  },
-  data () {
-    return {
-      drawer: false,
-      showTranslated: '',
-      fixtoolbar: false,
-      tabactive: 0,
-    }
-  },
-  methods: {
-    openTranslation (lang) {
-      this.showTranslated = lang;
-    }
-  },
-  mounted () {
-
-  }
-});
-
-new Vue({
-  el: '#app',
-  created () {
-    new VueCmsPatch(this)
-  },
-});
+window.application = {
+  Vue: Vue,
+  App: Cms,
+  i18n: i18n,
+  VueCmsPatch: VueCmsPatch,
+};
 

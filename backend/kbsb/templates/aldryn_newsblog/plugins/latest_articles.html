@@ -1,9 +1,0 @@
-{% load i18n %}
-
-{% for article in article_list %}
-    <div class="my-2">
-      {% include "aldryn_newsblog/includes/article_basic.html" with namespace=instance.app_config.namespace %}
-    </div>
-{% empty %}
-    <p>{% trans "No items available" %}</p>
-{% endfor %}

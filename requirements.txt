@@ -1,15 +1,6 @@
-aldryn-apphooks-config
-aldryn-boilerplates
-aldryn-categories
-aldryn-common
-aldryn-events
-aldryn-newsblog
-aldryn-people
-aldryn-translation-tools
 Babel
-backport-collections
 cmsplugin-filer
-Django>1.11,<2
+
 django-appconf
 django-appdata
 django-classy-tags

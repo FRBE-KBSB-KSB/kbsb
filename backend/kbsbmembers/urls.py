@@ -1,4 +1,4 @@
-#    Copyright 2017 - 2018 Ruben Decrop
+#    Copyright 2018 Ruben Decrop
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -12,19 +12,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from django.conf import settings # import the settings file
-import simplejson as json
 
+from django.conf.urls import url
+from .views import *
 
-def local(request):
-    serverconfig = {
-        # 'api_url': settings.API_URL,
-        # 'authenticated': request.user.is_authenticated(),
-        'oldsite': settings.OLDSITE,
-        'static_url': settings.STATIC_URL,
-    }
-    print('serverconfig', serverconfig)
-    return {
-        'serverconfig': json.dumps(serverconfig),
-    }
+urlpatterns = [
+    url(r'^admin_members$', admin_members),
+]
 
