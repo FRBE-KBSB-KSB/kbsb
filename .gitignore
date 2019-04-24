@@ -12,4 +12,4 @@ __pycache__/
 /frontend/yarn.lock
 /frontend/webpack-stats.json
 build/static/webpack-stats.json
-data/rd_django-0.10.2-py3-none-any.whl
+data/*.whl
