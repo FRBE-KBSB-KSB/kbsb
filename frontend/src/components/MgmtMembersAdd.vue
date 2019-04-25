@@ -6,19 +6,19 @@
     </v-flex>
     <v-flex>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="back()" slot="activator">
+        <v-btn outline fab color="green" @click="back()" slot="activator">
           <v-icon>arrow_back</v-icon>
         </v-btn>
         <span>Go Back</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="save()" slot="activator">
+        <v-btn outline fab color="green" @click="save()" slot="activator">
           <v-icon>save</v-icon>
         </v-btn>
         <span>Save changes</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoPhoto()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoPhoto()" slot="activator">
           <v-icon>face</v-icon>
         </v-btn>
         <span>Edit photo</span>
@@ -39,7 +39,7 @@
           label="Birthdate" prepend-icon="event" readonly
         ></v-text-field>
         <v-date-picker v-model="p.birthdate" @input="menu_birthdate = false"
-                       color="blue-grey" />
+                       color="green" />
       </v-menu>
       <v-text-field label="ID FIDE" v-model="p.idfide" /> 
       <v-text-field label="ID BEL" v-model="p.idbel" /> 

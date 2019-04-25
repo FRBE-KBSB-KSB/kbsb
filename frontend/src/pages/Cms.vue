@@ -3,27 +3,16 @@
     <sidebar />
     <topbar />
     <v-parallax  v-if="landing && $vuetify.breakpoint.mdAndUp"
-                 src="/static/img/pier_big.jpg" height="400" />
+                 src="/static/img/landing_big.jpg" height="400" />
     <v-parallax v-if="landing && $vuetify.breakpoint.sm"
-                src="/static/img/pier_medium.jpg" height="300" />
+                src="/static/img/landing_medium.jpg" height="300" />
     <v-parallax v-if="landing && $vuetify.breakpoint.xs"
-                src="/static/img/pier_small.jpg" height="200" />
+                src="/static/img/landing_small.jpg" height="200" />
     <v-content :class="{landing: landing}">
       <v-container>
         <div class="mainarea my-1">
           <cms-content class="pa-1" />
         </div>
-      </v-container>
-      <v-parallax  v-if="landing && $vuetify.breakpoint.mdAndUp"
-                   src="/static/img/bekers_big.jpg" height="400" />
-      <v-parallax v-if="landing && $vuetify.breakpoint.sm"
-                  src="/static/img/bekers_medium.jpg" height="300" />
-      <v-parallax v-if="landing && $vuetify.breakpoint.xs"
-                  src="/static/img/bekers_small.jpg" height="200" />
-
-      <v-container v-if="landing" class="mt-3 mb-2">
-        <h2>{{ $t('News items')}}</h2>
-        <cms-newsitems />
       </v-container>
       <v-parallax  v-if="landing && $vuetify.breakpoint.smAndUp"
                    src="/static/img/winnaars_big.jpg" height="400" />

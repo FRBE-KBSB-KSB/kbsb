@@ -1,7 +1,7 @@
 <template>
     <v-navigation-drawer v-cloak dark temporary fixed v-model="drawer"
-                         class="navmax blue-grey darken-1" :class="{fixtoolbar: fixtoolbar}">
-      <v-toolbar flat class="blue-grey">
+                         class="navmax green darken-1" :class="{fixtoolbar: fixtoolbar}">
+      <v-toolbar flat class="green">
         <v-list>
           <v-list-tile>
             <v-list-tile-title class="title">
@@ -11,64 +11,31 @@
         </v-list>
       </v-toolbar>
       <v-divider></v-divider>
-      <div class="btn-language blue-grey darken-1">
+      <div class="btn-language green darken-1">
         <v-btn flat class="hover-darker btn-language" :href="url_i18nn('nl')">NL</v-btn>
         <v-btn flat class="hover-darker btn-language" :href="url_i18nn('fr')">FR</v-btn>
         <v-btn flat class="hover-darker btn-language" :href="url_i18nn('de')">DE</v-btn>
         <v-btn flat class="hover-darker btn-language" :href="url_i18nn('en')">EN</v-btn>
       </div>
-      <v-list dark dense class="blue-grey darken-1">
+      <v-list dark dense class="green darken-1">
         <cms-menu-items></cms-menu-items>
-        <v-list-tile href="/trn/subscription"  v-if="sections.subscription">
-          <v-list-tile-content>{{$t('Register')}}</v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile href="/trn/participants"  v-if="sections.participants">
-          <v-list-tile-content>{{$t('Participants')}}</v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile href="/trn/view"  v-if="sections.tournament">
-          <v-list-tile-content>{{$t('Tournament')}}</v-list-tile-content>
-        </v-list-tile>
       </v-list>
       <v-divider></v-divider>
-      <v-list dark dense class="blue-grey darken-1" v-if="authenticated">
+      <v-list dark dense class="green darken-1" v-if="authenticated">
         <v-list-group>
           <v-list-tile slot="activator">
-            <v-list-tile-content>Admin</v-list-tile-content>
+            <v-list-tile-content>Management</v-list-tile-content>
           </v-list-tile>
-          <v-list-tile href="/subscribe/mg_attendee">
+          <v-list-tile href="/mgmt/members">
             <v-list-tile-action></v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title>Participants</v-list-tile-title>
+              <v-list-tile-title>Members</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
-          <v-list-tile href="/subscribe/mg_attendee_vue">
+          <v-list-tile href="/mgmt/articles">
             <v-list-tile-action></v-list-tile-action>
             <v-list-tile-content>
-              <v-list-tile-title>Attendee New</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile href="/subscribe/mg_presence">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>Presence Check</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile href="/subscribe/mg_trn">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ $t('Tournament')}}</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile href="/subscribe/mg_swar">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>SWAR management</v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile href="/subscribe/printboardnumbers">
-            <v-list-tile-action></v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title>Print boardnumbers</v-list-tile-title>
+              <v-list-tile-title>Articles</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list-group>

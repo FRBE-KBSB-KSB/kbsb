@@ -6,31 +6,31 @@
     </v-flex>
     <v-flex>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" href="/trn/csv" slot="activator">
+        <v-btn outline fab color="green" href="/trn/csv" slot="activator">
           <v-icon>cloud_download</v-icon>
         </v-btn>
         <span>CSV download</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoAdd()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoAdd()" slot="activator">
           <v-icon>add</v-icon>
         </v-btn>
         <span>New participant</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoBadge()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoBadge()" slot="activator">
           <v-icon>assignment_ind</v-icon>
         </v-btn>
         <span>Badge</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoNamecard()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoNamecard()" slot="activator">
           <v-icon>assignment</v-icon>
         </v-btn>
         <span>Namecard</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoPresence()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoPresence()" slot="activator">
           <v-icon>check_box</v-icon>
         </v-btn>
         <span>Presence Check</span>

@@ -7,25 +7,25 @@
     </v-flex>
     <v-flex>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="back()" slot="activator">
+        <v-btn outline fab color="green" @click="back()" slot="activator">
           <v-icon>arrow_back</v-icon>
         </v-btn>
         <span>Go Back</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="crop()" slot="activator">
+        <v-btn outline fab color="green" @click="crop()" slot="activator">
           <v-icon>crop</v-icon>
         </v-btn>
         <span>Crop image</span>
       </v-tooltip>      
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="save()" slot="activator">
+        <v-btn outline fab color="green" @click="save()" slot="activator">
           <v-icon>save</v-icon>
         </v-btn>
         <span>Save</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="blue-grey" @click="gotoEdit()" slot="activator">
+        <v-btn outline fab color="green" @click="gotoEdit()" slot="activator">
           <v-icon>edit</v-icon>
         </v-btn>
         <span>Save</span>

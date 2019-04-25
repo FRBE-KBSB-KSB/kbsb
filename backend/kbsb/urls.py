@@ -32,15 +32,15 @@ urlpatterns = [
     path('sitemap.xml', sitemap,
         {'sitemaps': {'cmspages': CMSSitemap}}),
     path('admin/', admin.site.urls),
-    re_path(r'^(?!api)(?!koskmembers)', include('cms.urls')),    
 ]
 
-# urlpatterns += i18n_patterns(
+urlpatterns += i18n_patterns(
 
-#     # next url pattern has a negative lookahead pattern
-#     # to avoid redirecting 404s in /api/* to /{locale}/api/*
+    # next url pattern has a negative lookahead pattern
+    # to avoid redirecting 404s in /api/* to /{locale}/api/*
+    re_path(r'^(?!api)(?!koskmembers)', include('cms.urls')),    
 
-# )
+)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

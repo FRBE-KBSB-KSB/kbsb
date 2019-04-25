@@ -1,5 +1,5 @@
 <template>
-<v-footer height="auto" color="blue-grey lighten-1" dark class="mt-2">
+<v-footer height="auto" color="green lighten-1" dark class="mt-2">
   <v-container>
     <v-layout row wrap class="py-3">
       <v-flex sm3 xs12 class="mt-2">
@@ -30,7 +30,7 @@
         </a>
         </div>
       </v-flex>
-      <v-flex xs12 fluid class="text-xs-center blue-grey darken-1 mt-3 py-2 px-1">
+      <v-flex xs12 fluid class="text-xs-center green darken-1 mt-3 py-2 px-1">
         Website by <a target="_blank" href="https://www.chessdevil.net">
         Chessdevil Consulting</a>. &copy; 2018 - 2019.  All rights reserved
       </v-flex>

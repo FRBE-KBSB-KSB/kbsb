@@ -17,11 +17,12 @@
 -->
 
 <template>
-<v-carousel hide-controls hide-delimiters :value="current"
+<v-carousel hide-controls hide-delimiters :value="current" height="170"
             class="adcarousel mb-2" :interval="interval*1000">
   <v-carousel-item v-for="item in items" :key="item.name" :src="item.src">
   </v-carousel-item>
 </v-carousel>
+
 </template>
 
 <script>
@@ -31,11 +32,11 @@ export default {
       current: 0,
       interval: 5, // number of seconds before switching
       items: [
-        {src: config.static_url + 'img/frame_talistro.png', name: 'talistro' },
-        {src: config.static_url + 'img/frame_chessconsult.png', name: 'chessconsult' },
-        {src: config.static_url + 'img/frame_matetmots.png', name: 'matetmots' },
-        {src: config.static_url + 'img/frame_marchand.png', name: 'marchand' },
-        {src: config.static_url + 'img/frame_chessdevil.png', name: 'chessdevil' },
+        {src: '/static/img/frame_talistro.png', name: 'talistro' },
+        {src: '/static/img/frame_chessconsult.png', name: 'chessconsult' },
+        {src: '/static/img/frame_matetmots.png', name: 'matetmots' },
+        {src: '/static/img/frame_marchand.png', name: 'marchand' },
+        {src: '/static/img/frame_chessdevil.png', name: 'chessdevil' },
       ]
     }
   },
@@ -47,5 +48,12 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.adcarousel.v-carousel {
+  width: 360px;
+  max-width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
+

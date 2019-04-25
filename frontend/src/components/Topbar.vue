@@ -1,24 +1,15 @@
 <template>
 <v-toolbar v-cloak fixed dark app
-           class="blue-grey darken-2" :class="{fixtoolbar: fixtoolbar, landing: landing}">
+           class="green darken-2" :class="{fixtoolbar: fixtoolbar, landing: landing}">
   <v-toolbar-side-icon @click.stop="openDrawer"></v-toolbar-side-icon>
   <v-toolbar-items>
-    <v-btn flat large href="/">{{ $t('BYC 2019')}}</v-btn>
+    <v-btn flat large href="/">{{ $t('RBCF')}}</v-btn>
   </v-toolbar-items>
   <v-spacer></v-spacer>
   <v-toolbar-items class="hidden-sm-and-down">
-    <v-btn flat large href="/info/calendar">{{ $t('Calendar')}}
+    <v-btn flat large href="/interclub">{{ $t('Interclub')}}
     </v-btn>
-    <v-btn flat large href="/info/lodging-and-meals">{{ $t('Lodging')}}
-    </v-btn>
-    <v-btn flat large href="/trn/participants" v-if="sections.participants">
-      {{ $t('Participants')}}
-    </v-btn>
-    <v-btn flat large href="/trn/subscription" v-if="sections.subscription">
-      {{ $t('Register')}}
-    </v-btn>
-    <v-btn flat large href="/trn/view" v-if="sections.tournament">
-      {{ $t('Tournament')}}
+    <v-btn flat large href="/info/lodging-and-meals">ELO
     </v-btn>
   </v-toolbar-items>
 </v-toolbar>
@@ -32,11 +23,6 @@ export default {
   data () {return {
     fixtoolbar: false,
     landing: window.config.landing,
-    sections: {
-      participants: window.config.participants_enabled,
-      subscription: window.config.subscriptions_enabled,
-      tournament: window.config.tournament_enabled,
-    },
   }},
 
   mounted() {
@@ -61,7 +47,7 @@ export default {
   top: 50px;
 }
 
-.landing.blue-grey.darken-2 {
+.landing.green.darken-2 {
   background-color: rgba(77, 94, 101, 0.4) !important;
   /*background-color: green;*/
 }
