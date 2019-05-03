@@ -7,17 +7,24 @@ module.exports = {
     plugins: [
       new BundleTracker({
         indent: 2,
-        publicPath: process.env.NODE_ENV === 'production' ? '/static/' : 'http://localhost:8080/static/',
+        publicPath: process.env.NODE_ENV === 'production' ? '/static/' : 
+          'http://localhost:8080/static/',
         path: process.env.NODE_ENV === 'production' ? '.' : '../build/static/'
       })
-    ]
+    ],
+    devServer: {
+      publicPath: '/static',
+      port: 8080,
+    }
   },
   outputDir: 'dist/static',
-  baseUrl: "/static",
+  publicPath: '/static/',
   crossorigin: "anonymous",
   runtimeCompiler: true,
   pages: {
-    cms: 'src/cms.js'
-  }
+    cms: 'src/cms.js',
+    mgmt: 'src/mgmt.js',
+  },
+
 }
   

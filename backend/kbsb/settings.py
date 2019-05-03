@@ -67,7 +67,7 @@ CMS_PLACEHOLDER_CONF = {}
 
 CMS_TEMPLATES = (
     ('vuecms.html', 'Cms Page'),
-    ('landing.html', 'Landing Page'),
+    ('vuelanding.html', 'Landing Page'),
     ('page.html', 'Plain Page'),
 )
 
@@ -119,6 +119,7 @@ INSTALLED_APPS = [
     # local
     'webpack_loader',
     'rd_django',
+    'kbsbarticles',
     'kbsbmembers',
     'kbsb',
 ]
@@ -146,6 +147,11 @@ LOGGING = {
             'propagate': True,
         },
         'kbsb': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'kbsbarticles': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
@@ -201,9 +207,8 @@ STATIC_URL = '/static/'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'kbsb', 'templates'),
-        ],
+        'DIRS': [],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -219,11 +224,11 @@ TEMPLATES = [
                 'cms.context_processors.cms_settings',
                 'kbsb.context_processor.local',
             ],
-            'loaders': [
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-                # 'django.template.loaders.eggs.Loader'
-            ],
+            # 'loaders': [
+            #     'django.template.loaders.filesystem.Loader',
+            #     'django.template.loaders.app_directories.Loader',
+            #     # 'django.template.loaders.eggs.Loader'
+            # ],
         },
     },
 ]

@@ -2,11 +2,11 @@
   <v-app>
     <sidebar />
     <topbar />
-    <v-parallax  v-if="landing && $vuetify.breakpoint.mdAndUp"
+    <v-parallax  v-if="$vuetify.breakpoint.mdAndUp"
                  src="/static/img/landing_big.jpg" height="400" />
-    <v-parallax v-if="landing && $vuetify.breakpoint.sm"
+    <v-parallax v-if="$vuetify.breakpoint.sm"
                 src="/static/img/landing_medium.jpg" height="300" />
-    <v-parallax v-if="landing && $vuetify.breakpoint.xs"
+    <v-parallax v-if="$vuetify.breakpoint.xs"
                 src="/static/img/landing_small.jpg" height="200" />
     <v-content :class="{landing: landing}">
       <v-container>
@@ -14,11 +14,11 @@
           <cms-content class="pa-1" />
         </div>
       </v-container>
-      <v-parallax  v-if="landing && $vuetify.breakpoint.mdAndUp"
+      <v-parallax  v-if="$vuetify.breakpoint.mdAndUp"
                    src="/static/img/chesscrowd_big.jpg" height="400" />
-      <v-parallax  v-if="landing && $vuetify.breakpoint.sm"
+      <v-parallax  v-if="$vuetify.breakpoint.sm"
                    src="/static/img/chesscrowd_medium.jpg" height="300" />
-      <v-parallax v-if="landing && $vuetify.breakpoint.xs"
+      <v-parallax v-if="$vuetify.breakpoint.xs"
                   src="/static/img/chesscrowd_small.jpg" height="200" />
 
     </v-content>

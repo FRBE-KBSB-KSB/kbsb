@@ -1,23 +1,32 @@
-import 'babel-polyfill';
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-import VueLayout from './components/VueLayout';
-import AdminMember from './components/AdminMember';
-import './stylus/kbsb.styl'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import store from './store/mgmt'
+import { i18n } from './util/lang'
+import './util/vuetify'
 
-Vue.use(Vuetify);
+import Mgmt from './pages/Mgmt'
+import MgmtArticles from './pages/MgmtArticles'
 
-window.vue  = new Vue({
-  el: '#app',
-  data () {
-    return {
-      drawer: false,
-    }
-  },
-  components: {
-    'vue-layout': VueLayout,
-    'admin-member': AdminMember,
-  },
+Vue.config.productionTip = false;
+
+Vue.use(VueRouter);
+
+const router = new VueRouter({
+  routes: [
+    {path: '/articles', component: MgmtArticles},
+    {path: '*', redirect: '/articles'},
+  ],
+  mode: 'hash',
 });
+
+
+window.application = {
+  Vue: Vue,
+  App: Mgmt,
+  store: store,
+  i18n: i18n,
+  router,
+};
+
 
 

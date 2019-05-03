@@ -6,7 +6,7 @@
     <v-content class="mgmtcontent">
       <router-view :key="$route.fullPath"></router-view>
     </v-content>
-    <bycco-footer />
+    <kbsb-footer />
   </v-app>
 </template>
 
@@ -14,7 +14,7 @@
 
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
-import ByccoFooter from '../components/ByccoFooter'
+import KbsbFooter from '../components/KbsbFooter'
 import MgmtMenu from '../components/MgmtMenu'
 
 export default {
@@ -28,7 +28,7 @@ export default {
   components: {
     Sidebar,
     Topbar,
-    ByccoFooter,
+    KbsbFooter,
     MgmtMenu,
     // 'ad-carousel': AdCarousel,
   },

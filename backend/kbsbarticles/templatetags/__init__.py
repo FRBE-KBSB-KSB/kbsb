@@ -12,20 +12,3 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import requests
-import simplejson as json
-from django.http import HttpResponse
-from django.conf import settings
-from django.shortcuts import render
-
-# Create your views here.
-
-
-def mgmtpage(request):
-    return render(request, 'mgmt.html')
-
-
-def testpage1(request):
-    return render(request, 'testpage1.html')
-
-

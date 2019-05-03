@@ -21,10 +21,9 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
-from .views import testpost, testget, testpage1, testpage2
+from .views import mgmtpage
 
-# import cdmembers.urls
-# import cdmembers.urls_apimembers
+import kbsbarticles.apiurls
 
 admin.autodiscover()
 
@@ -32,13 +31,15 @@ urlpatterns = [
     path('sitemap.xml', sitemap,
         {'sitemaps': {'cmspages': CMSSitemap}}),
     path('admin/', admin.site.urls),
+    path('api/', include(kbsbarticles.apiurls)),
+    path('mgmt', mgmtpage),
 ]
 
 urlpatterns += i18n_patterns(
 
-    # next url pattern has a negative lookahead pattern
-    # to avoid redirecting 404s in /api/* to /{locale}/api/*
-    re_path(r'^(?!api)(?!koskmembers)', include('cms.urls')),    
+    re_path(r'^(?!api)', include('cms.urls')), 
+
+   
 
 )
 

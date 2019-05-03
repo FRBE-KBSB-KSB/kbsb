@@ -1,0 +1,11 @@
+{% extends "vuecms.html" %}
+{% load article %}
+
+{% block extra_config %}
+  landing: true,
+{% endblock extra_config %}
+
+{% block extra_content %}
+  Joepie
+  {% article_intro "azerty" 123 %}
+{% endblock extra_content %}

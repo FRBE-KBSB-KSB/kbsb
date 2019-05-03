@@ -28,7 +28,7 @@ class KbsbMember(Model):
     last_name = CharField("Last name", max_length=40)
     nationalitybel = CharField("Nationality on passport", max_length=4, blank=True)
     nationalityfide = CharField("Nationality for FIDE", max_length=4, blank=True)
-    privacy = CharField('Privacy Restrictions', max_length=255)
+    privacy = CharField('Privacy Restrictions', max_length=255, default='')
     ratingbel = IntegerField("Belgian rating", default=0)
     ratingfide = IntegerField("FIDE rating", default=0)
     remarks = TextField("Remarks", blank=True)

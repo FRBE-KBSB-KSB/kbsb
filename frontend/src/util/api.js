@@ -16,10 +16,9 @@ export default function(name, params) {
       path= {}, spath,
       all = {};
 
-  console.log('api call', name, params);
   schema = schemas[name];
   if (!schema) {
-    console.error('schema not found:', name );
+    console.error('api not called: schema ' + name + 'not found:');
     return Promise.reject(new Error('schama ' + name + ' not found'))
   }
 
@@ -60,7 +59,7 @@ export default function(name, params) {
   if (schema.required) {
     if (!schema.required.every(function(k){
       if (k in params) return true;
-      console.error('api call', name, 'failed: missing_param', k);
+      console.error('server not called: missing_param', k);
       return false
     })) {
       return Promise.reject(new Error('missing_param'));
@@ -83,6 +82,7 @@ export default function(name, params) {
   };
 
   // make http call in a Promise
+  console.log('calling api', name, params);
   return new Promise(function(resolve, reject){
     axios.request(options).then(
       function(data){

@@ -23,8 +23,6 @@ def local(request):
         'oldsite': settings.OLDSITE,
         'static_url': settings.STATIC_URL,
     }
-    print('serverconfig', serverconfig)
     return {
         'serverconfig': json.dumps(serverconfig),
     }
-
