@@ -1,0 +1,25 @@
+{
+  "status": "done",
+  "publicPath": "http://localhost:8080/static/",
+  "chunks": {
+    "cms": [
+      {
+        "name": "cms.js",
+        "publicPath": "http://localhost:8080/static/cms.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.js"
+      }
+    ],
+    "mgmt": [
+      {
+        "name": "mgmt.js",
+        "publicPath": "http://localhost:8080/static/mgmt.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.js"
+      },
+      {
+        "name": "mgmt.d3c97b2088ddb01bebd6.hot-update.js",
+        "publicPath": "http://localhost:8080/static/mgmt.d3c97b2088ddb01bebd6.hot-update.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.d3c97b2088ddb01bebd6.hot-update.js"
+      }
+    ]
+  }
+}

@@ -1,6 +1,5 @@
 Babel
 cmsplugin-filer
-
 django-appconf
 django-appdata
 django-classy-tags
