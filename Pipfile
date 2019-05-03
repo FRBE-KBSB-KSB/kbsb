@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pbr="*"
-rd-django = {path = "./data/rd_django-0.10.2-py3-none-any.whl"}
+rd-django={path="./data/rd_django-0.10.2-py3-none-any.whl"}
 
 [packages]
 django-cms = "*"
