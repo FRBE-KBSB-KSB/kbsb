@@ -36,52 +36,54 @@
           >arrow_drop_up</v-icon>
       </v-flex>
     </v-layout>
-    <div class="elevation-2 grey lighten-4 ma-1 pa-1"  v-show="ix == openedgroup">
-      <v-layout row>
-        <v-flex sm1>nl</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="gr.translations.nl_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="gr.translations.nl_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row>
-        <v-flex sm1>fr</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="gr.translations.fr_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="gr.translations.fr_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row >
-        <v-flex sm1>de</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="gr.translations.de_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="gr.translations.de_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row>
-        <v-flex sm1>en</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="gr.translations.en_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="gr.translations.en_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-    </div>
+    <v-layout row v-show="ix == openedgroup">
+      <v-flex sm10 class="elevation-2 grey lighten-4 ma-1 pa-1">
+        <v-layout row>
+          <v-flex sm1>nl</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="gr.translations.nl_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="gr.translations.nl_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex sm1>fr</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="gr.translations.fr_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="gr.translations.fr_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row >
+          <v-flex sm1>de</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="gr.translations.de_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="gr.translations.de_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex sm1>en</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="gr.translations.en_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="gr.translations.en_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </div>
 
   <h1 class="mt-2">Role Names</h1>
@@ -102,52 +104,54 @@
           >arrow_drop_up</v-icon>
       </v-flex>
     </v-layout>
-    <div class="elevation-2 grey lighten-4 pa-1 ma-1"  v-show="ix == openedrole">
-      <v-layout row>
-        <v-flex sm1>nl</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="rl.translations.nl_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="rl.translations.nl_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row>
-        <v-flex sm1>fr</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="rl.translations.fr_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="rl.translations.fr_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row >
-        <v-flex sm1>de</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="rl.translations.de_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="rl.translations.de_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-      <v-layout row>
-        <v-flex sm1>en</v-flex>    
-        <v-flex sm4>
-          <v-text-field label="Short name" v-model="rl.translations.en_shortname" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-        <v-flex sm6>
-          <v-text-field label="Long name" v-model="rl.translations.en_name" 
-            hide-details single-line class=nopadding />
-        </v-flex>
-      </v-layout>
-    </div>
+    <v-layout  v-show="ix == openedrole">
+      <v-flex sm10 class="elevation-2 grey lighten-4 pa-1 ma-1" >
+        <v-layout row>
+          <v-flex sm1>nl</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="rl.translations.nl_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="rl.translations.nl_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex sm1>fr</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="rl.translations.fr_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="rl.translations.fr_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row >
+          <v-flex sm1>de</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="rl.translations.de_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="rl.translations.de_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+        <v-layout row>
+          <v-flex sm1>en</v-flex>    
+          <v-flex sm4>
+            <v-text-field label="Short name" v-model="rl.translations.en_shortname" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+          <v-flex sm6>
+            <v-text-field label="Long name" v-model="rl.translations.en_name" 
+              hide-details single-line class=nopadding />
+          </v-flex>
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </div>
 
 </v-container>
