@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 from .views import mgmtpage
 
 import kbsbarticles.apiurls
+import kbsbmembers.apiurls
 
 admin.autodiscover()
 
@@ -32,6 +33,7 @@ urlpatterns = [
         {'sitemaps': {'cmspages': CMSSitemap}}),
     path('admin/', admin.site.urls),
     path('api/', include(kbsbarticles.apiurls)),
+    path('api/', include(kbsbmembers.apiurls)),
     path('mgmt', mgmtpage),
 ]
 

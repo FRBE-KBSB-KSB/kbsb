@@ -6,6 +6,7 @@ import './util/vuetify'
 
 import Mgmt from './pages/Mgmt'
 import MgmtArticles from './pages/MgmtArticles'
+import MgmtMembers from './pages/MgmtMembers'
 
 Vue.config.productionTip = false;
 
@@ -14,6 +15,7 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     {path: '/articles', component: MgmtArticles},
+    {path: '/members', component: MgmtMembers},
     {path: '*', redirect: '/articles'},
   ],
   mode: 'hash',
@@ -27,6 +29,3 @@ window.application = {
   i18n: i18n,
   router,
 };
-
-
-

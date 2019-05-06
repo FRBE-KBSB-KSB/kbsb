@@ -2,9 +2,15 @@
 <v-container fluid grid-list-md class="elevation-1">
   <v-layout row>
     <v-flex>
-        <h1>Management Participants</h1>
+        <h1>Management Members</h1>
     </v-flex>
     <v-flex>
+      <v-tooltip bottom>
+        <v-btn outline fab color="green" @click="gotoAdd()" slot="activator">
+          <v-icon>add</v-icon>
+        </v-btn>
+        <span>New member</span>
+      </v-tooltip>
       <v-tooltip bottom>
         <v-btn outline fab color="green" href="/trn/csv" slot="activator">
           <v-icon>cloud_download</v-icon>
@@ -12,28 +18,10 @@
         <span>CSV download</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <v-btn outline fab color="green" @click="gotoAdd()" slot="activator">
-          <v-icon>add</v-icon>
+        <v-btn outline fab color="green" @click="gotoGroups()" slot="activator">
+          <v-icon>group</v-icon>
         </v-btn>
-        <span>New participant</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <v-btn outline fab color="green" @click="gotoBadge()" slot="activator">
-          <v-icon>assignment_ind</v-icon>
-        </v-btn>
-        <span>Badge</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <v-btn outline fab color="green" @click="gotoNamecard()" slot="activator">
-          <v-icon>assignment</v-icon>
-        </v-btn>
-        <span>Namecard</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <v-btn outline fab color="green" @click="gotoPresence()" slot="activator">
-          <v-icon>check_box</v-icon>
-        </v-btn>
-        <span>Presence Check</span>
+        <span>Groups and Roles</span>
       </v-tooltip>
     </v-flex>
   </v-layout>
@@ -45,12 +33,9 @@
     <v-flex sm4 xs6>
       <v-select :items="catitems" v-model="catselected" @change="changeCat()" />
     </v-flex>
-    <v-flex>
-      <v-checkbox label="Not confirmed" v-model="isNotConfirmed" />
-    </v-flex>
   </v-layout>
 
-  <v-data-table :items="filteredParticipants" class="elevation-1" :headers="headers"
+  <v-data-table :items="members" class="elevation-1" :headers="headers"
                 :rows-per-page-items="[25,50,100]" :pagination.sync="pagination">
     <template slot="headers" slot-scope="props" >
       <th v-for="header in props.headers" :key="header.text"
@@ -64,12 +49,9 @@
       <td>{{ props.item.id }}</td>
       <td>{{ props.item.first_name }}</td>
       <td>{{ props.item.last_name }}</td>
-      <td class="text-xs-center">{{ props.item.category }}</td>
       <td>
-        <v-icon class="mr-1" @click="editParticipant(props.item)">edit</v-icon>
-        <v-icon class="mr-1" @click="photoParticipant(props.item)">face</v-icon>
-        <v-icon class="mr-1" @click="invoiceParticipant(props.item)">euro_symbol</v-icon>
-        <v-icon class="mr-1" @click="printParticipant(props.item)">print</v-icon>
+        <v-icon class="mr-1" @click="editMember(props.item)">edit</v-icon>
+        <v-icon class="mr-1" @click="photoMember(props.item)">face</v-icon>
       </td>
     </template>
   </v-data-table>
@@ -80,27 +62,14 @@
 <script>
 
 import api from '../util/api'
-import _ from 'lodash'
 
 export default {
-  name: "MgmtPartList",
+  name: "MgmtMembersList",
 
   props: ['ts', 'selection'],
 
   computed: {
-    filteredParticipants () {
-      let result = this.participants,
-          noplayers = ['All', 'Player', 'ORG', 'ARB', 'SPO', 'EAT'];
-      if (this.catselected == 'Players')
-         result =  _.filter(result, function(p) {
-            return noplayers.indexOf(p.category) == -1;
-         });
-      if (this.isNotConfirmed)
-        result = _.filter(result, ['confirmed', false]);
-      // if (this.hasNoInvoice)
-      //   retult = _.filter(result, ['invoiced', false])
-      return result
-    },
+
     headers () { return [
       {
         text: 'ID',
@@ -120,71 +89,45 @@ export default {
         sortable: true,
         value: 'last_name'
       },
-      {
-        text: 'Category',
-        align: 'center',
-        value: 'category'
-      },
     ]},
-    catsearch () {
-      if (['All', 'Players'].indexOf(this.catselected) >= 0 ) return null;
-      return this.catselected;
-    }
 
   },
 
 
   data () {return {
     catitems: [
-      {value: 'All', text: 'All'},
-      {value: 'Players', text: 'Players Only'},
-      {value: 'B8', text: 'B8'},
-      {value: 'G8', text: 'G8'},
-      {value: 'B10', text: 'B10'},
-      {value: 'G10', text: 'G10'},
-      {value: 'B12', text: 'B12'},
-      {value: 'G12', text: 'G12'},
-      {value: 'B14', text: 'B14'},
-      {value: 'G14', text: 'G14'},
-      {value: 'B16', text: 'B16'},
-      {value: 'G16', text: 'G16'},
-      {value: 'B18', text: 'B18'},
-      {value: 'G18', text: 'G18'},
-      {value: 'B20', text: 'B20'},
-      {value: 'G20', text: 'G20'},
-      {value: "IMT", text: 'IM toernooi'},
-      {value: "ORG", text: 'Organiser'},
-      {value: "ARB", text: 'Arbiter'},
-      {value: "SPO", text: 'Sponsor or Guest'},
-      {value: "EAT", text: 'Resident with meals'},
+      {value: '', text: 'All'},
+      {value: 'BRD', text: 'Board'},
+      {value: 'MAN', text: 'Mandated persons'},
+      {value: 'SPO', text: 'Sport commission'},
+      {value: 'APP', text: 'Appeal commission '},
+      {value: 'VSF', text: 'VSF'},
+      {value: 'FEFB', text: 'FEFB'},
+      {value: 'SVDB', text: 'SVDB'},
+      {value: 'BCF', text: 'Brussels Federation'},
+      {value: 'WVL', text: 'West-Vlaanderen'},
+      {value: 'OVL', text: 'Oost-Vlaanderen'},
+      {value: 'ANT', text: 'Antwerpen'},
+      {value: 'VLB', text: 'Vlaams Brabant'},
+      {value: 'LIM', text: 'Limburg'},
+      {value: 'BRW', text: 'Brabant Wallon'},
+      {value: 'LIE', text: 'Liège'},
+      {value: "HAI", text: 'Hainaut'},
+      {value: "NALUX", text: 'Namur - Luxembourg'},
     ],
     catselected: 'All',
-    catselectedOld: 'All',
-    hasNoInvoice: false,
-    isNotConfirmed: false,
     pagination: {
       sortBy: 'last_name',
       descending: false,
     },
-    participants: [],
+    members: [],
     selected: [],
     ss: '',
   }},
 
   methods: {
     changeCat () {
-      if (this.catselected == 'All' || this.catselected == 'Players') {
-        if (this.catselectedOld == 'All' || this.catselectedOld == 'Players'){
-          // leave it as is, the filtering will do its job
-        }
-        else {
-          this.getAttendees();
-        }
-      }
-      else {
-        this.getAttendees();
-      }
-      this.catselectedOld = this.catselected;
+      this.getMembers();
     },
 
     changeSort (header) {
@@ -197,20 +140,17 @@ export default {
       }
     },
 
-    editParticipant(p) {
-      this.$emit('update', {
-        section: 'edit',
-        participant: p,
-      })
+    editMember(m) {
+      this.$emit('update', { section: 'edit', member: m, })
     },
 
-    getAttendees () {
-      api('getAttendees', {
-        cat: this.catsearch,
+    getMembers () {
+      api('getMembers', {
+        cat: this.catselected,
         ss: this.ss.length ? this.ss : null,
       }).then(
         function(data) {
-          this.participants = data.attendees;
+          this.members = data.members;
         }.bind(this)
       );
     },
@@ -219,16 +159,8 @@ export default {
       this.$emit('update', {section: 'add'})
     },
 
-    gotoBadge () {
-      this.$emit('update', {section: 'badge'})
-    },
-
-    gotoNamecard () {
-      this.$emit('update', {section: 'namecard'})
-    },
-
-    gotoPresence () {
-      this.$emit('update', {section: 'presence'})
+    gotoGroups () {
+      this.$emit('update', {section: 'groups'})
     },
 
     headerClasses (header) {
@@ -240,50 +172,23 @@ export default {
       return hc;
     },
 
-    invoiceParticipant (p) {
-      this.$emit('update', {
-        section: 'invoice',
-        participant: p,
-      })
-    },
-
-    photoParticipant(p) {
-      this.$emit('update', {
-        section: 'photo',
-        participant: p,
-      })
-    },
-
-    printParticipant(p){
-      var s = this.selection || [];
-      s.push(p)
-      this.$emit('update', {
-        text: 'Particpant added to print selection',
-        selection: s,
-      })
+    photoMember(m) {
+      this.$emit('update', { section: 'photo', member: m, })
     },
 
     search () {
-      this.getAttendees();
+      this.getMember();
     },
 
-    toggleAll () {
-      if (this.selected.length) {
-        this.selected = []
-      }
-      else {
-        this.selected = this.filteredParticipants.slice()
-      }
-    },
   },
 
   mounted () {
-    this.getAttendees();
+    this.getMembers();
   },
 
   watch: {
     ts: function(){
-      this.getAttendees();
+      this.getMembers();
     }
   }
 

@@ -82,11 +82,11 @@ export default {
     FilePond,
   },
 
-  props: ['participant'],
+  props: ['member'],
 
   computed :  {
     fullname () {
-      return this.participant.first_name + ' ' + this.participant.last_name;
+      return this.member.first_name + ' ' + this.member.last_name;
     },
   },
 
@@ -121,7 +121,7 @@ export default {
     },
 
     gotoEdit () {
-      this.$emit('update', {section: 'edit', params: this.participant})
+      this.$emit('update', {section: 'edit', menber: this.member})
     },    
 
     handleFile(err, file){

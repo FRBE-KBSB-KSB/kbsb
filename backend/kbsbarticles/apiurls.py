@@ -1,10 +1,10 @@
 # original Copyright Ruben Decrop
-# modifications by Chessdevil Consulting BVBA
+# modifications by Chessdevil Consulting BV
 
-from django.conf.urls import url
+from django.urls import path, re_path
 from kbsbarticles import apiviews
 
 urlpatterns = [
-    url(r'articles$', apiviews.article_all),
-    url(r'articles/(?P<id>\w+)$', apiviews.article_one),
+    path('articles', apiviews.article_all),
+    path('articles/<int:id>', apiviews.article_one),
 ]

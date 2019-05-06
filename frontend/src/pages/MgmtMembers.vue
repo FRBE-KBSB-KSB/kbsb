@@ -1,20 +1,15 @@
 <template>
   <v-container fluid>
 
-    <mgmt-part-list @update="update($event)" v-show="section == 'list'" 
+    <mgmt-members-list @update="update($event)" v-show="section == 'list'" 
       :selection="selection"  :ts="ts" />
-    <mgmt-part-edit @update="update($event)" v-if="section == 'edit'"
-      :participant="participant" :ts="ts"/>
-    <mgmt-part-add @update="update($event)" v-if="section == 'add'"/>
-    <mgmt-part-invoice @update="update($event)" v-if="section == 'invoice'"
-      :participant="participant"  :ts="ts" />
-    <mgmt-part-photo @update="update($event)" v-if="section == 'photo'"
-      :participant="participant"  :ts="ts" />
-    <mgmt-part-badge @update="update($event)" v-if="section == 'badge'"
-      :selection="selection" />
-    <mgmt-part-namecard @update="update($event)" v-if="section == 'namecard'"
-      :selection="selection" :ts="ts" />
-    <mgmt-part-presence @update="update($event)" v-if="section == 'presence'"/>
+    <mgmt-members-edit @update="update($event)" v-if="section == 'edit'"
+      :member="member" :ts="ts" :groupdefs="groupdefs"  :roledefs="roledefs" />
+    <mgmt-members-add @update="update($event)" v-if="section == 'add'"/>
+    <mgmt-members-photo @update="update($event)" v-if="section == 'photo'"
+      :member="member"  :ts="ts" />
+    <mgmt-members-groups @update="update($event)" v-if="section == 'groups'" 
+       :groupdefs="groupdefs"  :roledefs="roledefs"/>
     <v-snackbar v-model="snackbar" :timeout="timeout" bottom>
       {{ snacktext }}
       <v-btn flat @click="snackbar = false">
@@ -26,37 +21,36 @@
 
 <script>
 
-import MgmtPartList from '../components/MgmtPartList'
-import MgmtPartEdit from '../components/MgmtPartEdit'
-import MgmtPartAdd from '../components/MgmtPartAdd'
-import MgmtPartInvoice from '../components/MgmtPartInvoice'
-import MgmtPartPhoto from '../components/MgmtPartPhoto'
-import MgmtPartBadge from '../components/MgmtPartBadge'
-import MgmtPartNamecard from '../components/MgmtPartNamecard'
-import MgmtPartPresence from '../components/MgmtPartPresence'
+import api from '../util/api'
+
+
+import MgmtMembersList from '../components/MgmtMembersList'
+import MgmtMembersEdit from '../components/MgmtMembersEdit'
+import MgmtMembersAdd from '../components/MgmtMembersAdd'
+import MgmtMembersPhoto from '../components/MgmtMembersPhoto'
+import MgmtMembersGroups from '../components/MgmtMembersGroups'
 
 export default {
-  name: "MgmtParticipants",
+  name: "MgmtMembers",
 
   data () {return {
+    groupdefs: [],
+    member: {},
+    roledefs: [],
     section: 'list',
     selection: [],
     snackbar: false,
     snacktext: '',
-    participant: {},
     ts: new Date(),
     timeout: 4000,
   }},
 
   components: {
-    MgmtPartInvoice,
-    MgmtPartList,
-    MgmtPartEdit,
-    MgmtPartAdd,
-    MgmtPartPhoto,
-    MgmtPartBadge,
-    MgmtPartNamecard,
-    MgmtPartPresence,
+    MgmtMembersList,
+    MgmtMembersEdit,
+    MgmtMembersAdd,
+    MgmtMembersPhoto,
+    MgmtMembersGroups,
   },
 
   methods: {
@@ -64,8 +58,8 @@ export default {
       console.log('update', e);
       if (e.section)
         this.section = e.section;
-      if (e.participant)
-        this.participant = e.participant;
+      if (e.member)
+        this.member = e.member;
       if (e.selection)
         this.selection = e.selection
       if (e.reload) 
@@ -74,7 +68,23 @@ export default {
         this.snacktext = e.text;
         this.snackbar = true;
       }
+      if (e.groupdefs)
+        this.groupdefs = e.groupdefs;
+      if (e.roledefs)
+        this.roledefs = e.roledefs;
     }
+  },
+
+  mounted () {
+    api('getGroupRoles', {}).then(
+      function(data){
+        this.groupdefs = data.groupnames;
+        this.roledefs = data.rolenames;
+      }.bind(this), 
+      function(data){
+        console.error('Could not get Group Roles', data)
+      }
+    );
   }
 }
 </script>
