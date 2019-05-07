@@ -126,7 +126,7 @@ def member_detail(request, id):
 
     if request.method == 'PUT':
         data = request.data.get('member', {})
-        m.birthdate = str2date(data.get('birthdate'), m.birthdate)
+        m.birthdate = strtodate(data.get('birthdate')) or  m.birthdate
         m.chesstitle = data.get('chesstitle', m.chesstitle)
         m.email = data.get('email', m.email)
         m.federation = data.get('federation', m.federation)
@@ -145,10 +145,7 @@ def member_detail(request, id):
         except:
             pass
         m.remarks = data.get('remarks', m.remarks)
-        try: 
-            m.roles = json.dump(data.get('roles'))
-        except:
-            pass
+        m.roles = json.dumps(data.get('roles')) or '[]'
         try:
             m.save()
             ms = {

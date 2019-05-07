@@ -61,19 +61,23 @@
     </v-flex>
     <v-flex xs12>
       <h4>Roles</h4>
-      <v-layout row wrap v-for="(r, ix) in roles" :key="ix">
-        <v-flex>
-          <v-select label="Group" v-model="r.groupname"
-                :items="groupdefs"
-          />
-        </v-flex>
-        <v-flex>
-          <v-select label="Role" v-model="r.rolename"
-                    :items="roledefs"
-          />
-        </v-flex>
-        <v-flex>
-          <v-icon @click="removeRole(ix)">remove_circle</v-icon>
+      <v-layout row wrap>
+        <v-flex sm10 class="elevation-2 grey lighten-4 pa-1 ma-1" >
+          <v-layout row wrap v-for="(r, ix) in roles" :key="ix" class="">
+            <v-flex sm4 >
+              <v-select label="Group" v-model="r.groupname" @change="setupRoles()"
+                    :items="groupdefs" item-text="name" item-value="shortname"
+              />
+            </v-flex>
+            <v-flex sm7>
+              <v-select label="Role" v-model="r.rolename" @change="setupRoles()"
+                        :items="roledefs"  item-text="name" item-value="shortname"
+              />
+            </v-flex>
+            <v-flex sm1>
+              <v-icon @click="removeRole(ix)">remove_circle</v-icon>
+            </v-flex>
+          </v-layout>
         </v-flex>
       </v-layout>
     </v-flex>
@@ -94,7 +98,7 @@ export default {
     DateFormatted,
   },
 
-  props: ['member'],
+  props: ['member', 'groupdefs', 'roledefs'],
 
   computed :  {
     fullname () {
@@ -137,18 +141,31 @@ export default {
       }
     },
 
+    removeRole(ix) {
+      this.roles.splice(ix, 1);
+    },
+
     setupRoles(ro) {
-      console.log('this.roles before', this.roles);
-      this.roles = [];
+      let roles = [];
+      ro = ro || this.roles;
+      console.log('change', ro, ro.length)
       ro.forEach(function(r){
-        if (r.groupname && r.rolename)
-          this.roles.push(r)
-      }.bind(this))
-      this.roles.push({groupname: '', rolename: ''})
-      console.log('this.roles after', this.roles);
+        console.log('r', r.groupname, r.rolename);
+        if (r.groupname || r.rolename)
+          roles.push(r)
+      })
+      console.log('roles', roles, roles.length)
+      roles.push({groupname: '', rolename: ''})
+      this.roles = roles;
     },
 
     saveMember () {
+      let roles = [];
+      this.roles.forEach(function(r){
+        if (r.groupname && r.rolename)
+          roles.push(r);
+      })
+      this.p.roles = roles;
       api('updateMember', {
         id: this.member.id,
         member: this.p,

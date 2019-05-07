@@ -19,7 +19,7 @@
       </v-tooltip>
     </v-flex>
   </v-layout>
-  <div v-for="(gr,ix) in groupnames" :key="ix">
+  <div v-for="(gr,ix) in groupnames" :key="'group_'+ ix">
     <v-layout row wrap >
       <v-flex sm4>
         <v-text-field label="Short name" v-model="gr.shortname" hide-details single-line
@@ -30,6 +30,7 @@
           @change="setupGroupNames()" class=nopadding />
       </v-flex>
       <v-flex sm2>
+        <v-icon @click="removeGroupname(ix)">remove_circle</v-icon>
         <v-icon v-show="ix != openedgroup"  @click="openGroupTranslations(ix)"
           >arrow_drop_down</v-icon>
         <v-icon v-show="ix == openedgroup" @click="openedgroup = -1"
@@ -87,7 +88,7 @@
   </div>
 
   <h1 class="mt-2">Role Names</h1>
-  <div v-for="(rl,ix) in rolenames" :key="ix">
+  <div v-for="(rl,ix) in rolenames" :key="'role_' + ix">
     <v-layout row wrap >
       <v-flex sm4>
         <v-text-field label="Short name" v-model="rl.shortname" hide-details single-line
@@ -98,6 +99,7 @@
           @change="setupRoleNames()" class=nopadding />
       </v-flex>
       <v-flex sm2>
+        <v-icon @click="removeRolename(ix)">remove_circle</v-icon>
         <v-icon v-show="ix != openedrole"  @click="openRoleTranslations(ix)"
           >arrow_drop_down</v-icon>
         <v-icon v-show="ix == openedrole" @click="openedrole = -1"
@@ -190,6 +192,14 @@ export default {
 
     openRoleTranslations(ix) {
       this.openedrole = ix;
+    },
+
+    removeGroupname(ix) {
+      this.groupnames.splice(ix, 1);
+    },
+
+    removeRolename(ix) {
+      this.rolenames.splice(ix, 1);
     },
 
     setupGroupNames(gr) {
