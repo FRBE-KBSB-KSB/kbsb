@@ -1,17 +1,13 @@
 Metadata-Version: 1.1
 Name: kbsb
-Version: 0.1.0
-Summary: Royal Belgian Chess Federatin
+Version: 0.2.1
+Summary: kbsb website
 Home-page: https://www.frbe-kbsb.be
 Author: Ruben Decrop
 Author-email: ruben@decrop.net
 License: UNKNOWN
-Description: 
-        
-        
-Keywords: Chess,Belgium
+Description: kbsb website
+Keywords: Chess,Federation,Belgium
 Platform: UNKNOWN
-Classifier: Programming Language :: Python
-Classifier: Framework :: Django-cms
-Classifier: Topic :: Internet :: WWW/HTTP
-Classifier: Topic :: Internet :: WWW/HTTP :: WSGI :: Application
+Classifier: "Programming Language :: Python"
+Classifier: "Framework :: Falcon"

@@ -1,0 +1,29 @@
+<v-flex xs12 md6 xl4>
+  <v-layout row class="ma-3">
+    <div class="memberleft" >
+      <img src="{{ photourl }}" class="memberphoto">
+    </div>
+    <v-flex d-flex grow>
+      <v-card>
+        <v-card-title  class="green lighten-3">
+          {{first_name}} {{last_name}}
+        </v-card-title>
+        <v-card-text>
+          <div>tel: {{mobiletel}}</div>
+          <div>email: {{email}}</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn flat icon class="green" href="tel:{{mobiletel}}">
+              <v-icon color="white">phone</v-icon>
+          </v-btn>
+          <v-btn flat icon class="green" href="sms:{{mobiletel}}">
+              <v-icon  color="white">textsms</v-icon>
+          </v-btn>
+          <v-btn flat icon  class="green" href="mailto:{{email}}">
+              <v-icon color="white">email</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex> 
+  </v-layout>
+</v-flex>
