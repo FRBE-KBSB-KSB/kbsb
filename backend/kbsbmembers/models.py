@@ -12,6 +12,7 @@ from django.db.models import (
     ForeignKey,
     CASCADE,
 ) 
+from cms.models.pluginmodel import CMSPlugin
 
 class KbsbMember(Model):
 
@@ -48,3 +49,14 @@ class KbsbRoleNames(Model):
     shortname = CharField('Abbreviated role name', max_length=25)
     name = CharField('Long role name ', max_length=80)
     translations = TextField('Translations (JSON)')
+
+class KbsbMemberView(CMSPlugin):
+    idbel = CharField("Belgian id", max_length=6)
+    groupname = CharField("Group name", max_length=25, 
+        choices=((g.shortname, g.name) for g in KbsbGroupNames.objects.all())
+    )
+
+class KbsbGroupView(CMSPlugin):
+    groupname = CharField("Group name", max_length=25, 
+        choices=((g.shortname, g.name) for g in KbsbGroupNames.objects.all())
+    )

@@ -1,0 +1,33 @@
+{% for m in members %}
+
+<v-flex xs12 md6 xl4>
+  <v-layout row class="ma-3">
+    <div class="memberleft" >
+      <img src="{{ m.photourl }}" class="memberphoto">
+    </div>
+    <v-flex d-flex grow>
+      <v-card>
+        <v-card-title  class="green lighten-3">
+          {{m.first_name}} {{m.last_name}}
+        </v-card-title>
+        <v-card-text>
+          <div>tel: {{m.mobiletel}}</div>
+          <div>email: {{m.email}}</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn flat icon class="green" href="tel:{{m.mobiletel}}">
+              <v-icon color="white">phone</v-icon>
+          </v-btn>
+          <v-btn flat icon class="green" href="sms:{{m.mobiletel}}">
+              <v-icon  color="white">textsms</v-icon>
+          </v-btn>
+          <v-btn flat icon  class="green" href="mailto:{{m.email}}">
+              <v-icon color="white">email</v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-flex> 
+  </v-layout>
+</v-flex>
+
+{% endfor %}

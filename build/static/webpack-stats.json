@@ -14,14 +14,7 @@
         "name": "mgmt.js",
         "publicPath": "http://localhost:8080/static/mgmt.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.js"
-      },
-      {
-        "name": "mgmt.84c2943af41b84a3bdfc.hot-update.js",
-        "publicPath": "http://localhost:8080/static/mgmt.84c2943af41b84a3bdfc.hot-update.js",
-        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.84c2943af41b84a3bdfc.hot-update.js"
       }
     ]
-  },
-  "error": "ModuleBuildError",
-  "message": "Module build failed (from ./node_modules/babel-loader/lib/index.js):\nSyntaxError: /home/ruben/develop/python/kbsb/frontend/src/components/MgmtMembersGroups.vue: Expecting Unicode escape sequence \\uXXXX (200:1)\n\n  198 |       this.groupnames.splice(ix, 1);\n  199 |     },\n> 200 | \\    removeRolename(ix) {\n      |  ^\n  201 |       this.rolenames.splice(ix, 1);\n  202 |     },\n  203 | \n    at Parser.raise (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:3851:17)\n    at Parser.readWord1 (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:4997:16)\n    at Parser.readWord (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5022:23)\n    at Parser.getTokenFromCode (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:4529:14)\n    at Parser.nextToken (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:4049:12)\n    at Parser.next (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:3989:10)\n    at Parser.eat (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:3994:12)\n    at Parser.expect (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5153:10)\n    at Parser.parseObj (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6637:14)\n    at Parser.parseExprAtom (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6274:21)\n    at Parser.parseExprSubscripts (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5914:23)\n    at Parser.parseMaybeUnary (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5894:21)\n    at Parser.parseExprOps (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5781:23)\n    at Parser.parseMaybeConditional (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5754:23)\n    at Parser.parseMaybeAssign (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5701:21)\n    at Parser.parseObjectProperty (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6768:101)"
+  }
 }
