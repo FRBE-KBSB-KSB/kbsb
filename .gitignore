@@ -6,6 +6,7 @@ __pycache__/
 *.retry
 .idea
 .vscode
+.eggs
 /backend/local_settings.py
 /backend/build
 /backend/dist
