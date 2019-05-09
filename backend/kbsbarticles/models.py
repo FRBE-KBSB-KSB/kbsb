@@ -9,6 +9,7 @@
 
 from django.db.models import *
 from django.utils import timezone
+from cms.models.pluginmodel import CMSPlugin
 
 class KbsbArticle(Model):
 
@@ -36,3 +37,6 @@ class KbsbArticleLocale(Model):
     content = TextField('Content')
     intro = TextField('Intro')
     title = CharField("Title", max_length=80)
+
+class KbsbMarkdownView(CMSPlugin):
+    source = TextField("Markdown source")
