@@ -28,7 +28,6 @@ window.config = {
 
 {% if PRODUCTION %}
   {% render_bundle 'chunk-vendors' %}
-  {% render_bundle 'chunk-common' %}
   {% render_bundle 'mgmt' 'js' %}
 {% else %}
   {% render_bundle 'mgmt' %}
