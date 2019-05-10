@@ -195,6 +195,8 @@ MIGRATION_MODULES = {
 
 OLDSITE =  'https://www.frbe-kbsb.be'
 
+PRODUCTION = True
+
 ROOT_URLCONF = 'kbsb.urls'
 
 SECRET_KEY = 'You know, a weakness here and ther, just a little bit of pressure'

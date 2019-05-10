@@ -10,6 +10,7 @@ __pycache__/
 /backend/local_settings.py
 /backend/build
 /backend/dist
+/backend/kbsb.egg-info/
 /frontend/node_modules/
 /frontend/yarn.lock
 /frontend/webpack-stats.json
