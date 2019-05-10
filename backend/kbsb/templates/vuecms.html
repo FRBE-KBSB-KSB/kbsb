@@ -73,6 +73,7 @@ function startup () {
 
   window.config = {
     {% block extra_config %}{% endblock extra_config %}
+    production: '{{ PRODUCTION }}',
     api_url: '/api',
     lang: '{{ LANGUAGE_CODE }}',
     url_i18n: {

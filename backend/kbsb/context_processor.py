@@ -17,12 +17,12 @@ import simplejson as json
 
 
 def local(request):
-    serverconfig = {
+    ts = settings.TEMPLATE_SETTINGS
+    c = {k:getattr(settings,k,None) for k in ts}
+    c['serverconfig'] = json.dumps({
         # 'api_url': settings.API_URL,
         # 'authenticated': request.user.is_authenticated(),
         'oldsite': settings.OLDSITE,
         'static_url': settings.STATIC_URL,
-    }
-    return {
-        'serverconfig': json.dumps(serverconfig),
-    }
+    })
+    return c
