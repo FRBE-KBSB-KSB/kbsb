@@ -7,11 +7,6 @@
         "name": "cms.js",
         "publicPath": "http://localhost:8080/static/cms.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.js"
-      },
-      {
-        "name": "cms.dba1f63ffcffd2159c0d.hot-update.js",
-        "publicPath": "http://localhost:8080/static/cms.dba1f63ffcffd2159c0d.hot-update.js",
-        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.dba1f63ffcffd2159c0d.hot-update.js"
       }
     ],
     "mgmt": [
@@ -19,6 +14,11 @@
         "name": "mgmt.js",
         "publicPath": "http://localhost:8080/static/mgmt.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.js"
+      },
+      {
+        "name": "mgmt.229601b56d298de3c3b5.hot-update.js",
+        "publicPath": "http://localhost:8080/static/mgmt.229601b56d298de3c3b5.hot-update.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.229601b56d298de3c3b5.hot-update.js"
       }
     ]
   },

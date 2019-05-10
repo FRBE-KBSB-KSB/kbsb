@@ -77,5 +77,12 @@ export default {
     body: ['groupnames', 'rolenames'],
     required: ['groupnames', 'rolenames'],
   },
+  uploadPhoto: {
+    method: 'POST',
+    url: '/members/{id}/photo',
+    body: ['photo'],
+    path: ['id'],
+    required: ['photo', 'id']    
+  }
 
 };

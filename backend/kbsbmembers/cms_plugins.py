@@ -60,8 +60,10 @@ class KbsbGroupPlugin(CMSPluginBase):
         ms = []
         for m in KbsbMember.objects.all():
             roles = json.loads(m.roles)
+            m.photourl = '/members/photo/{}'.format(m.id)
             for r in roles:
                 if r.get('groupname') == instance.groupname:
+                    m.role = r.get('rolename')
                     ms.append(m)
         context['members'] = ms
         return super(KbsbGroupPlugin, self).render(

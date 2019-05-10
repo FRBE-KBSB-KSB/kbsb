@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 from .views import mgmtpage
 
 import kbsbarticles.apiurls
+import kbsbmembers.urls
 import kbsbmembers.apiurls
 
 admin.autodiscover()
@@ -38,11 +39,8 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-
+    path('members/', include(kbsbmembers.urls)),
     re_path(r'^(?!api)', include('cms.urls')), 
-
-   
-
 )
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -36,5 +36,6 @@ class KbsbMarkdownPlugin(CMSPluginBase):
 
     def render(self, context, instance, placeholder):
         context['source'] = instance.source
+        context['sanitize'] = instance.sanitize
         return super(KbsbMarkdownPlugin, self).render(
             context, instance, placeholder)            

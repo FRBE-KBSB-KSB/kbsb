@@ -13,10 +13,11 @@
 #    limitations under the License.
 
 
-from django.conf.urls import url
-from .views import *
+from django.urls import path
+from .views import testphoto, memberphoto
 
 urlpatterns = [
-    url(r'^admin_members$', admin_members),
+    path('photo/<int:id>', memberphoto),
+    path('testphoto', testphoto),
 ]
 

@@ -9,11 +9,22 @@ import simplejson as json
 
 from binascii import a2b_base64
 from django.conf import settings
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 
 from .models import KbsbMember, KbsbGroupNames, KbsbRoleNames
+
+class ImageRenderer(BaseRenderer):
+    media_type = 'image/*'
+    format = 'jpg'
+    charset = None
+    render_style = 'binary'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return data
 
 def datetostr(d):
     """
@@ -177,10 +188,30 @@ def member_detail(request, id):
         m.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def member_photo(request, id):
 
-    pass
+    try:
+        m = KbsbMember.objects.get(id=id)
+    except KbsbMember.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    photo = request.data.get('photo')
+    if photo:
+        try:
+            header, data = photo.split(',')
+            log.info('header photo %s', header)
+            m.badgemimetype = header.split(':')[1].split(';')[0]
+            m.badgeimage = a2b_base64(data)
+            m.badgelength = len(m.badgeimage)
+            m.save()
+            with open('saved.png', 'wb') as f:
+                f.write(m.badgeimage)
+            return Response(status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT'])
 def grouproles(request):

@@ -3,7 +3,7 @@
  
   <v-layout row wrap>
     <v-flex>
-      <h1>Photo Participant: {{ fullname }} </h1>
+      <h1>Photo Member: {{ fullname }} </h1>
     </v-flex>
     <v-flex>
       <v-tooltip bottom>
@@ -74,7 +74,7 @@ import vueFilePond from 'vue-filepond';
 const FilePond = vueFilePond();
 
 export default {
-  name: "MgmtPartEdit",
+  name: "MgmtPartPhoto",
 
   components: {
     DateFormatted,
@@ -99,21 +99,21 @@ export default {
   methods: {
 
     back () {
-      this.$emit('update', {section: 'list', params:{}})
+      this.$emit('update', {section: 'list'})
     },
 
     crop() {
       this.photo = this.$refs.photosrc.getCroppedCanvas({width: 160}).toDataURL();
     },
 
-    getAttendee () {
-      api('getAttendee', {
-        id: this.participant.id
+    getMember () {
+      api('getMember', {
+        id: this.member.id
       }).then(
       function(data) {
-          this.p = data.attendee;
-          this.photosrc =  this.p.id ? '/api/subscriptions/' + this.p.id + 
-            '/photo?time=' + (new Date()).getTime() : 
+          this.p = data.member;
+          this.photosrc =  this.p.id ? '/members/photo/' + this.p.id + 
+            '?time=' + (new Date()).getTime() : 
         '/static/img/nobody.png';
           this.photo = '';
         }.bind(this)
@@ -135,16 +135,16 @@ export default {
     save() {
       api('uploadPhoto', {
         photo: this.photo,
-        idsub: this.p.id,
+        id: this.p.id,
       }).then(
         function(){
           this.$emit('update', {
             section: 'photo', 
             text: 'Photo saved',
             reload: true,
-            params: this.participant,
+            member: this.p,
           });
-          this.getAttendee()
+          this.getMember()
         }.bind(this),
         function(err){
           console.log('upload failed', err)
@@ -155,7 +155,7 @@ export default {
   },
 
   mounted () {
-    this.getAttendee()
+    this.getMember()
   }
 
 }

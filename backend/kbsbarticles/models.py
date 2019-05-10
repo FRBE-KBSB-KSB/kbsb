@@ -40,3 +40,4 @@ class KbsbArticleLocale(Model):
 
 class KbsbMarkdownView(CMSPlugin):
     source = TextField("Markdown source")
+    sanitize = BooleanField("Sanitize html", default=True)
