@@ -31,7 +31,6 @@
 <script>
 
 import { loadLanguageAsync } from '../util/lang'
-import marked from 'marked' 
 
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
@@ -59,7 +58,6 @@ export default {
   created () {
     loadLanguageAsync(window.config.lang);
   },
-
 }
 </script>
 

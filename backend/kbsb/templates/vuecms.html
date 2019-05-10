@@ -11,12 +11,12 @@
   {% render_bundle 'chunk-vendors'  'css' %}
   {% render_bundle 'cms' 'css' %}
 {% endif %}
-<script>
+<!-- <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'UA-116219765-1');
-</script>
+</script> -->
 </head>
 <body>
 
@@ -44,7 +44,7 @@
 
 <script>
 
-function registerComponent(id, dataf) {
+function registerComponent(id, options) {
   let cmscontent = document.getElementById(id),
       chtml='';
   // filter out <template> and <script> tags
@@ -56,12 +56,17 @@ function registerComponent(id, dataf) {
   }
   application.Vue.component(id, {
     template: '<div>' + chtml + '</div>',
-    data: dataf || function(){ return{}},
+    data: (options && options.data) || function(){ return{}},
+    methods: (options && options.methods) || {},
   });
 }
 
 function startup () {
-  registerComponent('cms-content', function (){return { tabactive: 0}});
+  console.log('window.config in startup.js 1 ', window.config);
+  registerComponent('cms-content', {
+    data: function (){return { tabactive: 0}},
+    methods: { marked: window.config.marked},
+  });
   registerComponent('cms-menu-items');
 
   application.Vue.config.ignoredElements = [
@@ -69,8 +74,10 @@ function startup () {
     'cms-plugin',
   ];
 
+  window.config = window.config || {};
   window.config = {
     {% block extra_config %}{% endblock extra_config %}
+    marked: window.config.marked,
     production: '{{ PRODUCTION }}',
     api_url: '/api',
     lang: '{{ LANGUAGE_CODE }}',
@@ -81,6 +88,7 @@ function startup () {
       en: "{% page_language_url 'en' %}",
     }
   };
+  console.log('window.config in startup.js 2', window.config);
 
   vm = new application.Vue({
     render: h => h(application.App),

@@ -1,3 +1,3 @@
-<v-container v-html="marked(source, {sanitize: true})">
+<v-container v-html="marked('{{source| escapejs}}', {sanitize: true})">
 </v-container>
 
