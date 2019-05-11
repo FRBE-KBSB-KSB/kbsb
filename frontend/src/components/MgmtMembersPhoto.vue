@@ -36,11 +36,11 @@
   <v-layout row wrap>
     <v-flex class="my-1">
       <h4>Existing Photo</h4>
-      <div><img :src="photosrc"></div>
+      <div><img :src="photosrc" class="photo160"></div>
     </v-flex>
     <v-flex class="my-1">
       <h4>Resulting Photo</h4>
-      <div><img :src="photo"></div>
+      <div><img :src="photo" class="photo160"></div>
     </v-flex>
   </v-layout>
 
@@ -179,5 +179,8 @@ export default {
   text-align: center;
   width: 160px;
   height: 200px;
+}
+.photo160 {
+  width: 160px;
 }
 </style>

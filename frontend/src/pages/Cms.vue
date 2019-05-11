@@ -9,10 +9,8 @@
     <v-parallax v-if="landing && $vuetify.breakpoint.xs"
                 src="/static/img/landing_small.jpg" height="200" />
     <v-content :class="{landing: landing}">
-      <v-container>
-        <div class="mainarea my-1">
+      <v-container class="my-1">
           <cms-content class="pa-1" />
-        </div>
       </v-container>
       <v-parallax  v-if="landing && $vuetify.breakpoint.mdAndUp"
                    src="/static/img/chesscrowd_big.jpg" height="400" />

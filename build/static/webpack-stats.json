@@ -7,6 +7,11 @@
         "name": "cms.js",
         "publicPath": "http://localhost:8080/static/cms.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.js"
+      },
+      {
+        "name": "cms.ccccb55241ffc3e75900.hot-update.js",
+        "publicPath": "http://localhost:8080/static/cms.ccccb55241ffc3e75900.hot-update.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.ccccb55241ffc3e75900.hot-update.js"
       }
     ],
     "mgmt": [
@@ -14,14 +19,7 @@
         "name": "mgmt.js",
         "publicPath": "http://localhost:8080/static/mgmt.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.js"
-      },
-      {
-        "name": "mgmt.229601b56d298de3c3b5.hot-update.js",
-        "publicPath": "http://localhost:8080/static/mgmt.229601b56d298de3c3b5.hot-update.js",
-        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/mgmt.229601b56d298de3c3b5.hot-update.js"
       }
     ]
-  },
-  "error": "ModuleBuildError",
-  "message": "Module build failed (from ./node_modules/babel-loader/lib/index.js):\nSyntaxError: /home/ruben/develop/python/kbsb/frontend/src/pages/Cms.vue: Unexpected token (65:2)\n\n  63 |   methods: {\n  64 |     marked: \n> 65 |   },\n     |   ^\n  66 | \n  67 | }\n  68 | \n    at Parser.raise (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:3851:17)\n    at Parser.unexpected (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5167:16)\n    at Parser.parseExprAtom (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6328:20)\n    at Parser.parseExprSubscripts (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5914:23)\n    at Parser.parseMaybeUnary (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5894:21)\n    at Parser.parseExprOps (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5781:23)\n    at Parser.parseMaybeConditional (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5754:23)\n    at Parser.parseMaybeAssign (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5701:21)\n    at Parser.parseObjectProperty (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6768:101)\n    at Parser.parseObjPropValue (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6793:101)\n    at Parser.parseObjectMember (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6717:10)\n    at Parser.parseObj (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6641:25)\n    at Parser.parseExprAtom (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:6274:21)\n    at Parser.parseExprSubscripts (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5914:23)\n    at Parser.parseMaybeUnary (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5894:21)\n    at Parser.parseExprOps (/home/ruben/develop/python/kbsb/frontend/node_modules/@babel/parser/lib/index.js:5781:23)"
+  }
 }
