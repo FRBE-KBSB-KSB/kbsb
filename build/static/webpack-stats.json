@@ -9,11 +9,6 @@
         "name": "article.js",
         "publicPath": "http://localhost:8080/static/article.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/article.js"
-      },
-      {
-        "name": "article.0a5b7ff0611bc1576859.hot-update.js",
-        "publicPath": "http://localhost:8080/static/article.0a5b7ff0611bc1576859.hot-update.js",
-        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/article.0a5b7ff0611bc1576859.hot-update.js"
       }
     ],
     "articles": [
@@ -28,6 +23,11 @@
         "name": "cms.js",
         "publicPath": "http://localhost:8080/static/cms.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.js"
+      },
+      {
+        "name": "cms.fcb210d0dff790d8e652.hot-update.js",
+        "publicPath": "http://localhost:8080/static/cms.fcb210d0dff790d8e652.hot-update.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.fcb210d0dff790d8e652.hot-update.js"
       }
     ],
     "mgmt": [

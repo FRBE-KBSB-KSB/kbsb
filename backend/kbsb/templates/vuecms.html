@@ -74,6 +74,8 @@ function startup () {
     'cms-plugin',
   ];
 
+  console.log('window.config in startup.js 1', window.config);
+
   window.config = window.config || {};
   window.config = {
     {% block extra_config %}{% endblock extra_config %}
