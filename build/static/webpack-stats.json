@@ -1,17 +1,33 @@
 {
   "status": "done",
   "publicPath": "http://localhost:8080/static/",
+  "error": "ModuleError",
+  "message": "Module Error (from ./node_modules/vue-loader/lib/loaders/templateLoader.js):\n(Emitted value instead of an instance of Error) \n\n  Errors compiling template:\n\n  tag <div> has no matching end tag.\n\n  13 |          <v-tabs-items v-model=\"langix\">\n  14 |            <v-tab-item  v-for=\"l in languages\" :key=\"l\"> \n  15 |              <div v-html=\"body[l]\">  \n     |              ^^^^^^^^^^^^^^^^^^^^^^\n  16 |            </v-tab-item>\n  17 |          </v-tabs-items>\n",
   "chunks": {
+    "article": [
+      {
+        "name": "article.js",
+        "publicPath": "http://localhost:8080/static/article.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/article.js"
+      },
+      {
+        "name": "article.0a5b7ff0611bc1576859.hot-update.js",
+        "publicPath": "http://localhost:8080/static/article.0a5b7ff0611bc1576859.hot-update.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/article.0a5b7ff0611bc1576859.hot-update.js"
+      }
+    ],
+    "articles": [
+      {
+        "name": "articles.js",
+        "publicPath": "http://localhost:8080/static/articles.js",
+        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/articles.js"
+      }
+    ],
     "cms": [
       {
         "name": "cms.js",
         "publicPath": "http://localhost:8080/static/cms.js",
         "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.js"
-      },
-      {
-        "name": "cms.ccccb55241ffc3e75900.hot-update.js",
-        "publicPath": "http://localhost:8080/static/cms.ccccb55241ffc3e75900.hot-update.js",
-        "path": "/home/ruben/develop/python/kbsb/frontend/dist/static/cms.ccccb55241ffc3e75900.hot-update.js"
       }
     ],
     "mgmt": [

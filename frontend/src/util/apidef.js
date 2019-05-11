@@ -5,7 +5,7 @@ export default {
   getArticles: {
     method: 'GET',
     url: '/articles',
-    query: ['ss'],
+    query: ['ss', 'start', 'count', 'intro'],
     required: [],
   },
   addArticle: {

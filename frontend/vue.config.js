@@ -24,6 +24,8 @@ module.exports = {
   pages: {
     cms: 'src/cms.js',
     mgmt: 'src/mgmt.js',
+    article: 'src/article.js',
+    articles: 'src/articles.js',
   },
 
 }

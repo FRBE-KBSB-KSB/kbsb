@@ -7,11 +7,11 @@ from django.shortcuts import render
 from kbsbarticles.models import KbsbArticle
 
 def articlespage(request):
-    return render(request, 'kbsbarticle/articles.html')
+    return render(request, 'kbsbarticles/articles.html')
  
 def articlepage(request, slug):
     try:
-        art = KbsbArticle.ojects.get(slug=slug)
+        art = KbsbArticle.objects.get(slug=slug)
     except KbsbArticle.DoesNotExist:
-        return render(request, 'kbsbarticle/notfound.html')
-    return render(request, 'kbsbarticle/article.html')
+        return render(request, 'kbsbarticles/notfound.html')
+    return render(request, 'kbsbarticles/article.html', {'id': art.id})

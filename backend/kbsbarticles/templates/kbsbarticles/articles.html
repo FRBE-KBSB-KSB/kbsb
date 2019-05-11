@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load cms_tags sekizai_tags staticfiles menu_tags %}
+{% load render_bundle from webpack_loader %}
+
+{% block content %}
+
+{% addtoblock "css" %}
+{% if PRODUCTION %}
+  {% render_bundle 'articles' 'css' %}
+{% endif %}
+{% endaddtoblock %}
+
+{% addtoblock "js" %}
+
+<script>
+window.config = {
+  {% block extra_config %}{% endblock extra_config %}
+  api_url: '/api',
+  url_i18n: {
+    nl: '/nl/articles',
+    fr: '/fr/articles',
+    de: '/de/articles',
+    en: '/en/articles',
+  },
+  lang: 'en'
+};
+</script>
+
+{% if PRODUCTION %}
+  {% render_bundle 'chunk-vendors' %}
+  {% render_bundle 'articles' 'js' %}
+{% else %}
+  {% render_bundle 'articles' %}
+{% endif %}
+
+<script>
+function registerComponent(id, options) {
+  let cmscontent = document.getElementById(id),
+      chtml='';
+  // filter out <template> and <script> tags
+  for (let i=0; i<cmscontent.children.length; i++) {
+    let tag = cmscontent.children[i].tagName;
+    if (tag != 'TEMPLATE'  && tag != 'SCRIPT') {
+      chtml += cmscontent.children[i].outerHTML;
+    }
+  }
+  application.Vue.component(id, {
+    template: '<div>' + chtml + '</div>',
+    data: (options && options.data) || function(){ return{}},
+    methods: (options && options.methods) || {},
+  });
+}
+
+registerComponent('cms-menu-items');
+
+vm = new application.Vue({
+  render: h => h(application.App),
+  router: application.router,
+  i18n: application.i18n,
+  store: application.store,
+}).$mount('#app');
+
+</script>
+{% endaddtoblock js %}
+
+<div id="app"></div>
+
+<div id="cms-menu-items" style="display:none;">
+  {%  show_menu 0 100 100 100 %}
+</div>
+
+{% endblock content %}

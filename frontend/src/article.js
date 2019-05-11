@@ -4,16 +4,15 @@ import store from './store/mgmt'
 import { i18n } from './util/lang'
 import './util/vuetify'
 
-import ViewArticles from './pages/ViewArticles'
+import ViewArticle from './pages/ViewArticle'
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
-
 window.application = {
   Vue: Vue,
-  App: ViewArticles,
+  App: ViewArticle,
   store: store,
   i18n: i18n
 };

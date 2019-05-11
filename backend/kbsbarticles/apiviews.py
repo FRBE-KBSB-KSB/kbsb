@@ -9,6 +9,8 @@ import simplejson as json
 from django.db.models import Max
 from django.shortcuts import redirect
 from django.conf import settings
+from django.utils import  translation
+
 from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
@@ -41,14 +43,23 @@ def article_all(request):
 
     if request.method == 'GET':
         articles = KbsbArticle.objects.all()
-        als = [
-            {
+        lang = translation.get_language()
+        introrequired = request.GET.get('intro')
+        als = []
+        for a in articles:
+            ad = {
                 'id': a.id,
                 'maintitle': a.maintitle,
                 'author': a.author,
-                'published': datetostr(a.published)
-            } for a in articles
-        ]
+                'published': datetostr(a.published),
+                'slug': a.slug,
+            }
+            for l in a.localefields.all():
+                if l.locale == lang:
+                    ad['title'] = l.title
+                    if introrequired:
+                        ad['intro'] = l.intro            
+            als.append(ad)
         return Response(dict(articles=als))
 
     if request.method == 'POST':

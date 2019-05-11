@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 from .views import mgmtpage
 
 import kbsbarticles.apiurls
+import kbsbarticles.urls
 import kbsbmembers.urls
 import kbsbmembers.apiurls
 
@@ -39,6 +40,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
+    path('articles/', include(kbsbarticles.urls)),
     path('members/', include(kbsbmembers.urls)),
     re_path(r'^(?!api)', include('cms.urls')), 
 )

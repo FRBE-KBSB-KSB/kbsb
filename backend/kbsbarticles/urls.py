@@ -1,10 +1,10 @@
 # original Copyright Ruben Decrop
 # modifications by Chessdevil Consulting BVBA
 
-from django.conf.urls import url
+from django.urls import path
 from kbsbarticles import views
 
 urlpatterns = [
-    url(r'articles$', views.articlespage),
-    url(r'articles/(?P<slug>\w+)$', views.articlepage),
+    path('list', views.articlespage),
+    path('view/<slug:slug>', views.articlepage),
 ]
