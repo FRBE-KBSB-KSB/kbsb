@@ -9,7 +9,7 @@ module.exports = {
         indent: 2,
         publicPath: process.env.NODE_ENV === 'production' ? '/static/' : 
           'http://localhost:8080/static/',
-        path: process.env.NODE_ENV === 'production' ? '.' : '../build/static/'
+        // path: process.env.NODE_ENV === 'production' ? '.' : '../build/static/'
       })
     ],
     devServer: {
