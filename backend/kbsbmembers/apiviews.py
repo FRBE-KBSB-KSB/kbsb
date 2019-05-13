@@ -205,8 +205,6 @@ def member_photo(request, id):
             m.badgeimage = a2b_base64(data)
             m.badgelength = len(m.badgeimage)
             m.save()
-            with open('saved.png', 'wb') as f:
-                f.write(m.badgeimage)
             return Response(status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)

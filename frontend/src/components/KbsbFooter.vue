@@ -1,7 +1,7 @@
 <template>
 <v-footer height="auto" color="green" dark class="mt-2">
   <v-container>
-    <v-layout row wrap class="py-3">
+    <v-layout row wrap class="py-3 px-2">
       <v-flex sm4 xs12 class="mt-2">
         <h4 class="mb-2">
           {{ $t('Royal Belgian Chess Federation')}} {{ $t('npo')}}

@@ -28,6 +28,7 @@ python-slugify = "*"
 requests = "*"
 simplejson = "*"
 markdown2 = "*"
+djangocms-picture = "*"
 
 [requires]
 python_version = "3.7"

@@ -85,7 +85,7 @@ DATA_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 
-DJANGOCMS_STYLE_CHOICES = ['logo-wrapper']
+DJANGOCMS_STYLE_CHOICES = ['logo-wrapper', 'imgwidth100']
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
@@ -114,6 +114,7 @@ INSTALLED_APPS = [
     'djangocms_file',
     'djangocms_googlemap',
     'djangocms_link',
+    'djangocms_picture',
     'djangocms_text_ckeditor',
 
     # local
