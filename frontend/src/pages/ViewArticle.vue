@@ -59,17 +59,17 @@ export default {
   methods: {
 
     getArticle() {
-      var intro, content, title, locales;
+      var intro, content, title, ruler, locales;
       api('getArticle', {id: window.config.id}).then(
         function(data) {
           this.article = data.article;
           this.languages.forEach(function(l){
             locales = data.article[l];
-            title = locales && locales.title || this.article.maintitle;
-            intro = locales && locales.intro || ""; 
-            content = locales && locales.content || "";
-            this.body[l] = marked("## " + title + "\n\n" + intro + 
-              "\n\n<br>\n\n---\n<br>\n" + content);  
+            title = locales.title ?  "## " + locales.title  + "\n\n": "";
+            ruler = locales.intro && locales.content ? "\n\n---\n<br>\n\n": "";
+            intro = locales.intro ?  locales.intro + "\n\n": "";
+            content = locales.content ? locales.content : "";
+            this.body[l] = marked(title +  intro + ruler + content);  
           }.bind(this));
         }.bind(this));
     },
@@ -79,6 +79,7 @@ export default {
 
   mounted () {
     this.langix = this.languages.indexOf(window.config.lang)
+    console.log('getting article with id', window.config.id)
     this.getArticle();
   },
 

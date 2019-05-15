@@ -20,10 +20,11 @@ from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from django.conf import settings # import the settings file
 from django import forms
-
+from django.db.models import Q
+import datetime
 
 from .models import (
-    KbsbMarkdownView
+    KbsbMarkdownView, KbsbArticlesIntroView, KbsbArticle, KbsbArticleLocale
 )
 
 @plugin_pool.register_plugin
@@ -38,4 +39,33 @@ class KbsbMarkdownPlugin(CMSPluginBase):
         context['source'] = instance.source
         context['sanitize'] = instance.sanitize
         return super(KbsbMarkdownPlugin, self).render(
-            context, instance, placeholder)            
+            context, instance, placeholder) 
+
+@plugin_pool.register_plugin
+class KbsbArticlesIntroPlugin(CMSPluginBase):
+
+    model = KbsbArticlesIntroView
+    name = 'Intro of articles'
+    module = 'FRBE-KBSB'
+    render_template = 'kbsbarticles/introview.html'
+
+    def render(self, context, instance, placeholder):
+        now = datetime.datetime.utcnow()
+        qa = KbsbArticle.objects.all().exclude(published__isnull=True)
+        qa = qa.filter(published__lt=now)
+        qa = qa.filter(Q(archived__isnull=True) | Q(archived__gt=now))
+        articles = list(qa.order_by('-published')
+            [ instance.start:instance.start+instance.count]
+        )
+        context['articles'] = []
+        for a in articles:
+            localefields = a.localefields.filter(locale=instance.locale).all()
+            if localefields:
+                a.intro = localefields[0].intro
+                a.title = localefields[0].title
+            else: 
+                a.title = a.maintitle
+                a.intro = 'This article is not available in English'
+            context['articles'].append(a) 
+        return super(KbsbArticlesIntroPlugin, self).render(
+            context, instance, placeholder)

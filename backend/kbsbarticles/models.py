@@ -41,3 +41,8 @@ class KbsbArticleLocale(Model):
 class KbsbMarkdownView(CMSPlugin):
     source = TextField("Markdown source")
     sanitize = BooleanField("Sanitize html", default=True)
+
+class KbsbArticlesIntroView(CMSPlugin):
+    start = IntegerField("Start number article")
+    count = IntegerField("Number of articles")
+    locale = CharField("Locale", max_length=5)

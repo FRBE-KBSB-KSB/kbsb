@@ -6,7 +6,10 @@ import { i18n } from './util/lang'
 import './util/vuetify'
 
 import ViewArticle from './pages/ViewArticle'
-window.config = {marked: marked};
+
+window.config = window.config || {};
+window.config.marked = marked;
+
 console.log('window.config in article.js 2', window.config);
 
 Vue.config.productionTip = false;
