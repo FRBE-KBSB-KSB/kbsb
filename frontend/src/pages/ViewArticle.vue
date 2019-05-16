@@ -79,7 +79,7 @@ export default {
 
   mounted () {
     this.langix = this.languages.indexOf(window.config.lang)
-    console.log('getting article with id', window.config.id)
+    console.log('setting language', window.config.lang, this.langix);
     this.getArticle();
   },
 

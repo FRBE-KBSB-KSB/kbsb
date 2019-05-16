@@ -50,6 +50,7 @@ class KbsbArticlesIntroPlugin(CMSPluginBase):
     render_template = 'kbsbarticles/introview.html'
 
     def render(self, context, instance, placeholder):
+        log.info('context intro %s', context)
         now = datetime.datetime.utcnow()
         qa = KbsbArticle.objects.all().exclude(published__isnull=True)
         qa = qa.filter(published__lt=now)
@@ -57,9 +58,10 @@ class KbsbArticlesIntroPlugin(CMSPluginBase):
         articles = list(qa.order_by('-published')
             [ instance.start:instance.start+instance.count]
         )
+        lang = context.get('LANGUAGE_CODE')
         context['articles'] = []
         for a in articles:
-            localefields = a.localefields.filter(locale=instance.locale).all()
+            localefields = a.localefields.filter(locale=lang).all()
             if localefields:
                 a.intro = localefields[0].intro
                 a.title = localefields[0].title
