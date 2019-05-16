@@ -15,17 +15,29 @@ module.exports = {
     devServer: {
       publicPath: '/static',
       port: 8080,
-    }
+    }   
   },
   outputDir: 'dist/static',
   publicPath: '/static/',
   crossorigin: "anonymous",
   runtimeCompiler: true,
   pages: {
-    cms: 'src/cms.js',
-    mgmt: 'src/mgmt.js',
-    article: 'src/article.js',
-    articles: 'src/articles.js',
+    cms: {
+      entry: 'src/cms.js',
+      chunks: ['chunk-vendors',  'cms'],
+    },
+    mgmt: {
+      entry: 'src/mgmt.js',
+      chunks: ['chunk-vendors', 'mgmt'],
+    },
+    article: {
+      entry: 'src/article.js',
+      chunks: ['chunk-vendors', 'article'],
+    },
+    articles: {
+      entry: 'src/articles.js',
+      chunks: ['chunk-vendors',  'articles'],
+    },
   },
 
 }
