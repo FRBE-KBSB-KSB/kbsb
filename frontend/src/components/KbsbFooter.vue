@@ -8,17 +8,17 @@
         </h4>
         <div>{{ $t('Registered office')}}</div>
         <div>ALMA ECHECS, Jardin Martin V, 5<br>
-           1200 Brussels   
+           1200 {{ $t('Brussels')}}   
         </div>
         <div>IBAN: BE76 0015 9823 0095</div>
         <div>BIC: GEBABEBB</div>
       </v-flex>
       <v-flex sm4 xs12 class="mt-2">
-        <h4 class="mb-2">{{$t('Postal Address')}}</h4>
+        <h4 class="mb-2">{{$t('Postal address')}}</h4>
         <div>Opbrakelsestraat, 37<br>9660 Brakel</div>
       </v-flex>
       <v-flex sm4 xs12 class="mt-2">
-        <h4 class="mb-2">Social media</h4>
+        <h4 class="mb-2">{{ $t('Social media')}}</h4>
         <div>e-mail: <a href="mailto:board@frbe-kbsb.be">board@frbe-kbsb.be</a></div>
         <div>
          Facebook: <a href="https://www.facebook.com/groups/1845828638985199/">

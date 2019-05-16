@@ -7,7 +7,6 @@ import './util/vuetify'
 import './style/kbsb.styl'
 
 window.config = {marked: marked};
-console.log('window.config in cms.js 1', window.config);
 
 import Cms from './pages/Cms.vue'
 

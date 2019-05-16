@@ -64,7 +64,6 @@ function registerComponent(id, options) {
 }
 
 function startup () {
-  console.log('window.config in startup.js 1 ', window.config);
   registerComponent('cms-content', {
     data: function (){return { tabactive: 0}},
     methods: { marked: window.config.marked},
@@ -75,8 +74,6 @@ function startup () {
     'cms-template',
     'cms-plugin',
   ];
-
-  console.log('window.config in startup.js 1', window.config);
 
   window.config = window.config || {};
   window.config = {
@@ -92,7 +89,6 @@ function startup () {
       en: "{% page_language_url 'en' %}",
     }
   };
-  console.log('window.config in startup.js 2', window.config);
 
   vm = new application.Vue({
     render: h => h(application.App),
