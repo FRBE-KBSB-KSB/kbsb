@@ -26,11 +26,14 @@
 
 <div id="cms-content" style="display:none;">
   {%  placeholder "content" %}
-  {% block extra_content %}{% endblock extra_content %}   
 </div>
 
 <div id="cms-menu-items" style="display:none;">
   {%  show_menu 0 100 100 100 %}
+</div>
+
+<div id=cms-extracontent style="display:none;">
+  {% block extracontent %}{% endblock extracontent %}
 </div>
 
 {% if PRODUCTION %}
@@ -62,16 +65,6 @@ function registerComponent(id, options) {
 }
 
 function startup () {
-  registerComponent('cms-content', {
-    data: function (){return { tabactive: 0}},
-    methods: { marked: window.config.marked},
-  });
-  registerComponent('cms-menu-items');
-
-  application.Vue.config.ignoredElements = [
-    'cms-template',
-    'cms-plugin',
-  ];
 
   window.config = window.config || {};
   window.config = {
@@ -87,6 +80,24 @@ function startup () {
       en: "{% page_language_url 'en' %}",
     }
   };
+
+  registerComponent('cms-content', {
+    data: function (){return { tabactive: 0}},
+    methods: { marked: window.config.marked},
+  });
+
+  registerComponent('cms-menu-items');
+
+  if (window.config.landing) {
+    registerComponent('cms-extracontent', {
+      methods: { marked: window.config.marked},
+    });
+  }
+
+  application.Vue.config.ignoredElements = [
+    'cms-template',
+    'cms-plugin',
+  ];
 
   vm = new application.Vue({
     render: h => h(application.App),

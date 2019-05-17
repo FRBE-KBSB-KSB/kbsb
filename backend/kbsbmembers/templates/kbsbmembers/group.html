@@ -19,15 +19,20 @@
               <div>{{m.role}}</div>
             </v-flex>
             <v-flex class="pa-3">
-              <v-btn flat icon class="green" href="tel:{{m.mobiletel}}">
-                  <v-icon color="white">phone</v-icon>
-              </v-btn>
-              <v-btn flat icon class="green" href="sms:{{m.mobiletel}}">
-                  <v-icon  color="white">textsms</v-icon>
-              </v-btn>
-              <v-btn flat icon  class="green" href="mailto:{{m.email}}">
-                  <v-icon color="white">email</v-icon>
-              </v-btn>
+              <v-layout row>
+                <v-flex grow></v-flex>
+                <v-flex shrink>
+                    <v-btn flat icon class="green" href="tel:{{m.mobiletel}}">
+                        <v-icon color="white">phone</v-icon>
+                    </v-btn>
+                    <v-btn flat icon class="green" href="sms:{{m.mobiletel}}">
+                        <v-icon  color="white">textsms</v-icon>
+                    </v-btn>
+                    <v-btn flat icon  class="green" href="mailto:{{m.email}}">
+                        <v-icon color="white">email</v-icon>
+                    </v-btn>    
+                </v-flex>
+              </v-layout>
             </v-flex> 
           </v-layout>
   

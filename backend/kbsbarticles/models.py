@@ -45,4 +45,3 @@ class KbsbMarkdownView(CMSPlugin):
 class KbsbArticlesIntroView(CMSPlugin):
     start = IntegerField("Start number article")
     count = IntegerField("Number of articles")
-    locale = CharField("Locale", max_length=5)

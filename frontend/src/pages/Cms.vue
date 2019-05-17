@@ -19,6 +19,10 @@
       <v-parallax v-if="landing && $vuetify.breakpoint.xs"
                   src="/static/img/chesscrowd_small.jpg" height="200" />
 
+      <v-container v-if="landing" class="my-1">
+        <cms-extracontent class="pa-1" />
+      </v-container>
+
     </v-content>
 
     <ad-carousel class="mt-4 mb-3"/>
