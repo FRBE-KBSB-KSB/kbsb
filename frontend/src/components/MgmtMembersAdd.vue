@@ -64,8 +64,7 @@ export default {
       }).then(
         function(data){
           this.$emit('update', { 
-            section: 'edit', 
-            member:{id: data.id}, 
+            section: 'list', 
             reload: true,
             text: 'New member saved.'
           })

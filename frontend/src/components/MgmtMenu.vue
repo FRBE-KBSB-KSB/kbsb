@@ -8,6 +8,9 @@
     <v-btn flat large to="articles">Articles</v-btn>
   </v-toolbar-items>
   <v-toolbar-items>
+    <v-btn flat large to="documents">Documents</v-btn>
+  </v-toolbar-items>
+  <v-toolbar-items>
     <v-btn flat large to="members">Members</v-btn>
   </v-toolbar-items>
 </v-toolbar>
@@ -15,9 +18,7 @@
 
 <script>
 export default {
-
   name: "MgmtMenu",
-
 }
 </script>
 

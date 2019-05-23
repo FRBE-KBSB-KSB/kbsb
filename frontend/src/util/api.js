@@ -18,7 +18,7 @@ export default function(name, params) {
 
   schema = schemas[name];
   if (!schema) {
-    console.error('api not called: schema ' + name + 'not found:');
+    console.error('api not called: schema ' + name + ' not found:');
     return Promise.reject(new Error('schama ' + name + ' not found'))
   }
 

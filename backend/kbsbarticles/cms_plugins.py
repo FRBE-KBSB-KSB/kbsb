@@ -50,7 +50,6 @@ class KbsbArticlesIntroPlugin(CMSPluginBase):
     render_template = 'kbsbarticles/introview.html'
 
     def render(self, context, instance, placeholder):
-        log.info('context intro %s', context)
         now = datetime.datetime.utcnow()
         qa = KbsbArticle.objects.all().exclude(published__isnull=True)
         qa = qa.filter(published__lt=now)

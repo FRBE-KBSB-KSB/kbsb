@@ -25,6 +25,8 @@ from .views import mgmtpage
 
 import kbsbarticles.apiurls
 import kbsbarticles.urls
+import kbsbdoc.apiurls
+# import kbsbdoc.urls
 import kbsbmembers.urls
 import kbsbmembers.apiurls
 
@@ -35,6 +37,7 @@ urlpatterns = [
         {'sitemaps': {'cmspages': CMSSitemap}}),
     path('admin/', admin.site.urls),
     path('api/', include(kbsbarticles.apiurls)),
+    path('api/', include(kbsbdoc.apiurls)),
     path('api/', include(kbsbmembers.apiurls)),
     path('mgmt', mgmtpage),
 ]

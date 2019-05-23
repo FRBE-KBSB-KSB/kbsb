@@ -34,6 +34,40 @@ export default {
     required: ['article', 'id'],
   },
 
+  // document
+  getDocuments: {
+    method: 'GET',
+    url: '/docs',
+    query: ['topic', 'start', 'count', 'category', 'locale', 'doctype'],
+    required: [],
+  },
+  addDocument: {
+    method: 'POST',
+    url: '/docs',
+    body: ['document'],
+    required: ['document'],
+  },
+  getDocument: {
+    method: 'GET',
+    url: '/docs/{id}',
+    path: ['id'],
+    required: ['id'],
+  },
+  deleteDocument: {
+    method: 'DELETE',
+    url: '/docs/{id}',
+    path: ['id'],
+    required: ['id'],
+  },
+  updateDocument: {
+    method: 'PUT',
+    url: '/docs/{id}',
+    path: ['id'],
+    body: ['document'],
+    required: ['document', 'id'],
+  },
+
+
   // Members
   getMembers: {
     method: 'GET',

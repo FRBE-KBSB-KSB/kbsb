@@ -122,6 +122,7 @@ INSTALLED_APPS = [
     'rd_django',
     'kbsbarticles',
     'kbsbmembers',
+    'kbsbdoc',
     'kbsb',
 ]
 
@@ -148,6 +149,11 @@ LOGGING = {
             'propagate': True,
         },
         'kbsb': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'kbsbdoc': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,

@@ -9,6 +9,7 @@
 
 from django.db.models import *
 from django.utils import timezone
+from datetime import datetime
 from cms.models.pluginmodel import CMSPlugin
 
 class KbsbArticle(Model):
@@ -25,9 +26,9 @@ class KbsbArticle(Model):
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
-        if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+        if not self.pk:
+            self.created = datetime.utcnow()
+        self.modified = datetime.utcnow()
         return super(KbsbArticle, self).save(*args, **kwargs)
 
 class KbsbArticleLocale(Model):

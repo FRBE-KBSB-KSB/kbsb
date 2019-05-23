@@ -24,6 +24,7 @@
       <v-text-field label="Author" v-model="p.author" />
       <v-text-field label="title" v-model="p.maintitle" />
     </v-flex>
+
   </v-layout>
 
 </v-container>
@@ -35,7 +36,8 @@ import api from '../util/api'
 import DateFormatted from "./DateFormatted";
 
 export default {
-  name: "MgmtPartAdd",
+  
+  name: "MgmtArticleAdd",
 
   components: {
     DateFormatted,
@@ -77,5 +79,10 @@ export default {
 </script>
 
 <style scoped>
+
+.dropbox {
+  width: 100%;
+  height: 100px;
+}
 
 </style>
