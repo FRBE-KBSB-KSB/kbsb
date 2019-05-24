@@ -6,9 +6,9 @@ import VueCmsPatch from './vue-djangocms-patch'
 import './util/vuetify'
 import './style/kbsb.styl'
 
-window.config = {marked: marked};
-
 import Cms from './pages/Cms.vue'
+
+window.config.marked = marked;
 
 Vue.config.productionTip = false;
 

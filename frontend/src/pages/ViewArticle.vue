@@ -27,8 +27,6 @@
 import api from '../util/api'
 import marked from 'marked'
 
-import { loadLanguageAsync } from '../util/lang'
-
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import KbsbFooter from '../components/KbsbFooter'
@@ -50,10 +48,6 @@ export default {
     'topbar': Topbar,
     'kbsb-footer': KbsbFooter,
     'ad-carousel': AdCarousel,
-  },
-
-  created () {
-    loadLanguageAsync(window.config.lang);
   },
 
   methods: {

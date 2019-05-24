@@ -32,8 +32,6 @@
 
 <script>
 
-import { loadLanguageAsync } from '../util/lang'
-
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import KbsbFooter from '../components/KbsbFooter'
@@ -57,9 +55,6 @@ export default {
     'ad-carousel': AdCarousel,
   },
 
-  created () {
-    loadLanguageAsync(window.config.lang);
-  },
 }
 </script>
 

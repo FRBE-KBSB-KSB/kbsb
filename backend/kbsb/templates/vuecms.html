@@ -36,6 +36,25 @@
   {% block extracontent %}{% endblock extracontent %}
 </div>
 
+{{ LOCALE_MSG|json_script:"locale-msg" }}
+<script>
+window.config = {
+  lang: '{{ LANGUAGE_CODE }}',
+  localemsg: JSON.parse(document.getElementById('locale-msg').textContent),
+  production: '{{ PRODUCTION }}',
+  api_url: '/api',
+  url_i18n: {
+    nl: "{% page_language_url 'nl' %}",
+    fr: "{% page_language_url 'fr' %}",
+    de: "{% page_language_url 'de' %}",
+    en: "{% page_language_url 'en' %}",
+  },
+  {% block extra_config %}{% endblock extra_config %}
+  marked: null,
+};
+
+</script>
+
 {% if PRODUCTION %}
   {% render_bundle 'chunk-vendors' 'js' %}
   {% render_bundle 'cms' 'js' %}
@@ -44,7 +63,6 @@
 {% endif %}
 
 {% render_block "js" %}
-
 <script>
 
 function registerComponent(id, options) {
@@ -65,21 +83,6 @@ function registerComponent(id, options) {
 }
 
 function startup () {
-
-  window.config = window.config || {};
-  window.config = {
-    {% block extra_config %}{% endblock extra_config %}
-    marked: window.config.marked,
-    production: '{{ PRODUCTION }}',
-    api_url: '/api',
-    lang: '{{ LANGUAGE_CODE }}',
-    url_i18n: {
-      nl: "{% page_language_url 'nl' %}",
-      fr: "{% page_language_url 'fr' %}",
-      de: "{% page_language_url 'de' %}",
-      en: "{% page_language_url 'en' %}",
-    }
-  };
 
   registerComponent('cms-content', {
     data: function (){return { tabactive: 0}},

@@ -62,7 +62,7 @@ export default {
       api('addMember', {
         member: this.p,
       }).then(
-        function(data){
+        function(){
           this.$emit('update', { 
             section: 'list', 
             reload: true,

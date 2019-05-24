@@ -13,6 +13,8 @@
 
 {% addtoblock "js" %}
 
+{{ LOCALE_MSG|json_script:"locale-msg" }}
+
 <script>
 var pathparts = window.location.pathname.split('/');
 window.config = {
@@ -25,6 +27,7 @@ window.config = {
     en: '/en/' + pathparts.slice(2).join('/'),
   },
   lang: '{{ LANGUAGE_CODE}}',
+  localemsg: JSON.parse(document.getElementById('locale-msg').textContent),
   id: '{{ id }}',
 };
 </script>

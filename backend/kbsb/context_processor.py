@@ -12,13 +12,27 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import logging
+log = logging.getLogger(__name__)
+
 from django.conf import settings # import the settings file
 import simplejson as json
+import os.path
 
+locale_msg = {}
 
 def local(request):
+    l = request.LANGUAGE_CODE
+    if l not in locale_msg:
+        fname = os.path.join(settings.BASE_DIR, 'kbsb', 'static', 'lang', 
+            '{}.json'.format(l))
+        log.info('loading locale %s fname %s', l, fname)
+        with open(fname, 'r') as f:
+            locale_msg[l] = json.load(f)
+    log.info('locale msgs: %s', locale_msg[l])
     ts = settings.TEMPLATE_SETTINGS
     c = {k:getattr(settings,k,None) for k in ts}
+    c['LOCALE_MSG'] = locale_msg[l]
     c['serverconfig'] = json.dumps({
         # 'api_url': settings.API_URL,
         # 'authenticated': request.user.is_authenticated(),

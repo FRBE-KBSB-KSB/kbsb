@@ -52,7 +52,7 @@ class KbsbMemberPlugin(CMSPluginBase):
 class KbsbGroupPlugin(CMSPluginBase):
 
     model = KbsbGroupView
-    name = 'Group'
+    name = 'Group of members'
     module = 'FRBE-KBSB'
     render_template = 'kbsbmembers/group.html'
 

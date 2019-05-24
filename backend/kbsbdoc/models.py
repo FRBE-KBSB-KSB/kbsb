@@ -18,6 +18,7 @@ from django.db.models import (
     BooleanField,
 ) 
 from cms.models.pluginmodel import CMSPlugin
+from dataclasses import dataclass, astuple, asdict
 
 class KbsbDocument(Model):
 
@@ -38,49 +39,60 @@ class KbsbDocument(Model):
             self.uploaded = datetime.datetime.utcnow()
         super(KbsbDocument, self).save(*args, **kwargs)
 
+@dataclass
+class TextValue:
+    value: str
+    text: str
+
+catchoices = [
+    TextValue( 'ca-rvb', "Conseil d'Administration - Raad van Bestuur"),
+    TextValue( 'ag-av',"Assemblée générale - Algemene vergadering"),
+    TextValue( 'cis', "CIS arbitres - scheidsrechters"),
+    TextValue( 'dispute', "Comité de litiges - Geschillencommissie"),
+    TextValue( 'appeal', "Comité d'appel - Beroepscommissie"),
+    TextValue( 'other', "Autre - Andere"),
+]
+
+doctypechoices = [
+    TextValue('docx', 'Ms Word  file'),
+    TextValue('xlsx', 'Ms Excel file'),
+    TextValue('pptx', 'Ms Powerpoint file'),
+    TextValue('odt', 'Libreoffice writer file'),
+    TextValue('ods', 'Libreoffice calc file'),
+    TextValue('odp', 'Libreoffice impress file'),
+    TextValue('pdf', 'PDF file'),
+    TextValue('md', 'Markdown file'),
+    TextValue('zip', 'Zip file'),
+    TextValue('other', 'Autre - Andere')
+]
+
+localechoices = [
+    TextValue('nl', 'nl'),
+    TextValue('fr', 'fr'),
+    TextValue('de', 'de'),
+    TextValue('en', 'en'),
+    TextValue('fr-nl', 'français + nederlands'),
+    TextValue('other', 'Autre - Andere'),
+]
+
+topicchoices = [
+    TextValue('report', 'Rapport - Verslag'),
+    TextValue('invitation', 'Invitation - Uitnodiging'),
+    TextValue('annex', 'Ficher en annexe - Bestand in bijlage'),
+    TextValue('other', 'Autre - Andere'),
+]
+
+allchoice = [TextValue('', 'Tous - Alle')]
+
 class KbsbDocGroupView(CMSPlugin):
 
-    all = [('', 'Tous - Alle')]
-    localechoices = [
-        ('nl', 'nl'),
-        ('fr', 'fr'),
-        ('de', 'de'),
-        ('en', 'en'),
-        ('fr-nl', 'français + nederlands'),
-        ('other', 'Autre - Andere'),
-    ]
-    doctypechoices = [
-        ('docx', 'Ms Word  file'),
-        ('xlsx', 'Ms Excel file'),
-        ('pptx', 'Ms Powerpoint file'),
-        ('odt', 'Libreoffice writer file'),
-        ('ods', 'Libreoffice calc file'),
-        ('odp', 'Libreoffice impress file'),
-        ('pdf', 'PDF file'),
-        ('md', 'Markdown file'),
-        ('zip', 'Zip file'),
-        ('other', 'Autre - Andere')
-    ]
-    doccategorychoices = [
-        ('ca-rvb', "Conseil d'Administration - Raad van Bestuur"),
-        ('ag-av', "Assemblée générale - Algemene vergadering"),
-        ('cis', "CIS arbitres - scheidsrechters"),
-        ('dispute', "Comité de litiges - Geschillencommissie"),
-        ('appeal', "Comité d'appel - Beroepscommissie"),
-        ('other', 'Autre - Andere'),
-    ]
-    topicchoices = [
-        ('report', 'Rapport - Verslag'),
-        ('invitation', 'Invitation - Uitnodiging'),
-        ('annex', 'Ficher en annexe - Bestand in bijlage'),
-        ('other', 'Autre - Andere'),
-    ]
-
-    category = CharField('Event', max_length=40, choices=all+doccategorychoices)
-    topic = CharField('Topic', max_length=40, choices=all+topicchoices)
-    doctype = CharField('Document type', max_length=40, choices=all+doctypechoices)
-    year = IntegerField('Year', default=2019)
-    locale = CharField('Language', max_length=5, choices=localechoices)
+    grouptitle = CharField('Group title', max_length=80)
+    category = CharField('Event', max_length=40, blank=True,
+        choices=[astuple(tv) for tv in  allchoice + catchoices])
+    topic = CharField('Topic', max_length=40,  blank=True,
+        choices=[astuple(tv) for tv in  allchoice + topicchoices])
+    doctype = CharField('Document type', max_length=40,  blank=True,
+        choices=[astuple(tv) for tv in  allchoice + doctypechoices])
+    locale = CharField('Language', max_length=5,  blank=True,
+        choices=[astuple(tv) for tv in  allchoice + localechoices])
     archived = BooleanField('Archived', default=False)
-    start = IntegerField('Start index Document', default=0)
-    count = IntegerField('Number of documents', default=25)

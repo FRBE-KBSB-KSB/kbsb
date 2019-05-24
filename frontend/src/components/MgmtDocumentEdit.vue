@@ -53,7 +53,6 @@
 
 import api from '../util/api'
 import dc from '../util/doctype'
-import marked from 'marked'
 
 import DateFormatted from "./DateFormatted"
 
