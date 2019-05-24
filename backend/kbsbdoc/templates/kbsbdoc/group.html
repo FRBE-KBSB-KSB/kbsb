@@ -1,9 +1,11 @@
 
-<h2> {{ title }}</h2>
+<h2 class='mt-2'> {{ title }}</h2>
 <br>
 {% for d in docs %}
-<p>
-  {{d.category}} {{ d.locale }} <a href="{{ d.url }}">{{ d.topic }}.{{d.doctype}} </a> {{ d.topicdate|date:"d-m-Y" }}
-</p>
+<div class=ma-1>
+  {{ d.topicdate|date:"d-m-Y" }}:
+  <a href="{{ d.url }}">{{ d.topic }}.{{d.doctype}} </a> 
+  {{d.category|upper}} {{ d.locale }} 
+</div>
 {% endfor %}  
-  
+  AlgemenVerwaltungsratConseil

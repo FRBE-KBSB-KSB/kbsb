@@ -21,6 +21,8 @@ from cms.plugin_pool import plugin_pool
 from django.conf import settings # import the settings file
 from django import forms
 from django.db.models import Q
+from kbsb.context_processor import locale_msg
+
 import datetime
 
 from .models import (
@@ -61,12 +63,14 @@ class KbsbArticlesIntroPlugin(CMSPluginBase):
         context['articles'] = []
         for a in articles:
             localefields = a.localefields.filter(locale=lang).all()
-            if localefields:
-                a.intro = localefields[0].intro
+            if localefields and localefields[0].title:
                 a.title = localefields[0].title
             else: 
                 a.title = a.maintitle
-                a.intro = 'This article is not available in English'
+            if localefields and localefields[0].intro:
+                a.intro = localefields[0].intro
+            else:
+                a.intro = locale_msg[lang]['_OL']
             context['articles'].append(a) 
         return super(KbsbArticlesIntroPlugin, self).render(
             context, instance, placeholder)
