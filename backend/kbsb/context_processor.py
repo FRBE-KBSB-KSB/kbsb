@@ -24,7 +24,7 @@ locale_msg = {}
 def local(request):
     l = request.LANGUAGE_CODE
     if l not in locale_msg:
-        fname = os.path.join(settings.BASE_DIR, 'kbsb', 'static', 'lang', 
+        fname = os.path.join(settings.BASE_DIR, 'kbsb', 'data', 'lang', 
             '{}.json'.format(l))
         log.info('loading locale %s fname %s', l, fname)
         with open(fname, 'r') as f:
