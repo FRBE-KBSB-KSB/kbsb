@@ -71,6 +71,7 @@ class KbsbArticlesIntroPlugin(CMSPluginBase):
                 a.intro = localefields[0].intro
             else:
                 a.intro = locale_msg[lang]['_OL']
+                a.readmore = True
             context['articles'].append(a) 
         return super(KbsbArticlesIntroPlugin, self).render(
             context, instance, placeholder)
