@@ -232,7 +232,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'cms.context_processors.cms_settings',
                 'kbsb.context_processor.local',
-                'kbsbdocs.context_processor.choices',
+                'kbsbdoc.context_processor.choices',
             ],
             # 'loaders': [
             #     'django.template.loaders.filesystem.Loader',
