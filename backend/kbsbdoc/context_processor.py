@@ -1,4 +1,4 @@
-#    Copyright 2018 Ruben Decrop
+#    Copyright 2017 - 2018 Ruben Decrop
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -12,24 +12,18 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import requests
+import logging
+log = logging.getLogger(__name__)
+
+from django.conf import settings # import the settings file
 import simplejson as json
-from django.http import HttpResponse
-from django.conf import settings
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
+import os.path
+from .models import localechoices, catchoices, doctypechoices, topicchoices
 
-def staff(user):
-    return user.is_staff
-
-# Create your views here.
-
-@user_passes_test(staff)
-def mgmtpage(request):
-    return render(request, 'mgmt.html')
-
-
-def testpage1(request):
-    return render(request, 'testpage1.html')
-
-
+def choices(request):
+    return dict(docchoices={
+        "catogories": catchoices,
+        "doctypes": doctypechoices,
+        "locales": localechoices,
+        "topics": topicchoices,  
+    })

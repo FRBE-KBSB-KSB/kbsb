@@ -7,9 +7,9 @@
   </v-toolbar-items>
   <v-spacer></v-spacer>
   <v-toolbar-items class="hidden-sm-and-down">
-    <v-btn flat large href="/interclub">{{ $t('Interclub')}}
+    <v-btn flat large href="/competitions/interclub-2019-20/">{{ $t('Interclub')}}
     </v-btn>
-    <v-btn flat large href="/info/lodging-and-meals">ELO
+    <v-btn flat large href="/sites/manager/GestionFICHES/FRBE_Fiche.php">ELO
     </v-btn>
   </v-toolbar-items>
 </v-toolbar>

@@ -45,6 +45,7 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('articles/', include(kbsbarticles.urls)),
     path('members/', include(kbsbmembers.urls)),
+    path('accounts/', include('django.contrib.auth.urls')),
     re_path(r'^(?!api)', include('cms.urls')), 
 )
 
