@@ -75,7 +75,7 @@ function registerComponent(id, options) {
       chtml += cmscontent.children[i].outerHTML;
     }
   }
-  application.Vue.component(id, {
+  window.application.Vue.component(id, {
     template: '<div>' + chtml + '</div>',
     data: (options && options.data) || function(){ return{}},
     methods: (options && options.methods) || {},
@@ -97,17 +97,17 @@ function startup () {
     });
   }
 
-  application.Vue.config.ignoredElements = [
+  window.application.Vue.config.ignoredElements = [
     'cms-template',
     'cms-plugin',
   ];
 
   vm = new application.Vue({
-    render: h => h(application.App),
-    i18n: application.i18n,
-    store: application.store,
+    render: h => h(window.application.App),
+    i18n: window.application.i18n,
+    store: window.application.store,
     created () {
-      new application.VueCmsPatch(this)
+      new window.application.VueCmsPatch(this)
     },
   }).$mount('#app');
 

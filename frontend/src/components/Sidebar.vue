@@ -45,7 +45,6 @@
 
 <script>
 
-import { mapState } from 'vuex'
 
 export default {
 
@@ -60,11 +59,11 @@ export default {
         this.$store.commit('updateDrawer', value)
       }
     },
-    ...mapState(['authenticated']),
   },
 
   data () {return {
     fixtoolbar: false,
+    authenticated: false,
     sections: {
       participants: window.config.participants_enabled,
       subscription: window.config.subscriptions_enabled,
