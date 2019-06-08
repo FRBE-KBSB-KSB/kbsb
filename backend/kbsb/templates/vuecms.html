@@ -42,6 +42,7 @@ window.config = {
   lang: '{{ LANGUAGE_CODE }}',
   localemsg: JSON.parse(document.getElementById('locale-msg').textContent),
   production: '{{ PRODUCTION }}',
+  phpbaseurl: '{{ PHPBASEURL}}',
   api_url: '/api',
   url_i18n: {
     nl: "{% page_language_url 'nl' %}",

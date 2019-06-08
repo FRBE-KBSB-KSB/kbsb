@@ -9,7 +9,8 @@
   <v-toolbar-items class="hidden-sm-and-down">
     <v-btn flat large href="/competitions/interclub-2019-20/">{{ $t('Interclub')}}
     </v-btn>
-    <v-btn flat large href="/sites/manager/GestionFICHES/FRBE_Fiche.php">ELO
+    <v-btn flat large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
+      ELO
     </v-btn>
   </v-toolbar-items>
 </v-toolbar>
@@ -23,6 +24,7 @@ export default {
   data () {return {
     fixtoolbar: false,
     landing: window.config.landing,
+    phpbaseurl: window.config.phpbaseurl,
   }},
 
   mounted() {

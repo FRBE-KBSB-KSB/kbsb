@@ -24,7 +24,7 @@ from cms.plugin_pool import plugin_pool
 from django.conf import settings # import the settings file
 
 from .models import (
-    KbsbDocument, KbsbDocGroupView
+    KbsbDocument, KbsbDocGroupView, KbsbPhpLinkView,
 )
 
 @plugin_pool.register_plugin
@@ -52,4 +52,18 @@ class KbsbDocGroupPlugin(CMSPluginBase):
         context['docs'] = docs
         context['title'] = instance.grouptitle
         return super(KbsbDocGroupPlugin, self).render(
+            context, instance, placeholder) 
+
+@plugin_pool.register_plugin
+class KbsbPhpLinkPlugin(CMSPluginBase):
+
+    model = KbsbPhpLinkView
+    name = 'Link to php site'
+    module = 'FRBE-KBSB'
+    render_template = 'kbsbdoc/phplink.html'
+
+    def render(self, context, instance, placeholder):
+        context['label'] = instance.label
+        context['url'] = instance.url
+        return super(KbsbPhpLinkPlugin, self).render(
             context, instance, placeholder) 

@@ -96,3 +96,8 @@ class KbsbDocGroupView(CMSPlugin):
     locale = CharField('Language', max_length=5,  blank=True,
         choices=[astuple(tv) for tv in  allchoice + localechoices])
     archived = BooleanField('Archived', default=False)
+
+class KbsbPhpLinkView(CMSPlugin):
+
+    url = CharField('Url', max_length=80)
+    label = CharField('Label', max_length=80)

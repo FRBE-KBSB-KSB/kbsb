@@ -200,7 +200,7 @@ MIGRATION_MODULES = {
 
 }
 
-OLDSITE =  'https://www.frbe-kbsb.be'
+PHPBASEURL =  '/'
 
 PRODUCTION = True
 
@@ -243,9 +243,8 @@ TEMPLATES = [
     },
 ]
 
-
 TEMPLATE_SETTINGS = [
-    'PRODUCTION',
+    'PRODUCTION', 'PHPBASEURL',
 ]
 
 THUMBNAIL_PROCESSORS = (

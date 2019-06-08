@@ -19,6 +19,42 @@
       </div>
       <v-list dark dense class="green darken-1">
         <cms-menu-items></cms-menu-items>
+        <v-list-group>
+          <v-list-tile slot="activator">
+            <v-list-tile-content>{{$t('Tools')}}</v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
+            <v-list-tile-action></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Player - Club Manager</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
+            <v-list-tile-action></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Interclub Manager</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
+            <v-list-tile-action></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>ELO</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile :href="phpbaseurl + 'sites/manager/GestionSWAR/SwarResults.php'">
+            <v-list-tile-action></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>{{ $t('Results SWAR')}}</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile :href="phpbaseurl + 'sites/manager/CalcNorm/norm.php'">
+            <v-list-tile-action></v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Calc Norm</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list-group>
+
       </v-list>
       <v-divider></v-divider>
       <v-list dark dense class="green darken-1" v-if="authenticated">
@@ -69,7 +105,7 @@ export default {
       subscription: window.config.subscriptions_enabled,
       tournament: window.config.tournament_enabled,
     },
-
+    phpbaseurl: window.config.phpbaseurl,
   }},
 
   mounted() {

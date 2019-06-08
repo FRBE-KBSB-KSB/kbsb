@@ -5,7 +5,7 @@
     <v-content>
       <v-container grid-list-md>
         <h1>{{article.maintitle }}</h1>
-          <v-tabs light slider-color="pink" v-model="langix">
+          <v-tabs light slider-color="green accent-2" v-model="langix">
             <v-tab class="mx-2"  v-for="l in languages" :key="l">
               <span>{{l}}</span>
             </v-tab>
