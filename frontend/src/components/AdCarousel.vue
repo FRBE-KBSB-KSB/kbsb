@@ -33,9 +33,9 @@ export default {
       interval: 5, // number of seconds before switching
       items: [
         {src: '/static/img/frame_talistro.png', name: 'talistro' },
-        {src: '/static/img/frame_chessconsult.png', name: 'chessconsult' },
-        {src: '/static/img/frame_matetmots.png', name: 'matetmots' },
-        {src: '/static/img/frame_marchand.png', name: 'marchand' },
+        // {src: '/static/img/frame_chessconsult.png', name: 'chessconsult' },
+        // {src: '/static/img/frame_matetmots.png', name: 'matetmots' },
+        // {src: '/static/img/frame_marchand.png', name: 'marchand' },
         {src: '/static/img/frame_chessdevil.png', name: 'chessdevil' },
       ]
     }
