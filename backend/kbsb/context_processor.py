@@ -33,4 +33,5 @@ def local(request):
     ts = settings.TEMPLATE_SETTINGS
     c = {k:getattr(settings,k,None) for k in ts}
     c['LOCALE_MSG'] = locale_msg[l]
+    c['TITLE_WEBSITE'] = locale_msg[l]['Royal Belgian Chess Federation']
     return c

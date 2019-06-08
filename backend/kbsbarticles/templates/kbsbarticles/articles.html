@@ -16,7 +16,10 @@
 <script>
 var pathparts = window.location.pathname.split('/');
 window.config = {
-  {% block extra_config %}{% endblock extra_config %}
+  lang: '{{ LANGUAGE_CODE }}',
+  localemsg: JSON.parse(document.getElementById('locale-msg').textContent),
+  production: '{{ PRODUCTION }}',
+  phpbaseurl: '{{ PHPBASEURL}}',
   api_url: '/api',
   url_i18n: {
     nl: '/nl/' + pathparts.slice(2).join('/'),
@@ -24,7 +27,8 @@ window.config = {
     de: '/de/' + pathparts.slice(2).join('/'),
     en: '/en/' + pathparts.slice(2).join('/'),
   },
-  lang: '{{ LANGUAGE_CODE}}',
+  {% block extra_config %}{% endblock extra_config %}
+  marked: null,  
 };
 </script>
 
