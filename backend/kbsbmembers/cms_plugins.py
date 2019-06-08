@@ -23,7 +23,8 @@ from django import forms
 
 
 from .models import (
-    KbsbMember, KbsbGroupNames, KbsbMember, KbsbMemberView, KbsbGroupView,
+    KbsbMember, KbsbGroupNames, KbsbMember, KbsbMemberView, 
+    KbsbGroupView, KbsbRoleNames,
 )
 
 @plugin_pool.register_plugin
@@ -58,12 +59,20 @@ class KbsbGroupPlugin(CMSPluginBase):
 
     def render(self, context, instance, placeholder):
         ms = []
+        lang = context.get('LANGUAGE_CODE')
         for m in KbsbMember.objects.all():
             roles = json.loads(m.roles)
             m.photourl = '/members/photo/{}'.format(m.id)
             for r in roles:
                 if r.get('groupname') == instance.groupname:
-                    m.role = r.get('rolename')
+                    role = r.get('rolename')
+                    try:
+                        rname = KbsbRoleNames.objects.get(shortname=role)
+                        tr = json.loads(rname.translations)
+                        f = '{}_shortname'.format(lang)
+                        m.role = tr.get(f, role)                            
+                    except Exception:
+                        m.role = role
                     ms.append(m)
         context['members'] = ms
         return super(KbsbGroupPlugin, self).render(
