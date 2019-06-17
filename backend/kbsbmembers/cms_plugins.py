@@ -27,6 +27,7 @@ from .models import (
     KbsbGroupView, KbsbRoleNames,
 )
 
+
 @plugin_pool.register_plugin
 class KbsbMemberPlugin(CMSPluginBase):
 

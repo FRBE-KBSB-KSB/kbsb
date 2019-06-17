@@ -18,3 +18,4 @@ __pycache__/
 /frontend/webpack-stats.json
 /data
 Pipfile.lock
+kbsb_local.sql

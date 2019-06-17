@@ -50,13 +50,18 @@ class KbsbRoleNames(Model):
     name = CharField('Long role name ', max_length=80)
     translations = TextField('Translations (JSON)')
 
+def groupchoices():
+    return ((g.shortname, g.name) for g in KbsbGroupNames.objects.all())
+
+
 class KbsbMemberView(CMSPlugin):
     idbel = CharField("Belgian id", max_length=6)
     groupname = CharField("Group name", max_length=25, 
-        choices=((g.shortname, g.name) for g in KbsbGroupNames.objects.all())
-    )
+        choices=[('-', '-')])
+
 
 class KbsbGroupView(CMSPlugin):
-    groupname = CharField("Group name", max_length=25, 
-        choices=((g.shortname, g.name) for g in KbsbGroupNames.objects.all())
-    )
+    groupname = CharField("Group name", max_length=25,  
+        choices=[('-', '-')])
+
+
