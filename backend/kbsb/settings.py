@@ -205,7 +205,7 @@ PRODUCTION = True
 
 ROOT_URLCONF = 'kbsb.urls'
 
-SECRET_KEY = 'You know, a weakness here and ther, just a little bit of pressure'
+SECRET_KEY = 'You know, a weakness here and there, just a little bit of pressure'
 
 SITE_ID = 1
 
