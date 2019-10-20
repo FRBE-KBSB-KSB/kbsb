@@ -7,7 +7,7 @@
           {{ $t('Royal Belgian Chess Federation')}} {{ $t('npo')}}
         </h4>
         <div>{{ $t('Registered office')}}</div>
-        <div>ALMA ECHECS, Jardin Martin V, 5<br>
+        <div>ALMA ECHECS, Jardin Martin V, 59<br>
            1200 {{ $t('Brussels')}}   
         </div>
         <div>IBAN: BE76 0015 9823 0095</div>
