@@ -15,7 +15,7 @@
       </v-flex>
       <v-flex sm4 xs12 class="mt-2">
         <h4 class="mb-2">{{$t('Postal address')}}</h4>
-        <div>Opbrakelsestraat, 37<br>9660 Brakel</div>
+        <div>14 boîte 1 Rue Jules Hans<br>1420 Braine-l'Alleud</div>
       </v-flex>
       <v-flex sm4 xs12 class="mt-2">
         <h4 class="mb-2">{{ $t('Social media')}}</h4>
