@@ -17,5 +17,4 @@ __pycache__/
 /frontend/yarn.lock
 /frontend/webpack-stats.json
 /data
-Pipfile.lock
 kbsb_local.sql
