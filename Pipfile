@@ -4,37 +4,25 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-setuptools = "*"
-setuptools-git-version = "*"
-pylint = "*"
+mypy = "*"
+pytest = "*"
 
 [packages]
-django-cms = "*"
-django-filer = "*"
-django-webpack-loader = "*"
-djangocms-file = "*"
-djangocms-style = "*"
-djangocms-googlemap = "*"
-djangocms-link = "*"
-djangocms-text-ckeditor = "*"
-djangorestframework = "*"
+fastapi = "*"
 gunicorn = "*"
-iso8601 = "*"
-phonenumbers = "*"
-Pillow = "*"
-psycopg2-binary = "==2.7.7"
+uvicorn = "*"
 python-dateutil = "*"
 python-slugify = "*"
+passlib = "*"
+PyJWT = "*"
+pymongo = "*"
+PyYAML = "*"
 requests = "*"
-simplejson = "*"
-markdown2 = "*"
-djangocms-picture = "*"
+colorlog = "*"
+google-auth = "*"
 
 [requires]
 python_version = "3.7"
-
-[packages.0df82a5]
-path = "./setupdata/rd_django-0.10.2-py3-none-any.whl"
 
 [packages.5d75972]
 path = "./setupdata/dbf-1.0-py3-none-any.whl"
