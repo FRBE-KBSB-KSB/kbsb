@@ -1,11 +1,10 @@
-# copyright Ruben Decrop 2012 - 2015
-# copyright Chessdevil Consulting BVBA 2015 - 2020
+# copyright Chessdevil Consulting BVBA 2018 - 2020
 
 import os.path
 
 # load settings
 from reddevil.common.configreader import SettingsProxy
-settings = SettingsProxy('website.settings')
+settings = SettingsProxy('kbsb.settings')
 
 import logging, logging.config
 logging.config.dictConfig(settings.LOG_CONFIG)
@@ -18,8 +17,8 @@ try:
 except:
     pass
 
-log = logging.getLogger('website')
-log.info(f'Starting Website v{version} ...')
+log = logging.getLogger('kbsb')
+log.info(f'Starting website FRBE-KBSB-KSB v{version} ...')
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
@@ -34,11 +33,11 @@ from reddevil.common import register_app
 register_app(settings, app)
 
 # import service layer 
-import website.service
+import kbsb.service
 log.info(f'Service layer loaded')
 
 # import api endpoints
-import website.api
+import kbsb.api
 log.info(f'Api layer loaded')
 
 #    Simplify operation IDs so that generated API clients have simpler function

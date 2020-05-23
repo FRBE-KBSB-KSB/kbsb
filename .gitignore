@@ -26,9 +26,9 @@ yarn-error.log*
 *.sw?
 *.pyc
 
-/backend/local_settings.py
-/backend/reddevil/
+backend/local_settings.py
+backend/reddevil/
 /data
-.mypy_chache/
+.mypy_cache
 __pycache__/
 VERSION

@@ -1,56 +1,51 @@
 <template>
-<v-toolbar v-cloak fixed dark app
-           class="green darken-2" :class="{fixtoolbar: fixtoolbar, landing: landing}">
-  <v-toolbar-side-icon @click.stop="openDrawer"></v-toolbar-side-icon>
+<v-app-bar v-cloak fixed dark app class="green darken-2">
+  <v-app-bar-nav-icon @click.stop="toggleDrawer" />
   <v-toolbar-items>
-    <v-btn flat large href="/">{{ $t('RBCF')}}</v-btn>
+    <v-btn text large href="/">
+      <i18n-text nl="KBSB" fr="FRBE" de="KSB" en="RBCF"/>
+    </v-btn>
   </v-toolbar-items>
   <v-spacer></v-spacer>
   <v-toolbar-items class="hidden-sm-and-down">
-    <v-btn flat large href="/competitions/interclub-2019-20/">{{ $t('Interclub')}}
+    <v-btn text large href="/competitions/interclub-2019-20/">Interclub
     </v-btn>
-    <v-btn flat large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
+    <v-btn text large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
       ELO
     </v-btn>
   </v-toolbar-items>
-</v-toolbar>
+</v-app-bar>
 </template>
 
 <script>
+
+import I18nText from "@/components/I18nText"
+
 export default {
 
   name: "Topbar",
 
   data () {return {
-    fixtoolbar: false,
-    landing: window.config.landing,
-    phpbaseurl: window.config.phpbaseurl,
+    phpbaseurl: "https://www.frbe-kbsb.be/",
   }},
 
+  components: {
+    I18nText,
+  },
+
   mounted() {
-    if (window.CMS) {
-      this.fixtoolbar = true;
-    }
   },
 
   methods:   {
-    openDrawer () {
-      this.$store.commit('updateDrawer', true)
+    toggleDrawer () {
+      this.$store.commit('updateDrawer', !this.drawer)
     },
-    url_i18nn (lang) {
-      return window.config.url_i18n[lang];
-    }
   },
 }
 </script>
 
 <style scoped>
-.fixtoolbar {
-  top: 50px;
-}
-
 .landing.green.darken-2 {
   background-color: rgba(77, 94, 101, 0.4) !important;
-  /*background-color: green;*/
 }
 </style>
