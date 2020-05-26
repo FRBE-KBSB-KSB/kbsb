@@ -93,7 +93,7 @@
 
 import DateFormatted from "@/components/DateFormatted"
 import { mapState } from 'vuex'
-import { oAuth2token } from "@/util/token"
+import { bearertoken } from "@/util/token"
 
 let pagecomponents = [
   'CmsSimplePage',
@@ -148,7 +148,7 @@ export default {
       let self=this;
       this.api.get_page(
         {id: this.$route.params.id},
-        {securities: oAuth2token(this.token)},
+        {securities: bearertoken(this.token)},
       ).then(
         function(data) {
           self.readPage(data.obj.page);
@@ -204,7 +204,7 @@ export default {
       console.log('saving', page);
       this.api.update_page({id},{
         requestBody: page,
-        securities: oAuth2token(this.token),        
+        securities: bearertoken(this.token),        
       }).then(
         function(){
           // TODO successfully saved

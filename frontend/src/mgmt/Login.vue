@@ -64,7 +64,6 @@ export default {
         }
       }).then(
         function(data){
-          console.log('login successful', data)
           self.$store.commit('updateToken', data.obj)
           self.$router.push('/mgmt/page/list')
         },

@@ -5,7 +5,7 @@
   <v-app-bar v-cloak dark app class="deep-purple darken-2" >
     <v-app-bar-nav-icon @click.stop="toggleDrawer()" />
     <v-toolbar-items>
-      <v-btn text large href="/">Bycco</v-btn>
+      <v-btn text large href="/">FRBE-KBSB-KSB</v-btn>
     </v-toolbar-items>
     <v-spacer/>
     <v-toolbar-title>Admin Interface</v-toolbar-title>
@@ -24,9 +24,15 @@
     <v-list dark dense class="deep-purple">
       <v-list-item @click="goto('page/list')" >
           <v-list-item-icon>
-            <v-icon>mdi-file-document</v-icon>
+            <v-icon>mdi-file</v-icon>
           </v-list-item-icon>
         <v-list-item-content>Pages</v-list-item-content>
+      </v-list-item>
+      <v-list-item @click="goto('file/list')" >
+          <v-list-item-icon>
+            <v-icon>mdi-file-document</v-icon>
+          </v-list-item-icon>
+        <v-list-item-content>Files</v-list-item-content>
       </v-list-item>
       <v-list-item @click="goto('bmember/list')" >
           <v-list-item-icon>

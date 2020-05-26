@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d0cab86e2bfdf67423e0dc2c723b4608046c6e75e2647cb337823d8bd3909582"
+            "sha256": "b3c198ae5ba77b17ce55b1ae9152f5bea68f444110ed3d805901158f51596fb9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,6 +18,14 @@
     "default": {
         "5d75972": {
             "path": "./setupdata/dbf-1.0-py3-none-any.whl"
+        },
+        "aiofiles": {
+            "hashes": [
+                "sha256:377fdf7815cc611870c59cbd07b68b180841d2a2b79812d8c218be02448c2acb",
+                "sha256:98e6bcfd1b50f97db4980e182ddd509b7cc35909e903a8fe50d8849e02d815af"
+            ],
+            "index": "pypi",
+            "version": "==0.5.0"
         },
         "cachetools": {
             "hashes": [
@@ -57,11 +65,11 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:c8651f8316956240c2ffe5bc05c334c8359a3887e642720a9b23319c51e82907",
-                "sha256:fff1b4a7fdf4812abb4507fb7aa30ef4206a0435839626ebe3b2871ec9aa367f"
+                "sha256:912bc1a1b187146fd74dd45e17ea10aede3d962c921142c412458e911c50dc4c",
+                "sha256:b1a96ea772f10cd0235eb09d6e282b1f5e6135dad5121ed80d6beb8fa932e075"
             ],
             "index": "pypi",
-            "version": "==0.54.2"
+            "version": "==0.55.1"
         },
         "google-auth": {
             "hashes": [
@@ -296,10 +304,10 @@
         },
         "six": {
             "hashes": [
-                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
-                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
+                "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259",
+                "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"
             ],
-            "version": "==1.14.0"
+            "version": "==1.15.0"
         },
         "starlette": {
             "hashes": [
@@ -461,10 +469,10 @@
         },
         "six": {
             "hashes": [
-                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
-                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
+                "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259",
+                "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"
             ],
-            "version": "==1.14.0"
+            "version": "==1.15.0"
         },
         "typed-ast": {
             "hashes": [

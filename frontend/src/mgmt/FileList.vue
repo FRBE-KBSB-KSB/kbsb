@@ -1,33 +1,33 @@
 <template>
 
 <v-container>
-  <h1>Management Pages</h1>
-  <v-data-table :headers="headers" :items="pages"
+  <h1>Management Files</h1>
+  <v-data-table :headers="headers" :items="files"
       class="elevation-1" sort-by="fullname">
     <template v-slot:top>
       <v-toolbar flat color="white">
         <v-toolbar-title>
-          Pages
+          Files
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-tooltip bottom >
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="addPage()" fab outlined 
+            <v-btn v-on="on" @click="addFile()" fab outlined 
                   color="deep-purple">
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </template>
-          <span>Add Page</span>
+          <span>Add File</span>
          </v-tooltip>
       </v-toolbar>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-icon small class="mr-2"  @click="editPage(item)" >
+      <v-icon small class="mr-2"  @click="editFile(item)" >
         mdi-pencil
       </v-icon>
     </template>
     <template v-slot:no-data>
-      No pages yet.
+      No files yet.
     </template>            
   </v-data-table>
 </v-container>
@@ -42,7 +42,7 @@ import { bearertoken } from "@/util/token"
 
 export default {
 
-  name: 'PageList',
+  name: 'FileList',
 
   data () {return {
     headers: [
@@ -50,16 +50,16 @@ export default {
         text: "Name", value: 'name'
       },
       {
-        text: "Created", value: 'created_ts'
+        text: "Topic", value: 'topic'
       },
       {
-        text: "Modified", value: 'modified_ts'
+        text: "Topic timestamp", value: 'topic_ts'
       },
       {
         text: 'Actions', value: 'action', sortable: false
       }
     ],    
-    pages: [],
+    files: [],
   }},
 
   computed: {
@@ -69,26 +69,25 @@ export default {
 
   methods: {
 
-    addPage () {
-      this.$router.push('/mgmt/page/add')
+    addFile () {
+      this.$router.push('/mgmt/file/add')
     },
 
-    editPage (item) {
-      this.$router.push('/mgmt/page/edit/'  + item.id)
+    editFile (item) {
+      this.$router.push('/mgmt/file/edit/'  + item.id)
     },
     
-    getPages() {
+    getFiles() {
       let self=this;
-      console.log('getPages bearer', bearertoken(this.token))
-      this.api.get_pages(
+      console.log('getFiles bearer ', bearertoken(this.token))
+      this.api.get_files(
         {},
         {securities: bearertoken(this.token)},
       ).then(
         function(data) {
-          self.pages = data.obj.pages;
-          self.pages.forEach(function(p){
-            p.created_ts = (new Date(p.created_ts)).toLocaleString();
-            p.modified_ts = (new Date(p.modified_ts)).toLocaleString();
+          self.files = data.obj.files;
+          self.files.forEach(function(p){
+            p.topic_ts = (new Date(p.created_ts)).toLocaleString();
           })
         },
         function(data){
@@ -96,7 +95,7 @@ export default {
             self.$router.push('/mgmt/login')
           }
           else {
-            console.error('getting getPages', data);
+            console.error('getting getFiles', data);
           }
         }
       );
@@ -105,7 +104,7 @@ export default {
   },
 
   mounted () {
-    this.getPages();
+    this.getFiles();
   },  
 
 }

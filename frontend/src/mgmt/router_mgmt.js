@@ -6,6 +6,9 @@ import BMemberList from '@/mgmt/BMemberList.vue'
 import BRoleAdd from '@/mgmt/BRoleAdd.vue'
 import BRoleEdit from '@/mgmt/BRoleEdit.vue'
 import BRoleList from '@/mgmt/BRoleList.vue'
+import FileAdd from '@/mgmt/FileAdd.vue'
+import FileEdit from '@/mgmt/FileEdit.vue'
+import FileList from '@/mgmt/FileList.vue'
 import PageAdd from '@/mgmt/PageAdd.vue'
 import PageEdit from '@/mgmt/PageEdit.vue'
 import PageList from '@/mgmt/PageList.vue'
@@ -22,6 +25,9 @@ const router = new VueRouter({
     {path: '/mgmt/bmember/list', component: BMemberList},
     {path: '/mgmt/bmember/add', component: BMemberAdd},
     {path: '/mgmt/bmember/edit/:id', component: BMemberEdit},
+    {path: '/mgmt/file/add', component: FileAdd},
+    {path: '/mgmt/file/edit/:id', component: FileEdit},
+    {path: '/mgmt/file/list', component: FileList},
     {path: '/mgmt/page/list', component: PageList},
     {path: '/mgmt/page/add', component: PageAdd},
     {path: '/mgmt/page/edit/:id', component: PageEdit},

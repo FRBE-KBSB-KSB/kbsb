@@ -9,7 +9,7 @@
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" @click="back()" fab outlined 
                   color="deep-purple">
-              <v-icon>mdi-plus</v-icon>
+              <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
           <span>Go Back</span>
@@ -25,32 +25,36 @@
       </v-tooltip>
     </v-col>
   </v-row>
-  <v-row>
-    <v-col cols=12 sm=6>
-      <v-text-field label="Name" v-model="name" />
-      <v-select :items="doctypes" label="Document type" v-model="doctype" />      
-    </v-col>
-  </v-row>
+  <h4>Drop Area</h4>
+  <file-pond ref="pond" accepted-file-types="image/jpeg, image/png"
+      @addfile="handleFile" className="dropbox" /> 
 </v-container>
 </template>
 
 <script>
 
+import 'filepond/dist/filepond.min.css';
+import vueFilePond from 'vue-filepond';
+
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
 
-let doctypes = [
-  'normal-page', 'article', 'app-page'
-]
+const FilePond = vueFilePond();
 
 export default {
   
-  name: "PageAdd",
+  name: "FileAdd",
+
+  components: {
+    FilePond,
+  },
+
+
 
   data () {return {
+    content: '',
+    f: {},
     name: '',
-    doctype: null,
-    doctypes: doctypes,
   }},
 
   computed: {
@@ -63,12 +67,26 @@ export default {
       this.$router.back();
     },
 
+    handleFile(err, file){
+      let self=this;
+      const reader = new FileReader();
+      console.log('file dropped', file);
+      this.name = file.filename;
+      reader.onload = function(event) {
+        console.log('onload event ', event)
+        self.content = reader.result.split(',')[1];
+        console.log('content', self.content)
+      };
+      reader.readAsDataURL(file.file);
+    },
+
     save () {
       let self=this;
-      this.api.create_page({}, {
+      console.log('saving with token', this.token)
+      this.api.create_file({}, {
         requestBody: {
           'name': this.name,
-          'doctype': this.doctype,
+          'content': this.content,
         },
         securities: bearertoken(this.token),
       }).then(
@@ -87,7 +105,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 
 .dropbox {
   width: 100%;

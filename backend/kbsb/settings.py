@@ -14,6 +14,8 @@ DATASTORE = {
     'prefix': 'mongo'
 }
 
+FILESTORE = 'fs'
+
 LOG_CONFIG = {
     'version': 1,
     'formatters': {

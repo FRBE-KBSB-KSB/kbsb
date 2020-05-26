@@ -32,3 +32,4 @@ backend/reddevil/
 .mypy_cache
 __pycache__/
 VERSION
+fs/

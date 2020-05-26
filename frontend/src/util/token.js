@@ -8,4 +8,12 @@ export function oAuth2token(token) {
       }
     }
   }
-} 
+}
+
+export function bearertoken(token) {
+  return  { 
+    authorized: { 
+      HTTPBearer: token 
+    }
+  }
+}
