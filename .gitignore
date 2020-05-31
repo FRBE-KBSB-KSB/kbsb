@@ -28,6 +28,7 @@ yarn-error.log*
 
 backend/local_settings.py
 backend/reddevil/
+frontend/dist
 /data
 .mypy_cache
 __pycache__/

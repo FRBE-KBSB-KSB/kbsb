@@ -43,6 +43,17 @@
     <v-col cols=12 sm=6>
       <p>File created: <date-formatted :date="f.created_ts"/></p>
       <p>File modified: <date-formatted :date="f.modified_ts"/></p>
+      <p>URL: <a :href="'/api/filecontent/' +  f.url">/api/filecontent/{{ f.url}}</a> </p>
+      <v-menu v-model="menu_topic_ts" :close-on-content-click="false"
+        :nudge-right="40" transition="scale-transition"
+        offset-y min-width="290px"
+      >
+        <template v-slot:activator="{ on }">
+          <v-text-field v-model="f.topic_ts" label="Topic date" prepend-icon="mdi-calendar-range"
+            readonly v-on="on" />
+        </template>
+        <v-date-picker v-model="f.topic_ts" @input="menu_topic_ts = false" color="deep-purple" />
+      </v-menu>
     </v-col>
   </v-row>
 </v-container>
@@ -59,6 +70,7 @@ import DateFormatted from '@/components/DateFormatted.vue'
 
 let topics = [
   'Annex to page or article',
+  'Member photo',
   'Report Board Meeting', 
   'Report General Assembly', 
   'Unknown',
@@ -80,8 +92,9 @@ export default {
 
   data () {return {
     f: {},
+    menu_topic_ts: false,
     name: '', 
-    topics: topics,    
+    topics: topics,   
     yesno: [
       {value:true, text: 'Yes'},
       {value:false, text: 'No'}
@@ -140,7 +153,7 @@ export default {
 
     save () {
       let self=this;
-      const {id, ...file} = this.p;
+      const {id, ...file} = this.f;
       console.log('saving', file);
       this.api.update_file({id},{
         requestBody: file,

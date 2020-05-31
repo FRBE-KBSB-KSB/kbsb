@@ -46,3 +46,8 @@ log.info(f'Api layer loaded')
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name 
+
+# import static html endpoints
+import kbsb.static
+log.info(f'static html endpoints loaded')
+

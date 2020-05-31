@@ -24,16 +24,153 @@
         <v-list-group no-action>
           <template v-slot:activator>
             <v-list-item-content>
-              <i18n-text nl="Beheer" fr="Adminstration" de="Administration" en="Adminstration" />
+              <i18n-text nl="Comeptities" fr="Adminstration" de="Administration" en="Adminstration" />
             </v-list-item-content>
           </template>
           <v-list-item @click="updateSlug('statutes')" >
-            <v-list-item-content>Statutes</v-list-item-content>
+            <v-list-item-content>
+              <i18n-text nl="Statuten" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('competition-rules')" >
-            <v-list-item-content>Competition Rules</v-list-item-content>
+          <v-list-item @click="updateSlug('competitions')" >
+            <v-list-item-content>
+              <i18n-text nl="Wedstrijdreglement" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
           </v-list-item>
-        </v-list-group>                
+          <v-list-item @click="updateSlug('internalrules')" >
+            <v-list-item-content>
+              <i18n-text nl="Intern Reglement" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('reports')" >
+            <v-list-item-content>
+              <i18n-text nl="Verslagen" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('vademecum')" >
+            <v-list-item-content>
+              <i18n-text nl="Vademecum" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>   
+        <v-list-group no-action>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <i18n-text nl="Comeptities" fr="Adminstration" de="Administration" en="Adminstration" />
+            </v-list-item-content>
+          </template>
+          <v-list-item @click="updateSlug('interclub1920')" >
+            <v-list-item-content>
+              <i18n-text nl="Interclub 2019-20" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('interclub2021')" >
+            <v-list-item-content>
+              <i18n-text nl="Interclub 2020-21" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('championshipadult')" >
+            <v-list-item-content>
+              <i18n-text nl="BK volwassenen" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('championshipyouth')" >
+            <v-list-item-content>
+              <i18n-text nl="BK jeugd" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('internationadults')" >
+            <v-list-item-content>
+              <i18n-text nl="Internationaal Volwassenen" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('internationyouth')" >
+            <v-list-item-content>
+              <i18n-text nl="Internationaal Jeugd" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group no-action>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <i18n-text nl="Structuur" fr="Adminstration" de="Administration" en="Adminstration" />
+            </v-list-item-content>
+          </template>
+          <v-list-item @click="updateSlug('board')" >
+            <v-list-item-content>
+              <i18n-text nl="Bestuur" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('regional')" >
+            <v-list-item-content>
+              <i18n-text nl="Regionaal" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('commisions')" >
+            <v-list-item-content>
+              <i18n-text nl="Commissies" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group no-action>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <i18n-text nl="Youth" fr="Adminstration" de="Administration" en="Adminstration" />
+            </v-list-item-content>
+          </template>
+          <v-list-item @click="updateSlug('championshipyouth')" >
+            <v-list-item-content>
+              <i18n-text nl="BK jeugd" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('internationalyouth')" >
+            <v-list-item-content>
+              <i18n-text nl="Intetnationaal" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('toptalent')" >
+            <v-list-item-content>
+              <i18n-text nl="Top Talent" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('schoolchess')" >
+            <v-list-item-content>
+              <i18n-text nl="Schoolschaak" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
+        <v-list-group no-action>
+          <template v-slot:activator>
+            <v-list-item-content>
+              <i18n-text nl="Nuttige informatie" fr="Adminstration" de="Administration" en="Adminstration" />
+            </v-list-item-content>
+          </template>
+          <v-list-item @click="updateSlug('emailaddresses')" >
+            <v-list-item-content>
+              <i18n-text nl="E-mail" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('eloprocessing')" >
+            <v-list-item-content>
+              <i18n-text nl="ELO-verwerking" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('fide')" >
+            <v-list-item-content>
+              <i18n-text nl="FIDE" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('glicence')" >
+            <v-list-item-content>
+              <i18n-text nl="G licentie" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="updateSlug('equipment')" >
+            <v-list-item-content>
+              <i18n-text nl="Schaakmateriaal" fr="Adminstration" de="Administration" en="Adminstration" />              
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-group>
         <v-list-group no-action>
           <template v-slot:activator>
             <v-list-item-content>Tools</v-list-item-content>
@@ -64,7 +201,6 @@
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
-
       </v-list>
     </v-navigation-drawer>
 </template>

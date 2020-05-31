@@ -91,8 +91,8 @@ export default {
         securities: bearertoken(this.token),
       }).then(
         function(data){
-          console.log('page created', data)
-          self.$router.push('/mgmt/page/edit/'  + data.body)
+          console.log('file created', data)
+          self.$router.push('/mgmt/file/edit/'  + data.body)
         },
         function(data){
           console.error('failed to save', data);
