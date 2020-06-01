@@ -52,7 +52,7 @@
                 nl="Statuten" 
                 fr="Statuts" 
                 de="Statuten" 
-                en="Adminstration" />              
+                en="Statutes" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('competitions')" >

@@ -10,12 +10,19 @@ import logging, logging.config
 logging.config.dictConfig(settings.LOG_CONFIG)
 
 version = '1.0.0'
-# read VERSION file if it exist
+# read VERSION file if it exist in backend or in root directory
+backenddir = os.path.dirname(os.path.dirname(__file__))
+rootdir = os.path.dirname(backenddir)
 try:
-    with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as fv:
+    with open(os.path.join(backenddir, 'VERSION')) as fv:
         version = fv.read()
 except:
     pass
+try:
+    with open(os.path.join(rootdir, 'VERSION')) as fv:
+        version = fv.read()
+except:
+    pass     
 
 log = logging.getLogger('kbsb')
 log.info(f'Starting website FRBE-KBSB-KSB v{version} ...')
