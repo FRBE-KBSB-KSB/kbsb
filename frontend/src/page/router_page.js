@@ -17,10 +17,12 @@ const router = new VueRouter({
 
 import CmsSimplePage from './CmsSimplePage.vue'
 import LandingPage from './LandingPage.vue'
+import MultiLocalePage from './MultiLocalePage.vue'
 
 let dynroutes = {
   CmsSimplePage: CmsSimplePage,
-  LandingPage: LandingPage
+  LandingPage: LandingPage,
+  MultiLocalePage: MultiLocalePage,
 }
 
 

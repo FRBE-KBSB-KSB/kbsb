@@ -24,8 +24,7 @@
                 nl="Home" 
                 fr="Accueil" 
                 de="Startseite" 
-                en="Home" 
-              />
+                en="Home" />
           </v-list-item-content>
         </v-list-item>
         <v-list-group no-action >
@@ -35,8 +34,7 @@
                 nl="Beheer" 
                 fr="Adminstration" 
                 de="Administration" 
-                en="Adminstration" 
-              />
+                en="Adminstration" />
             </v-list-item-content>
           </template>
           <v-list-item @click="updateSlug('board')" >
@@ -54,8 +52,7 @@
                 nl="Statuten" 
                 fr="Statuts" 
                 de="Statuten" 
-                en="Adminstration" 
-              />              
+                en="Adminstration" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('competitions')" >
@@ -64,8 +61,7 @@
                 nl="Wedstrijdreglement" 
                 fr="Règlement des tournois" 
                 de="Turnierregeln" 
-                en="Tournament rules" 
-              />              
+                en="Tournament rules" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('internalrules')" >
@@ -74,8 +70,7 @@
                 nl="Intern Reglement" 
                 fr="Règlement d'ordre intérieur" 
                 de="Hausinterne Satzung" 
-                en="Internal rules" 
-              />              
+                en="Internal rules" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('reports')" >
@@ -84,8 +79,7 @@
                 nl="Verslagen" 
                 fr="Procès verbaux" 
                 de="Berichte" 
-                en="Reports" 
-              />              
+                en="Reports" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('vademecum')" >
@@ -99,8 +93,7 @@
                 nl="Regionaal" 
                 fr="Régional" 
                 de="Regional" 
-                en="Regional" 
-              />              
+                en="Regional" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('commissions')" >
@@ -109,8 +102,7 @@
                 nl="Commissies" 
                 fr="Commissions" 
                 de="Ausschüsse" 
-                en="Committees" 
-              />              
+                en="Committees" />              
             </v-list-item-content>
           </v-list-item>
         </v-list-group>   
@@ -121,8 +113,7 @@
                 nl="Competities" 
                 fr="Compétitions" 
                 de="Wettbewerbe" 
-                en="Competitions" 
-              />
+                en="Competitions" />
             </v-list-item-content>
           </template>
           <v-list-item @click="updateSlug('interclub1920')" >
@@ -141,8 +132,7 @@
                 nl="BK volwassenen" 
                 fr="CB adultes" 
                 de="BLM Erwachsene" 
-                en="BC Adults" 
-              />              
+                en="BC Adults" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('championshipblitz')" >
@@ -151,8 +141,7 @@
                 nl="BK Blitz" 
                 fr="CB Blitz" 
                 de="BLM Blitz" 
-                en="BC Blitz" 
-              />              
+                en="BC Blitz" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('championshiprapid')" >
@@ -161,8 +150,7 @@
                 nl="BK Rapid" 
                 fr="CB Rapid" 
                 de="BLM Rapid" 
-                en="BC Rapid" 
-              />              
+                en="BC Rapid" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('internationadults')" >
@@ -179,65 +167,107 @@
         <v-list-group no-action>
           <template v-slot:activator>
             <v-list-item-content>
-              <i18n-text nl="Jeugd" fr="Jeunesse" de="Administration" en="Adminstration" />
+              <i18n-text 
+                nl="Jeugd" 
+                fr="Jeunesse" 
+                de="Jugend" 
+                en="Youth" />
             </v-list-item-content>
           </template>
           <v-list-item @click="updateSlug('championshipyouth')" >
             <v-list-item-content>
-              <i18n-text nl="BK jeugd" fr="CB jeunesse" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="BK jeugd" 
+                fr="CB jeunesse" 
+                de="Administration" 
+                en="Adminstration" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('internationalyouth')" >
             <v-list-item-content>
-              <i18n-text nl="Internationaal" fr="International" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="Internationaal" 
+                fr="International" 
+                de="International" 
+                en="International" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('toptalent')" >
             <v-list-item-content>
-              <i18n-text nl="Top Talent" fr="Top Ralent" de="Administration" en="Adminstration" />              
+              Top Talent
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('schoolchess')" >
             <v-list-item-content>
-              <i18n-text nl="BK Schoolschaak" fr="CB inter-écoles " de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="BK Schoolschaak" 
+                fr="CB inter-écoles " 
+                de="BLM Schulschah" 
+                en="BC School Chess" />              
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
         <v-list-group no-action>
           <template v-slot:activator>
             <v-list-item-content>
-              <i18n-text nl="Nuttige informatie" fr="Information utile" de="Administration" en="Adminstration" />
+              <i18n-text 
+                nl="Nuttige informatie" 
+                fr="Information utile" 
+                de="Nützliche Informationen" 
+                en="Useful information" />
             </v-list-item-content>
           </template>
           <v-list-item @click="updateSlug('emailaddresses')" >
             <v-list-item-content>
-              <i18n-text nl="E-mailadressen" fr="Adresses e-mail " de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="E-mailadressen" 
+                fr="Adresses e-mail" 
+                de="E-mailadressen" 
+                en="Email addresses" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('eloprocessing')" >
             <v-list-item-content>
-              <i18n-text nl="ELO-verwerking" fr="Traitement ELO" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="ELO-verwerking" 
+                fr="Traitement ELO" 
+                de="ELO-Verarbeitung"
+                en="ELO processing" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('fide')" >
             <v-list-item-content>
-              <i18n-text nl="FIDE" fr="FIDE" de="Administration" en="Adminstration" />              
+              FIDE
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('glicence')" >
             <v-list-item-content>
-              <i18n-text nl="G licentie" fr="Licence G" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="G licentie" 
+                fr="Licence G"
+                de="G Lizenz" 
+                en="G License" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('equipment')" >
             <v-list-item-content>
-              <i18n-text nl="Schaakmateriaal" fr="Equipement d'échecs" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="Schaakmateriaal" 
+                fr="Equipement d'échecs" 
+                de="Schachausrüstung" 
+                en="Chess equiment" />              
             </v-list-item-content>
           </v-list-item>
         </v-list-group>
         <v-list-group no-action>
           <template v-slot:activator>
-            <v-list-item-content>Tools</v-list-item-content>
+            <v-list-item-content>
+              <i18n-text 
+                nl="Tools" 
+                fr="Outils" 
+                de="Werkzeuge" 
+                en="Tools" />              
+            </v-list-item-content>
           </template>
           <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
             <v-list-item-content>
@@ -256,7 +286,11 @@
           </v-list-item>
           <v-list-item :href="phpbaseurl + 'sites/manager/GestionSWAR/SwarResults.php'">
             <v-list-item-content>
-              <i18n-text nl="Resultaten SWAR" fr="Résultats SWAR" de="Administration" en="Adminstration" />              
+              <i18n-text 
+                nl="SWAR-Resultaten" 
+                fr="Résultats SWAR" 
+                de="SWAR-Ergebnisse" 
+                en="Results SWAR" />              
             </v-list-item-content>
           </v-list-item>
           <v-list-item :href="phpbaseurl + 'sites/manager/CalcNorm/norm.php'">

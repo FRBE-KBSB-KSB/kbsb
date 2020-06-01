@@ -98,6 +98,7 @@ import { bearertoken } from "@/util/token"
 let pagecomponents = [
   'CmsSimplePage',
   'LandingPage',
+  'MultiLocalePage',
 ]
 
 let languages = ['nl', 'fr', 'de', 'en']
