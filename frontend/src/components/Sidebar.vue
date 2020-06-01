@@ -18,7 +18,7 @@
         <v-btn text class="hover-darker btn-language" @click="updateLocale('en')">EN</v-btn>
       </div>
       <v-list dark dense class="green darken-1">
-        <v-list-item @click="updateSlug('home')" >
+        <v-list-item @click="updateSlug('home')">
           <v-list-item-content>
               <i18n-text 
                 nl="Home" 
@@ -28,9 +28,9 @@
               />
           </v-list-item-content>
         </v-list-item>
-        <v-list-group no-action>
+        <v-list-group no-action >
           <template v-slot:activator>
-            <v-list-item-content>
+            <v-list-item-content  >
               <i18n-text 
                 nl="Beheer" 
                 fr="Adminstration" 
@@ -318,6 +318,16 @@ export default {
 </script>
 
 <style scoped>
+
+.v-application .primary--text {
+  color: white !important;
+} 
+
+.v-list-item__content {
+  color: white !important;
+} 
+
+
 .fixtoolbar {
   top: 50px;
 }
