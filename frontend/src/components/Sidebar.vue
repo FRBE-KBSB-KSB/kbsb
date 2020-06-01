@@ -55,7 +55,7 @@
                 en="Statutes" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('competitions')" >
+          <v-list-item @click="updateSlug('tournament-rules')" >
             <v-list-item-content>
               <i18n-text 
                 nl="Wedstrijdreglement" 
@@ -64,7 +64,7 @@
                 en="Tournament rules" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('internalrules')" >
+          <v-list-item @click="updateSlug('internal-rules')" >
             <v-list-item-content>
               <i18n-text 
                 nl="Intern Reglement" 
@@ -116,17 +116,17 @@
                 en="Competitions" />
             </v-list-item-content>
           </template>
-          <v-list-item @click="updateSlug('interclub1920')" >
+          <v-list-item @click="updateSlug('interclub-2019-20')" >
             <v-list-item-content>
               Interclub 2019-20              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('interclub2021')" >
+          <v-list-item @click="updateSlug('interclub-2020-21')" >
             <v-list-item-content>
               Interclub 2020-21              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('championshipadult')" >
+          <v-list-item @click="updateSlug('championships-adult')" >
             <v-list-item-content>
               <i18n-text 
                 nl="BK volwassenen" 
@@ -135,7 +135,7 @@
                 en="BC Adults" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('championshipblitz')" >
+          <v-list-item @click="updateSlug('championships-blitz')" >
             <v-list-item-content>
               <i18n-text 
                 nl="BK Blitz" 
@@ -144,7 +144,7 @@
                 en="BC Blitz" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('championshiprapid')" >
+          <v-list-item @click="updateSlug('championships-rapid')" >
             <v-list-item-content>
               <i18n-text 
                 nl="BK Rapid" 
@@ -153,7 +153,7 @@
                 en="BC Rapid" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('internationadults')" >
+          <v-list-item @click="updateSlug('international-adults')" >
             <v-list-item-content>
               <i18n-text 
                 nl="Internationale competities" 
@@ -174,7 +174,7 @@
                 en="Youth" />
             </v-list-item-content>
           </template>
-          <v-list-item @click="updateSlug('championshipyouth')" >
+          <v-list-item @click="updateSlug('championships-youth')" >
             <v-list-item-content>
               <i18n-text 
                 nl="BK jeugd" 
@@ -183,7 +183,7 @@
                 en="Adminstration" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('internationalyouth')" >
+          <v-list-item @click="updateSlug('international-youth')" >
             <v-list-item-content>
               <i18n-text 
                 nl="Internationaal" 
@@ -192,12 +192,12 @@
                 en="International" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('toptalent')" >
+          <v-list-item @click="updateSlug('top-talent')" >
             <v-list-item-content>
               Top Talent
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('schoolchess')" >
+          <v-list-item @click="updateSlug('school-chess')" >
             <v-list-item-content>
               <i18n-text 
                 nl="BK Schoolschaak" 
@@ -217,7 +217,7 @@
                 en="Useful information" />
             </v-list-item-content>
           </template>
-          <v-list-item @click="updateSlug('emailaddresses')" >
+          <v-list-item @click="updateSlug('email-addresses')" >
             <v-list-item-content>
               <i18n-text 
                 nl="E-mailadressen" 
@@ -226,7 +226,7 @@
                 en="Email addresses" />              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('eloprocessing')" >
+          <v-list-item @click="updateSlug('elo-processing')" >
             <v-list-item-content>
               <i18n-text 
                 nl="ELO-verwerking" 
@@ -240,7 +240,7 @@
               FIDE
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('glicence')" >
+          <v-list-item @click="updateSlug('g-licence')" >
             <v-list-item-content>
               <i18n-text 
                 nl="G licentie" 
