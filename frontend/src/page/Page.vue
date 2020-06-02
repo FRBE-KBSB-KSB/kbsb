@@ -1,4 +1,4 @@
-json <template>
+<template>
 
 <v-app>
 
@@ -75,10 +75,12 @@ export default {
           rt = processRoutes(data.obj.routes)
           self.$router.addRoutes(rt);
           console.log('rt added', rt, 'going to', self.slug, self.locale)
-          self.$router.push('/page/' + self.slug + '/' + self.locale)
+          // double replace because of vue router bug
+          self.$router.replace('/dummy')
+          self.$router.replace('/page/' + self.slug + '/' + self.locale)
         },
         function(data){
-          console.error('could not fetch routingtable', data)
+          console.error('could not fetch routingtable', data).
           alert('Cannot load API');
         }
       )
