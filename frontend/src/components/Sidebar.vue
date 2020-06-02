@@ -306,6 +306,8 @@
 <script>
 
 import I18nText from "@/components/I18nText"
+import { mapState } from 'vuex'
+
 
 export default {
 
@@ -320,6 +322,7 @@ export default {
         this.$store.commit('updateDrawer', value)
       }
     },
+    ...mapState(['slug', 'locale']),    
   },
 
   components: {
@@ -338,11 +341,10 @@ export default {
 
   methods: {
     updateLocale: function(l){
-      this.$store.commit('updateLocale', l)
+      this.$router.push('/page/'+ this.slug + '/' + l)
     },
     updateSlug: function(s){
-      console.log('updating slug', s)
-      this.$store.commit('updateSlug', s)
+      this.$router.push('/page/'+ s + '/' + this.locale)
     },
   }
 

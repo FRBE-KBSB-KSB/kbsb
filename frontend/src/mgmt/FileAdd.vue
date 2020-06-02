@@ -93,9 +93,11 @@ export default {
         function(data){
           console.log('file created', data)
           self.$router.push('/mgmt/file/edit/'  + data.body)
+          self.$root.$emit('snackbar', {text: 'File created'})          
         },
         function(data){
           console.error('failed to save', data);
+          self.$root.$emit('snackbar', {text: 'File not created', reason: data})          
         }
       );
     },

@@ -118,6 +118,7 @@ export default {
         },
         function(data){
           console.error('failed get file', data)
+          self.$root.$emit('snackbar', {text: 'Getting file failed', reason: data})          
         }
       );
     },
@@ -162,10 +163,12 @@ export default {
         function(){
           // TODO successfully saved
           console.log('successfully saved file')
+          self.$root.$emit('snackbar', {text: 'File saved'})          
         },
         function(data){
           // TODO show error message
           console.error('failed to save', data);
+          self.$root.$emit('snackbar', {text: 'Saving file failed', reason: data})          
           self.back();
         }
       );

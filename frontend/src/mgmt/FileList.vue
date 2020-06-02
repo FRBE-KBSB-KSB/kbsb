@@ -96,6 +96,7 @@ export default {
           }
           else {
             console.error('getting getFiles', data);
+          self.$root.$emit('snackbar', {text: 'Getting files failed', reason: data})            
           }
         }
       );

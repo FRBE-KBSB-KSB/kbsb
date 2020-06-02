@@ -11,9 +11,10 @@ import store from './store_page'
 
 Vue.config.productionTip = false
 
-new Vue({
+window.vm = new Vue({
   vuetify,
   router,
   store,
   render: h => h(Page)
 }).$mount('#app')
+

@@ -60,7 +60,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn>
+            <v-btn @click="gotoArticle(art)">
               <i18n-text 
                 nl="lees meer"  
                 fr="en savoir plus"
@@ -80,7 +80,50 @@
   <v-parallax v-if="$vuetify.breakpoint.xs"
     src="@/assets/img/chesscrowd_small.jpg" height="200" />
   <v-container>
-    <h4>The other articles</h4>
+    <v-row class="mt-2">
+      <v-col cols=12 sm=6 md=4 v-for="art in articlesRest" :key="art.id">
+        <v-card >
+          <v-card-title class="green lighten-1 black--text pa-3">
+            {{ art.page_i18n_fields[locale].title }}
+          </v-card-title>
+          <v-card-text class="mt-2">
+            {{ art.page_i18n_fields[locale].intro }}
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn @click="gotoArticle(art)">
+              <i18n-text 
+                nl="lees meer"  
+                fr="en savoir plus"
+                de="weiter lesen"
+                en="read more"
+              />
+            </v-btn>
+          </v-card-actions>            
+        </v-card>
+        <v-card v-if="locale in art.page_i18n_fields == false">
+          <v-card-title class="green lighten-1 black--text pa-3">
+            <i18n-text 
+              nl="Geen titel beschikbaar"
+            />
+          </v-card-title>
+          <v-card-text class="mt-2">
+
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn @click="gotoArticle(art)">
+              <i18n-text 
+                nl="lees meer"  
+                fr="en savoir plus"
+                de="weiter lesen"
+                en="read more"
+              />
+            </v-btn>
+          </v-card-actions>            
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>  
  </div>
 </template>
@@ -89,6 +132,7 @@
 import {mapState} from "vuex"
 import marked from 'marked'
 import I18nText from "@/components/I18nText"
+import { phpbaseurl, notitle, nointro } from "@/util/cms"
 
 export default {
 
@@ -98,7 +142,7 @@ export default {
     articles3: [],
     articlesRest: [],
     page: {},
-    phpbaseurl: "https://www.frbe-kbsb.be/",
+    phpbaseurl: phpbaseurl,
   }},
 
   components: {
@@ -148,11 +192,26 @@ export default {
       );
     },
 
+    gotoArticle(art) {
+      this.$router.push('/page/' +  art.slug + '/' + this.locale)
+    },
+
     readArticles(art) {
       let self=this;
       this.articles3 = [];
       this.articleRest = [];
       art.forEach(function (a, index) {
+        if (self.locale in a.page_i18n_fields === false) {
+          a.page_i18n_fields[self.locale] = {
+            title: '',
+            intro: '',
+            body: ''
+          }
+        }
+        if (!a.page_i18n_fields[self.locale].title)
+          a.page_i18n_fields[self.locale].title = notitle[self.locale];
+        if (!a.page_i18n_fields[self.locale].intro)
+          a.page_i18n_fields[self.locale].intro = nointro[self.locale];
         if (index < 3) {
           self.articles3.push(a);
         }
@@ -166,20 +225,10 @@ export default {
   },
 
   mounted () {
+    console.log('LandingPage Mounted', this.slug)
     this.getContent();
     this.getActiveArticles();
   },
-
-  watch: {
-    locale: function (nv, ov) {
-      console.log('watch locale', nv, ov)
-      this.$router.push('/page/' + this.slug + '/' + nv)
-    },
-    slug: function (nv, ov) {
-      console.log('watch slug', nv, ov)
-      this.$router.push('/page/' + nv + '/' + this.locale)
-    },
-  }
 
 }
 </script>

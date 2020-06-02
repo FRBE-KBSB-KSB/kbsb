@@ -3,14 +3,14 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
+import { languages } from '@/util/cms'
 
 // setup the locale and the slug
-let supportedLocales = ['en', 'fr', 'de', 'nl'];
 let pparts = window.location.pathname.split('/');
 let slug =  pparts.length > 2 ? pparts[2] : 'home';
 let locale = pparts.length > 3 ? pparts[3] : window.localStorage.getItem('locale');
 locale = locale || navigator.language.split('-')[0]; 
-if (! supportedLocales.includes(locale)) locale = 'en';
+if (! languages.includes(locale)) locale = 'en';
 
 const store = new Vuex.Store({
   state: {
@@ -18,7 +18,6 @@ const store = new Vuex.Store({
     drawer: false,
     locale: locale,
     slug: slug,
-    vuetemplate: 'CmsSimpleTemplate'  
   },
 
   mutations: {
@@ -40,10 +39,6 @@ const store = new Vuex.Store({
 
     updateSlug (state, payload) {
       state.slug = payload || state.slug;
-    },
-
-    updateVuetemplate (state, payload) {
-      state.vuetemplate = payload;
     },
 
   }

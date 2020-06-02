@@ -57,7 +57,7 @@
     {{ snacktext }} 
     <span v-show="reason">&nbsp;&nbsp; reason: {{ reason }}</span>
     <v-btn text @click="snackbar = false">
-      <v-icon>cancel</v-icon>
+      <v-icon>mdi-close</v-icon>
     </v-btn>
   </v-snackbar> 
 

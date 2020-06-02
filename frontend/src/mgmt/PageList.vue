@@ -140,6 +140,7 @@ export default {
           }
           else {
             console.error('getting getPages', data);
+            self.$root.$emit('snackbar', {text: 'Getting pages failed', reason: data})            
           }
         }
       );

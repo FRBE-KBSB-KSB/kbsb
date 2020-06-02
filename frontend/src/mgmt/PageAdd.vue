@@ -70,7 +70,7 @@ export default {
         securities: bearertoken(this.token),
       }).then(
         function(data){
-          console.log('page created', data)
+          self.$root.$emit('snackbar', {text: 'Page created'})
           self.$router.push('/mgmt/page/edit/'  + data.body)
         },
         function(data){

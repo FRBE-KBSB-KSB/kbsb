@@ -55,19 +55,9 @@ export default {
   },
 
   mounted () {
+    console.log('CmsSimplePage Mounted', this.slug)
     this.getContent();
   },
-
-  watch: {
-    locale: function (nv, ov) {
-      console.log('watch locale', nv, ov)
-      this.$router.push('/page/' + this.slug + '/' + nv)
-    },
-    slug: function (nv, ov) {
-      console.log('watch slug', nv, ov)
-      this.$router.push('/page/' + nv + '/' + this.locale)
-    },
-  }
 
 }
 </script>

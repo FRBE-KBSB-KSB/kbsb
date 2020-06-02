@@ -3,17 +3,23 @@
 <v-app>
 
   <sidebar />
-  <topbar  :cuetemplate="vuetemplate" />
+  <topbar />
   
   <v-content>
     <v-container v-show="!routingtableloaded">
-      Just a moment, loading ...
+      Just a moment. <v-progress-circular indeterminate />
     </v-container>
-    <router-view  v-if='routingtableloaded'  
-                  :key="$route.fullPath" />
+    <router-view  v-if='routingtableloaded' :key="$route.fullPath" />
   </v-content>
 
   <kbsb-footer />
+
+  <v-snackbar v-model="snackbar" :color="color" bottom>
+    {{ snacktext }}
+    <v-btn text @click="snackbar = false">
+      <v-icon>cancel</v-icon>
+    </v-btn>
+  </v-snackbar>
 
 </v-app>
 
@@ -27,7 +33,6 @@ import KbsbFooter from '@/components/KbsbFooter.vue'
 
 import { mapState } from 'vuex'
 import { processRoutes } from './router_page'
-// import CmsSimplePage from './CmsSimplePage.vue'
 
 export default {
 
@@ -40,12 +45,15 @@ export default {
   },
 
   computed: {
-    ...mapState(['token', 'api', 'slug', 'locale', 'vuetemplate'])
+    ...mapState(['token', 'api', 'slug', 'locale'])
   },
 
   data (){return {
     apiloaded: false,
-    routingtableloaded: false
+    color: '',
+    routingtableloaded: false,
+    snackbar: false,
+    snacktext: '',    
   }},
 
   methods: {
@@ -90,12 +98,32 @@ export default {
 
 
   mounted() {
-    this.getOpenApi()
-  }
+    let self=this;
+    this.getOpenApi();
+    this.$root.$on('snackbar', function(ev) {
+      if (ev.text) {
+        self.snacktext = ev.text;
+        self.snackbar = true;
+      }
+      if (ev.color) {
+        self.color = ev.color;
+      }
+    });
+    this.$router.beforeEach(function(to, from, next){
+      let pparts = to.path.split('/');
+      if (pparts.length == 4) {
+        if (pparts[2] != self.slug) {
+          self.$store.commit('updateSlug', pparts[2]);
+        }
+        if (pparts[3] != self.locale) {
+          self.$store.commit('updateLocale', pparts[3]);
+        }
+      }
+      next();
+    })
+  },
+
 
 }
 </script>
 
-<style scoped>
-
-</style>

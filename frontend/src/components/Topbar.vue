@@ -20,13 +20,14 @@
 <script>
 
 import I18nText from "@/components/I18nText"
+import { phpbaseurl } from "@/util/cms"
 
 export default {
 
   name: "Topbar",
 
   data () {return {
-    phpbaseurl: "https://www.frbe-kbsb.be/",
+    phpbaseurl: phpbaseurl,
   }},
 
   components: {

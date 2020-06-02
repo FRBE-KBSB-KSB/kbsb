@@ -174,6 +174,7 @@ export default {
         },
         function(data){
           console.error('failed get page', data)
+          self.$root.$emit('snackbar', {text: 'Getting page failed', reason: data})          
         }
       );
     },
@@ -205,13 +206,14 @@ export default {
           id: this.$route.params.id
         }).then(
           function(){
-            // TODO show deleted
             console.log('successfully deleted page')
+            self.$root.$emit('snackbar', {text: 'Page deleted'})
             self.back();
           }, 
           function(data){
             // TODO show error message
             console.error('failed to delete', data);
+            self.$root.$emit('snackbar', {text: 'Delete page failed', reason: data})            
           }
         );
       }
@@ -226,13 +228,12 @@ export default {
         securities: bearertoken(this.token),        
       }).then(
         function(){
-          // TODO successfully saved
           console.log('successfully saved page')
+          self.$root.$emit('snackbar', {text: 'Page successfully saved'})
         },
         function(data){
-          // TODO show error message
           console.error('failed to save', data);
-          self.back();
+          self.$root.$emit('snackbar', {text: 'Page not saved', reason: data})
         }
       );
     },
