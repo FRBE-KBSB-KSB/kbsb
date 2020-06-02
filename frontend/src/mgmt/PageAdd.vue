@@ -38,10 +38,7 @@
 
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
-
-let doctypes = [
-  'normal-page', 'article', 'app-page'
-]
+import { doctypes } from '@/util/cms'
 
 export default {
   

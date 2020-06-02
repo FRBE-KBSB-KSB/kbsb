@@ -57,17 +57,39 @@
     <v-col cols=12 sm=6>
       <v-text-field label="Name" v-model="p.name" />
       <v-text-field label="Owner" v-model="p.created_by" />
-      <v-select :items="pagecomponents" label="Frontend Component" v-model="p.component" />         
+      <v-text-field label="Slug" v-model="p.slug" />
+      <v-select :items="doctypes" label="Document type" v-model="p.doctype" />      
+      <v-select :items="pagecomponents" label="Frontend Component" v-model="p.component" /> 
     </v-col>
     <v-col cols=12 sm=6>
-      <v-row >
-        <v-col cols=3 v-for="l in lang.available" :key="l">
-          <v-switch v-model="lang.enabled[l]" :label="l" @change="toggleLang(l)" />
-        </v-col>
-      </v-row>
-      <v-text-field label="Slug" v-model="p.slug" />
+      <v-checkbox v-model="p.enabled" label='Enabled' />
       <p>Page created: <date-formatted :date="p.created_ts"/></p>
       <p>Page modified: <date-formatted :date="p.modified_ts"/></p>
+      <v-menu v-model="menu_published" :close-on-content-click="false"
+        :nudge-right="40" transition="scale-transition"
+        offset-y min-width="290px"
+      >
+        <template v-slot:activator="{ on }">
+          <v-text-field v-model="p.published_ts" label="Publication date" prepend-icon="mdi-calendar-range"
+            readonly v-on="on" />
+        </template>
+        <v-date-picker v-model="p.published_ts" @input="menu_published = false" color="deep-purple" />
+      </v-menu>
+      <v-menu v-model="menu_expired" :close-on-content-click="false"
+        :nudge-right="40" transition="scale-transition"
+        offset-y min-width="290px"
+      >
+        <template v-slot:activator="{ on }">
+          <v-text-field v-model="p.expired_ts" label="Expiry date" prepend-icon="mdi-calendar-range"
+            readonly v-on="on" />
+        </template>
+        <v-date-picker v-model="p.expired_ts" @input="menu_expired = false" color="deep-purple" />
+      </v-menu>
+    </v-col>
+  </v-row>
+  <v-row >
+    <v-col cols=2 v-for="l in lang.available" :key="l">
+      <v-switch v-model="lang.enabled[l]" :label="l" @change="toggleLang(l)" />
     </v-col>
   </v-row>
   <v-tabs light slider-color="deep-purple" v-model="lang.current" >
@@ -94,14 +116,7 @@
 import DateFormatted from "@/components/DateFormatted"
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
-
-let pagecomponents = [
-  'CmsSimplePage',
-  'LandingPage',
-  'MultiLocalePage',
-]
-
-let languages = ['nl', 'fr', 'de', 'en']
+import { doctypes, pagecomponents, languages } from '@/util/cms'
 
 export default {
 
@@ -125,11 +140,14 @@ export default {
   },
 
   data () {return {
+    doctypes: doctypes,    
     lang: {
       available: languages,
       current: 0,
       enabled: {},
     },
+    menu_published: false,
+    menu_expired: false,
     name: '', 
     p: {},
     pagecomponents: pagecomponents,

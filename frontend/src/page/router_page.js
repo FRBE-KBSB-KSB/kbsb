@@ -7,8 +7,7 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    {path: '/page/_notfound', component: RouteNotFound},
-    {path: '*', redirect: '/page/_notfound'},
+    {path: '*', component: RouteNotFound},
   ],
   mode: 'history'
 });

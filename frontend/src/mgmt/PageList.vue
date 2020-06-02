@@ -2,14 +2,26 @@
 
 <v-container>
   <h1>Management Pages</h1>
-  <v-data-table :headers="headers" :items="pages"
-      class="elevation-1" sort-by="fullname">
+  <v-data-table :headers="headers" :items="filteredpages"
+      class="elevation-1" :sort-by="['name','modified']">
     <template v-slot:top>
       <v-toolbar flat color="white">
         <v-toolbar-title>
           Pages
         </v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
+        <v-row>
+          <v-col cols=3>
+            <v-checkbox v-model="filter.normal" label='page' />
+          </v-col>
+          <v-col cols=3>
+            <v-checkbox v-model="filter.article" label='article' />&nbsp;&nbsp;
+          </v-col>
+          <v-col cols=3>
+            <v-checkbox v-model="filter.app" label='app' />
+          </v-col>
+        </v-row>
+        <v-spacer />
         <v-tooltip bottom >
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" @click="addPage()" fab outlined 
@@ -21,13 +33,16 @@
          </v-tooltip>
       </v-toolbar>
     </template>
+    <template v-slot:item.modified_ts="{ item }">
+      <date-formatted :date="item.modified_ts"/>
+    </template>
     <template v-slot:item.action="{ item }">
       <v-icon small class="mr-2"  @click="editPage(item)" >
         mdi-pencil
       </v-icon>
     </template>
     <template v-slot:no-data>
-      No pages yet.
+      No pages found.
     </template>            
   </v-data-table>
 </v-container>
@@ -38,6 +53,7 @@
 
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
+import DateFormatted from "@/components/DateFormatted"
 
 
 export default {
@@ -45,12 +61,16 @@ export default {
   name: 'PageList',
 
   data () {return {
+    filter: {},
     headers: [
       {
         text: "Name", value: 'name'
       },
       {
-        text: "Created", value: 'created_ts'
+        text: "Doctype", value: 'doctype'
+      },
+      {
+        text: "Enabled", value: 'enabled'
       },
       {
         text: "Modified", value: 'modified_ts'
@@ -63,9 +83,32 @@ export default {
   }},
 
   computed: {
-    ...mapState(['token', 'api'])
+    ...mapState(['token', 'api']),
+    filteredpages: function() {
+      let self=this, pa=[]
+      if (!this.filter.normal && !this.filter.article && !this.filter.app)
+        return this.pages;
+      this.pages.forEach(function(p){
+        if (p.doctype == 'normal-page' && self.filter.normal) {
+          pa.push(p);
+          return
+        }
+        if (p.doctype == 'article' && self.filter.article) {
+          pa.push(p);
+          return
+        }
+        if (p.doctype == 'app-page' && self.filter.app) {
+          pa.push(p);
+          return
+        }
+      })
+      return pa 
+    },
   },
 
+  components: {
+    DateFormatted,
+  },
 
   methods: {
 
