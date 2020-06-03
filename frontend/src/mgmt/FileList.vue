@@ -27,7 +27,7 @@
       </v-icon>
     </template>
     <template v-slot:item.topic_ts="{ item }">
-      <date-formatted :date="item.topic_ts"/>
+      <date-formatted :date="item.topic_ts" fmt="ll" />
     </template>
     <template v-slot:no-data>
       No files yet.

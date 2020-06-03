@@ -11,10 +11,10 @@ moment.locale('en-gb');
 
 export default {
   name: "DateFormatted",
-  props: ["date"],
+  props: ["date", "fmt"],
   computed: {
     dateformatted () {
-      return this.date ? moment(this.date).format('lll'): '';
+      return this.date ? moment(this.date).format(this.fmt ? this.fmt: 'lll'): '';
     }
   }
 }
