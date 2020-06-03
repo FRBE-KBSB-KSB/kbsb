@@ -12,7 +12,7 @@ export const pagecomponents = [
 
 export const languages = ['nl', 'fr', 'de', 'en']
 
-export const phpbasurl = "https://www.frbe-kbsb.be/"
+export const phpbaseurl = "https://www.frbe-kbsb.be/"
 
 export const notitle = {
     nl: "-- Titel onbeschikbaar --",

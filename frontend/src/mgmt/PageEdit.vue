@@ -202,9 +202,10 @@ export default {
     remove () {
       let self=this;
       if (window.confirm('Are you sure to delete page "' + this.name + '"?')) {
-        this.api.delete_page({
-          id: this.$route.params.id
-        }).then(
+        this.api.delete_page(
+          {id: this.$route.params.id },        
+          {securities: bearertoken(this.token)}, 
+        ).then(
           function(){
             console.log('successfully deleted page')
             self.$root.$emit('snackbar', {text: 'Page deleted'})
