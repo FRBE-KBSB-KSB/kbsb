@@ -26,6 +26,9 @@
         mdi-pencil
       </v-icon>
     </template>
+    <template v-slot:item.topic_ts="{ item }">
+      <date-formatted :date="item.topic_ts"/>
+    </template>
     <template v-slot:no-data>
       No files yet.
     </template>            
@@ -38,6 +41,7 @@
 
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
+import DateFormatted from "@/components/DateFormatted"
 
 
 export default {
@@ -66,6 +70,9 @@ export default {
     ...mapState(['token', 'api'])
   },
 
+  components: {
+    DateFormatted,
+  },
 
   methods: {
 
@@ -86,9 +93,6 @@ export default {
       ).then(
         function(data) {
           self.files = data.obj.files;
-          self.files.forEach(function(p){
-            p.topic_ts = (new Date(p.created_ts)).toLocaleString();
-          })
         },
         function(data){
           if (data.status == 401) {
