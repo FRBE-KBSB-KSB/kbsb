@@ -8,6 +8,7 @@ export const pagecomponents = [
     'CmsSimplePage',
     'LandingPage',
     'MultiLocalePage',
+    'Reports',
 ]
 
 export const languages = ['nl', 'fr', 'de', 'en']
@@ -27,4 +28,14 @@ export const nointro = {
     de: "Dieser Artikel ist nicht auf Deutsch verfügbar. Für andere Sprachen klicken Sie auf WEITER LESEN",
     en: "This article is not available in English.  For other langueages please click READ MORE"
 }
+
+export const topictypes = [
+    'Annex to page or article',
+    'Member photo',
+    'Report Board Meeting', 
+    'Report General Assembly', 
+    'Unknown',
+]
+  
+export const fileurl = 'http://localhost:8000/api/filecontent/'
 

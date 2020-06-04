@@ -38,7 +38,7 @@
     <v-col cols=12 sm=6>
       <v-text-field label="Name" v-model="f.name" />
       <v-text-field label="Owner" v-model="f.created_by" />
-      <v-select :items="topics" label="Topic" v-model="f.topic" />         
+      <v-select :items="topictypes" label="Topic" v-model="f.topic" />         
     </v-col>
     <v-col cols=12 sm=6>
       <p>File created: <date-formatted :date="f.created_ts"/></p>
@@ -67,14 +67,8 @@
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
 import DateFormatted from '@/components/DateFormatted.vue'
+import { topictypes } from '@/util/cms'
 
-let topics = [
-  'Annex to page or article',
-  'Member photo',
-  'Report Board Meeting', 
-  'Report General Assembly', 
-  'Unknown',
-]
 
 // const FilePond = vueFilePond();
 
@@ -94,7 +88,7 @@ export default {
     f: {},
     menu_topic_ts: false,
     name: '', 
-    topics: topics,   
+    topictypes: topictypes,   
     yesno: [
       {value:true, text: 'Yes'},
       {value:false, text: 'No'}

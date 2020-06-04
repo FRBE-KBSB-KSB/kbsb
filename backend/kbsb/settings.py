@@ -47,11 +47,16 @@ LOG_CONFIG = {
             'level': 'INFO',
             'propagate': False,            
         },
-        # 'uvicorn': {
-        #     'handlers': ['console'],
-        #     'level': 'INFO',
-        #     'propagate': False,            
-        # },
+        'fastapi': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,            
+        },
+        'uvicorn': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,            
+        },
     }
 }
 

@@ -1,13 +1,23 @@
 <template>
 
-<v-container>
-  <h1>Management Files</h1>
-  <v-data-table :headers="headers" :items="files"
+  <v-container class="mt-1 markedcontent">
+    <h1>
+      <i18n-text 
+        nl="Verslagen" 
+        fr="Procès verbaux" 
+        de="Berichte" 
+        en="Reports" />
+    </h1>
+    <v-data-table :headers="headers" :items="files"
       class="elevation-1" sort-by="fullname">
     <template v-slot:top>
       <v-toolbar flat color="white">
         <v-toolbar-title>
-          Files
+        <i18n-text 
+          nl="Verslagen" 
+          fr="Procès verbaux" 
+          de="Berichte" 
+          en="Reports" />          
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-tooltip bottom >
@@ -21,32 +31,36 @@
          </v-tooltip>
       </v-toolbar>
     </template>
-    <template v-slot:item.action="{ item }">
-      <v-icon small class="mr-2"  @click="editFile(item)" >
-        mdi-pencil
-      </v-icon>
-    </template>
     <template v-slot:item.topic_ts="{ item }">
       <date-formatted :date="item.topic_ts" fmt="ll" />
     </template>
+    <template v-slot:item.path="{ item }">
+      URL: <a :href="fileurl +  item.url">{{ item.name}}</a>      
+    </template>
     <template v-slot:no-data>
-      No files yet.
+      No reports yet.
     </template>            
   </v-data-table>
-</v-container>
+  </v-container>
 
 </template>
 
 <script>
 
-import { mapState } from 'vuex'
-import { bearertoken } from "@/util/token"
+import I18nText from "@/components/I18nText"
+import {mapState} from "vuex"
 import DateFormatted from "@/components/DateFormatted"
+import { fileurl } from '@/util/cms'
 import * as moment from 'moment';
 
 export default {
 
-  name: 'FileList',
+  name: 'Reports',
+
+  components: {
+    DateFormatted,
+    I18nText,
+  },
 
   data () {return {
     headers: [
@@ -60,47 +74,28 @@ export default {
         text: "Topic timestamp", value: 'topic_ts'
       },
       {
-        text: 'Actions', value: 'action', sortable: false
+        text: 'Path', value:"path"
       }
     ],    
     files: [],
+    fileurl: fileurl,
   }},
 
   computed: {
-    ...mapState(['token', 'api'])
-  },
-
-  components: {
-    DateFormatted,
+    ...mapState(['locale', 'api'])
   },
 
   methods: {
 
-    addFile () {
-      this.$router.push('/mgmt/file/add')
-    },
-
-    editFile (item) {
-      this.$router.push('/mgmt/file/edit/'  + item.id)
-    },
-    
-    getFiles() {
+    getReports() {
       let self=this;
-      this.api.get_files(
-        {},
-        {securities: bearertoken(this.token)},
-      ).then(
+      this.api.get_files({'reports': 1}).then(
         function(data) {
           self.files = data.obj.files;
         },
         function(data){
-          if (data.status == 401) {
-            self.$router.push('/mgmt/login')
-          }
-          else {
-            console.error('getting getFiles', data);
+          console.error('getting getFiles', data);
           self.$root.$emit('snackbar', {text: 'Getting files failed', reason: data})            
-          }
         }
       );
     }
@@ -109,8 +104,32 @@ export default {
 
   mounted () {
     moment.locale(this.locale)
-    this.getFiles();
-  },  
+    this.getReports();
+  },
 
 }
 </script>
+
+
+<style scoped>
+
+.markedcontent table {
+  border-collapse: collapse;
+  min-width: 30em;
+}
+
+.markedcontent table {
+  border: 1px solid black;
+}
+
+.markedcontent td {
+  border: 1px solid black;
+  padding: 6px;
+}
+
+.markedcontent  th {
+  border: 1px solid black;
+  padding: 6px;
+}
+
+</style>
