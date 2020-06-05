@@ -9,6 +9,7 @@ export const pagecomponents = [
     'LandingPage',
     'MultiLocalePage',
     'Reports',
+    'BoardListing'
 ]
 
 export const languages = ['nl', 'fr', 'de', 'en']
@@ -31,11 +32,14 @@ export const nointro = {
 
 export const topictypes = [
     'Annex to page or article',
-    'Member photo',
     'Report Board Meeting', 
     'Report General Assembly', 
     'Unknown',
 ]
   
-export const fileurl = 'http://localhost:8000/api/filecontent/'
+export const fileurl = '/api/filecontent/'
+
+export const pictureurl = '/api/picture/'
+
+export const boardmembertype = ['board', 'mandated person']
 

@@ -9,28 +9,28 @@
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" outlined fab color="deep-purple" @click="back()" 
               slot="activator">
-            <v-icon>arrow_back</v-icon>
+            <v-icon>mdi-arrow-left</v-icon>
           </v-btn>
         </template>
         <span>Go Back</span>
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" outlined fab color="deep-purple" @click="remove()" 
-              slot="activator">
-            <v-icon>delete</v-icon>
-          </v-btn>
-        </template>
-        <span>Delete BRole</span>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
           <v-btn v-on="on" outlined fab color="deep-purple" @click="save()" 
               slot="activator">
-            <v-icon>save</v-icon>
+            <v-icon>mdi-content-save</v-icon>
           </v-btn>
         </template>
         <span>Save BRole</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" outlined fab color="deep-purple" @click="remove()" 
+              slot="activator">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </template>
+        <span>Delete BRole</span>
       </v-tooltip>
     </v-col>
   </v-row>

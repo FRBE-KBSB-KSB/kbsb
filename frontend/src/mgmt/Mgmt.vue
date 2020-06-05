@@ -38,13 +38,13 @@
           <v-list-item-icon>
             <v-icon>mdi-account-multiple</v-icon>
           </v-list-item-icon>
-        <v-list-item-content>Members</v-list-item-content>
+        <v-list-item-content>Board Members</v-list-item-content>
       </v-list-item>
       <v-list-item @click="goto('brole/list')" >
           <v-list-item-icon>
             <v-icon>mdi-account-tie</v-icon>
           </v-list-item-icon>
-        <v-list-item-content>Roles</v-list-item-content>
+        <v-list-item-content>Board Roles</v-list-item-content>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>

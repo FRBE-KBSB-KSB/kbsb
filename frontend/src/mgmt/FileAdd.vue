@@ -26,8 +26,7 @@
     </v-col>
   </v-row>
   <h4>Drop Area</h4>
-  <file-pond ref="pond" accepted-file-types="image/jpeg, image/png"
-      @addfile="handleFile" className="dropbox" /> 
+  <file-pond ref="pond" @addfile="handleFile" className="dropbox" /> 
 </v-container>
 </template>
 

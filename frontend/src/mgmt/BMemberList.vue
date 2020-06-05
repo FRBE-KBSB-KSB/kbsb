@@ -14,7 +14,7 @@
           <template v-slot:activator="{ on }">
             <v-btn v-on="on" @click="addMember()" fab outlined 
                   color="deep-purple">
-              <v-icon>add</v-icon>
+              <v-icon>mdi-plus</v-icon>
             </v-btn>
           </template>
           <span>Add Member</span>
@@ -26,8 +26,7 @@
     </template>    
     <template v-slot:item.action="{ item }">
       <v-icon small class="mr-2"  @click="editMember(item)" >
-        edit
-      </v-icon>
+        mdi-pencil      </v-icon>
     </template>
     <template v-slot:no-data>
       No members yet.
@@ -52,7 +51,7 @@ export default {
         text: "Full name", value: 'fullname'
       },
       {
-        text: "Email", value: 'email'
+        text: "Priority", value: 'priority'
       },
       {
         text: "Mobile", value: 'mobile'
@@ -91,13 +90,7 @@ export default {
         },
         function(rc){
           console.log('failed', rc)
-          if (rc.status == 401) {
-            self.$router.push('/mgmt/login')
-          }
-          else {
-            // TODO snackbar
-            console.error('get board members', rc);
-          }
+          self.$root.emit('snacknar', {text: 'failed getting members'})
         }
       );
     },
