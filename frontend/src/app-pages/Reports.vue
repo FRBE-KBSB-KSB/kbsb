@@ -8,7 +8,7 @@
         de="Berichte" 
         en="Reports" />
     </h1>
-    <v-data-table :headers="headers" :items="files"
+    <v-data-table :headers="headers" :items="files" :footer-props="footerProps"
       class="elevation-1" sort-by="fullname">
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -31,6 +31,9 @@
          </v-tooltip>
       </v-toolbar>
     </template>
+    <template v-slot:item.topic="{ item }">
+      {{ t_topic(item) }}
+    </template>
     <template v-slot:item.topic_ts="{ item }">
       <date-formatted :date="item.topic_ts" fmt="ll" />
     </template>
@@ -50,7 +53,7 @@
 import I18nText from "@/components/I18nText"
 import {mapState} from "vuex"
 import DateFormatted from "@/components/DateFormatted"
-import { fileurl } from '@/util/cms'
+import { fileurl, reportlisting, topic_i18n } from '@/util/cms'
 import * as moment from 'moment';
 
 export default {
@@ -65,24 +68,28 @@ export default {
   data () {return {
     headers: [
       {
-        text: "Name", value: 'name'
+        text: '', value: 'name'
       },
       {
-        text: "Topic", value: 'topic'
+        text: '', value: 'topic'
       },
       {
-        text: "Topic timestamp", value: 'topic_ts'
+        text: '', value: 'topic_ts'
       },
       {
-        text: 'Path', value:"path"
+        text: '', value:"path"
       }
     ],    
     files: [],
     fileurl: fileurl,
+    footerProps: {
+      itemsPerPageOptions: [20,50,-1],
+      itemsPerPage: 20
+    },    
   }},
 
   computed: {
-    ...mapState(['locale', 'api'])
+    ...mapState(['locale', 'api']),
   },
 
   methods: {
@@ -98,6 +105,10 @@ export default {
           self.$root.$emit('snackbar', {text: 'Getting files failed', reason: data})            
         }
       );
+    },
+
+    t_topic(item){
+      return topic_i18n[item.topic][this.locale]
     }
     
   },
@@ -105,6 +116,11 @@ export default {
   mounted () {
     moment.locale(this.locale)
     this.getReports();
+    this.headers[0].text = reportlisting[this.locale][0]
+    this.headers[1].text = reportlisting[this.locale][1]
+    this.headers[2].text = reportlisting[this.locale][2]
+    this.headers[3].text = reportlisting[this.locale][3]
+
   },
 
 }

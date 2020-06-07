@@ -36,7 +36,30 @@ export const topictypes = [
     'Report General Assembly', 
     'Unknown',
 ]
-  
+
+export const topic_i18n = {
+    'Report Board Meeting': {
+        nl: 'Verslag RvB',
+        fr: 'Procès verbal du CA',
+        de: 'Sitzungsprotokoll',
+        en: 'Minutes board meeting'
+    },
+    'Report General Assembly': {
+        nl: 'Verslag AV',
+        fr: "Proces verbal de l'AG",
+        de: 'Sitzungsprotokoll Generalversammlung',
+        en: 'Meeting minutes general assembly'
+    }
+}
+
+export const reportlisting = {
+    nl: ['Naam', 'Topic', 'Datum', 'Link'],
+    fr: ['Nom' , 'Sujet', 'Date', 'Lien'],
+    de: ['Name', 'Gegenstand', 'Datum','Link'],
+    en: ['Name', 'Topic', 'Date', 'Link']
+}
+
+
 export const fileurl = '/api/filecontent/'
 
 export const pictureurl = '/api/picture/'

@@ -2,7 +2,7 @@
 
 <v-container class="elevation-2">
   <h1>Management of board members</h1>
-  <v-data-table :headers="headers" :items="members" :footer-props="footerprops"
+  <v-data-table :headers="headers" :items="members" :footer-props="footerProps"
        sort-by="fullname" :items-per-page="30">
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -60,8 +60,9 @@ export default {
         text: 'Actions', value: 'action', sortable: false
       }
     ],
-    footerprops: {
-      "items-per-page-options": [15,30,50,-1],
+    footerProps: {
+      itemsPerPageOptions: [20,50,-1],
+      itemsPerPage: 20
     },
 
     members: [],

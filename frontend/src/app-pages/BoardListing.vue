@@ -21,7 +21,8 @@
         <div class="ma-1 elevation-3 d-flex pa-1">
 
           <div class="flex-shrink-0 flex-grow-0">
-            <img :src="bm.urlpicture" class="person-photo">
+            <img :src="bm.urlpicture" class="person-photo d-none d-lg-flex">
+            <img :src="bm.urlpicture" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
             <div class="green lighten-3 pa-3">
@@ -58,11 +59,12 @@
     </h2>
 
     <v-row >
-      <v-col cols=12 sm=6 xl=4 v-for="bm in mandated" :key="bm.id">
+      <v-col cols=12 md=6 xl=4 v-for="bm in mandated" :key="bm.id">
         <div class="ma-1 elevation-3 d-flex pa-1">
 
           <div class="flex-shrink-0 flex-grow-0">
-            <img :src="bm.urlpicture" class="person-photo">
+            <img :src="bm.urlpicture" class="person-photo d-none d-lg-flex">
+            <img :src="bm.urlpicture" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
             <div class="green lighten-3 pa-3">
@@ -189,5 +191,13 @@ export default {
 
 
 <style scoped>
+
+.person-photo {
+  width: 160px;
+}
+
+.person-photo-sm {
+  width: 120px;
+}
 
 </style>

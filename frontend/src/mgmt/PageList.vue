@@ -2,7 +2,7 @@
 
 <v-container>
   <h1>Management Pages</h1>
-  <v-data-table :headers="headers" :items="filteredpages"
+  <v-data-table :headers="headers" :items="filteredpages" :footer-props="footerProps"
       class="elevation-1" :sort-by="['name','modified']">
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -62,6 +62,10 @@ export default {
 
   data () {return {
     filter: {},
+    footerProps: {
+      itemsPerPageOptions: [20,50,-1],
+      itemsPerPage: 20,
+    },
     headers: [
       {
         text: "Name", value: 'name'
