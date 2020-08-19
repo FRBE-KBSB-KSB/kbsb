@@ -39,16 +39,16 @@ export const topictypes = [
 
 export const topic_i18n = {
     'Report Board Meeting': {
-        nl: 'Verslag RvB',
-        fr: 'Procès verbal du CA',
+        nl: 'Verslag BO',
+        fr: 'Procès verbal OA',
         de: 'Sitzungsprotokoll',
         en: 'Minutes board meeting'
     },
     'Report General Assembly': {
         nl: 'Verslag AV',
-        fr: "Proces verbal de l'AG",
-        de: 'Sitzungsprotokoll Generalversammlung',
-        en: 'Meeting minutes general assembly'
+        fr: "Procès verbal AG",
+        de: 'Sitzungsprotokoll GV',
+        en: 'Meeting minutes GA'
     }
 }
 

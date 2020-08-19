@@ -8,7 +8,7 @@
         de="Berichte" 
         en="Reports" />
     </h1>
-    <v-data-table :headers="headers" :items="files" :footer-props="footerProps"
+    <v-data-table :headers="headers" :items="filteredfiles" :footer-props="footerProps"
       class="elevation-1" sort-by="fullname">
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -20,19 +20,20 @@
           en="Reports" />          
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-tooltip bottom >
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="addFile()" fab outlined 
-                  color="deep-purple">
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>Add File</span>
-         </v-tooltip>
+        <v-row>
+          <v-col cols=6>
+            <v-checkbox v-model="filter.board" 
+              :label="t_topic['Report Board Meeting']"/>
+          </v-col>
+          <v-col cols=6>
+            <v-checkbox v-model="filter.ga" 
+              :label="t_topic['Report General Assembly']"/>
+          </v-col>
+        </v-row>
       </v-toolbar>
     </template>
     <template v-slot:item.topic="{ item }">
-      {{ t_topic(item) }}
+      {{ t_topic[item.topic] }}
     </template>
     <template v-slot:item.topic_ts="{ item }">
       <date-formatted :date="item.topic_ts" fmt="ll" />
@@ -66,6 +67,7 @@ export default {
   },
 
   data () {return {
+    filter: {},    
     headers: [
       {
         text: '', value: 'name'
@@ -90,6 +92,30 @@ export default {
 
   computed: {
     ...mapState(['locale', 'api']),
+    filteredfiles: function() {
+      let self=this, fa=[];
+      if (!this.filter.board && !this.filter.ga)
+        return this.files;
+      this.files.forEach(function(f){
+        console.log('topic', f.topic)
+        if (f.topic == 'Report Board Meeting' && self.filter.board) {
+          console.log('pushing board')
+          fa.push(f);
+          return
+        }
+        if (f.topic == 'Report General Assembly' && self.filter.ga) {
+          fa.push(f);
+          return
+        }
+      })
+      return fa
+    },
+    t_topic () {
+      let k = {};
+      k['Report Board Meeting'] = topic_i18n['Report Board Meeting'][this.locale]
+      k['Report General Assembly'] = topic_i18n['Report General Assembly'][this.locale]
+      return k;
+    }     
   },
 
   methods: {
@@ -106,11 +132,7 @@ export default {
         }
       );
     },
-
-    t_topic(item){
-      return topic_i18n[item.topic][this.locale]
-    }
-    
+   
   },
 
   mounted () {
