@@ -68,8 +68,8 @@
             <v-list-item-content>
               <i18n-text 
                 nl="Intern Reglement" 
-                fr="Règlement d'ordre intérieur" 
-                de="Hausinterne Satzung" 
+                fr="Règlement interne" 
+                de="interne Regulierung" 
                 en="Internal rules" />              
             </v-list-item-content>
           </v-list-item>

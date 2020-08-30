@@ -55,6 +55,7 @@
       <v-select v-model="role1" :items="roles" />
       <v-select v-model="role2" :items="roles" />
       <v-select v-model="role3" :items="roles" />
+      <v-select v-model="role3" :items="roles" />
     </v-col>
     <v-col cols=12 sm=6>
       <h4>Picture</h4>
@@ -97,6 +98,7 @@ export default {
     role1: '',
     role2: '',
     role3: '',
+    role4: '',
   }},
 
   methods: {
@@ -158,6 +160,7 @@ export default {
       if (member.boardroles.length > 0) this.role1 = member.boardroles[0];
       if (member.boardroles.length > 1) this.role2 = member.boardroles[1];
       if (member.boardroles.length > 2) this.role3 = member.boardroles[2];
+      if (member.boardroles.length > 3) this.role4 = member.boardroles[3];
     },
 
     readBRoles(roles) {
@@ -191,6 +194,7 @@ export default {
       if (this.role1) boardroles.push(this.role1)
       if (this.role2) boardroles.push(this.role2)
       if (this.role3) boardroles.push(this.role3)
+      if (this.role4) boardroles.push(this.role4)
       this.api.update_board_member(
         {id: this.member.id}, 
         {
