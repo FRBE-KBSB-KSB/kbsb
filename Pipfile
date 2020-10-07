@@ -22,6 +22,7 @@ colorlog = "*"
 google-auth = "*"
 aiofiles = "*"
 motor = "*"
+python-jose = {extras = ["cryptography"],version = "*"}
 
 [requires]
 python_version = "3.7"
