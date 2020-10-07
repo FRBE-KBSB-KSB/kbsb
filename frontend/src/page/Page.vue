@@ -84,8 +84,11 @@ export default {
           self.$router.addRoutes(rt);
           console.log('rt added', rt, 'going to', self.slug, self.locale)
           // double replace because of vue router bug
-          self.$router.replace('/dummy')
-          self.$router.replace('/page/' + self.slug + '/' + self.locale)
+          let newroute = '/page/' + self.slug + '/' + self.locale;
+          if (self.$route.path == newroute) {
+            self.$router.replace('/dummy')
+          }
+          self.$router.replace(newroute)
         },
         function(data){
           console.error('could not fetch routingtable', data).

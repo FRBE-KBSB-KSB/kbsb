@@ -52,7 +52,7 @@
     <v-row class="mt-2">
       <v-col cols=12 sm=6 md=4 v-for="art in articles3" :key="art.id">
         <v-card>
-          <v-card-title class="green lighten-1 black--text pa-3">
+          <v-card-title class="green lighten-1 black--text pa-3 hyphen">
             {{ art.page_i18n_fields[locale].title }}
           </v-card-title>
           <v-card-text class="mt-2">
@@ -83,7 +83,7 @@
     <v-row class="mt-2">
       <v-col cols=12 sm=6 md=4 v-for="art in articlesRest" :key="art.id">
         <v-card >
-          <v-card-title class="green lighten-1 black--text pa-3">
+          <v-card-title class="green lighten-1 black--text pa-3 hyphen">
             {{ art.page_i18n_fields[locale].title }}
           </v-card-title>
           <v-card-text class="mt-2">
@@ -263,4 +263,7 @@ a:hover {
   font-weight: bold;
 }
 
+.hyphen {
+  word-break: normal;
+}
 </style>

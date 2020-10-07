@@ -20,9 +20,8 @@
           />
         </div>
         <div>
-            ALMA ECHECS<br>
-            Jardin Martin V, 59<br>
-           1200 Brussel-Bruxelles   
+            131 Rue Frans Vekemansstraat 131<br> 
+            1120 Neder-Over-Heembeek   
         </div>
         <div>IBAN: BE76 0015 9823 0095</div>
         <div>BIC: GEBABEBB</div>
