@@ -21,6 +21,7 @@ requests = "*"
 colorlog = "*"
 google-auth = "*"
 aiofiles = "*"
+motor = "*"
 
 [requires]
 python_version = "3.7"
