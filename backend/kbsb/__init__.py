@@ -1,14 +1,60 @@
-#    Copyright 2018 Ruben Decrop
-#
-#    Licensed under the Apache License, Version 2.0 (the "License");
-#    you may not use this file except in compliance with the License.
-#    You may obtain a copy of the License at
-#
-#        http://www.apache.org/licenses/LICENSE-2.0
-#
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS,
-#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#    See the License for the specific language governing permissions and
-#    limitations under the License.
+# copyright Chessdevil Consulting BVBA 2018 - 2020
+
+import os.path
+
+# load settings
+from reddevil.common.configreader import SettingsProxy
+settings = SettingsProxy('kbsb.settings')
+
+import logging, logging.config
+logging.config.dictConfig(settings.LOG_CONFIG)
+
+version = '1.0.0'
+# read VERSION file if it exist in backend or in root directory
+backenddir = os.path.dirname(os.path.dirname(__file__))
+rootdir = os.path.dirname(backenddir)
+try:
+    with open(os.path.join(backenddir, 'VERSION')) as fv:
+        version = fv.read()
+except:
+    pass
+try:
+    with open(os.path.join(rootdir, 'VERSION')) as fv:
+        version = fv.read()
+except:
+    pass     
+
+log = logging.getLogger('kbsb')
+log.info(f'Starting website FRBE-KBSB-KSB v{version} ...')
+
+from fastapi import FastAPI
+from fastapi.routing import APIRoute
+
+app = FastAPI(
+    title="FRBE-KBSB-KSB",
+    description="Website Beligan Chess federation FRBE KBSB KSB",
+    version=version,
+)
+
+from reddevil.common import register_app
+register_app(settings, app)
+
+# import service layer 
+import kbsb.service
+log.info(f'Service layer loaded')
+
+# import api endpoints
+import kbsb.api
+log.info(f'Api layer loaded')
+
+#    Simplify operation IDs so that generated API clients have simpler function
+#    names.
+
+for route in app.routes:
+    if isinstance(route, APIRoute):
+        route.operation_id = route.name 
+
+# import static html endpoints
+import kbsb.static
+log.info(f'static html endpoints loaded')
 

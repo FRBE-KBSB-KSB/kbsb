@@ -1,5 +1,0 @@
-recursive-include kbsbmembers/templates * 
-recursive-include kbsbarticles/templates * 
-recursive-include kbsbdoc/templates * 
-recursive-include kbsb/templates * 
-recursive-include kbsb/data * 

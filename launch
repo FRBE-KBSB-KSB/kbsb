@@ -1,2 +1,2 @@
 #!/bin/bash
-pipenv run python backend/manage.py runserver
+pipenv run uvicorn kbsb:app --reload --reload-dir backend/kbsb --reload-dir backend/reddevil

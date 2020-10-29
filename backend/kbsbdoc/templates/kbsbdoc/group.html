@@ -1,9 +1,0 @@
-
-<h2 class='mt-3'> {{ title }}</h2>
-{% for d in docs %}
-<div class=ma-1>
-  {{ d.topicdate|date:"d-m-Y" }}:
-  <a href="{{ d.url }}">{{ d.topic }}.{{d.doctype}} </a> 
-  {{d.category|upper}} {{ d.locale }} 
-</div>
-{% endfor %}
