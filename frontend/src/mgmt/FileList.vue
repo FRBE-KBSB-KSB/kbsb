@@ -86,7 +86,7 @@ export default {
     
     getFiles() {
       let self=this;
-      this.api.get_files(
+      this.api.getFiles(
         {},
         {securities: bearertoken(this.token)},
       ).then(

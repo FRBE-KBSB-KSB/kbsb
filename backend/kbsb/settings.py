@@ -6,14 +6,6 @@ import logging
 
 API_BASE_URL = '/api'
 
-DATASTORE = {
-    'database': 'kbsb',
-    'host': 'localhost',
-    'module': 'reddevil.common.db_mongo',
-    'port': 27017,
-    'prefix': 'mongo'
-}
-
 FILESTORE = 'fs'
 
 LOG_CONFIG = {
@@ -64,6 +56,17 @@ EXTRASALT = 'Zugzwang'
 
 GOOGLE_CLIENT_ID = '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
 GOOGLE_LOGIN_DOMAINS = ['frbe-kbsb-ksb.be']
+
+MONGO_URL = 'mongodb://localhost:27017/'
+MONGO_DB = 'kbsb'
+
+TOKEN = {
+    "timeout":  180,    # timeout in minutes
+    "secret": "Pakjezakjemaggoan",
+    "algorithm": "HS256",
+    "nocheck": True,
+}
+
 
 from local_settings import *
 log = logging.getLogger('kbsb')

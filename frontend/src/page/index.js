@@ -1,11 +1,7 @@
 import Vue from 'vue'
 import vuetify from '@/plugins/vuetify';
-
-// window.config must be configured before the store is loaded
-// now fake the server side injection in landingpage.html in a dev environment
-
+import { i18n } from '@/util/lang'
 import Page from './Page.vue'
-// import './registerServiceWorker'
 import {router} from './router_page'
 import store from './store_page'
 
@@ -15,6 +11,7 @@ window.vm = new Vue({
   vuetify,
   router,
   store,
+  i18n,
   render: h => h(Page)
 }).$mount('#app')
 

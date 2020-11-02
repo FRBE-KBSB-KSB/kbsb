@@ -76,7 +76,7 @@ export default {
     getRoutingTable() {
       let self=this;
       let rt;
-      this.api.get_routingtable().then(
+      this.api.anon_routingtable().then(
         function(data){
           self.routingtableloaded = true;
           console.log('got Routes', data.obj.routes)

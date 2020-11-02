@@ -1,10 +1,10 @@
 # copyright Chessdevil Consulting BVBA 2018 - 2020
 
-import reddevil.account.api_account
-import reddevil.boardrole.api_brole
-import reddevil.boardmember.api_bmember
-import reddevil.page.api_page
-import reddevil.file.api_file
+# import reddevil.boardrole.api_brole
+# import reddevil.boardmember.api_bmember
+import reddevil.api.api_page
+import reddevil.api.api_account
+import reddevil.api.api_file
 
 from .. import app
 

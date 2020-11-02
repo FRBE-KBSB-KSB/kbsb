@@ -5,7 +5,7 @@
   <v-app-bar v-cloak dark app class="deep-purple darken-2" >
     <v-app-bar-nav-icon @click.stop="toggleDrawer()" />
     <v-toolbar-items>
-      <v-btn text large href="/">FRBE-KBSB-KSB</v-btn>
+      <v-btn text large href="/">Reddevil Management</v-btn>
     </v-toolbar-items>
     <v-spacer/>
     <v-toolbar-title>Admin Interface</v-toolbar-title>
@@ -34,7 +34,13 @@
           </v-list-item-icon>
         <v-list-item-content>Files</v-list-item-content>
       </v-list-item>
-      <v-list-item @click="goto('bmember/list')" >
+      <v-list-item @click="goto('enrollment/list')" >
+          <v-list-item-icon>
+            <v-icon>mdi-account-multiple</v-icon>
+          </v-list-item-icon>
+        <v-list-item-content>Participants</v-list-item-content>
+      </v-list-item>
+      <!-- <v-list-item @click="goto('bmember/list')" >
           <v-list-item-icon>
             <v-icon>mdi-account-multiple</v-icon>
           </v-list-item-icon>
@@ -45,13 +51,13 @@
             <v-icon>mdi-account-tie</v-icon>
           </v-list-item-icon>
         <v-list-item-content>Board Roles</v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
     </v-list>
   </v-navigation-drawer>
 
-  <v-content>
+  <v-main>
     <router-view v-if="apiloaded"></router-view>
-  </v-content>
+  </v-main>
   
   <v-snackbar v-model="snackbar" bottom>
     {{ snacktext }} 

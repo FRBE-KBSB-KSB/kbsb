@@ -2,17 +2,17 @@
 
   <v-container class="mt-1 markedcontent">
   <v-tabs light slider-color="deep-purple" v-model="lang" >
-    <v-tab class="mx-2"  v-for="l in languages" :key="l">
+    <v-tab class="mx-2"  v-for="l in p.languages" :key="l">
       <span>{{l}}</span>
     </v-tab>
   </v-tabs>
   <v-tabs-items v-model="lang">
-    <v-tab-item  v-for="l in languages" :key="l">
+    <v-tab-item  v-for="l in p.languages" :key="l">
       <div class='elevation-1 mt-2 pa-2'>
-        <h1 v-html="title[l]" />
-        <div v-html="intro[l]" class="mt-1"/>
+        <h1 v-html="p.title[l].value" />
+        <div v-html="marked(p.intro[l].value)" class="mt-1"/>
         <hr/>
-        <div v-html="body[l]" class="mt-1" />
+        <div v-html="marked(p.body[l].value)" class="mt-1" />
       </div>
     </v-tab-item>
   </v-tabs-items>      
@@ -31,10 +31,6 @@ export default {
 
   data () {return {
     p: {},
-    body: {},
-    intro: {},
-    title: {},
-    languages: [],
     lang: '',
   }},
 
@@ -48,35 +44,21 @@ export default {
     
     getContent () {
       let self=this;
-      this.api.get_page_by_slug({
+      this.api.anon_slug_page({
         slug: this.slug,
       }).then(
         function(data){
-          self.readPage(data.obj.page);
+          self.p =  data.obj;
         },
         function(data){
           console.error('could not fetch localized page', data)
         }
-      );
+      )
     },
 
-    readPage (page) {
-      let self=this, localecontent;
-      this.p = page;
-      this.languages = []
-      this.p.languages.forEach(function(l){
-        if (l in self.p.page_i18n_fields) {
-          localecontent = self.p.page_i18n_fields[l];
-          self.body[l] = marked(localecontent.body || '');
-          self.intro[l] = marked(localecontent.intro || '');
-          self.title[l] = localecontent.title || '';
-          if ( self.body[l] || self.intro[l] || self.title[l] ) {
-            self.languages.push(l)
-          }
-        }
-      })
-      this.lang = this.languages[0];
-    },    
+    marked(s) {
+      return marked(s)
+    },
 
   },
 
@@ -84,16 +66,6 @@ export default {
     this.getContent();
   },
 
-  watch: {
-    locale: function (nv, ov) {
-      console.log('watch locale', nv, ov)
-      this.$router.push('/page/' + this.slug + '/' + nv)
-    },
-    slug: function (nv, ov) {
-      console.log('watch slug', nv, ov)
-      this.$router.push('/page/' + nv + '/' + this.locale)
-    },
-  }
 
 }
 </script>

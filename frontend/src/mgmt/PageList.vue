@@ -5,41 +5,49 @@
   <v-data-table :headers="headers" :items="filteredpages" :footer-props="footerProps"
       class="elevation-1" :sort-by="['name','modified']">
     <template v-slot:top>
-      <v-toolbar flat color="white">
-        <v-toolbar-title>
-          Pages
-        </v-toolbar-title>
-        <v-spacer />
-        <v-row>
-          <v-col cols=3>
+      <v-card color="grey lighten-4">
+        <v-card-title>
+          <v-row class="px-2">
             <v-checkbox v-model="filter.normal" label='page' />
-          </v-col>
-          <v-col cols=3>
-            <v-checkbox v-model="filter.article" label='article' />&nbsp;&nbsp;
-          </v-col>
-          <v-col cols=3>
+            <v-spacer />
+            <v-checkbox v-model="filter.article" label='article' />
+            <v-spacer />
             <v-checkbox v-model="filter.app" label='app' />
-          </v-col>
-        </v-row>
-        <v-spacer />
-        <v-tooltip bottom >
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" @click="addPage()" fab outlined 
-                  color="deep-purple">
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <span>Add Page</span>
-         </v-tooltip>
-      </v-toolbar>
+            <v-spacer />
+            <v-tooltip bottom >
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" @click="addPage()" fab outlined 
+                      color="deep-purple">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </template>
+              Add Page
+            </v-tooltip>
+            <v-tooltip bottom >
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" @click="backupPages()" fab outlined 
+                      color="deep-purple">
+                  <v-icon>mdi-download-multiple</v-icon>
+                </v-btn>
+              </template>
+              Backup Pages
+            </v-tooltip>          
+          </v-row>
+        </v-card-title>
+      </v-card>
     </template>
-    <template v-slot:item.modified_ts="{ item }">
-      <date-formatted :date="item.modified_ts"/>
+    <template v-slot:item.modificationtime="{ item }">
+      <date-formatted :date="item.modificationtime"/>
     </template>
     <template v-slot:item.action="{ item }">
-      <v-icon small class="mr-2"  @click="editPage(item)" >
-        mdi-pencil
-      </v-icon>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" small class="mr-2"  @click="editPage(item)" >
+            mdi-pencil
+          </v-icon>
+        </template>
+        Edit Page
+      </v-tooltip>
     </template>
     <template v-slot:no-data>
       No pages found.
@@ -77,7 +85,7 @@ export default {
         text: "Enabled", value: 'enabled'
       },
       {
-        text: "Modified", value: 'modified_ts'
+        text: "Modified", value: 'modificationtime'
       },
       {
         text: 'Actions', value: 'action', sortable: false
@@ -120,23 +128,47 @@ export default {
       this.$router.push('/mgmt/page/add')
     },
 
+    backupPages () {
+      let self=this;
+      this.api.backup_pages(
+        {},
+        {securities: bearertoken(this.token)},
+      ).then(
+        function(data) {
+          let link = document.createElement("a");
+          let today= (new Date()).toISOString().substr(0,10);
+          link.download = `pages_${today}.json`;
+          link.href = 'data:,' + encodeURIComponent(data.text);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        },
+        function(data){
+          if (data.status == 401) {
+            self.$router.push('/mgmt/login')
+          }
+          else {
+            console.error('getting getPages', data);
+            self.$root.$emit('snackbar', {text: 'Getting pages failed', reason: data})            
+          }
+        }
+      );
+
+    },
+
+
     editPage (item) {
       this.$router.push('/mgmt/page/edit/'  + item.id)
     },
     
     getPages() {
       let self=this;
-      console.log('getPages bearer', bearertoken(this.token))
       this.api.get_pages(
         {},
         {securities: bearertoken(this.token)},
       ).then(
         function(data) {
           self.pages = data.obj.pages;
-          self.pages.forEach(function(p){
-            p.created_ts = (new Date(p.created_ts)).toLocaleString();
-            p.modified_ts = (new Date(p.modified_ts)).toLocaleString();
-          })
         },
         function(data){
           if (data.status == 401) {

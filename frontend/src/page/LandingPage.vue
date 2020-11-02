@@ -17,18 +17,13 @@
       <v-col cols=12 sm=4>
         <v-card>
           <v-card-title class="green darken-1 white--text pa-3">
-            <h4><i18n-text 
-              nl="Tools"
-              fr="Outils"
-              de="Wekzeuge"
-              en="Tools"
-            /></h4>
+            <h4>{{ $t('Tools') }}</h4>
           </v-card-title>
           <v-card-text>
             <div class="pa-2">
               <a class="green--text" :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
                 Elo
-              </a> 
+              </a> Naamloze
             </div>
             <div class="pa-2">
               <a  class="green--text" :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
@@ -37,12 +32,7 @@
             </div>            
             <div class="pa-2">
               <a  class="green--text" :href="phpbaseurl + 'sites/manager/GestionSWAR/SwarResults.php'">
-                <i18n-text 
-                  nl="Resulaten SWAR"  
-                  fr="Résultats SWAR" 
-                  de="Ergebnisse SWAR"
-                  en="Results SWAR"
-                />
+                {{ $t('Results SWAR') }}
               </a> 
             </div>
           </v-card-text>
@@ -60,14 +50,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="gotoArticle(art)">
-              <i18n-text 
-                nl="lees meer"  
-                fr="en savoir plus"
-                de="weiter lesen"
-                en="read more"
-              />
-            </v-btn>
+            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
           </v-card-actions>            
         </v-card>
       </v-col>
@@ -91,14 +74,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="gotoArticle(art)">
-              <i18n-text 
-                nl="lees meer"  
-                fr="en savoir plus"
-                de="weiter lesen"
-                en="read more"
-              />
-            </v-btn>
+            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
           </v-card-actions>            
         </v-card>
         <v-card v-if="locale in art.page_i18n_fields == false">
@@ -112,14 +88,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="gotoArticle(art)">
-              <i18n-text 
-                nl="lees meer"  
-                fr="en savoir plus"
-                de="weiter lesen"
-                en="read more"
-              />
-            </v-btn>
+            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
           </v-card-actions>            
         </v-card>
       </v-col>
@@ -129,10 +98,10 @@
 </template>
 
 <script>
-import {mapState} from "vuex"
+import { mapState } from "vuex"
 import marked from 'marked'
-import I18nText from "@/components/I18nText"
-import { phpbaseurl, notitle, nointro } from "@/util/cms"
+import { notitle, nointro, phpbaseurl  } from "@/util/cms"
+
 
 export default {
 
@@ -145,19 +114,33 @@ export default {
     phpbaseurl: phpbaseurl,
   }},
 
-  components: {
-    I18nText, 
-  },
-
   computed: {
     body () { 
-      return marked(this.page.body || '' )
+      let pt = '';
+      if (this.page.body) {
+        pt = this.page.body.default.value;
+        if (this.page.body[this.locale]) 
+          pt = this.page.body[this.locale].value;
+      }
+      return marked(pt);
     },
     intro () { 
-      return marked(this.page.intro || '' )
+      let pt = '';
+      if (this.page.intro) {
+        pt = this.page.intro.default.value;
+        if (this.page.intro[this.locale]) 
+          pt = this.page.intro[this.locale].value;
+      }
+      return marked(pt);
     },
-    title () { 
-      return this.page.title || '' 
+    title () {
+      let pt = '';
+      if (this.page.title) {
+        pt = this.page.title.default.value;
+        if (this.page.title[this.locale]) 
+          pt = this.page.title[this.locale].value;
+      }
+      return pt;
     },
     ...mapState(['api', 'locale', 'slug']),
 
@@ -179,12 +162,12 @@ export default {
 
     getContent () {
       let self=this;
-      this.api.get_localized_page({
+      console.log('trying to get pages')
+      this.api.anon_slug_page({
         slug: this.slug,
-        locale: this.locale,
       }).then(
         function(data){
-          self.page =  data.obj.page;
+          self.page =  data.obj;
         },
         function(data){
           console.error('could not fetch localized page', data)
@@ -219,7 +202,7 @@ export default {
           self.articlesRest.push(a);
         }
       })
-       
+        
     },
 
   },
@@ -227,10 +210,11 @@ export default {
   mounted () {
     console.log('LandingPage Mounted', this.slug)
     this.getContent();
-    this.getActiveArticles();
+    // this.getActiveArticles();
   },
 
 }
+
 </script>
 
 

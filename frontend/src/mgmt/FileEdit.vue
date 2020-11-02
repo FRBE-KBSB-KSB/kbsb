@@ -103,12 +103,12 @@ export default {
 
     getFile() {
       let self=this;
-      this.api.get_file(
+      this.api.getFile(
         {id: this.$route.params.id},
         {securities: bearertoken(this.token)},
       ).then(
         function(data) {
-          self.readFile(data.obj.file);
+          self.readFile(data.obj);
         },
         function(data){
           console.error('failed get file', data)
@@ -150,7 +150,7 @@ export default {
       let self=this;
       const {id, ...file} = this.f;
       console.log('saving', file);
-      this.api.update_file({id},{
+      this.api.updateFile({id},{
         requestBody: file,
         securities: bearertoken(this.token),        
       }).then(

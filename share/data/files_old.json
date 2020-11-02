@@ -1,0 +1,659 @@
+[{
+  "_id": {
+    "$oid": "5ed7ecb4afe0c85c3d9e9e3b"
+  },
+  "name": "ca-rvb__report__fr-nl__2020-03-21.pdf",
+  "url": "ca-rvb__report__fr-nl__2020-03-21__858679.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2020-03-21__858679.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 249035,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T18:32:20.528Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:13:05.009Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-03-21T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7ecd6afe0c85c3d9e9e3c"
+  },
+  "name": "ca-rvb__report__fr-nl__2020-02-08.pdf",
+  "url": "ca-rvb__report__fr-nl__2020-02-08__678723.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2020-02-08__678723.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 312921,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T18:32:54.513Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:13:21.702Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-02-08T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7ed09afe0c85c3d9e9e3d"
+  },
+  "name": "ca-rvb__report__fr-nl__2020-02-22.pdf",
+  "url": "ca-rvb__report__fr-nl__2020-02-22__658078.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2020-02-22__658078.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 431560,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T18:33:45.873Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:13:38.009Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-02-22T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f5db32706f69073995d5"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-12-23.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-12-23__202433.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-12-23__202433.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 379702,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:11:23.614Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:11:43.318Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-12-23T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f60032706f69073995d6"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-12-12.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-12-12__095202.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-12-12__095202.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 296429,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:12:00.158Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:12:20.518Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-12-12T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f68732706f69073995d7"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-11-09.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-11-09__776874.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-11-09__776874.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 145580,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:14:15.766Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:14:43.838Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-11-09T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f6b132706f69073995d8"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-10-26.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-10-26__072274.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-10-26__072274.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1371622,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:14:57.088Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:15:16.579Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-10-26T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f6ea32706f69073995d9"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-09-28.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-09-28__155475.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-09-28__155475.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1913313,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:15:54.430Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:16:16.812Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-09-28T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f72532706f69073995db"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-08-10.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-08-10__100409.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-08-10__100409.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 257529,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:16:53.149Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:17:10.285Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-08-10T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f74a32706f69073995dc"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-06-22.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-06-22__432812.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-06-22__432812.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1324973,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:17:30.200Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:17:48.400Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-06-22T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f76d32706f69073995dd"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-05-11.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-05-11__887154.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-05-11__887154.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1109108,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:18:05.105Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:18:26.851Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-05-11T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f7a732706f69073995de"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-03-30.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-03-30__365601.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-03-30__365601.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1172743,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:19:03.528Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:19:27.758Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-03-30T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f7f932706f69073995df"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-02-23.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-02-23__388205.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-02-23__388205.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1182455,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:20:25.297Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:20:45.014Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-02-23T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ed7f82332706f69073995e0"
+  },
+  "name": "ca-rvb__report__fr-nl__2019-01-05.pdf",
+  "url": "ca-rvb__report__fr-nl__2019-01-05__182575.pdf",
+  "path": "/fs/ca-rvb__report__fr-nl__2019-01-05__182575.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 948850,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-03T19:21:07.740Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-03T19:21:25.075Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2019-01-05T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5eeddc1813ee08b75b1134ad"
+  },
+  "name": "presence_check_20jun.png",
+  "url": "presence_check__810081.png",
+  "path": "/fs/presence_check__810081.png",
+  "mimetype": "image/png",
+  "filelength": 1097,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-20T09:51:20.205Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-20T09:51:47.249Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Unknown",
+  "topic_ts": null
+},{
+  "_id": {
+    "$oid": "5eef718641a3746d63e00f9c"
+  },
+  "name": "20200502 PV CA - Verslag RvB v3.pdf",
+  "url": "20200502 PV CA - Verslag RvB v3__999922.pdf",
+  "path": "/fs/20200502 PV CA - Verslag RvB v3__999922.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 241046,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-21T14:41:10.172Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-21T14:42:55.361Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-05-02T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5ef439bb41a3746d63e00f9d"
+  },
+  "name": "20200620 PV OA - Verslag BO.pdf",
+  "url": "20200620 PV OA - Verslag BO__066242.pdf",
+  "path": "/fs/20200620 PV OA - Verslag BO__066242.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 254510,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-06-25T05:44:27.348Z"
+  },
+  "modified_ts": {
+    "$date": "2020-06-25T05:44:44.381Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-06-20T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f1075b35ec054d8dc099f52"
+  },
+  "name": "20200711 PV OA - Verslag BO v2.pdf",
+  "url": "20200711 PV OA - Verslag BO v2__455711.pdf",
+  "path": "/fs/20200711 PV OA - Verslag BO v2__455711.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 340034,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-07-16T15:43:47.497Z"
+  },
+  "modified_ts": {
+    "$date": "2020-07-16T15:44:50.176Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-07-11T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f187f7f5ec054d8dc099f57"
+  },
+  "name": "bonobo.jpg",
+  "url": "bonobo__833534.jpg",
+  "path": "/fs/bonobo__833534.jpg",
+  "mimetype": "image/jpeg",
+  "filelength": 64202,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-07-22T18:03:43.557Z"
+  },
+  "modified_ts": {
+    "$date": "2020-07-22T18:03:43.557Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f47acc89ce07d2e5b9316a6"
+  },
+  "name": "WinnaarsBK2020.jpg",
+  "url": "WinnaarsBK2020__108240.jpg",
+  "path": "/fs/WinnaarsBK2020__108240.jpg",
+  "mimetype": "image/jpeg",
+  "filelength": 1677958,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-08-27T12:53:28.232Z"
+  },
+  "modified_ts": {
+    "$date": "2020-08-27T12:53:55.261Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Annex to page or article",
+  "topic_ts": {
+    "$date": "2020-08-25T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f47ad209ce07d2e5b9316a7"
+  },
+  "name": "BK20201.jpg",
+  "url": "BK20201__979671.jpg",
+  "path": "/fs/BK20201__979671.jpg",
+  "mimetype": "image/jpeg",
+  "filelength": 884237,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-08-27T12:54:56.890Z"
+  },
+  "modified_ts": {
+    "$date": "2020-08-27T12:55:07.731Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Annex to page or article",
+  "topic_ts": {
+    "$date": "2020-08-25T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f47b9bd9ce07d2e5b9316a8"
+  },
+  "name": "20200819 Rapport OA - Verslag BO v3.pdf",
+  "url": "20200819 Rapport OA - Verslag BO v3__094100.pdf",
+  "path": "/fs/20200819 Rapport OA - Verslag BO v3__094100.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 298634,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-08-27T13:48:45.983Z"
+  },
+  "modified_ts": {
+    "$date": "2020-08-27T13:49:09.678Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-08-19T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f4e5d13f16094ee958f26f6"
+  },
+  "name": "20200125 PV AG - Verslag AG.pdf",
+  "url": "20200125 PV AG - Verslag AG__991787.pdf",
+  "path": "/fs/20200125 PV AG - Verslag AG__991787.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 128786,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-09-01T14:39:15.803Z"
+  },
+  "modified_ts": {
+    "$date": "2020-09-01T14:39:40.623Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report General Assembly",
+  "topic_ts": {
+    "$date": "2020-01-25T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f4e5d5df16094ee958f26f7"
+  },
+  "name": "20191109 PV AG - Versalg AV.pdf",
+  "url": "20191109 PV AG - Versalg AV__139574.pdf",
+  "path": "/fs/20191109 PV AG - Versalg AV__139574.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 1752036,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-09-01T14:40:29.796Z"
+  },
+  "modified_ts": {
+    "$date": "2020-09-01T14:40:40.906Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report General Assembly",
+  "topic_ts": {
+    "$date": "2019-11-09T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f4e5d8df16094ee958f26f8"
+  },
+  "name": "20200620 PV AGE- Verslag BAV.pdf",
+  "url": "20200620 PV AGE- Verslag BAV__627504.pdf",
+  "path": "/fs/20200620 PV AGE- Verslag BAV__627504.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 475706,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-09-01T14:41:17.039Z"
+  },
+  "modified_ts": {
+    "$date": "2020-09-01T14:41:25.523Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report General Assembly",
+  "topic_ts": {
+    "$date": "2020-06-20T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f734a54df6cc4e5ed892712"
+  },
+  "name": "20200915 PV OA - Verslag BO v2.pdf",
+  "url": "20200915 PV OA - Verslag BO v2__531505.pdf",
+  "path": "/fs/20200915 PV OA - Verslag BO v2__531505.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 233286,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-09-29T14:53:08.396Z"
+  },
+  "modified_ts": {
+    "$date": "2020-09-29T14:53:24.650Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-09-15T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f7f3e0d7b56372dcc96d753"
+  },
+  "name": "RVM.jpg",
+  "url": "RVM__793622.jpg",
+  "path": "/fs/RVM__793622.jpg",
+  "mimetype": "image/jpeg",
+  "filelength": 9368,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-10-08T16:27:57.505Z"
+  },
+  "modified_ts": {
+    "$date": "2020-10-08T16:28:13.700Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Annex to page or article",
+  "topic_ts": {
+    "$date": "2020-10-08T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f95a230d50a92cbd15ac71e"
+  },
+  "name": "20201008 PV OA - VerslagBO.pdf",
+  "url": "20201008 PV OA - VerslagBO__196426.pdf",
+  "path": "/fs/20201008 PV OA - VerslagBO__196426.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 124240,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-10-25T16:05:04.032Z"
+  },
+  "modified_ts": {
+    "$date": "2020-10-25T16:05:25.882Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-10-08T00:00:00Z"
+  }
+},{
+  "_id": {
+    "$oid": "5f95a253d50a92cbd15ac71f"
+  },
+  "name": "2020115 PV OA - Verslag BO.pdf",
+  "url": "2020115 PV OA - Verslag BO__285811.pdf",
+  "path": "/fs/2020115 PV OA - Verslag BO__285811.pdf",
+  "mimetype": "application/pdf",
+  "filelength": 347022,
+  "_documenttype": "File",
+  "created_ts": {
+    "$date": "2020-10-25T16:05:39.666Z"
+  },
+  "modified_ts": {
+    "$date": "2020-10-25T16:05:45.548Z"
+  },
+  "archived": false,
+  "created_by": "webmaster",
+  "locale": "",
+  "topic": "Report Board Meeting",
+  "topic_ts": {
+    "$date": "2020-10-15T00:00:00Z"
+  }
+}]
