@@ -6,6 +6,7 @@ import reddevil.api.api_page
 import reddevil.api.api_account
 import reddevil.api.api_file
 import reddevil.api.api_boardrole
+import reddevil.api.api_boardmember
 
 from .. import app
 

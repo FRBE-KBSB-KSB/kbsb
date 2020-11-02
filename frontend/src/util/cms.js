@@ -12,6 +12,24 @@ export const pagecomponents = [
     'BoardListing'
 ]
 
+export const organisations = [
+    "Board member",
+    "Mandated person",
+    "VSF",
+    "FEFB",
+    "SVDB",
+    "Brussels",
+    "Antwerpen",
+    "Vlaams-Brabant",
+    "West-Vlaanderen",
+    "Oost-Vlaanderen",
+    "Limburg",
+    "Hainaut",
+    "Liège",
+    "Namur - Luxrmbourg",
+    "Brabant Wallon",
+]
+
 export const languages = ['nl', 'fr', 'de', 'en']
 
 export const phpbaseurl = "https://www.frbe-kbsb.be/"

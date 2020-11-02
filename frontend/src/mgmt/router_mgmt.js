@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import BoardMemberAdd from '@/mgmt/BoardMemberAdd.vue'
+import BoardMemberEdit from '@/mgmt/BoardMemberEdit.vue'
+import BoardMemberList from '@/mgmt/BoardMemberList.vue'
 import BoardRoleAdd from '@/mgmt/BoardRoleAdd.vue'
 import BoardRoleEdit from '@/mgmt/BoardRoleEdit.vue'
 import BoardRoleList from '@/mgmt/BoardRoleList.vue'
@@ -16,6 +19,9 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
+    {path: '/mgmt/boardmember/add', component: BoardMemberAdd},
+    {path: '/mgmt/boardmember/edit/:id', component: BoardMemberEdit},
+    {path: '/mgmt/boardmember/list', component: BoardMemberList},
     {path: '/mgmt/boardrole/add', component: BoardRoleAdd},
     {path: '/mgmt/boardrole/edit/:id', component: BoardRoleEdit},
     {path: '/mgmt/boardrole/list', component: BoardRoleList},

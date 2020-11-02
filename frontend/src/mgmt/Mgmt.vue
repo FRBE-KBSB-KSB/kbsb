@@ -34,6 +34,12 @@
           </v-list-item-icon>
         <v-list-item-content>Files</v-list-item-content>
       </v-list-item>
+      <v-list-item @click="goto('boardmember/list')" >
+          <v-list-item-icon>
+            <v-icon>mdi-account-tie</v-icon>
+          </v-list-item-icon>
+        <v-list-item-content>Board Members</v-list-item-content>
+      </v-list-item>
       <v-list-item @click="goto('boardrole/list')" >
           <v-list-item-icon>
             <v-icon>mdi-account-tie</v-icon>
