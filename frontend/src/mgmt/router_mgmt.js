@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import BoardRoleAdd from '@/mgmt/BoardRoleAdd.vue'
+import BoardRoleEdit from '@/mgmt/BoardRoleEdit.vue'
+import BoardRoleList from '@/mgmt/BoardRoleList.vue'
 import FileAdd from '@/mgmt/FileAdd.vue'
 import FileEdit from '@/mgmt/FileEdit.vue'
 import FileList from '@/mgmt/FileList.vue'
@@ -13,6 +16,9 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
+    {path: '/mgmt/boardrole/add', component: BoardRoleAdd},
+    {path: '/mgmt/boardrole/edit/:id', component: BoardRoleEdit},
+    {path: '/mgmt/boardrole/list', component: BoardRoleList},
     {path: '/mgmt/file/add', component: FileAdd},
     {path: '/mgmt/file/edit/:id', component: FileEdit},
     {path: '/mgmt/file/list', component: FileList},

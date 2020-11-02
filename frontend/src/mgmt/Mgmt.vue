@@ -34,24 +34,12 @@
           </v-list-item-icon>
         <v-list-item-content>Files</v-list-item-content>
       </v-list-item>
-      <v-list-item @click="goto('enrollment/list')" >
-          <v-list-item-icon>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-list-item-icon>
-        <v-list-item-content>Participants</v-list-item-content>
-      </v-list-item>
-      <!-- <v-list-item @click="goto('bmember/list')" >
-          <v-list-item-icon>
-            <v-icon>mdi-account-multiple</v-icon>
-          </v-list-item-icon>
-        <v-list-item-content>Board Members</v-list-item-content>
-      </v-list-item>
-      <v-list-item @click="goto('brole/list')" >
+      <v-list-item @click="goto('boardrole/list')" >
           <v-list-item-icon>
             <v-icon>mdi-account-tie</v-icon>
           </v-list-item-icon>
         <v-list-item-content>Board Roles</v-list-item-content>
-      </v-list-item> -->
+      </v-list-item>
     </v-list>
   </v-navigation-drawer>
 
@@ -59,12 +47,14 @@
     <router-view v-if="apiloaded"></router-view>
   </v-main>
   
-  <v-snackbar v-model="snackbar" bottom>
+  <v-snackbar v-model="snackbar" top>
     {{ snacktext }} 
     <span v-show="reason">&nbsp;&nbsp; reason: {{ reason }}</span>
-    <v-btn text @click="snackbar = false">
-      <v-icon>mdi-close</v-icon>
-    </v-btn>
+    <template v-slot:action="{ attrs }">
+      <v-btn text v-bind="attrs" @click="snackbar = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
   </v-snackbar> 
 
 </v-app>
