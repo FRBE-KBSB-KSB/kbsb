@@ -9,8 +9,8 @@
   <v-container class="mt-1">
     <v-row>
       <v-col cols=12 sm=8>
-        <h1 v-html="title" />
-        <div v-html="intro" class="mt-1"/>
+        <h1>{{ title }}</h1>
+        <div class="mt-1" v-html="intro" />
         <hr/>
         <div v-html="body" class="mt-1" />
       </v-col>
@@ -23,7 +23,7 @@
             <div class="pa-2">
               <a class="green--text" :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
                 Elo
-              </a> Naamloze
+              </a>
             </div>
             <div class="pa-2">
               <a  class="green--text" :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
@@ -40,13 +40,12 @@
       </v-col>
     </v-row>
     <v-row class="mt-2">
-      <v-col cols=12 sm=6 md=4 v-for="art in articles3" :key="art.id">
+      <v-col cols=12 sm=6 md=4 v-for="a in articles3" :key="a.id">
         <v-card>
           <v-card-title class="green lighten-1 black--text pa-3 hyphen">
-            {{ art.page_i18n_fields[locale].title }}
+            {{ a.title[locale].value }}
           </v-card-title>
-          <v-card-text class="mt-2">
-            {{ art.page_i18n_fields[locale].intro }}
+          <v-card-text class="mt-2" v-html="marked(a.intro[locale].value)">
           </v-card-text>
           <v-card-actions>
             <v-spacer />
@@ -64,32 +63,17 @@
     src="@/assets/img/chesscrowd_small.jpg" height="200" />
   <v-container>
     <v-row class="mt-2">
-      <v-col cols=12 sm=6 md=4 v-for="art in articlesRest" :key="art.id">
+      <v-col cols=12 sm=6 md=4 v-for="a in articlesRest" :key="a.id">
         <v-card >
           <v-card-title class="green lighten-1 black--text pa-3 hyphen">
-            {{ art.page_i18n_fields[locale].title }}
+            {{ a.title[locale].value }}
           </v-card-title>
-          <v-card-text class="mt-2">
-            {{ art.page_i18n_fields[locale].intro }}
+          <v-card-text class="mt-2" v-html="marked(a.intro[locale].value)">
           </v-card-text>
           <v-card-actions>
             <v-spacer />
             <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
-          </v-card-actions>            
-        </v-card>
-        <v-card v-if="locale in art.page_i18n_fields == false">
-          <v-card-title class="green lighten-1 black--text pa-3">
-            <i18n-text 
-              nl="Geen titel beschikbaar"
-            />
-          </v-card-title>
-          <v-card-text class="mt-2">
-
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
-          </v-card-actions>            
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -150,7 +134,7 @@ export default {
     
     getActiveArticles () {
       let self=this;
-      this.api.get_activearticles().then(
+      this.api.getActiveArticles().then(
         function(data){
           self.readArticles(data.obj.articles);
         },
@@ -179,22 +163,23 @@ export default {
       this.$router.push('/page/' +  art.slug + '/' + this.locale)
     },
 
-    readArticles(art) {
+    marked(s) { 
+      return marked(s ? s : '')
+    }, 
+
+    readArticles(articles) {
       let self=this;
       this.articles3 = [];
       this.articleRest = [];
-      art.forEach(function (a, index) {
-        if (self.locale in a.page_i18n_fields === false) {
-          a.page_i18n_fields[self.locale] = {
-            title: '',
-            intro: '',
-            body: ''
-          }
+      articles.forEach((a, index) =>  {
+        if ( !a.title[self.locale] || !a.title[self.locale].value 
+              || !a.title[self.locale].value.length ) {
+          a.title[self.locale].value  = notitle[self.locale];
         }
-        if (!a.page_i18n_fields[self.locale].title)
-          a.page_i18n_fields[self.locale].title = notitle[self.locale];
-        if (!a.page_i18n_fields[self.locale].intro)
-          a.page_i18n_fields[self.locale].intro = nointro[self.locale];
+        if ( !a.intro[self.locale] || !a.intro[self.locale].value || 
+            !a.intro[self.locale].value.length) {
+          a.intro[self.locale].value  = nointro[self.locale];
+        }
         if (index < 3) {
           self.articles3.push(a);
         }
@@ -202,7 +187,6 @@ export default {
           self.articlesRest.push(a);
         }
       })
-        
     },
 
   },
@@ -210,7 +194,7 @@ export default {
   mounted () {
     console.log('LandingPage Mounted', this.slug)
     this.getContent();
-    // this.getActiveArticles();
+    this.getActiveArticles();
   },
 
 }

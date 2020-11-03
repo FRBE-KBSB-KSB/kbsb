@@ -12,6 +12,8 @@
     <router-view  v-if='routingtableloaded' :key="$route.fullPath" />
   </v-content>
 
+  <ad-carousel />
+
   <kbsb-footer />
 
   <v-snackbar v-model="snackbar" :color="color" bottom>
@@ -29,6 +31,7 @@
 import Swagger from 'swagger-client'
 import Sidebar from '@/components/Sidebar.vue'
 import Topbar from '@/components/Topbar.vue'
+import AdCarousel from '@/components/AdCarousel.vue'
 import KbsbFooter from '@/components/KbsbFooter.vue'
 
 import { mapState } from 'vuex'
@@ -42,6 +45,7 @@ export default {
     Sidebar,
     Topbar,
     KbsbFooter,
+    AdCarousel,
   },
 
   computed: {
