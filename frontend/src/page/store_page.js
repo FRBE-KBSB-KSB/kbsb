@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 
 import { languages } from '@/util/cms'
+import { setLanguage } from '@/util/lang'
 
 // setup the locale and the slug
 let pparts = window.location.pathname.split('/');
@@ -34,7 +35,7 @@ const store = new Vuex.Store({
     updateLocale (state, payload) {
       state.locale = payload || state.locale;
       window.localStorage.setItem('locale', state.locale);
-      // setLanguage(state.locale);
+      setLanguage(state.locale);
     },
 
     updateSlug (state, payload) {

@@ -5,12 +5,12 @@
   <sidebar />
   <topbar />
   
-  <v-content>
+  <v-main>
     <v-container v-show="!routingtableloaded">
       Just a moment. <v-progress-circular indeterminate />
     </v-container>
     <router-view  v-if='routingtableloaded' :key="$route.fullPath" />
-  </v-content>
+  </v-main>
 
   <ad-carousel />
 
@@ -33,6 +33,8 @@ import Sidebar from '@/components/Sidebar.vue'
 import Topbar from '@/components/Topbar.vue'
 import AdCarousel from '@/components/AdCarousel.vue'
 import KbsbFooter from '@/components/KbsbFooter.vue'
+import { setLanguage } from '@/util/lang'
+
 
 import { mapState } from 'vuex'
 import { processRoutes } from './router_page'
@@ -86,7 +88,6 @@ export default {
           console.log('got Routes', data.obj.routes)
           rt = processRoutes(data.obj.routes)
           self.$router.addRoutes(rt);
-          console.log('rt added', rt, 'going to', self.slug, self.locale)
           // double replace because of vue router bug
           let newroute = '/page/' + self.slug + '/' + self.locale;
           if (self.$route.path == newroute) {
@@ -116,6 +117,7 @@ export default {
         self.color = ev.color;
       }
     });
+    setLanguage(this.locale)     
     this.$router.beforeEach(function(to, from, next){
       let pparts = to.path.split('/');
       if (pparts.length == 4) {

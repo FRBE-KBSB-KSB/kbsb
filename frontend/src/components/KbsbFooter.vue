@@ -1,5 +1,5 @@
 <template>
-<v-footer height="auto" color="green" dark class="mt-2">
+<v-footer height="auto" color="green" dark class="mt-2 footer">
   <v-container fluid>
     <v-row class="py-3 px-2">
       <v-col cols=12 sm=4 class="mt-2">
@@ -84,16 +84,16 @@ export default {
 
 <style scoped>
 
-a {
+.footer a {
  color: white;
 }
 
-a:link, a:hover {
+.footer a:link, .footer a:hover {
   color: white;
   text-decoration: none;
 }
 
-a:hover {
+.footer a:hover {
   font-weight: 700;
 }
 

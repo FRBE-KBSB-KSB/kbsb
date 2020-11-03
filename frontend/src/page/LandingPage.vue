@@ -49,7 +49,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
+            <v-btn @click="gotoArticle(a)">{{ $t('read more') }}</v-btn>
           </v-card-actions>            
         </v-card>
       </v-col>
@@ -72,7 +72,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="gotoArticle(art)">{{ $t('read more') }}</v-btn>
+            <v-btn @click="gotoArticle(a)">{{ $t('read more') }}</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -192,7 +192,7 @@ export default {
   },
 
   mounted () {
-    console.log('LandingPage Mounted', this.slug)
+    console.log('LandingPage Mounted', this.slug, this.locale, this.$t('Tools'))
     this.getContent();
     this.getActiveArticles();
   },

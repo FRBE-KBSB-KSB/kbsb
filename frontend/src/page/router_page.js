@@ -38,7 +38,6 @@ function processRoutes(rts) {
       path: '/page/' + rt.slug + '/:locale'
     })
   })
-  console.log('rtable', rtable)
   return rtable
 }
 
