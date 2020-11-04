@@ -32,5 +32,4 @@ frontend/dist
 /data
 .mypy_cache
 __pycache__/
-VERSION
-fs/
+share/fs/
