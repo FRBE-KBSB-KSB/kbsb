@@ -44,7 +44,7 @@ export default {
     return{
       login: {},
       googleSignInParams: {
-        client_id: "245790708099-vnd4m1ohdaqha4pbhbj2lecrmpnp8kkj.apps.googleusercontent.com"
+        client_id: "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com"
       }      
     }
   },
