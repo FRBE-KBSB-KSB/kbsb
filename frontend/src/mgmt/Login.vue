@@ -15,15 +15,20 @@
                 @success="onSignInSuccess" 
                 @error="onSignInError" />
           </v-col>
-          <!-- <v-col cols="12">
+          <v-divider></v-divider>
+          <v-col cols="12">
             <v-text-field xs="12" lg="4" v-model="login.username" 
               label="Username">
             </v-text-field>
             <v-text-field xs="12" lg="6" v-model="login.password" 
               label="Password" type="password">
             </v-text-field>
-          </v-col>-->
+          </v-col>
         </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click=dologin()>Submit</v-btn>
+        </v-card-actions>
       </v-card>
     </v-col>
   </v-row>
@@ -79,7 +84,22 @@ export default {
     },
 
     dologin() {
-
+      let self=this;
+      this.api.login({}, {
+        requestBody: {
+          logintype: 'email',
+          username: this.login.username,
+          password: this.login.password,
+        }
+      }).then(
+        function(data){
+          self.$store.commit('updateToken', data.obj)
+          self.$router.push('/mgmt/page/list')
+        },
+        function(data){
+          console.log('failed login', data)
+        },
+      )
     }
   }
 }
