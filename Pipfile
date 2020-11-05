@@ -20,8 +20,8 @@ python-jose = {extras = ["cryptography"],version = "*"}
 python-slugify = "*"
 requests = "*"
 uvicorn = "*"
-reddevil = {path = "./libs/reddevil-2.2.0-py3-none-any.whl"}
 bcrypt = "*"
+reddevil = {path = "./libs/reddevil-2.2.1-py3-none-any.whl"}
 
 [requires]
 python_version = "3.8"
