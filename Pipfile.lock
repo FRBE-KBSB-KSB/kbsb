@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4d5466a99409f512833a8b124a7695c3a7c044ff4e9697fa5cd58b926e343bf5"
+            "sha256": "f6cb6420c0d0efbbc1b88611269f637aa499616bbb8e32376144a7e3ce22bf37"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -153,11 +153,11 @@
         },
         "fastapi": {
             "hashes": [
-                "sha256:61ed73b4304413a2ea618d1b95ea866ee386e0e62dd8659c4f5059286f4a39c2",
-                "sha256:6cc31bb555dd8ca956d1d227477d661e4ac012337242a41d36214ffbda78bfe9"
+                "sha256:8c8517680a221e69eb34073adf46c503092db2f24845b7bdc7f85b54f24ff0df",
+                "sha256:9e0494fcbba98f85b8cc9b2606bb6b625246e1b12f79ca61f508b0b00843eca6"
             ],
             "index": "pypi",
-            "version": "==0.61.1"
+            "version": "==0.61.2"
         },
         "google-auth": {
             "hashes": [
@@ -356,13 +356,6 @@
             "index": "pypi",
             "version": "==4.0.1"
         },
-        "reddevil": {
-            "hashes": [
-                "sha256:a4f4eb37bc57da11d3d1f4266af90f1e33cafeb4581ef2418ddddc590ecc7566"
-            ],
-            "path": "./libs/reddevil-2.2.1-py3-none-any.whl",
-            "version": "==2.2.1"
-        },
         "requests": {
             "hashes": [
                 "sha256:b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b",
@@ -422,11 +415,11 @@
     "develop": {
         "attrs": {
             "hashes": [
-                "sha256:26b54ddbbb9ee1d34d5d3668dd37d6cf74990ab23c828c2888dccdceee395594",
-                "sha256:fce7fc47dfc976152e82d53ff92fa0407700c21acd20886a13777a0d20e655dc"
+                "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6",
+                "sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
-            "version": "==20.2.0"
+            "version": "==20.3.0"
         },
         "iniconfig": {
             "hashes": [

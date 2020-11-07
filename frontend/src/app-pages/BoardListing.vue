@@ -1,28 +1,16 @@
 <template>
 
   <v-container class="mt-1">
-    <h1>
-      <i18n-text 
-        nl="Bestuur" 
-        fr="Conseil d'administration" 
-        de="Vorstand" 
-        en="Board" />
-    </h1>
-    <h2>
-      <i18n-text 
-        nl="Bestuursleden" 
-        fr="Membres du conseil d'administration" 
-        de="Vorstandsmitglieder" 
-        en="Board members" />
-    </h2>
+    <h1>{{ $t('Board') }}</h1>
+    <h2>{{ $t("Board members") }}</h2>
         
     <v-row >
       <v-col cols=12 md=6 xl=4 v-for="bm in board" :key="bm.id">
         <div class="ma-1 elevation-3 d-flex pa-1">
 
           <div class="flex-shrink-0 flex-grow-0">
-            <img :src="bm.urlpicture" class="person-photo d-none d-lg-flex">
-            <img :src="bm.urlpicture" class="person-photo-sm d-lg-none ">
+            <img :src="bm.picturedataurl" class="person-photo d-none d-lg-flex">
+            <img :src="bm.picturedataurl" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
             <div class="green lighten-3 pa-3">
@@ -50,21 +38,15 @@
       </v-col>  
     </v-row>
 
-    <h2>
-      <i18n-text 
-        nl="Gemandateerden" 
-        fr="Personnes mandatées" 
-        de="Mandierte Personen" 
-        en="Mandated persons" />
-    </h2>
+    <h2>{{ $t('Mandated persons') }}</h2>
 
     <v-row >
       <v-col cols=12 md=6 xl=4 v-for="bm in mandated" :key="bm.id">
         <div class="ma-1 elevation-3 d-flex pa-1">
 
           <div class="flex-shrink-0 flex-grow-0">
-            <img :src="bm.urlpicture" class="person-photo d-none d-lg-flex">
-            <img :src="bm.urlpicture" class="person-photo-sm d-lg-none ">
+            <img :src="bm.picturedataurl" class="person-photo d-none d-lg-flex">
+            <img :src="bm.picturedataurl" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
             <div class="green lighten-3 pa-3">
@@ -97,17 +79,12 @@
 
 <script>
 
-import I18nText from "@/components/I18nText"
 import {mapState} from "vuex"
-import { pictureurl } from '@/util/cms'
 
 export default {
 
   name: 'BoardListing',
 
-  components: {
-    I18nText,
-  },
 
   data () {return {
     board: [],
@@ -127,7 +104,9 @@ export default {
 
     getBoardMembers() {
       let self=this;
-      this.api.get_board_members().then(
+      this.api.anon_getBoardMembers({}, {
+        parameters: {picture: 1}
+      }).then(
         function(data) {
           self.readBoardMembers(data.obj.members);
         },
@@ -165,14 +144,11 @@ export default {
       this.board=[];
       this.mandated=[];
       members.forEach(function(m){
-        m.urlpicture = pictureurl + m.id;
-        switch (m.membertype) {
-          case 'board':
-            self.board.push(m)
-            break;
-          case 'mandated person':
-            self.mandated.push(m)
-            break;
+        if (m.organisation == 'Mandated person') {
+          self.mandated.push(m)
+        }
+        else {
+          self.board.push(m)
         }
       })
       this.board.sort(this.compareMembersByPriority)

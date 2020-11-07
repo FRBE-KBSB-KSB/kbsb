@@ -56,13 +56,18 @@
       </v-menu>
     </v-col>
   </v-row>
+  <v-row>
+    <h4>Drop Area</h4>
+    <file-pond ref="pond" accepted-file-types="image/jpeg, image/png"
+        @addfile="handleFile" className="dropbox" /> 
+  </v-row>  
 </v-container>
 </template>
 
 <script>
 
-// import 'filepond/dist/filepond.min.css';
-// import vueFilePond from 'vue-filepond';
+import 'filepond/dist/filepond.min.css';
+import vueFilePond from 'vue-filepond';
 
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
@@ -70,7 +75,7 @@ import DateFormatted from '@/components/DateFormatted.vue'
 import { topictypes } from '@/util/cms'
 
 
-// const FilePond = vueFilePond();
+const FilePond = vueFilePond();
 
 export default {
 
@@ -78,6 +83,7 @@ export default {
 
   components: {
     DateFormatted,
+    FilePond,
   },
 
   computed: {
@@ -88,6 +94,7 @@ export default {
     f: {},
     menu_topic_ts: false,
     name: '', 
+    photosrc: null,
     topictypes: topictypes,   
     yesno: [
       {value:true, text: 'Yes'},
@@ -116,10 +123,6 @@ export default {
         }
       );
     },
-
-    preview () { },
-
-    publish() { },
 
     readFile (file) {
       this.f = file;

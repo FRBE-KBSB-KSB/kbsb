@@ -26,7 +26,7 @@ export const organisations = [
     "Limburg",
     "Hainaut",
     "Liège",
-    "Namur - Luxrmbourg",
+    "Namur - Luxembourg",
     "Brabant Wallon",
 ]
 
@@ -77,10 +77,4 @@ export const reportlisting = {
     en: ['Name', 'Topic', 'Date', 'Link']
 }
 
-
-export const fileurl = '/api/filecontent/'
-
-export const pictureurl = '/api/picture/'
-
-export const boardmembertype = ['board', 'mandated person']
 

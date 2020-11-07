@@ -70,16 +70,42 @@
       <v-checkbox label="Show picture" v-model="bm.permissions.showpicture" />
     </v-col>
   </v-row>
-      
+  <v-row>
+    <v-col cols=6 sm=3 class="my-1">
+      <h4>Existing Photo</h4>
+      <div><img :src="bm.picturedataurl" class="photo"></div>
+    </v-col>
+    <v-col cols=6 sm=3 class="my-1">
+      <h4>Resulting Photo</h4>
+      <div id="photoresult" class="photo"></div>
+      <v-btn @click="clearPhoto">Clear</v-btn>
+    </v-col>
+    <v-col cols=12 sm=6 class="my-1">
+      <h4>Drop Area</h4>
+      <file-pond ref="pond" accepted-file-types="image/jpeg, image/png"
+          @addfile="handleFile" className="dropbox" /> 
+      <h4>Photo Selection</h4>
+      <div class="photosrc">
+        <vue-cropper ref='photosrc' :view-mode="2" drag-mode="crop" :auto-crop-area="0.5"
+                    :background="true" src="" alt="Source Image" :aspect-ratio="0.8"
+                    preview="#photoresult" :img-style="{height: '400px'}">
+        </vue-cropper>
+      </div>
+    </v-col>
+  </v-row>      
 </v-container>
 </template>
 
 <script>
-
+import VueCropper from 'vue-cropperjs';
+import vueFilePond from 'vue-filepond';
+import 'filepond/dist/filepond.min.css';
+import 'cropperjs/dist/cropper.css';
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
 import { organisations } from "@/util/cms"
 
+const FilePond = vueFilePond();
 
 export default {
 
@@ -89,6 +115,11 @@ export default {
     ...mapState(['token', 'api']),
   },
 
+  components: {
+    FilePond,
+    VueCropper,
+  },
+
   data () {return {
     adinterim1: false,
     adinterim2: false,
@@ -96,6 +127,8 @@ export default {
     adinterim4: false,
     bm: {permissions:{}},
     organisations: organisations,
+    photosrc: '',
+    savephoto: false,
     roles: [],
     role1: '',
     role2: '',
@@ -109,10 +142,30 @@ export default {
       this.$router.push('/mgmt/boardmember/list');
     },
 
+    clearPhoto(){
+      this.savephoto = false;
+      this.$refs.pond.removeFiles();
+      // this.$refs.photosrc.reset();
+      this.$refs.photosrc.destroy();
+      this.photosrc = '';  
+    },
+
+    handleFile(err, file){
+      const reader = new FileReader();
+      reader.onload = ((event) => {
+        this.$refs.photosrc.replace(event.target.result);
+        this.savephoto = true
+      });
+      reader.readAsDataURL(file.file);      
+    },
+
     getBoardMember() {
       let self=this;
       this.api.getBoardMember(
-        {id: this.$route.params.id},
+        {
+            id: this.$route.params.id,
+            picture:1,
+        },
         {securities: bearertoken(this.token)},
       ).then(
         function(data) {
@@ -142,7 +195,6 @@ export default {
 
     readBoardMember (boardmember) {
       this.bm = boardmember;
-      console.log('baordroles', boardmember.boardroles)
       if (boardmember.boardroles.length > 0) {
         this.role1 = boardmember.boardroles[0];
         this.adinterim1 = boardmember.adinterim[0];
@@ -199,10 +251,10 @@ export default {
       }
       if (this.role4.length) {
         roles.push(this.role4)
-        adinterim.push(this.adinterim4);
       }
-      boardmember.boardroles = roles;
-      boardmember.adinterim = adinterim;
+      if (this.savephoto){
+        boardmember.picturedataurl = this.$refs.photosrc.getCroppedCanvas({width: 160}).toDataURL()
+      }
       this.api.updateBoardMember({id},{
         requestBody: boardmember,
         securities: bearertoken(this.token),        
@@ -210,7 +262,8 @@ export default {
         function(){
           // TODO successfully saved
           console.log('successfully saved board member')
-          self.$root.$emit('snackbar', {text: 'Board member saved'})          
+          self.$root.$emit('snackbar', {text: 'Board member saved'})
+          self.bm.picturedataurl = boardmember.picturedataurl + ''         
         },
         function(data){
           // TODO show error message
@@ -235,4 +288,24 @@ export default {
 .bordermd {
   border: 1px solid grey;
 }
+.dropbox {
+  width: 100%;
+  height: 100px;
+}
+.photosrc{
+  overflow: hidden;
+  width: 100%;
+  height: 400px;
+  border: 1px dashed #808080;
+  background-color: #d3d3d3;
+}
+.photo {
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  width: 160px;
+  height: 200px;
+}
+
+
 </style>
