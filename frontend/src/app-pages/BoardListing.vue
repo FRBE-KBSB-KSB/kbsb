@@ -17,9 +17,11 @@
               {{bm.first_name}} {{bm.last_name}}
             </div>
             <div class="pa-3">
-              <div v-for="r in bm.boardroles" :key="r.name">{{i18nroles[r]}}</div>
-              <div>{{bm.mobile}}</div>
-              <div>{{bm.email}}</div>
+              <div v-for="r in bm.boardroles" :key="r">
+                {{ i18nroles[r] }}
+              </div>
+              <div>tel: {{bm.mobile}}</div>
+              <div>e-mail: {{bm.email}}</div>
             </div>
             <div class="pa-3 d-flex">
               <v-btn text icon class="green mx-2" :href="'tel:' + bm.mobile">
@@ -119,12 +121,13 @@ export default {
 
     getBoardRoles() {
       let self=this;
-      this.api.get_board_roles().then(
-        function(rc) {
-          self.readBoardRoles(rc.obj.roles)
+      this.api.anon_getBoardRoles().then(
+        function(data) {
+          console.log('roles ', data.obj.roles, self.locale)
+          self.readBoardRoles(data.obj.roles)
         },
-        function(rc){
-          console.error('failed get bmember', rc)
+        function(data){
+          console.error('failed get board roles', data)
           // TODO snackbar
         }
       )
@@ -134,7 +137,9 @@ export default {
       let self=this;
       this.i18nroles = {};
       roles.forEach(function(r){
-        self.i18nroles[r.name] = r.i18n[self.locale];
+        console.log('role ', r.name)
+        self.i18nroles[r.name] = r.title[self.locale] ? r.title[self.locale].value: 
+          r.title.default.value;
       })
     },
 

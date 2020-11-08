@@ -254,6 +254,7 @@ export default {
       if (this.role4.length) {
         roles.push(this.role4)
       }
+      boardmember.boardroles = roles 
       if (this.savephoto){
         boardmember.picturedataurl = this.$refs.photosrc.getCroppedCanvas({width: 160}).toDataURL()
       }

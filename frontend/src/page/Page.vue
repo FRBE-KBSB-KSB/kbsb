@@ -16,11 +16,13 @@
 
   <kbsb-footer />
 
-  <v-snackbar v-model="snackbar" :color="color" bottom>
-    {{ snacktext }}
-    <v-btn text @click="snackbar = false">
-      <v-icon>cancel</v-icon>
-    </v-btn>
+  <v-snackbar v-model="snackbar" top>
+    {{ snacktext }} 
+    <template v-slot:action="{ attrs }">
+      <v-btn text v-bind="attrs" @click="snackbar = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
   </v-snackbar>
 
 </v-app>

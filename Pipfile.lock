@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "264d9bed4be13813cdd27cd5be8b401abaa85bb072a87909bbaee93723a61e01"
+            "sha256": "951ffa39e254ff586133b9650e03f59af2a5f193271ccdfcd04c44127572326f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -358,10 +358,10 @@
         },
         "reddevil": {
             "hashes": [
-                "sha256:4a280a557305954b54b592e033188c031a8b87994e2e6017f46f227d55893793"
+                "sha256:81c9da8f5c2ae98eb149dbbc5471028bdf27342a1e27dd269bbd187078526ca1"
             ],
-            "path": "./libs/reddevil-2.2.2-py3-none-any.whl",
-            "version": "==2.2.2"
+            "path": "./libs/reddevil-2.2.3-py3-none-any.whl",
+            "version": "==2.2.3"
         },
         "requests": {
             "hashes": [
