@@ -18,6 +18,7 @@ export default {
         {src:'/img/frame_arena.png', name: 'arena' },
         {src:'/img/frame_boic.png', name: 'boic' },
         {src:'/img/frame_iheb.png', name: 'iheb' },
+        {src:'/img/frame_fide.png', name: 'fide' },
       ]
     }
   },
