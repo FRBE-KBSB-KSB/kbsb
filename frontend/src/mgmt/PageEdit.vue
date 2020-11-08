@@ -44,8 +44,8 @@
         </v-col>
         <v-col cols=12 sm=6>
           <v-checkbox v-model="p.enabled" label='Enabled' />
-          <p>Page created: <date-formatted :date="p.creationtime"/></p>
-          <p>Page modified: <date-formatted :date="p.modificationtime"/></p>
+          <p>Page created: <date-formatted :date="p._creationtime"/></p>
+          <p>Page modified: <date-formatted :date="p._modificationtime"/></p>
           <v-menu v-model="menu_published" :close-on-content-click="false"
             :nudge-right="40" transition="scale-transition"
             offset-y min-width="290px"
@@ -231,7 +231,7 @@ export default {
           languages: ls,
           name: this.p.name,
           owner: this.p.owner,
-          publicationdate: this.p.publicationsdate,
+          publicationdate: this.p.publicationdate,
           slug: this.p.slug,
           title: this.p.title,
         },
