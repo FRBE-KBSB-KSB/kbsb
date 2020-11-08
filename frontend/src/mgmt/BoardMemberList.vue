@@ -96,7 +96,7 @@ export default {
           } 
           else {
             console.error('getting getBoardMembers', data);
-          self.$root.$emit('snackbar', {text: 'Getting boardmembers failed', reason: data})            
+            self.$root.$emit('snackbar', {text: 'Getting boardmembers failed', reason: data})            
           }
         }
       );

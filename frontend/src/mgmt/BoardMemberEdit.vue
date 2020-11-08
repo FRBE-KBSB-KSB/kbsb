@@ -150,14 +150,6 @@ export default {
       this.photosrc = '';  
     },
 
-    handleFile(err, file){
-      const reader = new FileReader();
-      reader.onload = ((event) => {
-        this.$refs.photosrc.replace(event.target.result);
-        this.savephoto = true
-      });
-      reader.readAsDataURL(file.file);      
-    },
 
     getBoardMember() {
       let self=this;
@@ -192,6 +184,16 @@ export default {
         }
       )
     },    
+
+
+    handleFile(err, file){
+      const reader = new FileReader();
+      reader.onload = ((event) => {
+        this.$refs.photosrc.replace(event.target.result);
+        this.savephoto = true
+      });
+      reader.readAsDataURL(file.file);      
+    },
 
     readBoardMember (boardmember) {
       this.bm = boardmember;
@@ -260,16 +262,13 @@ export default {
         securities: bearertoken(this.token),        
       }).then(
         function(){
-          // TODO successfully saved
           console.log('successfully saved board member')
           self.$root.$emit('snackbar', {text: 'Board member saved'})
           self.bm.picturedataurl = boardmember.picturedataurl + ''         
         },
         function(data){
-          // TODO show error message
           console.error('failed to save', data);
           self.$root.$emit('snackbar', {text: 'Saving board member failed', reason: data})          
-          self.back();
         }
       );
     },

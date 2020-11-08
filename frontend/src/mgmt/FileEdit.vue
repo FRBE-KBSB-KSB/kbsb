@@ -41,8 +41,8 @@
       <v-select :items="topictypes" label="Topic" v-model="f.topic" />         
     </v-col>
     <v-col cols=12 sm=6>
-      <p>File created: <date-formatted :date="f.created_ts"/></p>
-      <p>File modified: <date-formatted :date="f.modified_ts"/></p>
+      <p>File created: <date-formatted :date="f._creationtime"/></p>
+      <p>File modified: <date-formatted :date="f._modificationtime"/></p>
       <p>URL: <a :href="'/api/filecontent/' +  f.url">/api/filecontent/{{ f.url}}</a> </p>
       <v-menu v-model="menu_topic_ts" :close-on-content-click="false"
         :nudge-right="40" transition="scale-transition"
@@ -56,26 +56,15 @@
       </v-menu>
     </v-col>
   </v-row>
-  <v-row>
-    <h4>Drop Area</h4>
-    <file-pond ref="pond" accepted-file-types="image/jpeg, image/png"
-        @addfile="handleFile" className="dropbox" /> 
-  </v-row>  
 </v-container>
 </template>
 
 <script>
-
-import 'filepond/dist/filepond.min.css';
-import vueFilePond from 'vue-filepond';
-
 import { mapState } from 'vuex'
 import { bearertoken } from "@/util/token"
 import DateFormatted from '@/components/DateFormatted.vue'
 import { topictypes } from '@/util/cms'
 
-
-const FilePond = vueFilePond();
 
 export default {
 
@@ -83,7 +72,6 @@ export default {
 
   components: {
     DateFormatted,
-    FilePond,
   },
 
   computed: {
@@ -95,6 +83,7 @@ export default {
     menu_topic_ts: false,
     name: '', 
     photosrc: null,
+    savefile: false,
     topictypes: topictypes,   
     yesno: [
       {value:true, text: 'Yes'},
@@ -124,16 +113,16 @@ export default {
       );
     },
 
-    readFile (file) {
+    readFile(file) {
       this.f = file;
       this.name = this.f.name + '';
     },
 
-    remove () {
+    remove() {
       let self=this;
       if (window.confirm('Are you sure to delete file "' + this.name + '"?')) {
-        this.api.delete_file(
-          { id: this.$route.params.id },
+        this.api.deleteFile(
+          {id: this.$route.params.id },
           {securities: bearertoken(this.token)},
         ).then(
           function(){
@@ -158,29 +147,16 @@ export default {
         securities: bearertoken(this.token),        
       }).then(
         function(){
-          // TODO successfully saved
           console.log('successfully saved file')
           self.$root.$emit('snackbar', {text: 'File saved'})          
         },
         function(data){
-          // TODO show error message
           console.error('failed to save', data);
           self.$root.$emit('snackbar', {text: 'Saving file failed', reason: data})          
-          self.back();
         }
       );
     },
 
-    toggleLang(l){
-      this.p.languages = this.enabledLang;
-      if (l in this.p.file_i18n_fields === false) {
-        this.p.file_i18n_fields[l] = {
-          body: '',
-          intro: '',
-          title: '',
-        }
-      }
-    },
   },
 
   mounted () {
@@ -194,4 +170,5 @@ export default {
 .bordermd {
   border: 1px solid grey;
 }
+
 </style>

@@ -2,7 +2,7 @@
 
 <v-container>
   <h1>Management Files</h1>
-  <v-data-table :headers="headers" :items="files"
+  <v-data-table :headers="headers" :items="files" :footer-props="footerProps"
       class="elevation-1" sort-by="fullname">
     <template v-slot:top>
       <v-toolbar flat color="white">
@@ -57,13 +57,17 @@ export default {
         text: "Topic", value: 'topic'
       },
       {
-        text: "Topic timestamp", value: 'topic_ts'
+        text: "Topic timestamp", value: 'topicdate'
       },
       {
         text: 'Actions', value: 'action', sortable: false
       }
     ],    
     files: [],
+    footerProps: {
+      itemsPerPageOptions: [20,50,-1],
+      itemsPerPage: 20,
+    },    
   }},
 
   computed: {
@@ -99,7 +103,7 @@ export default {
           }
           else {
             console.error('getting getFiles', data);
-          self.$root.$emit('snackbar', {text: 'Getting files failed', reason: data})            
+            self.$root.$emit('snackbar', {text: 'Getting files failed', reason: data})            
           }
         }
       );

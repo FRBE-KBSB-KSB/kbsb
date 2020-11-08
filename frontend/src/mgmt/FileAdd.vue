@@ -71,10 +71,8 @@ export default {
       const reader = new FileReader();
       console.log('file dropped', file);
       this.name = file.filename;
-      reader.onload = function(event) {
-        console.log('onload event ', event)
+      reader.onload = function() {
         self.content = reader.result.split(',')[1];
-        console.log('content', self.content)
       };
       reader.readAsDataURL(file.file);
     },
@@ -82,7 +80,7 @@ export default {
     save () {
       let self=this;
       console.log('saving with token', this.token)
-      this.api.create_file({}, {
+      this.api.createFile({}, {
         requestBody: {
           'name': this.name,
           'content': this.content,
