@@ -116,6 +116,9 @@
               FIDE
             </v-list-item-content>
           </v-list-item>
+          <v-list-item @click="updateSlug('gdpr')" >
+            <v-list-item-content>{{ $t('GDPR') }}</v-list-item-content>
+          </v-list-item>
           <v-list-item @click="updateSlug('g-licence')" >
             <v-list-item-content>{{ $t('G License')}} </v-list-item-content>
           </v-list-item>
