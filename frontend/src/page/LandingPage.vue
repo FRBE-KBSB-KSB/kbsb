@@ -172,13 +172,14 @@ export default {
       this.articles3 = [];
       this.articleRest = [];
       articles.forEach((a, index) =>  {
+        console.log('art', a.title)
         if ( !a.title[self.locale] || !a.title[self.locale].value 
               || !a.title[self.locale].value.length ) {
-          a.title[self.locale].value  = notitle[self.locale];
+          a.title[self.locale] = {value: notitle[self.locale]};
         }
         if ( !a.intro[self.locale] || !a.intro[self.locale].value || 
             !a.intro[self.locale].value.length) {
-          a.intro[self.locale].value  = nointro[self.locale];
+          a.intro[self.locale] = {value: nointro[self.locale]};
         }
         if (index < 3) {
           self.articles3.push(a);
