@@ -39,7 +39,7 @@
       <date-formatted :date="item.topic_ts" fmt="ll" />
     </template>
     <template v-slot:item.path="{ item }">
-      URL: <a :href="fileurl +  item.url">{{ item.name}}</a>      
+      URL: <a :href="'/api/filecontent/'+ item.url">{{ item.name}}</a>      
     </template>
     <template v-slot:no-data>
       No reports yet.
@@ -54,7 +54,7 @@
 import I18nText from "@/components/I18nText"
 import {mapState} from "vuex"
 import DateFormatted from "@/components/DateFormatted"
-import { fileurl, reportlisting, topic_i18n } from '@/util/cms'
+import { reportlisting, topic_i18n } from '@/util/cms'
 import * as moment from 'moment';
 
 export default {
@@ -83,7 +83,6 @@ export default {
       }
     ],    
     files: [],
-    fileurl: fileurl,
     footerProps: {
       itemsPerPageOptions: [20,50,-1],
       itemsPerPage: 20
@@ -122,7 +121,7 @@ export default {
 
     getReports() {
       let self=this;
-      this.api.get_files({'reports': 1}).then(
+      this.api.anon_getFiles({'reports': 1}).then(
         function(data) {
           self.files = data.obj.files;
         },

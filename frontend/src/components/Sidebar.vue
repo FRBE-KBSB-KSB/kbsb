@@ -31,7 +31,7 @@
             <v-list-item-content>{{ $t('Board') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('statutes')" >
-            <v-list-item-content>{{ $t('statutes') }}</v-list-item-content>
+            <v-list-item-content>{{ $t('Statutes') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('tournament-rules')" >
             <v-list-item-content>{{ $t('Tournament-rules') }}</v-list-item-content>
@@ -40,7 +40,7 @@
             <v-list-item-content>{{ $t('Internal rules') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('reports')" >
-            <v-list-item-content>{{ $t('reports') }}</v-list-item-content>
+            <v-list-item-content>{{ $t('Reports') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('vademecum')" >
             <v-list-item-content>Vademecum</v-list-item-content>

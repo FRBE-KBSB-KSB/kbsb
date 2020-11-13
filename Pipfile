@@ -21,7 +21,7 @@ python-slugify = "*"
 requests = "*"
 uvicorn = "*"
 bcrypt = "*"
-reddevil = {path = "./libs/reddevil-2.2.3-py3-none-any.whl"}
+reddevil = {path = "./libs/reddevil-2.2.4-py3-none-any.whl"}
 
 [requires]
 python_version = "3.8"
