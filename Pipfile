@@ -21,7 +21,10 @@ python-slugify = "*"
 requests = "*"
 uvicorn = "*"
 bcrypt = "*"
-reddevil = {path = "./libs/reddevil-2.2.4-py3-none-any.whl"}
+sqlalchemy = "*"
+mysqlclient = "*"
+pymysql = "*"
+reddevil = {path = "./libs/reddevil-2.2.5-py3-none-any.whl"}
 
 [requires]
 python_version = "3.8"

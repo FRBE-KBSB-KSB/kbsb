@@ -32,13 +32,15 @@ from fastapi.routing import APIRoute
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",
-    description="Website Beligan Chess federation FRBE KBSB KSB",
+    description="Website Belgian Chess federation FRBE KBSB KSB",
     version=version,
 )
+url = '/api'
 
-from kbsb.crud import get_db
+# register the mongob connection
+from kbsb.crud import get_mongodb
 from reddevil.common import register_app
-register_app(settings, app, get_db, '/api')
+register_app(settings, app, get_mongodb, url)
 
 # import service layer 
 import kbsb.service

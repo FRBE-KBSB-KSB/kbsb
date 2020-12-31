@@ -6,13 +6,15 @@ import BoardMemberList from '@/mgmt/BoardMemberList.vue'
 import BoardRoleAdd from '@/mgmt/BoardRoleAdd.vue'
 import BoardRoleEdit from '@/mgmt/BoardRoleEdit.vue'
 import BoardRoleList from '@/mgmt/BoardRoleList.vue'
+import Clubs from '@/mgmt/Clubs.vue'
 import FileAdd from '@/mgmt/FileAdd.vue'
 import FileEdit from '@/mgmt/FileEdit.vue'
 import FileList from '@/mgmt/FileList.vue'
+import Login from '@/mgmt/Login.vue'
+import Members from '@/mgmt/Members.vue'
 import PageAdd from '@/mgmt/PageAdd.vue'
 import PageEdit from '@/mgmt/PageEdit.vue'
 import PageList from '@/mgmt/PageList.vue'
-import Login from '@/mgmt/Login.vue'
 
 
 Vue.use(VueRouter);
@@ -25,9 +27,11 @@ const router = new VueRouter({
     {path: '/mgmt/boardrole/add', component: BoardRoleAdd},
     {path: '/mgmt/boardrole/edit/:id', component: BoardRoleEdit},
     {path: '/mgmt/boardrole/list', component: BoardRoleList},
+    {path: '/mgmt/clubs', component: Clubs},
     {path: '/mgmt/file/add', component: FileAdd},
     {path: '/mgmt/file/edit/:id', component: FileEdit},
     {path: '/mgmt/file/list', component: FileList},
+    {path: '/mgmt/members', component: Members},
     {path: '/mgmt/page/list', component: PageList},
     {path: '/mgmt/page/add', component: PageAdd},
     {path: '/mgmt/page/edit/:id', component: PageEdit},

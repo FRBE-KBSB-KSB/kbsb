@@ -1,25 +1,35 @@
-# copyright Ruben Decrop 2012 - 2015
-# copyright Chessdevil Consulting BVBA 2015 - 2020
-
-from motor.motor_asyncio import AsyncIOMotorClient
-import asyncio 
+# copyright Ruben Decrop 2012 - 2020
+import logging
+from datetime import datetime, date
 from kbsb import settings
 
-def date2datetime(d, f):
+log = logging.getLogger('kbsb')
+
+def date2datetime(d: dict, f: str):
     """
-    converts field f of input mongo document d from date to datetime
-    as mongo does not supports dates
+    d: document that is used as input to a mongodb operation 
+    f: fieldname
+    converts field f of the document d from date to datetime
+    as mongodb only supports the datetime type
     """
     if f in d and isinstance(d[f], date):
         t = datetime.min.time()
         d[f] = datetime.combine(d[f], t)  
 
-def get_db():
+def get_mongodb():
     """
-    a singleton
+    a singleton function to get the mongodb database asynchronously
     """
-    if not hasattr(get_db, 'database'):
-        loop = asyncio.get_event_loop()
+    from motor.motor_asyncio import AsyncIOMotorClient
+    from asyncio import get_event_loop
+    if not hasattr(get_mongodb, 'database'):
+        loop = get_event_loop()
         client = AsyncIOMotorClient(settings.MONGO_URL, io_loop=loop)
-        setattr(get_db,'database', client[settings.MONGO_DB])
-    return get_db.database
+        setattr(get_mongodb, 'database', client[settings.MONGO_DB])
+    return get_mongodb.database
+
+# import all database classes
+
+from .db_member import DbMember
+from .db_club import DbClub
+from .db_book100 import DbBook100

@@ -9,7 +9,8 @@ export const pagecomponents = [
     'LandingPage',
     'MultiLocalePage',
     'Reports',
-    'BoardListing'
+    'BoardListing',
+    'Book100',
 ]
 
 export const organisations = [

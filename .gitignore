@@ -25,6 +25,7 @@ yarn-error.log*
 *.sln
 *.sw?
 *.pyc
+vetur.config.js
 
 backend/local_settings.py
 backend/reddevil/

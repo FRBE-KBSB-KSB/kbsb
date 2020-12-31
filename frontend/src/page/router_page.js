@@ -19,6 +19,7 @@ import LandingPage from './LandingPage.vue'
 import MultiLocalePage from './MultiLocalePage.vue'
 import Reports from '@/app-pages/Reports.vue'
 import BoardListing from '@/app-pages/BoardListing.vue'
+import Book100 from '@/app-pages/Book100.vue'
 
 let dynroutes = {
   CmsSimplePage: CmsSimplePage,
@@ -26,6 +27,7 @@ let dynroutes = {
   MultiLocalePage: MultiLocalePage,
   Reports: Reports,
   BoardListing: BoardListing,
+  Book100: Book100,
 }
 
 
