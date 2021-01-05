@@ -54,8 +54,19 @@ LOG_CONFIG = {
 
 EXTRASALT = 'Zugzwang'
 
+
+# login details
 GOOGLE_CLIENT_ID = '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
 GOOGLE_LOGIN_DOMAINS = ['frbe-kbsb-ksb.be']
+
+# email details
+EMAIL= {
+  'backend': 'SMTP',
+  'host': 'localhost',
+  'port': '1025',
+  'sender': 'ruben.decrop@frbe-kbsb-ksb.be',
+}
+
 
 MONGO_URL = 'mongodb://localhost:27017/'
 MONGO_DB = 'kbsb'
