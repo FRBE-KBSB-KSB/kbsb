@@ -78,7 +78,7 @@ TOKEN = {
     "nocheck": True,
 }
 
-MYSQL_URL = "mysql+pymysql://esyy_frbekbsbDad:Fouine17@esyy.myd.infomaniak.com/esyy_frbekbsbbe"
+MYSQL_URL = "mysql+pymysql://$$$@esyy.myd.infomaniak.com/esyy_frbekbsbbe"
 
 from local_settings import *
 log = logging.getLogger('kbsb')
