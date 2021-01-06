@@ -17,15 +17,12 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email import encoders
-from bycco import settings
-from bycco.models.md_subscription import (
-    SubscriptionDetailedOut,
-    SubscriptionOptional,
-)
-from bycco.i18n import locale_msg
+from kbsb import settings
+from kbsb.models.md_book100 import Book100Optional
+# from bycco.i18n import locale_msg
 from .mailbackend import backends
 
-log = logging.getLogger('bycco')
+log = logging.getLogger(__name__)
 md = Markdown()
 
 def test_mail():
@@ -35,7 +32,7 @@ def test_mail():
     try:
         sender = settings.EMAIL['sender']
         receiver = 'ruben.decrop@gmail.com'
-        msg = MIMEMultipart('related')
+        msg = MIMEMultipart('relate1')
         msg['Subject'] = 'Testmail 2'
         msg['From'] = sender
         msg['To'] = receiver
@@ -54,63 +51,88 @@ def test_mail():
     except Exception:
         log.exception('failed')    
 
+title_100 = "Bestelling boek 100 jaar / Commende du liver 100 ans / Bestellung Buch 100 Jahre"
+message_100 = """
+Bedankt voor je bestelling / Merci pour votre commande / Danke für Ihre Bestellung
 
-# def sendconfirmationmail(s: SubscriptionOptional):
-#     """
-#     send confirmation email
-#     :param s: the Subscription
-#     :return: None
-#     """
-#     sub = {
-#         'fullname': f"{s.first_name} {s.last_name}",
-#         'birthdate': s.birthdate,
-#         'idclub': s.idclub,
-#         'nationality': s.nationality,
-#         'ratingbel': s.ratingbel,
-#         'ratingfide': s.ratingfide,
-#         'category': s.category,
-#         'paymessage': s.paymessage,
-#     }
-#     assert s.locale
-#     i18n = locale_msg[s.locale]
-#     tolist = []
-#     if s.emailattendant:
-#         tolist.append(s.emailattendant)
-#     if s.emailparent:
-#         tolist.append(s.emailparent)
-#     if s.emailplayer:
-#         tolist.append(s.emailplayer)
-#     sub['champ'] = i18n['To be confirmed']
-#     if s.nationality == 'BEL':
-#         sub['champ'] = i18n['Yes']
-#     elif s.nationality :
-#         sub['champ'] = i18n['No']
-#     tpath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
-#     with open(os.path.join(tpath,f'mailsubscription_{s.locale}.md')) as tmpl:
-#         plaintext = tmpl.read()
-#     plaintext = plaintext.format(**sub)
+## Details
 
-#     # fetch the subject from the first line
-#     subject = plaintext.split('\n')[0][3:]
-#     htmltext = md.convert(plaintext)
+Naam / Nom / Name: **{name}**
 
-#     # create message and send it
-#     try:
-#         msg = MIMEMultipart('related')
-#         msg['Subject'] = subject
-#         msg['From'] = settings.EMAIL['sender']
-#         msg['To'] = ','.join(tolist)
-#         if settings.EMAIL.get('bcc'):
-#             msg['Bcc'] = settings.EMAIL['bcc']
-#         msg.preamble = 'This is a multi-part message in MIME format.'
-#         msgAlternative = MIMEMultipart('alternative')
-#         msgText = MIMEText(plaintext)
-#         msgAlternative.attach(msgText)
-#         msgHtml = MIMEText(htmltext, 'html')
-#         msgAlternative.attach(msgHtml)
-#         msg.attach(msgAlternative)
-#         backend = backends[settings.EMAIL['backend']]()
-#         backend.send_message(msg)
-#         log.info(f'confirmation mail sent for {s.first_name} {s.last_name}')
-#     except:
-#         log.exception(f'confirmation mail failed {s.first_name} {s.last_name}')
+E-mail: **{email}**
+
+GSM / Handy: **{mobile}** 
+
+Adres / Adresse: **{address}**
+
+Taal / Langue/ Sprache: **{books}**
+
+
+## Levering / Livraison / Lieferung
+ - Luc Cornet: luc.cornet@frbe-kbsb-ksb.be, +32474995274
+ - Philippe Vukojevic: philippe.vukojevic@frbe-kbsb-ksb.be, +32497166318
+ - Bernard Malfliet: bernard.malfliet@frbe-kbsb-ksb.be, +32471983387
+ - Ruben Decrop: ruben.decrop@frbe-kbsb-ksb.be, +32477571313
+ - Laurent Wery: laurent.wery@frbe-kbsb-ksb.be, +32491736871
+ - Gûnter Delhaes: delhaes.g@skynet.be
+ - Frank Hoffmeister: Frank.HOFFMEISTER@ec.europa.eu
+ - DPD
+
+Jij hebt gekozen / Vous avez choisi / Sie haben gewählt: **{distribution}**
+
+## Betaling / Paiement/ Zahlung
+
+Bedrag / Montant / Betrag: **{cost} Euro**
+
+Rekeningnummer / Compte / Konto: **BE76 0015 9823 0095**
+
+Naam / Nom / Name: **FRBE-KBSB-KSB**
+
+Mededeling / Communication / Mitteilung:  **Book 100 / {ordernr}**
+"""
+
+
+def sendconfirmation_book100(b: Book100Optional):
+    """
+    send confirmation email
+    :param b:  The order
+    :return: None
+    """
+    log.info(f"sending mail for {b}")
+    order = {
+        'idbel': b.id_bel,
+        'address': b.address,
+        'books': ', '.join(b.books.split(',')),
+        'cost': b.cost,
+        'distribution': b.distribution.upper(),
+        'email': b.email,
+        'name': f"{b.first_name} {b.last_name}",
+        'mobile': b.mobile,
+        'ordernr': b.order
+    }
+    log.info(f'order {order}')
+    tolist = [b.email]
+    text = message_100.format(**order)
+
+    # fetch the subject from the first line
+    htmltext = md.convert(text)
+
+    # create message and send it
+    try:
+        msg = MIMEMultipart('related')
+        msg['Subject'] = title_100
+        msg['From'] = settings.EMAIL['sender']
+        msg['To'] = ','.join(tolist)
+        msg['Cc'] = settings.BOOKS_CC
+        msg.preamble = 'This is a multi-part message in MIME format.'
+        msgAlternative = MIMEMultipart('alternative')
+        msgText = MIMEText(text)
+        msgAlternative.attach(msgText)
+        msgHtml = MIMEText(htmltext, 'html')
+        msgAlternative.attach(msgHtml)
+        msg.attach(msgAlternative)
+        backend = backends[settings.EMAIL['backend']]()
+        backend.send_message(msg)
+        log.info(f'book 100 confirmation mail sent for {b.first_name} {b.last_name}')
+    except:
+        log.exception(f'confirmation mail failed {b.first_name} {b.last_name}')

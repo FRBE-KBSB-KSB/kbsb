@@ -13,6 +13,7 @@ from kbsb.models.md_book100 import (
     Book100List,
     Book100Optional,
 )
+from kbsb.service.mail import sendconfirmation_book100
 
 log = logging.getLogger('kbsb')
 
@@ -27,6 +28,14 @@ def encode_book100(e: dict, validator_class=Book100Optional) -> Book100Optional:
         log.exception('cannot validate Book100')
         raise RdInternalServerError(description='Book100ValidationError')
     return cast(Book100Optional, eo)
+
+async def getBook100(id: str, options: dict= {}) -> Book100List:
+    """
+    get book100 with all fields 
+    """
+    validator_class = options.pop('_class', Book100Optional)
+    row = await DbBook100.find_single({'id': id})
+    return encode_book100(row, validator_class)
 
 async def getBooks100(options: dict= {}) -> Book100List:
     """
@@ -43,7 +52,14 @@ async def createBook100(d: Book100In) -> str:
     """
     bd = d.dict()
     bd['order'] = await nextOrder()
-    return await DbBook100.add(bd)
+    b =  await DbBook100.add(bd)
+    log.info(f'order id: {b}')
+    try:
+        order = await getBook100(b)
+    except:
+        log.exception('could not get order')
+    sendconfirmation_book100(order)
+    return b
 
 async def nextOrder() -> int:
     """
@@ -51,7 +67,6 @@ async def nextOrder() -> int:
     """
     bl = await getBooks100()
     orders = bl.orders
-    log.info(f'orders {orders}')
     if not orders:
         return 1
     return max([cast(int, o.order) for o in orders]) + 1

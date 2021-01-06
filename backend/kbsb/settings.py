@@ -6,6 +6,17 @@ import logging
 
 API_BASE_URL = '/api'
 
+BOOKS_CC = "ruben@kosk.be"
+
+EMAIL= {
+  'backend': 'GMAIL',
+  'sender': 'ruben.decrop@frbe-kbsb-ksb.be',
+  'account': 'ruben.decrop@frbe-kbsb-ksb.be',
+  'serviceaccountfile': 'kbsb_sendemail.json'
+}
+
+EXTRASALT = 'Zugzwang'
+
 FILESTORE = 'fs'
 
 LOG_CONFIG = {
@@ -52,24 +63,16 @@ LOG_CONFIG = {
     }
 }
 
-EXTRASALT = 'Zugzwang'
-
 
 # login details
 GOOGLE_CLIENT_ID = '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
 GOOGLE_LOGIN_DOMAINS = ['frbe-kbsb-ksb.be']
 
-# email details
-EMAIL= {
-  'backend': 'SMTP',
-  'host': 'localhost',
-  'port': '1025',
-  'sender': 'ruben.decrop@frbe-kbsb-ksb.be',
-}
-
 
 MONGO_URL = 'mongodb://localhost:27017/'
 MONGO_DB = 'kbsb'
+
+MYSQL_URL = "mysql+pymysql://$$$@esyy.myd.infomaniak.com/esyy_frbekbsbbe"
 
 TOKEN = {
     "timeout":  180,    # timeout in minutes
@@ -78,7 +81,6 @@ TOKEN = {
     "nocheck": True,
 }
 
-MYSQL_URL = "mysql+pymysql://$$$@esyy.myd.infomaniak.com/esyy_frbekbsbbe"
 
 from local_settings import *
 log = logging.getLogger('kbsb')

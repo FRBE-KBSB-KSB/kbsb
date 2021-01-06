@@ -1,7 +1,7 @@
 const fr = {
 "<p>If your are an affilated player you can buy the book 100 years of Belgianchess history for the low price of 10 Euro. Non affilated persons can buy the book for 15 Euro.</p> <p>The book is available in 3 languages:  Dutch, French and German.</p><p>If you are an affiliated player, don't forget to provide your RBCF ID and to click on the search button.  Your name will be filled in automatically</p>": "<p> Si vous êtes un joueur affilié, vous pouvez acheter le livre 100 ans de Belgehistoire d'échecs pour le petit prix de 10 euros. Les personnes non affiliées peuvent acheterle livre pour 15 euros. </p><p> Le livre est disponible en 3 langues: en néerlandais, en français et en allemand. </p><p> Si vous êtes un joueur affilié, n'oubliez pas de fournir votre matricule  et cliquez sur le bouton de recherche. Votre nom sera rempliautomatiquement </p>",
 "<p>In a few minutes you will receive an confirmation e-mail for your order.The e-mail will include the payment instructions.</p><p>If you selected one of the board members for the delivery, you will find the contact details in this e-mail.</p>": "<p> Dans quelques minutes, vous recevrez un e-mail de confirmation de votre commande.  L'e-mail comprendra les instructions de paiement. </p><p> Si vous avez sélectionné l'un des membres du conseil pour la livraison, vous trouver les coordonnées dans cet e-mail. </p>",
-"<p>In order to keep the costs low, you can pick the books from 5 members of the board.  You have to contact that person and agree on where and when the book can be handed over.</p><p>The board members are:</p><ul><li>Luc Cornet, covering provinces of Limburg and Liège<li>Bernard Malfliet, covering provinces of Oost-Vlaanderen cost, and Vlaams Brabant<li>Ruben Decrop, covering provinces of Antwerp and West-Vlaanderen<li>Philippe Vukojevic, covering provinces of Namur and Luxembourg<li>Laurent Wery, covering Brussels and provinces of Hainaut and Brabant Wallon</ul><p>See the <a href='/page/board'>Board page</a> for the contact details.</p> <p>Alternatively we can deliver the book at any address in Belgium by DPD at an additional cost of 6.20 Euro </p>": "<p> Afin de réduire les coûts, vous pouvez emporter les livres chez 5 membres du conseil. Vous devez contacter cette personne et convenir où et quandle livre peut être remis. </p><p> Les membres du conseil sont: </p><ul><li> Luc Cornet, couvrant les provinces du Limbourg et de Liège<li> Bernard Malfliet, couvrant les provinces d'Oost-Vlaanderen cost et du Vlaams Brabant<li> Ruben Decrop, couvrant les provinces d'Anvers et de West-Vlaanderen<li> Philippe Vukojevic, couvrant les provinces de Namur et du Luxembourg<li> Laurent Wery, couvrant Bruxelles et les provinces du Hainaut et du Brabant Wallon</ul><p> Consultez la <a href='/page/board'>page du CA</a> pour les coordonnées. </p> Alternativement on peut vous livrer le livre à une adresse en Belgique par DPD à un coût supplémentaire de 6,20 euros </p>",
+"<p>In order to keep the costs low, you can pick the books from 1 of the 7 people listed below.</p><ul><li>Luc Cornet, covering provinces of Limburg and Liège<li>Bernard Malfliet, covering provinces of Oost-Vlaanderen and Vlaams Brabant<li>Ruben Decrop, covering provinces of Antwerpen and West-Vlaanderen<li>Philippe Vukojevic, covering provinces of Namur and Luxembourg<li>Laurent Wery, covering provinces of Hainaut and Brabant Wallon<li>Günter Delhaes, covering the German speaking region, reachable at <a href='mailto:delhaes.g@skynet.be'>delhaes.g@skynet.be</a><li>Frank Hoffmeister, covering Brussels, reachable at <a href='mailto:Frank.HOFFMEISTER@ec.europa.eu'>Frank.HOFFMEISTER@ec.europa.eu</a></ul><p>You have to contact that person and agree on where and when the book can be handed over.  See the <a href='/page/board'>Board page</a> for the contact details of the board members.</p> <p>Alternatively we can deliver the book at any address in Belgium by DPD at an additional cost of 6.20 Euro </p>": "<p> Afin de réduire les coûts, vous pouvez obtenir les livres d''une des 7 personnes listées ci-dessous. </p> <ul> <li> Luc Cornet, couvrant les provinces du Limbourg et de Liège <li> Bernard Malfliet, couvrant les provinces d'Oost-Vlaanderen et du Vlaams Brabant <li> Ruben Decrop, couvrant les provinces d'Anvers et de West-Vlaanderen<li> Philippe Vukojevic, couvrant les provinces de Namur et du Luxembourg <li> Laurent Wery, couvrant les provinces du Hainaut et du Brabant wallon <li > Günter Delhaes, couvrant la région germanophone, joignable à <a href='mailto:delhaes.g@skynet.be'> delhaes.g@skynet.be </a> <li> Frank Hoffmeister, couvrant Bruxelles, joignable à <a href='mailtoFrank.HOFFMEISTER@ec.europa.eu'> Frank.HOFFMEISTER@ec.europa.eu </a> </ul> <p> Vous devez contacter cette personne et convenir où et quand le livre peut être remis. Consultez la <a href='/page/board'> page du conseil d'administration </a> pour les coordonnées des membres du conseil d'administration. </p> <p> Nous pouvons également livrer le livre à n'importe quelle adresse en Belgique par DPD à un coût supplémentaire de 6,20 euros </p>",
 "Address": "Adresse",
 "Administration": "Administration",
 "BC Adults": "CB adultes",
@@ -11,6 +11,7 @@ const fr = {
 "BC Youth": "CB Jeunesse",
 "Board": "Organe d'administration",
 "Board members": "Administrateurs",
+"Book 100 years": "Livre 100 ans",
 "Chess equiment": "Equipement d'échecs",
 "Committees": "Commissions",
 "Competitions": "Compétitions",
@@ -36,8 +37,10 @@ const fr = {
 "Last name": "Nom",
 "Mandated persons": "Personnes mandatées",
 "Mobile phone": "GSM",
+"Order created successfully": "Commande créée avec succès",
 "Ordering form": "Formulaire de commande",
 "Ordering the book 100 years of Belgian chess history": "Commander le livre 100 ans d'histoire des échecs en Belgique",
+"Questions": "Questions",
 "read more": "en savoir plus",
 "Regional": "Régional",
 "Reports": "Procès verbaux",
@@ -47,6 +50,6 @@ const fr = {
 "Tournament rules": "Règlement des tournois",
 "Useful information": "Information utile",
 "Which versions do you want?": "Quelles versions voulez-vous?",
-"Youth": "Jeiunesse",
+"Youth": "Jeunesse",
 }
 export default fr

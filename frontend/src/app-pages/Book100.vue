@@ -34,13 +34,18 @@
           <v-radio label="Ruben Decrop" value="ruben" />
           <v-radio label="Philippe Vukojevic" value="philippe" />
           <v-radio label="Laurent Wery" value="laurent" />
+          <v-radio label="Günter Delhaes" value="gunter" />
+          <v-radio label="Frank Hoffmeister" value="frank" />
           <v-radio label="DPD (+ 6.20 Euro) " value="dpd" />
         </v-radio-group>
+      </v-col>
+      <v-col cols=12 sm=6 md=4> 
+        <h4>{{ $t('Questions') }}?</h4>
+        <a href="mailto:info@frbe-kbsb-ksb.be">info@frbe-kbsb-ksb.be</a>
       </v-col>
     </v-row>
     <p>{{ $t('Cost') }}: {{ calccost}} Euro</p>
     <v-btn @click="confirm">{{ $t('Confirm') }}</v-btn>
-        
     <div v-if="confirmed">
       <p class="mt-3">{{ $t('Order created successfully') }}</p>
       <div v-html="$t(emailconfirmation)" />
@@ -86,18 +91,22 @@ RBCF ID and to click on the search button.  Your name will be filled in
 automatically</p>`.replace(/(\r\n|\n|\r)/gm, ""),
 
     delivery: 
-`<p>In order to keep the costs low, you can pick the books from 5 members 
-of the board.  You have to contact that person and agree on where and when 
-the book can be handed over.</p>
-<p>The board members are:</p>
+`<p>In order to keep the costs low, you can pick the books from 1 of the 7 
+people listed below.</p>
 <ul>
 <li>Luc Cornet, covering provinces of Limburg and Liège
-<li>Bernard Malfliet, covering provinces of Oost-Vlaanderen cost, and Vlaams Brabant
-<li>Ruben Decrop, covering provinces of Antwerp and West-Vlaanderen
+<li>Bernard Malfliet, covering provinces of Oost-Vlaanderen and Vlaams Brabant
+<li>Ruben Decrop, covering provinces of Antwerpen and West-Vlaanderen
 <li>Philippe Vukojevic, covering provinces of Namur and Luxembourg
-<li>Laurent Wery, covering Brussels and provinces of Hainaut and Brabant Wallon
+<li>Laurent Wery, covering provinces of Hainaut and Brabant Wallon
+<li>Günter Delhaes, covering the German speaking region, reachable at 
+<a href='mailto:delhaes.g@skynet.be'>delhaes.g@skynet.be</a>
+<li>Frank Hoffmeister, covering Brussels, reachable at 
+<a href='mailto:Frank.HOFFMEISTER@ec.europa.eu'>Frank.HOFFMEISTER@ec.europa.eu</a>
 </ul>
-<p>See the <a href='/page/board'>Board page</a> for the contact details.</p> 
+<p>You have to contact that person and agree on where and when 
+the book can be handed over.  See the <a href='/page/board'>Board page</a> 
+for the contact details of the board members.</p> 
 <p>Alternatively we can deliver the book at any address in Belgium by DPD at 
 an additional cost of 6.20 Euro </p>`.replace(/(\r\n|\n|\r)/gm, ""),
 
@@ -179,7 +188,7 @@ find the contact details in this e-mail.</p>`.replace(/(\r\n|\n|\r)/gm, "")
           else {
             console.error('getting getMember', data);
             self.$root.$emit('snackbar', {
-              text: self.this.$t('Getting member failed'),
+              text: self.$t('Getting member failed'),
             })            
           }
         }

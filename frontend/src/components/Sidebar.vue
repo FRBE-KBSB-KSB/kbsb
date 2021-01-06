@@ -51,6 +51,9 @@
           <v-list-item @click="updateSlug('commissions')" >
             <v-list-item-content>{{ $t('Committees') }} </v-list-item-content>
           </v-list-item>
+          <v-list-item @click="updateSlug('book100')" >
+            <v-list-item-content>{{ $t('Book 100 years') }} </v-list-item-content>
+          </v-list-item>
         </v-list-group>
 
         <v-list-group no-action>

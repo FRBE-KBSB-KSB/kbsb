@@ -18,11 +18,11 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email import encoders
-from bycco import settings
+from kbsb import settings
 
 log = logging.getLogger(__name__)
 
-cc = 'book100@bycco.be'
+cc = 'book100@frbe-kbsb-ksb.be'
 
 class BaseEmailBackend:
     def send_message(self, message: MIMEBase):
@@ -58,7 +58,7 @@ def get_gmail_service():
     if not hasattr(get_gmail_service, 'service'):
         try:
             credentials = service_account.Credentials.from_service_account_file(
-                service.EMAIL['serviceaccountfile'], 
+                settings.EMAIL['serviceaccountfile'], 
                 scopes=['https://www.googleapis.com/auth/gmail.send'])
             delegated_credentials = credentials.with_subject(settings.EMAIL['account']) 
             service = build('gmail', 'v1', credentials=delegated_credentials)        
