@@ -18,6 +18,14 @@ module.exports = {
     },
     "page": {
       "entry": "src/page/index.js",
+    },
+    "ratingnl": {
+      "entry": "src/page/rating.js",
+      "template": "public/ratingnl.html"
+    },
+    "ratingfr": {
+      "entry": "src/page/rating.js",
+      "template": "public/ratingfr.html"
     }
   }
 }
