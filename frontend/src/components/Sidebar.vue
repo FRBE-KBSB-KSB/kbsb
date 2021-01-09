@@ -34,7 +34,7 @@
             <v-list-item-content>{{ $t('Statutes') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('tournament-rules')" >
-            <v-list-item-content>{{ $t('Tournament-rules') }}</v-list-item-content>
+            <v-list-item-content>{{ $t('Tournament rules') }}</v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('internal-rules')" >
             <v-list-item-content>{{ $t('Internal rules') }}</v-list-item-content>
@@ -100,7 +100,7 @@
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('school-chess')" >
-            <v-list-item-content>{{ $t('BC School Chess') }}</v-list-item-content>
+            <v-list-item-content>{{ $t('BC School chess') }}</v-list-item-content>
           </v-list-item>
         </v-list-group>
 
@@ -134,6 +134,11 @@
           <template v-slot:activator>
             <v-list-item-content>{{ $t('Tools') }}</v-list-item-content>
           </template>
+          <v-list-item @click="ratedtournaments">
+            <v-list-item-content>
+              {{ $t('ELO tournaments') }}
+            </v-list-item-content>
+          </v-list-item>
           <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
             <v-list-item-content>
               Player - Club Manager
@@ -169,6 +174,7 @@
 <script>
 
 import { mapState } from 'vuex'
+import { goto } from '@/util/cms'
 
 
 export default {
@@ -199,12 +205,21 @@ export default {
   },
 
   methods: {
+
+    ratedtournaments (){
+      goto('rating', "", this.locale)
+    },
+    
     updateLocale: function(l){
-      this.$router.push('/page/'+ this.slug + '/' + l)
+      goto(window.base.section, this.slug || "", l)
+      // this.$router.push('/page/'+ this.slug + '/' + l)
     },
+    
     updateSlug: function(s){
-      this.$router.push('/page/'+ s + '/' + this.locale)
+      goto('page', s, this.locale)
+      // this.$router.push('/page/'+ s + '/' + this.locale)
     },
+
   }
 
 

@@ -28,3 +28,23 @@ def htmlmgmt(path:str):
         return HTMLResponse(page)
     except Exception:
         raise HTTPException(status_code=401, detail='mgmt.html not found')
+
+@app.get('/ratingnl')
+def ratingnl(path:str):
+    fn = os.path.join(os.path.dirname(__file__), 'ratingnl.html')
+    try:
+        with open(fn) as f:
+            page = f.read()
+        return HTMLResponse(page)
+    except Exception:
+        raise HTTPException(status_code=401, detail='ratingnl.html not found')
+
+@app.get('/ratingfr')
+def ratingfr(path:str):
+    fn = os.path.join(os.path.dirname(__file__), 'ratingfr.html')
+    try:
+        with open(fn) as f:
+            page = f.read()
+        return HTMLResponse(page)
+    except Exception:
+        raise HTTPException(status_code=401, detail='ratingfr.html not found')

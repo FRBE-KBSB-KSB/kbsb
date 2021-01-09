@@ -78,4 +78,18 @@ export const reportlisting = {
     en: ['Name', 'Topic', 'Date', 'Link']
 }
 
+export function goto(section, slug, locale) {
+    if (section != window.base.section ) {
+        window.location.href = '/' + section + '/' + slug + '/' + locale
+    }
+    if (section == 'page') {
+        window.vm.$router.push('/page/'+ slug  + '/' + locale)
+    }
+    if (section == 'rating') {
+        if (locale == 'fr' && window.base.locale != 'fr')
+            window.location.href = '/ratingfr'
+        if (locale == 'nl' && window.base.locale != 'nl')
+            window.location.href = '/ratingnl'
 
+    }
+}
