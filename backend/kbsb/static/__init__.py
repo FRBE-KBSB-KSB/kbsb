@@ -30,7 +30,7 @@ def htmlmgmt(path:str):
         raise HTTPException(status_code=401, detail='mgmt.html not found')
 
 @app.get('/ratingnl')
-def ratingnl(path:str):
+def ratingnl():
     fn = os.path.join(os.path.dirname(__file__), 'ratingnl.html')
     try:
         with open(fn) as f:
@@ -40,7 +40,7 @@ def ratingnl(path:str):
         raise HTTPException(status_code=401, detail='ratingnl.html not found')
 
 @app.get('/ratingfr')
-def ratingfr(path:str):
+def ratingfr():
     fn = os.path.join(os.path.dirname(__file__), 'ratingfr.html')
     try:
         with open(fn) as f:

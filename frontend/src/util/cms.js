@@ -88,8 +88,7 @@ export function goto(section, slug, locale) {
     if (section == 'rating') {
         if (locale == 'fr' && window.base.locale != 'fr')
             window.location.href = '/ratingfr'
-        if (locale == 'nl' && window.base.locale != 'nl')
+        if (locale != 'fr' && window.base.locale != 'nl')
             window.location.href = '/ratingnl'
-
     }
 }
