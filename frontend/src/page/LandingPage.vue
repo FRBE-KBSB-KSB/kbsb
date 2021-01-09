@@ -35,6 +35,11 @@
                 {{ $t('Results SWAR') }}
               </a> 
             </div>
+            <div class="pa-2">
+              <a  class="green--text" @click="ratingtrn">
+                {{ $t('ELO tournaments') }}
+              </a> 
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -84,7 +89,7 @@
 <script>
 import { mapState } from "vuex"
 import marked from 'marked'
-import { notitle, nointro, phpbaseurl  } from "@/util/cms"
+import { notitle, nointro, phpbaseurl, goto } from "@/util/cms"
 
 
 export default {
@@ -160,7 +165,7 @@ export default {
     },
 
     gotoArticle(art) {
-      this.$router.push('/page/' +  art.slug + '/' + this.locale)
+      goto('page', art.slug, this.locale)
     },
 
     marked(s) { 
@@ -189,6 +194,10 @@ export default {
         }
       })
     },
+
+    ratingtrn() {
+      goto('rating', "", this.locale)      
+    }
 
   },
 
