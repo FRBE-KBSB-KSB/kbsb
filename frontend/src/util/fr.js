@@ -23,7 +23,7 @@ const fr = {
 "Dutch": "Néerlandais",
 "E-mail": "E-mail",
 "ELO processing": "Traitement ELO",
-"ELO tournaments": "ELO tournois",
+"ELO tournaments": "Tournois Elo",
 "Email addresses": "Adresses e-mail",
 "First name": "Prénom",
 "French": "Français",
