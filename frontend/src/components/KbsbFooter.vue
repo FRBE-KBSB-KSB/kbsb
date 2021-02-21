@@ -7,7 +7,7 @@
           {{ $t('Royal Belgian Chess Federation npo') }}  
         </h4>
         <div>
-          {{ $t('Registered office') )}}
+          {{ $t('Registered office') }}
         </div>
         <div>
             131 Rue Frans Vekemansstraat 131<br> 
