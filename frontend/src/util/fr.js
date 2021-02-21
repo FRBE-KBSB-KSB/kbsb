@@ -49,7 +49,7 @@ const fr = {
 "Registered office": "Siège social",
 "Reports": "Procès verbaux",
 "Results SWAR": "Résultats SWAR",
-"Royal Belgian Chess Federation npo": "Royal Belgian Chess Federation npo",
+"Royal Belgian Chess Federation npo": "Fédération Royale Belge des Echecs asbl.",
 "Social media": "Mediasociaux",
 "Statutes": "Statuts",
 "Tools": "Outils",

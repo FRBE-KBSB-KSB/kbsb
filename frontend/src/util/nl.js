@@ -49,7 +49,7 @@ const nl = {
 "Registered office": "Maatschappelijke zetel",
 "Reports": "Verslagen",
 "Results SWAR": "Resulaten SWAR",
-"Royal Belgian Chess Federation npo": "Royal Belgian Chess Federation npo",
+"Royal Belgian Chess Federation npo": "Koninklijke Belgische Schaakbond vzw.",
 "Social media": "Socliale media",
 "Statutes": "Statuten",
 "Tools": "Tools",
