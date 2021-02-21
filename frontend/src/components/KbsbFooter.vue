@@ -4,20 +4,10 @@
     <v-row class="py-3 px-2">
       <v-col cols=12 sm=4 class="mt-2">
         <h4 class="mb-2">
-          <i18n-text 
-            nl="Koninklijke Belgische Schaakbond vzw."
-            fr="Fédération Royale Balege des Echecs asbl."
-            de="Königlicher Schachbund Belgien VoE"
-            en="Royal Belgian Chess Federation npo"
-          />
+          {{ $t('Royal Belgian Chess Federation npo') }}  
         </h4>
         <div>
-          <i18n-text 
-            nl="Maatschappelijke zetel"
-            fr="Siège social"
-            de="Sitz der Gesellschaft"
-            en="Registered office"
-          />
+          {{ $t('Registered office') )}}
         </div>
         <div>
             131 Rue Frans Vekemansstraat 131<br> 
@@ -28,23 +18,13 @@
       </v-col>
       <v-col cols=12 sm=4 class="mt-2">
         <h4 class="mb-2">
-          <i18n-text 
-            nl="Postadres"
-            fr="Adresse postale"
-            de="Postanschrift"
-            en="Postal address"
-          />
+          {{ $t('Postal address')}}
         </h4>
         <div>14 boîte 1 Rue Jules Hans<br>1420 Braine-l'Alleud</div>
       </v-col>
       <v-col cols=12 sm=4 class="mt-2">
         <h4 class="mb-2">
-          <i18n-text 
-            nl="Sociale media"
-            fr="Médias sociaux"
-            de="Sozialen Medien"
-            en="Social media"
-          />
+          {{ $t("Social media") }}
         </h4>
         <div>e-mail: <a href="mailto:info@frbe-kbsb-ksb.be">info@frbe-kbsb-ksb.be</a></div>
         <div>
@@ -66,17 +46,9 @@
 
 <script>
 
-import I18nText from "@/components/I18nText"
-
-
 export default {
 
   name: "KbsbFooter",
-
-  components: {
-    I18nText,
-  }
-
 
 }
 

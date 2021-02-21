@@ -1,5 +1,3 @@
-console.log('hi')
-
 import Vue from 'vue'
 import vuetify from '@/plugins/vuetify';
 import { i18n } from '@/util/lang'
@@ -9,8 +7,6 @@ import store from '@/page/store_page'
 
 Vue.config.productionTip = false
 
-console.log('creating Vue instance')
-
 window.vm = new Vue({
   vuetify,
   router,
@@ -19,4 +15,3 @@ window.vm = new Vue({
   render: h => h(Rating)
 }).$mount('#app')
 
-console.log('created Vue instance')
