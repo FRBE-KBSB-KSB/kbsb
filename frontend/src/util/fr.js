@@ -7,7 +7,7 @@ const fr = {
 "BC Adults": "CB adultes",
 "BC Blitz": "CB Blitz",
 "BC Rapid": "CB Rapid",
-"BC School chess": "BK inter-écoles",
+"BC School chess": "CB inter-écoles",
 "BC Youth": "CB Jeunesse",
 "Board": "Organe d'administration",
 "Board members": "Administrateurs",

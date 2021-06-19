@@ -65,9 +65,9 @@
               Interclub 2019-20              
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="updateSlug('interclub-2020-21')" >
+          <v-list-item @click="updateSlug('interclub-2021-22')" >
             <v-list-item-content>
-              Interclub 2020-21              
+              Interclub 2021-22              
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="updateSlug('championships-adult')" >
