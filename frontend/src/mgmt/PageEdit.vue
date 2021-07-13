@@ -19,7 +19,10 @@
           <v-btn v-on="on" outlined fab color="deep-purple" @click="save()" 
               slot="activator">
             <v-icon>mdi-content-save</v-icon>
-          </v-btn>testrit
+          </v-btn>
+        </template>
+        <span>Save page</span>
+      </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" outlined fab color="deep-purple" @click="remove()" 
