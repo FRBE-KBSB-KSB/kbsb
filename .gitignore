@@ -5,7 +5,7 @@
 .env.local
 .env.*.local
 /data
-share/fs/
+/fs/
 
 # Log files
 npm-debug.log*

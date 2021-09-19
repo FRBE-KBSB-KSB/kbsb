@@ -35,8 +35,8 @@
     <template v-slot:item.topic="{ item }">
       {{ t_topic[item.topic] }}
     </template>
-    <template v-slot:item.topic_ts="{ item }">
-      <date-formatted :date="item.topic_ts" fmt="ll" />
+    <template v-slot:item.topicdate="{ item }">
+      <date-formatted :date="item.topicdate" fmt="ll" />
     </template>
     <template v-slot:item.path="{ item }">
       URL: <a :href="'/api/filecontent/'+ item.url">{{ item.name}}</a>      
@@ -76,7 +76,7 @@ export default {
         text: '', value: 'topic'
       },
       {
-        text: '', value: 'topic_ts'
+        text: '', value: 'topicdate'
       },
       {
         text: '', value:"path"

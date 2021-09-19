@@ -36,7 +36,7 @@
       <v-col cols=12 fluid class="d-flex justify-center green darken-2 mt-3 py-2 px-1">
         <span>
           Website by <a target="_blank" href="https://www.chessdevil.net">
-          Chessdevil Consulting</a>. &copy; 2018 - 2020.  All rights reserved
+          Chessdevil Consulting</a>. &copy; {{ new Date().getFullYear() }}.  All rights reserved
         </span>
       </v-col>
     </v-row>

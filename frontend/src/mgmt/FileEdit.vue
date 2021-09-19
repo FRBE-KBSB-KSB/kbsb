@@ -44,15 +44,15 @@
       <p>File created: <date-formatted :date="f._creationtime"/></p>
       <p>File modified: <date-formatted :date="f._modificationtime"/></p>
       <p>URL: <a :href="'/api/filecontent/' +  f.url">/api/filecontent/{{ f.url}}</a> </p>
-      <v-menu v-model="menu_topic_ts" :close-on-content-click="false"
+      <v-menu v-model="menu_topicdate" :close-on-content-click="false"
         :nudge-right="40" transition="scale-transition"
         offset-y min-width="290px"
       >
         <template v-slot:activator="{ on }">
-          <v-text-field v-model="f.topic_ts" label="Topic date" prepend-icon="mdi-calendar-range"
+          <v-text-field v-model="f.topicdate" label="Topic date" prepend-icon="mdi-calendar-range"
             readonly v-on="on" />
         </template>
-        <v-date-picker v-model="f.topic_ts" @input="menu_topic_ts = false" color="deep-purple" />
+        <v-date-picker v-model="f.topicdate" @input="menu_topicdate = false" color="deep-purple" />
       </v-menu>
     </v-col>
   </v-row>
@@ -80,7 +80,7 @@ export default {
 
   data () {return {
     f: {},
-    menu_topic_ts: false,
+    menu_topicdate: false,
     name: '', 
     photosrc: null,
     savefile: false,

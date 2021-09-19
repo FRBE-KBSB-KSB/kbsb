@@ -5,7 +5,6 @@ import uuid
 from datetime import datetime, date, timezone
 from typing import List, Dict, Any, Optional
 from sqlalchemy.sql import select
-from sqlalchemy.engine import RowProxy
 from kbsb.mysql import engine, metadata
 from reddevil.common import RdNotFound, RdBadRequest, RdInternalServerError
 

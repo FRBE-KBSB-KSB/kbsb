@@ -6,7 +6,6 @@ import asyncio
 from datetime import datetime, date, timezone
 from typing import List, Dict, Any, Optional
 from sqlalchemy.sql import select
-from sqlalchemy.engine import RowProxy
 from kbsb.mysql import metadata, DbBase
 
 class DbMember(DbBase):
