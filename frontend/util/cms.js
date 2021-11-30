@@ -92,3 +92,4 @@ export function goto(section, slug, locale) {
             window.location.href = '/ratingnl'
     }
 }
+

@@ -1,0 +1,14 @@
+{
+  "TheCarousel": {
+    "description": "Auto imported from components/TheCarousel.vue"
+  },
+  "TheFooter": {
+    "description": "Auto imported from components/TheFooter.vue"
+  },
+  "TheSidebar": {
+    "description": "Auto imported from components/TheSidebar.vue"
+  },
+  "TheTopbar": {
+    "description": "Auto imported from components/TheTopbar.vue"
+  }
+}
