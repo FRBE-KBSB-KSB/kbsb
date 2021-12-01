@@ -1,5 +1,12 @@
 [
   {
+    "name": "board",
+    "path": "/board",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/board.vue",
+    "chunkName": "pages/board",
+    "_name": "_031757e9"
+  },
+  {
     "name": "index___de",
     "path": "/de",
     "component": "/home/ruben/develop/cms/kbsb/frontend/pages/index.vue",
@@ -21,6 +28,13 @@
     "_name": "_32b2bbd5"
   },
   {
+    "name": "interclub-2021-22",
+    "path": "/interclub-2021-22",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/interclub-2021-22.vue",
+    "chunkName": "pages/interclub-2021-22",
+    "_name": "_16068a50"
+  },
+  {
     "name": "index___nl",
     "path": "/nl",
     "component": "/home/ruben/develop/cms/kbsb/frontend/pages/index.vue",
@@ -35,11 +49,53 @@
     "_name": "_714ce710"
   },
   {
+    "name": "statutes",
+    "path": "/statutes",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/statutes.vue",
+    "chunkName": "pages/statutes",
+    "_name": "_e6041ea4"
+  },
+  {
+    "name": "board___de",
+    "path": "/de/board",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/board.vue",
+    "chunkName": "pages/board",
+    "_name": "_031757e9"
+  },
+  {
+    "name": "interclub-2021-22___de",
+    "path": "/de/interclub-2021-22",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/interclub-2021-22.vue",
+    "chunkName": "pages/interclub-2021-22",
+    "_name": "_16068a50"
+  },
+  {
     "name": "partners___de",
     "path": "/de/partners",
     "component": "/home/ruben/develop/cms/kbsb/frontend/pages/partners.vue",
     "chunkName": "pages/partners",
     "_name": "_714ce710"
+  },
+  {
+    "name": "statutes___de",
+    "path": "/de/statutes",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/statutes.vue",
+    "chunkName": "pages/statutes",
+    "_name": "_e6041ea4"
+  },
+  {
+    "name": "board___en",
+    "path": "/en/board",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/board.vue",
+    "chunkName": "pages/board",
+    "_name": "_031757e9"
+  },
+  {
+    "name": "interclub-2021-22___en",
+    "path": "/en/interclub-2021-22",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/interclub-2021-22.vue",
+    "chunkName": "pages/interclub-2021-22",
+    "_name": "_16068a50"
   },
   {
     "name": "partners___en",
@@ -49,6 +105,27 @@
     "_name": "_714ce710"
   },
   {
+    "name": "statutes___en",
+    "path": "/en/statutes",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/statutes.vue",
+    "chunkName": "pages/statutes",
+    "_name": "_e6041ea4"
+  },
+  {
+    "name": "board___fr",
+    "path": "/fr/board",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/board.vue",
+    "chunkName": "pages/board",
+    "_name": "_031757e9"
+  },
+  {
+    "name": "interclub-2021-22___fr",
+    "path": "/fr/interclub-2021-22",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/interclub-2021-22.vue",
+    "chunkName": "pages/interclub-2021-22",
+    "_name": "_16068a50"
+  },
+  {
     "name": "partners___fr",
     "path": "/fr/partners",
     "component": "/home/ruben/develop/cms/kbsb/frontend/pages/partners.vue",
@@ -56,11 +133,39 @@
     "_name": "_714ce710"
   },
   {
+    "name": "statutes___fr",
+    "path": "/fr/statutes",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/statutes.vue",
+    "chunkName": "pages/statutes",
+    "_name": "_e6041ea4"
+  },
+  {
+    "name": "board___nl",
+    "path": "/nl/board",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/board.vue",
+    "chunkName": "pages/board",
+    "_name": "_031757e9"
+  },
+  {
+    "name": "interclub-2021-22___nl",
+    "path": "/nl/interclub-2021-22",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/interclub-2021-22.vue",
+    "chunkName": "pages/interclub-2021-22",
+    "_name": "_16068a50"
+  },
+  {
     "name": "partners___nl",
     "path": "/nl/partners",
     "component": "/home/ruben/develop/cms/kbsb/frontend/pages/partners.vue",
     "chunkName": "pages/partners",
     "_name": "_714ce710"
+  },
+  {
+    "name": "statutes___nl",
+    "path": "/nl/statutes",
+    "component": "/home/ruben/develop/cms/kbsb/frontend/pages/statutes.vue",
+    "chunkName": "pages/statutes",
+    "_name": "_e6041ea4"
   },
   {
     "name": "index",

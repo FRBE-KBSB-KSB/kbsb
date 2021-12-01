@@ -97,18 +97,13 @@
         <template #activator>
           <v-list-item-content>{{ $t('Youth') }}</v-list-item-content>
         </template>
-        <v-list-item to="championships-youth">
+        <v-list-item to="/championships-youth">
           <v-list-item-content>{{ $t('BC Youth') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/international-youth">
           <v-list-item-content>{{ $t('International') }}}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/top-talent">
-          <v-list-item-content>
-            Top Talent
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="school-chess">
+        <v-list-item to="/school-chess">
           <v-list-item-content>{{ $t('BC School chess') }}</v-list-item-content>
         </v-list-item>
       </v-list-group>
@@ -123,19 +118,11 @@
         <v-list-item to="/elo-processing">
           <v-list-item-content>{{ $t('ELO processing') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/fide">
-          <v-list-item-content>
-            FIDE
-          </v-list-item-content>
-        </v-list-item>
         <v-list-item to="/gdpr')">
           <v-list-item-content>{{ $t('GDPR') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/g-licence">
           <v-list-item-content>{{ $t('G License') }} </v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/equipment">
-          <v-list-item-content>{{ $t('Chess equiment') }}</v-list-item-content>
         </v-list-item>
       </v-list-group>
 

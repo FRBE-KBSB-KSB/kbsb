@@ -8,7 +8,7 @@
     </v-toolbar-items>
     <v-spacer />
     <v-toolbar-items class="hidden-sm-and-down">
-      <v-btn text large :href="'/page/interclub-2021-22/'+$i18n.locale">
+      <v-btn text large href="/interclub-2021-22">
         Interclub 21-22
       </v-btn>
       <v-btn text large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
