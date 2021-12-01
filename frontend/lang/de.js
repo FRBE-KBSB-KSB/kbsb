@@ -45,6 +45,7 @@ export default {
 "Postal address": "Postanschrift",
 "Questions": "Fragen",
 "read more": "weiter lesen",
+"RBCF": "KSB",
 "Regional": "Regional",
 "Registered office": "Sitz der Gesellschaft",
 "Reports": "Berichte",

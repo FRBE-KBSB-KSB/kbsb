@@ -45,6 +45,7 @@ export default  {
 "Postal address": "Postadres",
 "Questions": "Vragen",
 "read more": "lees meer",
+"RBCF": "KBSB",
 "Regional": "Regionaal",
 "Registered office": "Maatschappelijke zetel",
 "Reports": "Verslagen",

@@ -45,6 +45,7 @@ export default {
 "Postal address": "Adresse postale",
 "Questions": "Questions",
 "read more": "en savoir plus",
+"RBCF": "FRBE",
 "Regional": "Régional",
 "Registered office": "Siège social",
 "Reports": "Procès verbaux",

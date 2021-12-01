@@ -44,6 +44,7 @@ export default {
 "Ordering the book 100 years of Belgian chess history": "Ordering the book 100 years of Belgian chess history",
 "Postal address": "Postal address",
 "Questions": "Questions",
+"RBCF": "RBCF",
 "read more": "read more",
 "Regional": "Regional",
 "Registered office": "Registered office",
