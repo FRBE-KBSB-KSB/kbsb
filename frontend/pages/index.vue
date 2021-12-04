@@ -95,7 +95,7 @@
 <script>
 
 import { marked } from 'marked'
-import { phpbaseurl, goto, notitle, nointro } from '@/util/cms'
+import { phpbaseurl, notitle, nointro } from '@/util/cms'
 
 export default {
   layout: 'landing',
@@ -133,8 +133,16 @@ export default {
       )
     },
 
+    gotoArticle (a) {
+      window.location.href = '/article?slug=' + a.slug
+    },
+
     ratingtrn () {
-      if (this.$i18n.locale == 'nl') { window.location.href = '/ratingnl' } else { window.location.href = '/ratingfr' }
+      if (this.$i18n.locale === 'nl') {
+        window.location.href = '/ratingnl'
+      } else {
+        window.location.href = '/ratingfr'
+      }
     },
 
     readArticles (articles) {

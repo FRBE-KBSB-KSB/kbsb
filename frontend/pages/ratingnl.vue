@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <app-root />
+    <app-root v-pre />
   </v-container>
 </template>
 

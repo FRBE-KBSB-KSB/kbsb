@@ -1,15 +1,30 @@
 <template>
   <v-container>
-    <app-root v-pre />
+    <h1>{{ page.title }}</h1>
+    <nuxt-content :document="page" />
   </v-container>
 </template>
 
 <script>
 export default {
+
   layout: 'default',
 
+  async asyncData ({ $content, app }) {
+    const page = await $content('pages', `international-adult_${app.i18n.locale}`).fetch()
+    return {
+      page
+    }
+  },
+
+  data () {
+    return {
+      tab: 0
+    }
+  },
+
   head: {
-    title: 'Partners',
+    title: 'Internationale toernooien | Tournois internationaux',
     link: [
       {
         rel: 'stylesheet',
@@ -25,10 +40,6 @@ export default {
         href:
           'https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css'
       },
-      {
-        rel: 'stylesheet',
-        href: 'https://api.frbe-kbsb-ksb.be/static/fr-BE/styles.css'
-      },
       { rel: 'favicon', href: 'favicon.ico' }
     ],
     meta: [
@@ -40,18 +51,6 @@ export default {
       {
         src: 'https://apis.google.com/js/platform.js',
         async: true,
-        defer: true
-      },
-      {
-        src: 'https://api.frbe-kbsb-ksb.be/static/fr-BE/runtime.js',
-        defer: true
-      },
-      {
-        src: 'https://api.frbe-kbsb-ksb.be/static/fr-BE/polyfills.js',
-        defer: true
-      },
-      {
-        src: 'https://api.frbe-kbsb-ksb.be/static/fr-BE/main.js',
         defer: true
       }
     ]

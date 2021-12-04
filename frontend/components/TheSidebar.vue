@@ -60,23 +60,23 @@
         <v-list-item to="/commissions">
           <v-list-item-content>{{ $t('Committees') }} </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/book100">
+        <!-- <v-list-item to="/book100">
           <v-list-item-content>{{ $t('Book 100 years') }} </v-list-item-content>
-        </v-list-item>
+        </v-list-item> -->
       </v-list-group>
 
       <v-list-group no-action>
         <template #activator>
           <v-list-item-content>{{ $t('Competitions') }}</v-list-item-content>
         </template>
-        <v-list-item to="/interclub-2019-20">
+        <v-list-item to="/interclubs-2019-20">
           <v-list-item-content>
-            Interclub 2019-20
+            Interclubs 2019-20
           </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/interclub-2021-22">
+        <v-list-item to="/interclubs-2021-22">
           <v-list-item-content>
-            Interclub 2021-22
+            Interclubs 2021-22
           </v-list-item-content>
         </v-list-item>
         <v-list-item to="/championships-adult">
@@ -88,7 +88,7 @@
         <v-list-item to="/championships-rapid">
           <v-list-item-content>{{ $t('BC Rapid') }} </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/international-adults">
+        <v-list-item to="/international-adult">
           <v-list-item-content>{{ $t('International competitions') }}</v-list-item-content>
         </v-list-item>
       </v-list-group>
@@ -118,7 +118,7 @@
         <v-list-item to="/elo-processing">
           <v-list-item-content>{{ $t('ELO processing') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/gdpr')">
+        <v-list-item to="/gdpr">
           <v-list-item-content>{{ $t('GDPR') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/g-licence">
@@ -130,7 +130,7 @@
         <template #activator>
           <v-list-item-content>{{ $t('Tools') }}</v-list-item-content>
         </template>
-        <v-list-item to="/ratedtournaments">
+        <v-list-item :to="gotorating">
           <v-list-item-content>
             {{ $t('ELO tournaments') }}
           </v-list-item-content>
@@ -182,22 +182,10 @@ export default {
     }
   },
 
-  methods: {
-
-    ratedtournaments () {
-      // goto('rating', "", this.locale)
-    },
-
-    updateLocale (l) {
-      // goto(window.base.section, this.slug || "", l)
-      // this.$router.push('/page/'+ this.slug + '/' + l)
-    },
-
-    updateSlug (s) {
-      // goto('page', s, this.locale)
-      // this.$router.push('/page/'+ s + '/' + this.locale)
+  computed: {
+    gotorating () {
+      return this.$i18n.locale === 'nl' ? '/ratingnl' : '/ratingfr'
     }
-
   }
 
 }

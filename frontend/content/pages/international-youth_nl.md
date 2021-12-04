@@ -1,3 +1,3 @@
 ---
-title:  Internaiotnale jeugdcompetities
+title:  Internationale jeugdcompetities
 ---
