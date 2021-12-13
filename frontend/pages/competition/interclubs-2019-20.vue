@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `g-licence_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'competition', `interclubs-2019-20_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Licence G',
+    title: 'Interclubs 2019-20',
     link: [
       {
         rel: 'stylesheet',

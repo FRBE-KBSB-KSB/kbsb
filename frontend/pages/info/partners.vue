@@ -7,24 +7,17 @@
 
 <script>
 export default {
-
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `championships-blitz_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'info', 'partner').fetch()
     return {
       page
     }
   },
 
-  data () {
-    return {
-      tab: 0
-    }
-  },
-
   head: {
-    title: 'Belgisch kampioenschap Blitz | Championnat de Belgique Blitz',
+    title: 'Partners',
     link: [
       {
         rel: 'stylesheet',

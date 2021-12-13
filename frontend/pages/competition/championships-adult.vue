@@ -7,17 +7,24 @@
 
 <script>
 export default {
+
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', 'partner').fetch()
+    const page = await $content('pages', 'competition', `championships-adult_${app.i18n.locale}`).fetch()
     return {
       page
     }
   },
 
+  data () {
+    return {
+      tab: 0
+    }
+  },
+
   head: {
-    title: 'Partners',
+    title: 'Belgisch kampioenschap | Championnat de Belgique',
     link: [
       {
         rel: 'stylesheet',

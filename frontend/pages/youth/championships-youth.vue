@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `interclubs-2019-20_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'youth', `championships-youth_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Interclubs 2019-20',
+    title: 'Belgisch jeugdkampioenschap | Championnat de Belgique de la jeunesse',
     link: [
       {
         rel: 'stylesheet',

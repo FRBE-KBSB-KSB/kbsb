@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `school-chess_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'info', `gdpr_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Schoolschaak - Inter-écoles',
+    title: 'GDPR - RGDP',
     link: [
       {
         rel: 'stylesheet',

@@ -1,6 +1,8 @@
 export default context => ({
-  root() {
-    console.log('calling axios', context.$config, context.$axios)
-    return context.$axios.get('/api')
+  async root () {
+    return await context.$axios.get('/api')
+  },
+  async login (options) {
+    return await await context.$axios.post('/api/accountlogin', options)
   }
 })

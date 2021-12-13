@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `elo-processing_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'competition', `championships-blitz_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Eloverwerking - Traitement Elo',
+    title: 'Belgisch kampioenschap Blitz | Championnat de Belgique Blitz',
     link: [
       {
         rel: 'stylesheet',

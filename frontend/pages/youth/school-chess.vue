@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `international-youth_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'youth', `school-chess_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Internationale jeugdcompetities | Compétitions internationales de la jeunesse',
+    title: 'Schoolschaak - Inter-écoles',
     link: [
       {
         rel: 'stylesheet',

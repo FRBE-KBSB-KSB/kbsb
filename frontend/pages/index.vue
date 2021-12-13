@@ -139,9 +139,9 @@ export default {
 
     ratingtrn () {
       if (this.$i18n.locale === 'nl') {
-        window.location.href = '/ratingnl'
+        window.location.href = '/tools/ratingnl'
       } else {
-        window.location.href = '/ratingfr'
+        window.location.href = '/tools/ratingfr'
       }
     },
 

@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `international-adult_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'youth', 'g-licence_fr').fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Internationale toernooien | Tournois internationaux',
+    title: 'Licence G',
     link: [
       {
         rel: 'stylesheet',

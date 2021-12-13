@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `championships-youth_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'admin', `commissions_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Belgisch jeugdkampioenschap | Championnat de Belgique de la jeunesse',
+    title: 'Commissies - Commissions',
     link: [
       {
         rel: 'stylesheet',

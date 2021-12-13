@@ -53,7 +53,13 @@ export default {
     html: true
   },
 
-  modules: ['@nuxtjs/axios', '@nuxtjs/i18n', '@nuxtjs/markdownit', '@nuxt/content'],
+  modules: [
+    '@nuxtjs/axios',
+    '@nuxtjs/i18n',
+    '@nuxtjs/markdownit',
+    '@nuxt/content',
+    ['nuxt-vuex-localstorage', { localStorage: ['token'] }]
+  ],
 
   plugins: [{ src: '~plugins/api', ssr: false }],
 

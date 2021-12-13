@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `regional_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'info', `elo-processing_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Regionaal - Régional',
+    title: 'Eloverwerking - Traitement Elo',
     link: [
       {
         rel: 'stylesheet',

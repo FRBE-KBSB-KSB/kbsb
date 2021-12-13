@@ -1,30 +1,15 @@
 <template>
   <v-container>
-    <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    Management FRBE KBSB KSB
   </v-container>
 </template>
 
 <script>
 export default {
-
-  layout: 'default',
-
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', `commissions_${app.i18n.locale}`).fetch()
-    return {
-      page
-    }
-  },
-
-  data () {
-    return {
-      tab: 0
-    }
-  },
+  layout: 'mgmt',
 
   head: {
-    title: 'Commissies - Commissions',
+    title: 'Partners',
     link: [
       {
         rel: 'stylesheet',

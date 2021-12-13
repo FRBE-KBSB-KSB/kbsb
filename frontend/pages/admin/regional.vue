@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `email-address_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'admin',`regional_${app.i18n.locale}`).fetch()
     return {
       page
     }
@@ -24,7 +24,7 @@ export default {
   },
 
   head: {
-    title: 'Email',
+    title: 'Regionaal - Régional',
     link: [
       {
         rel: 'stylesheet',

@@ -158,7 +158,7 @@
 export default {
 
   async asyncData ({ $content }) {
-    const members = await $content('board').fetch()
+    const members = await $content('app/board').fetch()
     const board = members.filter(m => m.category === 'board')
     const collaborator = members.filter(m => m.category === 'collaborator')
     const ombudsman = members.filter(m => m.category === 'ombudsman')

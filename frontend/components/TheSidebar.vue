@@ -36,28 +36,28 @@
         <template #activator>
           <v-list-item-content>{{ $t('Administration') }}</v-list-item-content>
         </template>
-        <v-list-item to="/board">
+        <v-list-item to="/admin/board">
           <v-list-item-content>{{ $t('Board') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/statutes">
+        <v-list-item to="/admin/statutes">
           <v-list-item-content>{{ $t('Statutes') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/tournament-rules">
+        <v-list-item to="/admin/tournament-rules">
           <v-list-item-content>{{ $t('Tournament rules') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/internal-rules">
+        <v-list-item to="/admin/internal-rules">
           <v-list-item-content>{{ $t('Internal rules') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/reports">
+        <v-list-item to="/admin/reports">
           <v-list-item-content>{{ $t('Reports') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/vademecum">
+        <v-list-item to="/admin/vademecum">
           <v-list-item-content>Vademecum</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/regional">
+        <v-list-item to="/admin/regional">
           <v-list-item-content>{{ $t('Regional') }} </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/commissions">
+        <v-list-item to="/admin/commissions">
           <v-list-item-content>{{ $t('Committees') }} </v-list-item-content>
         </v-list-item>
         <!-- <v-list-item to="/book100">
@@ -69,26 +69,26 @@
         <template #activator>
           <v-list-item-content>{{ $t('Competitions') }}</v-list-item-content>
         </template>
-        <v-list-item to="/interclubs-2019-20">
+        <v-list-item to="/competition/interclubs-2019-20">
           <v-list-item-content>
             Interclubs 2019-20
           </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/interclubs-2021-22">
+        <v-list-item to="/competition/interclubs-2021-22">
           <v-list-item-content>
             Interclubs 2021-22
           </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/championships-adult">
+        <v-list-item to="/competition/championships-adult">
           <v-list-item-content>{{ $t('BC Adults') }} </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/championships-blitz">
+        <v-list-item to="/competition/championships-blitz">
           <v-list-item-content>{{ $t('BC Blitz') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/championships-rapid">
+        <v-list-item to="/competition/championships-rapid">
           <v-list-item-content>{{ $t('BC Rapid') }} </v-list-item-content>
         </v-list-item>
-        <v-list-item to="/international-adult">
+        <v-list-item to="/competition/international-adult">
           <v-list-item-content>{{ $t('International competitions') }}</v-list-item-content>
         </v-list-item>
       </v-list-group>
@@ -97,14 +97,17 @@
         <template #activator>
           <v-list-item-content>{{ $t('Youth') }}</v-list-item-content>
         </template>
-        <v-list-item to="/championships-youth">
+        <v-list-item to="/youth/championships-youth">
           <v-list-item-content>{{ $t('BC Youth') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/international-youth">
+        <v-list-item to="/youth/international-youth">
           <v-list-item-content>{{ $t('International') }}}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/school-chess">
+        <v-list-item to="/youth/school-chess">
           <v-list-item-content>{{ $t('BC School chess') }}</v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/youth/g-licence">
+          <v-list-item-content>{{ $t('G License') }} </v-list-item-content>
         </v-list-item>
       </v-list-group>
 
@@ -112,17 +115,14 @@
         <template #activator>
           <v-list-item-content>{{ $t('Useful information') }}</v-list-item-content>
         </template>
-        <v-list-item to="/email-addresses">
+        <v-list-item to="/info/email-addresses">
           <v-list-item-content>{{ $t('Email addresses') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/elo-processing">
+        <v-list-item to="/info/elo-processing">
           <v-list-item-content>{{ $t('ELO processing') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/gdpr">
+        <v-list-item to="/info/gdpr">
           <v-list-item-content>{{ $t('GDPR') }}</v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/g-licence">
-          <v-list-item-content>{{ $t('G License') }} </v-list-item-content>
         </v-list-item>
       </v-list-group>
 
@@ -160,7 +160,7 @@
         </v-list-item>
       </v-list-group>
 
-      <v-list-item to="/partners">
+      <v-list-item to="/info/partners">
         <v-list-item-content>Partners</v-list-item-content>
       </v-list-item>
     </v-list>
@@ -184,7 +184,7 @@ export default {
 
   computed: {
     gotorating () {
-      return this.$i18n.locale === 'nl' ? '/ratingnl' : '/ratingfr'
+      return this.$i18n.locale === 'nl' ? '/tools/ratingnl' : '/tools/ratingfr'
     }
   }
 

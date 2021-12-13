@@ -11,7 +11,7 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
-    const page = await $content('pages', `championships-rapid_${app.i18n.locale}`).fetch()
+    const page = await $content('pages', 'competition', `championships-rapid_${app.i18n.locale}`).fetch()
     return {
       page
     }
