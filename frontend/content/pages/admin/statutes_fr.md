@@ -1,6 +1,6 @@
 ---
-title: Statuts de la F.R.B.É. asbl
-createdAt: 2020-08-09
+title: Statuts de la FRBE asbl
+createdAt: 2020-08-29
 ---
 
 *Statuts de la FRBÉ asbl. version du 29 août 2020.*

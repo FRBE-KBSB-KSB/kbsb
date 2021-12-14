@@ -1,6 +1,6 @@
 ---
 title: Statuten van de KBSB vzw
-createdAt: 2020-08-09
+createdAt: 2020-08-29
 ---
 
 *Statuten van de KBSB vzwversie van 29 augustus 2020*
