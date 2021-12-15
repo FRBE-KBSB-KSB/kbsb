@@ -42,10 +42,10 @@
         <v-list-item to="/admin/statutes">
           <v-list-item-content>{{ $t('Statutes') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/admin/tournament-rules">
+        <v-list-item to="/admin/tournamentrules">
           <v-list-item-content>{{ $t('Tournament rules') }}</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/admin/internal-rules">
+        <v-list-item to="/admin/internalrules">
           <v-list-item-content>{{ $t('Internal rules') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/admin/reports">
