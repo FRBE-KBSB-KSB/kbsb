@@ -612,9 +612,9 @@ e. 	De Verantwoordelijke Nationale Toernooien controleert de hem toegezonden spe
 
 f. 	Voor de ontmoeting wordt de opstelling van de ploegen door de kapiteins uitgewisseld (iedere ploegkapitein kan bij wijze van controle de identiteitskaarten van de tegenstrevers vragen.). Spelers van een ploeg waarvan de opstelling niet volledig wordt bekendgemaakt, mogen hun partij niet aanvangen, terwijl hun klokken wel in gang gebracht worden. Indien de opstelling van beide ploegen niet bekend gemaakt zijn, worden de klokken van de witspelers in gang gebracht. Eenmaal een partij begonnen is, kan de opstelling van de ploegen niet meer veranderd worden. Om een gemakkelijke toepassing van dit punt toe te laten, dienen de borden genummerd te zijn.
 
-g. 	Elk jaar kan op **3 november** en **3 januari** de spelerslijst in fine vervolledigd worden met Belgische spelers die nog geen ELO-quotering hebben en die zich voor de eerste maal aansloten bij een club van de KBSB na 15 september voorafgaand.
+g. 	Elk jaar kan op 3 november en 3 januari de spelerslijst in fine vervolledigd worden met Belgische spelers die nog geen ELO-quotering hebben en die zich voor de eerste maal aansloten bij een club van de KBSB na 15 september voorafgaand.
 
-Hiertoe dient elke club die van deze mogelijkheid gebruik wil maken ten laatste op **2 november** of **2 januari** een nieuwe lijst, bepaald volgens voorgaande paragraaf bij de Verantwoordelijke Nationale Toernooien te doen toekomen.
+Hiertoe dient elke club die van deze mogelijkheid gebruik wil maken ten laatste op 2 november of 2 januari een nieuwe lijst, bepaald volgens voorgaande paragraaf bij de Verantwoordelijke Nationale Toernooien te doen toekomen.
 
 De aangepaste spelerslijsten dienen opgestuurd te worden naar de Verantwoordelijke Nationale Toernooien in het formaat en op de wijze zoals door hem bepaald. Van zodra de spelerslijsten door hem gepubliceerd zijn via het door het BO bepaald medium, zijn deze spelers speelgerechtigd.
 
@@ -779,7 +779,7 @@ Indien een club niet akkoord gaat met een beslissing van de verantwoordelijke va
  - 	Een scheidsrechter of verantwoordelijke van de ontmoeting kan een wedstrijd vanwege onaanvaardbare spelcondities niet laten doorgaan. Hij dient dan per ontmoeting, een rapport op te stellen, ondertekend door de twee ploegkapiteins en op te sturen naar de Verantwoordelijke Nationale Toernooien. Deze zal dan een beslissing nemen omtrent het herspelen of het verloren verklaren van de ontmoeting of hij zal eender ander passende beslissing nemen.
 
 
-### INTERNATIONALE TOERNOOIEN
+### Internationale Toernooien
 
 De artikels 39 tot 42bis hebben geen betrekking op de internationale toernooien die voorbehouden zijn voor spelers jonger dan 20 jaar.
 
@@ -932,7 +932,9 @@ Voor alle leeftijdscategorieën bevatten de nationale jeugdkampioenschappen nege
 
 De open kampioenschappen worden betwist volgens een Zwitsers systeem toegelaten door de FIDE of volgens de Bergertabellen indien het aantal deelnemers dit toelaat.
 
-### Artikel 51 – Afgeschaft
+### Artikel 51 
+
+_Afgeschaft_
 
 ### Artikel 52 – Inschrijvingen
 
@@ -948,8 +950,8 @@ De organisatie stuurt de voltallige deelnemerslijst door naar de Nationale Jeugd
 
 Het inschrijvingsrecht dient als volgt besteed te worden :
 
-* minimum 80 % is bestemd voor prijzen.
-* maximum 20 % is bestemd voor het dekken van administratiekosten.
+ - minimum 80 % is bestemd voor prijzen.
+ - maximum 20 % is bestemd voor het dekken van administratiekosten.
 
 De organisatie stelt haar boekhouding van het toernooi ter beschikking aan de nationale jeugdleider ter controle.
 
@@ -957,10 +959,10 @@ De organisatie stelt haar boekhouding van het toernooi ter beschikking aan de na
 
 De KBSB stelt een subsidie ter beschikking aan de organisatoren van de nationale jeugdkampioenschappen. Deze dient als volgt aangewend te worden :
 
-* verblijf en forfaitaire kostenvergoeding voor wedstrijdleiders
-* verblijf en forfaitaire kostenvergoeding voor organisatoren en de nationale jeugdleider
-* administratiekosten
-* nevenactiviteiten.
+ - verblijf en forfaitaire kostenvergoeding voor wedstrijdleiders
+ - verblijf en forfaitaire kostenvergoeding voor organisatoren en de nationale jeugdleider
+ - administratiekosten
+ - nevenactiviteiten.
 
 ### Artikel 55 – Tempo
 
@@ -984,13 +986,13 @@ In de toernooizaal moet een ruimte worden voorbehouden die uitsluitend door de s
 
 De partijen van alle leeftijdscategorieën worden door de hoofdwed­strijdleider binnen de week na het kampioenschap voor verwerking overgemaakt aan de nationale klassementsleider.
 
-## Internationale Uitzendingen van de jeugs
+## Internationale Uitzendingen van de jeugd
 
-### Artikel 60 – Internationale toernooien**
+### Artikel 60 – Internationale toernooien
 
 De beste Belgische jeugdspelers nemen deel aan internationale jeugdtoernooien.  De lijst van die toernooien wordt beheerd door het BO.
 
-### Artikel 61 - Rechtstreekse selectie**
+### Artikel 61 - Rechtstreekse selectie
 
 De jeugdspelers die door de FIDE als Belg beschouwd worden en die aan de selectienorm voldoen, hebben automatisch het recht deel te nemen aan de internationale toernooien.
 
@@ -1000,7 +1002,7 @@ Elke rechtstreekse geselecteerde mag deelnemen aan een toernooi naar keuze. Indi
 
 De volgende spelers zijn geselecteerd:
 
-* de eerste 2 spelers van een open categorie per geslacht.
+ - de eerste 2 spelers van een open categorie per geslacht.
 
 Indien een speler niet wenst deel te nemen aan een internationaal toernooi, gaat het recht niet over naar lager geklasseerde spelers.
 
@@ -1016,7 +1018,7 @@ Iedere jeugdspeler die door de FIDE als Belg beschouwd wordt, kan bij de verantw
 
 De kandidatuur omvat
 
-* aan welk toernooi de speler wenst deel te nemen
+ - aan welk toernooi de speler wenst deel te nemen
 
 De spelers die niet geselecteerd zijn op basis van de criteria opgenomen in artikel 62 worden enkel ingeschreven voor de competitie indien daardoor de inschrijving van de geselecteerde spelers niet in het gedrang komt. Ze worden ingeschreven op hun eigen risico. Zij stellen de K.B.S.B. vrij van elke aansprakelijkheid. De K.B.S.B. kan bovendien eisen dat zij voor hun burgerlijke aansprakelijkheid verzekerd zijn en, zo ze minderjarig zijn, dat ze op hun kosten begeleid worden door een meerderjarige die zal instaan voor het toezicht en begeleiding.
 
@@ -1131,11 +1133,11 @@ De nationaal jeugdleider kan aan de organisatie een extra ploeg toekennen tenein
 
 Vanaf het nationaal interscholenkampioenschap 2019 worden volgende categorieën gehanteerd:
 
-A1. lager onderwijs mini (leerlingen uit het 1ste tot en met 3de leerjaar);
+ - A1. lager onderwijs mini (leerlingen uit het 1ste tot en met 3de leerjaar);
 
-A2. lager onderwijs (leerlingen uit het 1ste tot en met 6de leerjaar);
+ - A2. lager onderwijs (leerlingen uit het 1ste tot en met 6de leerjaar);
 
-B. middelbaar onderwijs.
+ - B. middelbaar onderwijs.
 
 met volgend aantal ploegen :
 

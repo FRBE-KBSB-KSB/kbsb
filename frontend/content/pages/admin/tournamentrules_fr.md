@@ -6,7 +6,6 @@ createdAt: 2021-02-13
 
 _Approuvé par l’Assemblée Générale Extraordinaire (AGE) du 20 juin 2009. Approuvé par l’Assemblée Générale (AG) du 20 mars 2010. Approuvé par l’AGE du 15 janvier 2011. Approuvé par l’AGE du 18 juin 2011. Approuvé par le CA du 04/09/2011. Approuvé par l’AGE du 26 novembre 2011. Approuvé par l’AGE du 2 juin 2012. Approuvé par l’AGE du 1 juin 2013. Approuvé par l'AG du 7 décembre 2013. Approuvé par l'AGE du 2 août 2014, élaboré par le CA du 23 août 2014. Approuvé par l’AG du 4 octobre 2014. Approuvé par l’AGE du 6 juin 2015. Approuvé par l’AG du 17 octobre 2015. Approuvé par l’AG du 22 octobre 2016. Approuvé par l’AGE du 25 février 2017. Approuvé par le C.A. le 1 juillet et le 2 septembre 2017. Approuvé par l’AG du 18 novembre 2017. Approuvé par l’AG du 20 octobre 2018. Approuvé par l’AG du 9 novembre 2019. Approuvé par l’AGE du 29 août 2020. Approuvé par l’AGE du 13 février 2021._
 
-***********************************************************************
 
 ## Dispositions générales
 
@@ -80,13 +79,13 @@ En principe, et sauf dérogation expressément accordée, les droits d'inscripti
 
 Le trésorier national est seul habilité à effectuer des remboursements qui par ailleurs ne seront effectués que pour les joueurs de réserve non retenus, ou bien encore pour les clubs dont l’inscription a été refusée.
 
-### Article 6. JOUEURS FAISANT PARTIE DE PLUS D'UN CLUB.
+### Article 6. Joueurs faisant partie de plus d'un club.
 
 a. Tout joueur a un club principal et peut faire partie de plus d'un club .
 
 b. _Abrogé_.
 
-c. Un même joueur ne peut dans une même compétition être aligné par deux clubs différents. Il lui est cependant permis de défendre les couleurs d'un autre club moyennant l'autorisation écrite de son club principal**,** sauf si celui-ci ne participe pas à cette compétition.
+c. Un même joueur ne peut dans une même compétition être aligné par deux clubs différents. Il lui est cependant permis de défendre les couleurs d'un autre club moyennant l'autorisation écrite de son club principal, sauf si celui-ci ne participe pas à cette compétition.
 
 ### Article 7. Transferts.
 
@@ -181,7 +180,7 @@ e. Formule d'établissement de la cote provisoire :
         
 Elle est exprimée par la formule 
 ```
-    R = Rc + D(P)**
+    R = Rc + D(P)
 ```
 où :
 ```
@@ -204,18 +203,18 @@ où
     Ro = côte précédente.
     W = score atteint.
     We = score attendu d'après le tableau de probabilité basé sur la cotation antérieure.
-    K = .
+    K = le coefficient de développement du joueur
 ```
 
 
 2. Le coefficient de développement du joueur K = 
 
- - 32 de la 21<sup>ème</sup> à la 100<sup>ème</sup> partie.
- -  24 de la 101<sup>ème</sup> à la 300<sup>ème</sup> partie.
- - Après 300 parties 
-   - 16 si la côte est &lt;= 2000.
-   - 12 si la côte est > 2000 & &lt;= 2200.
-   - 10 si la côte est > 2200.
+   - 32 de la 21<sup>ème</sup> à la 100<sup>ème</sup> partie.
+   -  24 de la 101<sup>ème</sup> à la 300<sup>ème</sup> partie.
+   - Après 300 parties 
+     - 16 si la côte est &lt;= 2000.
+     - 12 si la côte est > 2000 & &lt;= 2200.
+     - 10 si la côte est > 2200.
 
 3. Tout joueur qui, après 20 parties, n'obtient pas 1150 pts se voit automatiquement donner une cote de 1150.
 
@@ -468,7 +467,7 @@ Les championnats sont dotés par la Fédération Royale Belge des Échecs d'un s
 
 ## Championnats nationaux de partis éclairs.
 
-### Article 24. Partici[ation.
+### Article 24. Participation.
 
 Peuvent y participer : tous
 
@@ -545,197 +544,234 @@ e. Prix.
 3. La manière dont le tirage au sort de la position initiale des pièces va se faire avant une ronde et comment cette position initiale des pièces va être communiquée aux participants, doit être mentionnée dans l’invitation.
 
 
-## CHAMPIONNATS NATIONAUX INTERCLUBS
+## Championnats nationaux Interclubs
 
 Les clubs trouveront toutes les communications officielles relatives aux interclubs nationaux sur le site web [www.frbe-kbsb-ksb.be](http://www.frbe-kbsb.be). C’est via ce site qu’ils doivent communiquer leurs données (inscription des équipes, résultats des rencontres,…) et prendre connaissance de la composition des séries, des listes de force, des résultats officiels, des amendes et des changements éventuels de dates ou de lieux de rencontres en cours de saison.
 
-### Article 29. DISPOSITIONS GÉNÉRALES
+### Article 29. Dispositions générales
 
 La FRBÉ organise chaque année un championnat par équipes.
 
-    1. Selon le nombre d'équipes inscrites, plusieurs divisions peuvent être constituées
-    2. Sur proposition du Responsable des Tournois Nationaux, au moins une saison à l’avance, l’organe d’administration fixe les dates de chaque ronde, les dates de réserve et la date des éventuels matchs de barrage. Par la suite, il détermine également la date de clôture des inscriptions. Les rondes ont lieu en principe entre le 1<sup>er</sup> septembre et le 30 avril.
-    3. Le CA décide, sur proposition du RTN, la répartition des équipes en évitant, si possible, la présence de deux équipes d'un même club dans une même série. Il effectue le tirage au sort.
+a. Selon le nombre d'équipes inscrites, plusieurs divisions peuvent être constituées
 
-    Si deux équipes d'un même club jouent quand même dans la même série, elles se rencontrent à ou avant la première ronde.
+b. Sur proposition du Responsable des Tournois Nationaux, au moins une saison à l’avance, l’organe d’administration fixe les dates de chaque ronde, les dates de réserve et la date des éventuels matchs de barrage. Par la suite, il détermine également la date de clôture des inscriptions. Les rondes ont lieu en principe entre le 1<sup>er</sup> septembre et le 30 avril.
 
-    4. Moyennant accord mutuel, les clubs ont la faculté d'avancer la date et/ou l'heure de leur rencontre, ou de modifier le lieu de celle-ci. Cet accord est valable s'il est notifié par écrit (ou par fax ou par e-mail) avec accusé de réception au Responsable des Tournois Nationaux sept jours avant la nouvelle date prévue et sauf opposition de celui-ci trois jours avant la nouvelle date prévue.
+c. Le CA décide, sur proposition du RTN, la répartition des équipes en évitant, si possible, la présence de deux équipes d'un même club dans une même série. Il effectue le tirage au sort.
 
-    Toutes les parties faisant partie d'une rencontre doivent être disputées au même lieu, à la même date et à la même heure. Le Responsable des Tournois Nationaux pourra en décider autrement, uniquement en cas de force majeure évidente.
+Si deux équipes d'un même club jouent quand même dans la même série, elles se rencontrent à ou avant la première ronde.
 
-    4. Si un club doit se passer d’au moins deux joueurs de sa première équipe, pour cause de représentation de la FRBÉ dans un tournoi international, alors il peut introduire auprès du RTN une demande visant à déplacer la rencontre. Cette demande doit avoir lieu au plus tard une semaine après l’inscription du club ou des joueurs au dit tournoi international (auprès de la FRBÉ). Le RTN communiquera le plus tôt possible, aux clubs concernés, la date de réserve choisie pour y déplacer la rencontre.
-    5. Les prix attribués aux vainqueurs de chaque série sont fixés par l’organe d’administration.
-    6. La FRBÉ peut prévoir la possibilité d’organiser une ronde à un seul endroit pour la première et/ou la deuxième division.
-    7. Les définitions suivantes sont d’application pour le règlement des interclubs nationaux :
-            * **Titulaire** : un joueur qui sur la liste de force est affecté à une équipe.
-            * **Joueur effectif** : un joueur qui, lors d’une ronde, joue dans une équipe.
-### Article 30. INSCRIPTIONS.
-    1. Les inscriptions se font auprès du Responsable des Tournois Nationaux ( A ce jour les inscriptions des équipes, les compositions des listes de forces et les administrations et signatures des cartes des résultats se font via le module Interclubs Manager disponible sur le site de la FRBÉ) 
-    1. Les droits d'inscription par équipe, à verser dès réception de la facture, sont fixés par l’organe d’administration**.**
-    2. Tout club n'ayant pas respecté l'article 12.d sera refusé.
-### Article 31. COMPOSITION DES ÉQUIPES. 
-    1. Les équipes se composent de 8 joueurs en division I et en division II, 6 joueurs en division III, 4 joueurs en division IV et en division V.
-    2. Chaque club participant est tenu de faire parvenir au RTN, dans les délais fixés par ce dernier, une liste de ses joueurs, établie dans le format fixé par le CA et faite dans le moyen de communication fixé par ce dernier. Les joueurs seront alignés en se référant au dernier classement national ou FIDE paru. Toutefois, la cote de chaque joueur peut être modifiée de 100 points en plus ou en moins avant d'établir la liste de force (=ELO adapté). Pour des raisons informatiques, aucun joueur du même club ne peut avoir la même cote adaptée sur la liste de force. Si un club aligne plusieurs équipes dans une même division, il doit désigner les titulaires pour chaque équipe. Ces titulaires sont choisis parmi les premiers classés comme expliqué dans les exemples ci-après :
+d. Moyennant accord mutuel, les clubs ont la faculté d'avancer la date et/ou l'heure de leur rencontre, ou de modifier le lieu de celle-ci. Cet accord est valable s'il est notifié par écrit (ou par fax ou par e-mail) avec accusé de réception au Responsable des Tournois Nationaux sept jours avant la nouvelle date prévue et sauf opposition de celui-ci trois jours avant la nouvelle date prévue.
 
-    1<sup>er</sup> exemple : les 2 premières équipes d’un club évoluant en division III : 6 joueurs sur les 12 premiers classés en équipe 1, les 6 autres en équipe 2.
+Toutes les parties faisant partie d'une rencontre doivent être disputées au même lieu, à la même date et à la même heure. Le Responsable des Tournois Nationaux pourra en décider autrement, uniquement en cas de force majeure évidente.
 
+e. Si un club doit se passer d’au moins deux joueurs de sa première équipe, pour cause de représentation de la FRBÉ dans un tournoi international, alors il peut introduire auprès du RTN une demande visant à déplacer la rencontre. Cette demande doit avoir lieu au plus tard une semaine après l’inscription du club ou des joueurs au dit tournoi international (auprès de la FRBÉ). Le RTN communiquera le plus tôt possible, aux clubs concernés, la date de réserve choisie pour y déplacer la rencontre.
 
-    2<sup>ème</sup> exemple : les 3 (premières) équipes d’un club évoluant en division V : 4 joueurs sur les 12 premiers classés en équipe 1, 4 autres en équipe 2 et les autres en équipe 3.
+f. Les prix attribués aux vainqueurs de chaque série sont fixés par l’organe d’administration.
 
+g. La FRBÉ peut prévoir la possibilité d’organiser une ronde à un seul endroit pour la première et/ou la deuxième division.
 
-    3<sup>ème</sup> exemple : 1 équipe en division I, 2 équipes en division II, 1 équipe en division III : Les 8 premiers classés en équipe 1, 8 joueurs classés entre la 9<sup>ème</sup> et la 24<sup>ème</sup> place en équipe 2, les 8 autres classés entre la 9<sup>ème</sup> et la 24<sup>ème</sup> place en équipe 3, les joueurs classés entre la 25<sup>ème</sup> et la 30<sup>ème</sup> place en équipe 4.
+h. Les définitions suivantes sont d’application pour le règlement des interclubs nationaux :
+  
+  - **Titulaire** : un joueur qui sur la liste de force est affecté à une équipe.
+  
+  - **Joueur effectif** : un joueur qui, lors d’une ronde, joue dans une équipe.
 
-    1. Si la liste comprend des joueurs dont le club principal est un autre club , le nom du joueur doit être suivi du numéro de ce club .
+### Article 30. Inscriptions.
 
-    Tout club participant attribue sur sa liste de force une cote ELO adaptée aux joueurs non classés. Ce chiffre, basé sur la force estimée du joueur, est d’un minimum de 1000 et d’un maximum de 1600 points ELO. Elle est valable pour toute la compétition interclubs. 
+a. Les inscriptions se font auprès du Responsable des Tournois Nationaux ( A ce jour les inscriptions des équipes, les compositions des listes de forces et les administrations et signatures des cartes des résultats se font via le module Interclubs Manager disponible sur le site de la FRBÉ) 
 
+b. Les droits d'inscription par équipe, à verser dès réception de la facture, sont fixés par l’organe d’administration.
 
-    Les joueurs ayant une cote provisoire ne sont pas considérés comme non-classés. Néanmoins les joueurs ayant une cote plus basse que 1150, seront considérés comme ayant une cote adaptée de 1150 sur laquelle on peut encore appliquer les 100 points en plus ou en moins.
+c. Tout club n'ayant pas respecté l'article 12.d sera refusé.
 
+### Article 31. Compositions des équipes.
 
-    Les joueurs étrangers non cotés en Belgique sont intercalés dans la liste à la place correspondant à leur cote FIDE et à défaut à la cote qu’ils ont dans leur pays.
+a. Les équipes se composent de 8 joueurs en division I et en division II, 6 joueurs en division III, 4 joueurs en division IV et en division V.
 
+b. Chaque club participant est tenu de faire parvenir au RTN, dans les délais fixés par ce dernier, une liste de ses joueurs, établie dans le format fixé par le CA et faite dans le moyen de communication fixé par ce dernier. Les joueurs seront alignés en se référant au dernier classement national ou FIDE paru. Toutefois, la cote de chaque joueur peut être modifiée de 100 points en plus ou en moins avant d'établir la liste de force (=ELO adapté). Pour des raisons informatiques, aucun joueur du même club ne peut avoir la même cote adaptée sur la liste de force. Si un club aligne plusieurs équipes dans une même division, il doit désigner les titulaires pour chaque équipe. Ces titulaires sont choisis parmi les premiers classés comme expliqué dans les exemples ci-après :
 
-    Si la liste comprend des joueurs malvoyants, il est obligatoire de repérer ceux-ci par un signe convenu. Il en est de même pour les joueurs handicapés moteurs qui ne peuvent se déplacer qu'en chaise roulante.
+1<sup>er</sup> exemple : les 2 premières équipes d’un club évoluant en division III : 6 joueurs sur les 12 premiers classés en équipe 1, les 6 autres en équipe 2.
 
+2<sup>ème</sup> exemple : les 3 (premières) équipes d’un club évoluant en division V : 4 joueurs sur les 12 premiers classés en équipe 1, 4 autres en équipe 2 et les autres en équipe 3.
 
-    La manière de repérer ces joueurs sur les listes doit être définie par le Responsable des Tournois Nationaux lors de l'annonce annuelle des interclubs nationaux communiquant aux clubs les dates et modalités d'inscription.
+3<sup>ème</sup> exemple : 1 équipe en division I, 2 équipes en division II, 1 équipe en division III : Les 8 premiers classés en équipe 1, 8 joueurs classés entre la 9<sup>ème</sup> et la 24<sup>ème</sup> place en équipe 2, les 8 autres classés entre la 9<sup>ème</sup> et la 24<sup>ème</sup> place en équipe 3, les joueurs classés entre la 25<sup>ème</sup> et la 30<sup>ème</sup> place en équipe 4.
 
-    2. Pour faire partie d'une équipe, un joueur doit être affilié à un club de la FRBÉ
-    3. Le Responsable des Tournois Nationaux apportera les corrections nécessaires aux listes qui lui sont présentées. Les listes corrigées sont mises à disposition de tous les clubs avant le début de la compétition, au moyen du média choisi par l’organe d’administration.
-    4. Les compositions des équipes sont échangées par les capitaines avant le début de la rencontre (chaque capitaine a le droit de demander la carte d’identité pour vérification). Les joueurs de l’équipe dont la composition n’est pas communiquée en entier ne peuvent commencer à jouer, et leurs pendules sont mises en route. En l’absence de composition des deux équipes, les pendules des Blancs sont mises en route. Une fois les parties commencées, la composition de l’équipe ne peut plus être modifiée. Aux fins d’une application aisée du point présent, les tableaux sont numérotés.
-    5. À la date du **3 novembre et 3** **janvier** de chaque année, la liste peut être complétée in fine par des joueurs belges, non cotés, s'étant affiliés pour la première fois à un club de la FRBÉ après le **15** septembre précédent. 
+c. Si la liste comprend des joueurs dont le club principal est un autre club , le nom du joueur doit être suivi du numéro de ce club .
 
-    À cette fin, chaque club désirant faire usage de cette possibilité fera parvenir pour le **2 novembre ou 2** **janvie**r au plus tard au Responsable des Tournois Nationaux une liste adaptée selon les critères définis à l'alinéa précédent. 
+Tout club participant attribue sur sa liste de force une cote ELO adaptée aux joueurs non classés. Ce chiffre, basé sur la force estimée du joueur, est d’un minimum de 1000 et d’un maximum de 1600 points ELO. Elle est valable pour toute la compétition interclubs. 
 
+Les joueurs ayant une cote provisoire ne sont pas considérés comme non-classés. Néanmoins les joueurs ayant une cote plus basse que 1150, seront considérés comme ayant une cote adaptée de 1150 sur laquelle on peut encore appliquer les 100 points en plus ou en moins.
 
-    Les listes de force adaptées doivent être adressées au Responsable des Tournois Nationaux, de la manière et dans le format qu’il aura déterminé. Ces joueurs ont le droit de jouer dès que les listes seront publiées par le RTN, via le média choisi par l’organe d’administration.
+Les joueurs étrangers non cotés en Belgique sont intercalés dans la liste à la place correspondant à leur cote FIDE et à défaut à la cote qu’ils ont dans leur pays.
 
-### Article 32. RÉPARTITION DES ÉQUIPES.
+Si la liste comprend des joueurs malvoyants, il est obligatoire de repérer ceux-ci par un signe convenu. Il en est de même pour les joueurs handicapés moteurs qui ne peuvent se déplacer qu'en chaise roulante.
 
-    1. Division I.
+La manière de repérer ces joueurs sur les listes doit être définie par le Responsable des Tournois Nationaux lors de l'annonce annuelle des interclubs nationaux communiquant aux clubs les dates et modalités d'inscription.
 
-    Le nombre d'équipes est fixé à douze. Les deux dernières équipes au classement descendent en division 2.
+d. Pour faire partie d'une équipe, un joueur doit être affilié à un club de la FRBÉ
 
-    1. Division II.
+e. Le Responsable des Tournois Nationaux apportera les corrections nécessaires aux listes qui lui sont présentées. Les listes corrigées sont mises à disposition de tous les clubs avant le début de la compétition, au moyen du média choisi par l’organe d’administration.
 
-    Le nombre d'équipes est fixé à vingt-quatre. Elles sont réparties en deux séries égales. Le vainqueur de chaque série monte en division I. Les deux derniers classés de chaque série descendent en division III.
+f. Les compositions des équipes sont échangées par les capitaines avant le début de la rencontre (chaque capitaine a le droit de demander la carte d’identité pour vérification). Les joueurs de l’équipe dont la composition n’est pas communiquée en entier ne peuvent commencer à jouer, et leurs pendules sont mises en route. En l’absence de composition des deux équipes, les pendules des Blancs sont mises en route. Une fois les parties commencées, la composition de l’équipe ne peut plus être modifiée. Aux fins d’une application aisée du point présent, les tableaux sont numérotés.
 
-    2. Division III.
+g. À la date du 3 novembre et 3 janvier de chaque année, la liste peut être complétée in fine par des joueurs belges, non cotés, s'étant affiliés pour la première fois à un club de la FRBÉ après le 15 septembre précédent. 
 
-    Le nombre d'équipes est fixé à quarante-huit. Elles sont réparties en quatre séries égales. Le vainqueur de chaque série monte en division II. Les deux derniers classés de chaque série descendent en division IV.
+À cette fin, chaque club désirant faire usage de cette possibilité fera parvenir pour le 2 novembre ou 2 janvier au plus tard au Responsable des Tournois Nationaux une liste adaptée selon les critères définis à l'alinéa précédent. 
 
-    3. Division IV.
+Les listes de force adaptées doivent être adressées au Responsable des Tournois Nationaux, de la manière et dans le format qu’il aura déterminé. Ces joueurs ont le droit de jouer dès que les listes seront publiées par le RTN, via le média choisi par l’organe d’administration.
 
-    Le nombre d'équipes est fixé à nonante-six. Elles sont réparties en huit séries égales. Le vainqueur de chaque série monte en division III. Les deux derniers classés de chaque série descendent en division V.
+### Article 32. Répartition
 
-    4. Division V.
+a. Division I.
 
-    Selon le nombre d'équipes inscrites, plusieurs séries de douze équipes maximum seront constituées. Le premier de chaque série monte en division IV. Les modalités précises de montée sont fixées par l’organe d’administration avant le début de la compétition, en fonction du nombre de séries en division V.
+Le nombre d'équipes est fixé à douze. Les deux dernières équipes au classement descendent en division 2.
 
-    5. Toute équipe qui s’inscrit pour la première fois ou qui se réinscrit après une interruption d’une ou plusieurs années, joue en division 5. Tout club alignant plus d’une équipe qui s’est vu infliger ou qui a donné un forfait d'équipe la saison précédente ne pourra inscrire, la saison suivante, au maximum qu’un nombre d’équipes inférieur d’une unité, à moins que le Responsable des tournois nationaux ne décide autrement sur base d’un dossier présenté.
-    6. En cas de places vacantes dans une division, elles seront comblées par les équipes classées meilleures deuxièmes dans la division inférieure au classement final de la compétition précédente. Par meilleurs deuxièmes, il faut entendre les équipes classées deuxièmes et ayant obtenu le meilleur coefficient aux points de match. Ce coefficient est obtenu en divisant le nombre de points de match par le nombre de rencontres comptabilisées au classement final. Si l'égalité persiste, on applique le même principe aux points de tableau. Si l'égalité persiste encore, un tirage au sort entre les équipes concernées est effectué par le Responsable des tournois nationaux. S’il y a plus de places vacantes qu’il y a des deuxièmes, alors on continue avec les équipes classées meilleures troisièmes etc.
-    7. Un club ne peut avoir qu’une seule équipe en division 1. Si une équipe d’un club est championne dans une série de division 2 et que ce club a déjà une équipe en division 1, cette équipe ne peut pas monter. Sa place sera prise par l’équipe classée meilleure de la même série qui entre en considération.
-    8. Un club peut faire descendre volontairement une de ses équipes. Dans ce cas, cette équipe n’entre pas en ligne de compte pendant les deux saisons suivantes pour une promotion ou pour gagner un prix en espèces, quel qu’il soit.
-    9. L’OA tranche dans tous les cas imprévus.
+b. Division II.
 
-### Article 33. ALIGNEMENT DES JOUEURS.
+Le nombre d'équipes est fixé à vingt-quatre. Elles sont réparties en deux séries égales. Le vainqueur de chaque série monte en division I. Les deux derniers classés de chaque série descendent en division III.
 
-    1. Les joueurs doivent obligatoirement être alignés selon l’ordre de la liste de force déposée en son temps (voir art. 31.b) (ou les ajouts éventuels (voir art. 31.g)). En cas d'équipes alignées dans des divisions différentes, les titulaires de l'équipe I ne peuvent jouer dans une autre équipe, les titulaires de l'équipe II ne peuvent jouer qu'en équipe I et II, etc. Si plusieurs équipes d'un même club jouent dans la même division, les titulaires d'une équipe ne peuvent jouer pour une autre équipe alignée dans cette division.
-    1. Si plusieurs équipes d'un même club jouent dans la même série, les joueurs réserves de ces équipes ne peuvent jouer que pour une seule de ces équipes au cours de toute la compétition. Tout non-respect de cette règle entraîne pour le joueur aligné irrégulièrement la perte de la partie par forfait.
-    2. En cas d'erreur dans l'ordre d'alignement des joueurs, le joueur aligné trop bas perd sa partie par forfait.
-    3. En cas d'alignement d'un joueur non qualifié, ce joueur perd la partie par forfait. En cas de récidive au cours de la même saison, l'équipe concernée perd le match par forfait. Elle tombe sous le coup des sanctions prévues à l'article 35.c. Par joueur non qualifié, il faut entendre un joueur ne figurant pas sur la liste de force approuvée par le Responsable des tournois nationaux, soit un joueur qui n'est plus affilié au moment de son alignement, soit un joueur suspendu par la FRBÉ
-    4. Aucun joueur ne peut être aligné dans deux rencontres qui avaient été prévues à la même date.
-    5. Lorsque plusieurs équipes d’un même club participent aux interclubs nationaux, à chaque ronde, la moyenne ELO d’une équipe dans une division supérieure ne peut être plus basse que la moyenne ELO de la ou des équipe(s) du même club dans une division inférieure. Cette règle ne s’applique pas entre les divisions 4 et 5. La moyenne ELO d’une équipe d’un club est établie en fonction des ELO’s adaptés de chacun de ses joueurs, figurant sur la liste de force déposée par le club avant le début de la compétition. En d’autres termes, un nouveau classement n’a pas d’influence sur le calcul de la moyenne.
+c. Division III.
 
-    Une première infraction à cette règle est sanctionnée par la perte par forfait pour la ronde concernée de toutes les parties des équipes du même club, qui ont une moyenne ELO plus élevée qu’une équipe de ce club dans une division supérieure. Ce forfait ne tombe pas sous le coup des sanctions visées par l’article 35. Une nouvelle infraction dans la même saison entraîne l’exclusion automatique de la compétition en cours de la ou des équipes ayant à nouveau une moyenne ELO trop élevée.
+Le nombre d'équipes est fixé à quarante-huit. Elles sont réparties en quatre séries égales. Le vainqueur de chaque série monte en division II. Les deux derniers classés de chaque série descendent en division IV.
 
-    6. S'il est constaté en cours de compétition qu'un joueur avait une cote au moment de son affiliation alors qu'il a été inscrit comme non coté sur la liste de force, ce joueur perd par forfait toutes les parties qu'il a disputées jusqu'au moment de cette constatation. En outre, dès ce moment, il peut être exclu de la compétition. Sinon, le joueur sera intégré sur la liste de force à la place correspondant à sa cote, sauf si le RTN en décide autrement.
+d. Division IV.
 
-### Article 34. CADENCE.
+Le nombre d'équipes est fixé à nonante-six. Elles sont réparties en huit séries égales. Le vainqueur de chaque série monte en division III. Les deux derniers classés de chaque série descendent en division V.
+
+e. Division V.
+
+Selon le nombre d'équipes inscrites, plusieurs séries de douze équipes maximum seront constituées. Le premier de chaque série monte en division IV. Les modalités précises de montée sont fixées par l’organe d’administration avant le début de la compétition, en fonction du nombre de séries en division V.
+
+f. Toute équipe qui s’inscrit pour la première fois ou qui se réinscrit après une interruption d’une ou plusieurs années, joue en division 5. Tout club alignant plus d’une équipe qui s’est vu infliger ou qui a donné un forfait d'équipe la saison précédente ne pourra inscrire, la saison suivante, au maximum qu’un nombre d’équipes inférieur d’une unité, à moins que le Responsable des tournois nationaux ne décide autrement sur base d’un dossier présenté.
+
+g. En cas de places vacantes dans une division, elles seront comblées par les équipes classées meilleures deuxièmes dans la division inférieure au classement final de la compétition précédente. Par meilleurs deuxièmes, il faut entendre les équipes classées deuxièmes et ayant obtenu le meilleur coefficient aux points de match. Ce coefficient est obtenu en divisant le nombre de points de match par le nombre de rencontres comptabilisées au classement final. Si l'égalité persiste, on applique le même principe aux points de tableau. Si l'égalité persiste encore, un tirage au sort entre les équipes concernées est effectué par le Responsable des tournois nationaux. S’il y a plus de places vacantes qu’il y a des deuxièmes, alors on continue avec les équipes classées meilleures troisièmes etc.
+
+h. Un club ne peut avoir qu’une seule équipe en division 1. Si une équipe d’un club est championne dans une série de division 2 et que ce club a déjà une équipe en division 1, cette équipe ne peut pas monter. Sa place sera prise par l’équipe classée meilleure de la même série qui entre en considération.
+
+i. Un club peut faire descendre volontairement une de ses équipes. Dans ce cas, cette équipe n’entre pas en ligne de compte pendant les deux saisons suivantes pour une promotion ou pour gagner un prix en espèces, quel qu’il soit.
+
+j. L’OA tranche dans tous les cas imprévus.
+
+### Article 33. Alignement des joueuers
+
+a. Les joueurs doivent obligatoirement être alignés selon l’ordre de la liste de force déposée en son temps (voir art. 31.b) (ou les ajouts éventuels (voir art. 31.g)). En cas d'équipes alignées dans des divisions différentes, les titulaires de l'équipe I ne peuvent jouer dans une autre équipe, les titulaires de l'équipe II ne peuvent jouer qu'en équipe I et II, etc. Si plusieurs équipes d'un même club jouent dans la même division, les titulaires d'une équipe ne peuvent jouer pour une autre équipe alignée dans cette division.
+
+b. Si plusieurs équipes d'un même club jouent dans la même série, les joueurs réserves de ces équipes ne peuvent jouer que pour une seule de ces équipes au cours de toute la compétition. Tout non-respect de cette règle entraîne pour le joueur aligné irrégulièrement la perte de la partie par forfait.
+
+c. En cas d'erreur dans l'ordre d'alignement des joueurs, le joueur aligné trop bas perd sa partie par forfait.
+
+d. En cas d'alignement d'un joueur non qualifié, ce joueur perd la partie par forfait. En cas de récidive au cours de la même saison, l'équipe concernée perd le match par forfait. Elle tombe sous le coup des sanctions prévues à l'article 35.c. Par joueur non qualifié, il faut entendre un joueur ne figurant pas sur la liste de force approuvée par le Responsable des tournois nationaux, soit un joueur qui n'est plus affilié au moment de son alignement, soit un joueur suspendu par la FRBÉ
+
+e. Aucun joueur ne peut être aligné dans deux rencontres qui avaient été prévues à la même date.
+
+f. Lorsque plusieurs équipes d’un même club participent aux interclubs nationaux, à chaque ronde, la moyenne ELO d’une équipe dans une division supérieure ne peut être plus basse que la moyenne ELO de la ou des équipe(s) du même club dans une division inférieure. Cette règle ne s’applique pas entre les divisions 4 et 5. La moyenne ELO d’une équipe d’un club est établie en fonction des ELO’s adaptés de chacun de ses joueurs, figurant sur la liste de force déposée par le club avant le début de la compétition. En d’autres termes, un nouveau classement n’a pas d’influence sur le calcul de la moyenne.
+
+Une première infraction à cette règle est sanctionnée par la perte par forfait pour la ronde concernée de toutes les parties des équipes du même club, qui ont une moyenne ELO plus élevée qu’une équipe de ce club dans une division supérieure. Ce forfait ne tombe pas sous le coup des sanctions visées par l’article 35. Une nouvelle infraction dans la même saison entraîne l’exclusion automatique de la compétition en cours de la ou des équipes ayant à nouveau une moyenne ELO trop élevée.
+
+g. S'il est constaté en cours de compétition qu'un joueur avait une cote au moment de son affiliation alors qu'il a été inscrit comme non coté sur la liste de force, ce joueur perd par forfait toutes les parties qu'il a disputées jusqu'au moment de cette constatation. En outre, dès ce moment, il peut être exclu de la compétition. Sinon, le joueur sera intégré sur la liste de force à la place correspondant à sa cote, sauf si le RTN en décide autrement.
+
+### Article 34. Cadence.
 
 Toutes les parties se jouent à la cadence Fischer 90 min. pour 40 coups, suivis par 30 min. pour le reste de la partie avec un ajout de 30 sec. par coup dès le premier coup.
 
 Si un malvoyant participe à une partie, la partie se joue, à sa demande, avec une pendule traditionnelle. La cadence sera alors de 40 coups en 2 heures, suivis par 30 minutes QPF (Quick Play Finish).
 
+### Article 35. Forfaits.
 
-### Article 35. FORFAITS.
+a. Par forfait, il faut entendre toute partie non jouée quel qu'en soit le motif, ou jouée dans des conditions irrégulières (art. 33.b, c et d) sauf en cas de remise officielle par le Responsable des Tournois Nationaux ou en cas de report pour cause de circonstances imprévisibles, admises par le Responsable des Tournois Nationaux (voir le 4<sup>ème</sup> alinéa de l'article 35.c).
 
-    1. Par forfait, il faut entendre toute partie non jouée quel qu'en soit le motif, ou jouée dans des conditions irrégulières (art. 33.b, c et d) sauf en cas de remise officielle par le Responsable des Tournois Nationaux ou en cas de report pour cause de circonstances imprévisibles, admises par le Responsable des Tournois Nationaux (voir le 4<sup>ème</sup> alinéa de l'article 35.c).
-    2. Tout forfait sur un échiquier entraîne une amende dont le montant est fixé par l’organe d’administration. Toute équipe qui se présente avec moins de la moitié des joueurs requis est forfait, dans ce cas il s’agit d’un forfait d’équipe.
-    3. Tout forfait d’équipe pour une ronde entraîne une amende dont le montant est fixé par l’organe d’administration.
+b. Tout forfait sur un échiquier entraîne une amende dont le montant est fixé par l’organe d’administration. Toute équipe qui se présente avec moins de la moitié des joueurs requis est forfait, dans ce cas il s’agit d’un forfait d’équipe.
 
-    Sauf à la dernière ronde, tout forfait d'équipe entraîne l'exclusion de la compétition pour cette équipe, l’annulation de tous ses résultats et ceux de ses adversaires, et la rétrogradation dans la division inférieure.
+c. Tout forfait d’équipe pour une ronde entraîne une amende dont le montant est fixé par l’organe d’administration.
 
-
-    Tout forfait d'équipe lors de la dernière ronde entraîne l'exclusion de l’équipe de la compétition et la rétrogradation dans la division inférieure, tous ses résultats sont annulés mais ceux de ses adversaires (les points de matches et les points de tableaux) sont maintenus.
+Sauf à la dernière ronde, tout forfait d'équipe entraîne l'exclusion de la compétition pour cette équipe, l’annulation de tous ses résultats et ceux de ses adversaires, et la rétrogradation dans la division inférieure.
 
 
-    Tout forfait d’équipe entraîne l’application de l’article 32, point f.
+Tout forfait d'équipe lors de la dernière ronde entraîne l'exclusion de l’équipe de la compétition et la rétrogradation dans la division inférieure, tous ses résultats sont annulés mais ceux de ses adversaires (les points de matches et les points de tableaux) sont maintenus.
 
 
-    Il peut exceptionnellement être dérogé aux mesures exposées aux alinéas qui précèdent si le joueur ou si l'équipe parvient à prouver que le forfait est dû à des circonstances  exceptionnelles, indépendantes de sa volonté (par exemple : panne inopinée de voiture, accident de la circulation, etc.). Dans ce cas, la requête visant à la non-application des mesures précitées est à adresser par le club au Responsable des Tournois Nationaux dans les huit jours qui suivent la date de la rencontre.
+Tout forfait d’équipe entraîne l’application de l’article 32, point f.
 
 
-    Si la requête est acceptée en cas d’un forfait d’équipe, et sauf s'il s'agit de la dernière ronde, pour laquelle le score de forfait sera maintenu, la rencontre pourra être jouée à une nouvelle date à fixer par le Responsable des tournois nationaux.
-
-    1. Si dans les divisions I, II et III, une équipe donne forfait alors qu'au vu du classement, il ne lui est mathématiquement plus possible d'éviter la descente dans la division inférieure, elle est rétrogradée de deux divisions. La place laissée vacante dans la division inférieure est comblée par le meilleur deuxième de la division située deux échelons plus bas.
-
-### Article 36. RÉSULTATS.
-
-    1. L’équipe visitée introduit et confirme les résultats individuels avant minuit du jour de cette ronde via le module Résultats sur le site web www.frbe-kbsb.be. L’équipe visiteuse doit signer ces résultats pour 12h le lendemain. En cas de correction, l’équipe visiteuse doit également les introduire pour 12h. Le responsable du club visité reçoit un mail et il doit confirmer ces corrections pour 20h.
-
-    Pour que la presse puisse communiquer ces résultats dans les journaux du lundi, il y a l’obligation pour les équipes visitées de la division 1 d’envoyer les résultats d’équipe avant 21h le jour de la ronde par SMS au RTN. Celui–ci enverra les résultats d’équipe et le classement à la presse vers 21h.
-
-    2. Le Responsable des Tournois Nationaux ou son délégué rend les résultats disponibles dans le jour après cette ronde qui suit sur le média déterminé par l’organe d’administration.
-    3. Tout retard dans l'envoi des résultats et tout envoi de données incorrectes entraîneront une amende, dont le montant est fixé par l’organe d’administration.
-
-### Article 37. CLASSEMENT.
-
-    1. Le classement sera établi suivant les points de match obtenus ; en cas d'égalité entre deux ou plusieurs équipes, les points de tableau seront déterminants. En cas de nouvelle égalité entre deux ou plusieurs équipes, un match de barrage aura lieu si le titre, la montée, la qualification pour une compétition ou la descente en dépendent (où le RTN détermine les autres modalités telles que la forme de jeu (une rencontre ordinaire avec deux équipes, un tournoi de Hutton avec plusieurs équipes), tirage au sort pour les couleurs, terrain neutre, la cadence de jeu éventuellement réduite, ...), sinon le système Sonneborn-Berger pour équipes sera appliqué sur les points de match et, si nécessaire, sur les points de tableau.
-    2. Pour les points de match, le système suivant est d’application : gain = 2 points ; match nul = 1 point ; défaite = 0 point. Pour les points de tableau, le système suivant est d’application : gain = 1 point ; nulle = 0,5 point ; défaite = 0 point. Gain/match nul/perte pour les points de match est déterminé en additionnant les points de tableau par équipe (après contrôle par le RTN) et en comparant les totaux l’un avec l’autre.
-    3. En cas de forfait d'équipe, le score est fixé à 2-0 pour les points de match et pour les points de tableau à  8-0 pour les équipes de 8 joueurs, à 6-0 pour les équipes de 6 joueurs et à 4-0 pour les équipes de 4 joueurs.
-    1. Le Responsable des Tournois Nationaux fixe les modalités de chaque match de barrage. Il détermine le local (terrain neutre) où ce match aura lieu. Il fait également le tirage au sort pour déterminer quelle équipe joue avec les blancs sur le premier échiquier. Il se charge lui-même qu’un arbitre soit désigné par le président de la CAI.
-
-    Si le match de barrage se termine par un match nul, le tirage au sort sera déterminant. 
+Il peut exceptionnellement être dérogé aux mesures exposées aux alinéas qui précèdent si le joueur ou si l'équipe parvient à prouver que le forfait est dû à des circonstances  exceptionnelles, indépendantes de sa volonté (par exemple : panne inopinée de voiture, accident de la circulation, etc.). Dans ce cas, la requête visant à la non-application des mesures précitées est à adresser par le club au Responsable des Tournois Nationaux dans les huit jours qui suivent la date de la rencontre.
 
 
-    Seuls les joueurs qui sont sur la liste de force et qui ont joué au moins 3 matches dans cette équipe, sont autorisés pour jouer ce match de barrage.
+Si la requête est acceptée en cas d’un forfait d’équipe, et sauf s'il s'agit de la dernière ronde, pour laquelle le score de forfait sera maintenu, la rencontre pourra être jouée à une nouvelle date à fixer par le Responsable des tournois nationaux.
+
+d. Si dans les divisions I, II et III, une équipe donne forfait alors qu'au vu du classement, il ne lui est mathématiquement plus possible d'éviter la descente dans la division inférieure, elle est rétrogradée de deux divisions. La place laissée vacante dans la division inférieure est comblée par le meilleur deuxième de la division située deux échelons plus bas.
+
+### Article 36. Résultats.
+
+a. L’équipe visitée introduit et confirme les résultats individuels avant minuit du jour de cette ronde via le module Résultats sur le site web www.frbe-kbsb.be. L’équipe visiteuse doit signer ces résultats pour 12h le lendemain. En cas de correction, l’équipe visiteuse doit également les introduire pour 12h. Le responsable du club visité reçoit un mail et il doit confirmer ces corrections pour 20h.
+
+Pour que la presse puisse communiquer ces résultats dans les journaux du lundi, il y a l’obligation pour les équipes visitées de la division 1 d’envoyer les résultats d’équipe avant 21h le jour de la ronde par SMS au RTN. Celui–ci enverra les résultats d’équipe et le classement à la presse vers 21h.
+
+b. Le Responsable des Tournois Nationaux ou son délégué rend les résultats disponibles dans le jour après cette ronde qui suit sur le média déterminé par l’organe d’administration.
+
+c. Tout retard dans l'envoi des résultats et tout envoi de données incorrectes entraîneront une amende, dont le montant est fixé par l’organe d’administration.
+
+### Article 37. Classement.
+
+a. Le classement sera établi suivant les points de match obtenus ; en cas d'égalité entre deux ou plusieurs équipes, les points de tableau seront déterminants. En cas de nouvelle égalité entre deux ou plusieurs équipes, un match de barrage aura lieu si le titre, la montée, la qualification pour une compétition ou la descente en dépendent (où le RTN détermine les autres modalités telles que la forme de jeu (une rencontre ordinaire avec deux équipes, un tournoi de Hutton avec plusieurs équipes), tirage au sort pour les couleurs, terrain neutre, la cadence de jeu éventuellement réduite, ...), sinon le système Sonneborn-Berger pour équipes sera appliqué sur les points de match et, si nécessaire, sur les points de tableau.
+
+b. Pour les points de match, le système suivant est d’application : gain = 2 points ; match nul = 1 point ; défaite = 0 point. Pour les points de tableau, le système suivant est d’application : gain = 1 point ; nulle = 0,5 point ; défaite = 0 point. Gain/match nul/perte pour les points de match est déterminé en additionnant les points de tableau par équipe (après contrôle par le RTN) et en comparant les totaux l’un avec l’autre.
+
+c. En cas de forfait d'équipe, le score est fixé à 2-0 pour les points de match et pour les points de tableau à  8-0 pour les équipes de 8 joueurs, à 6-0 pour les équipes de 6 joueurs et à 4-0 pour les équipes de 4 joueurs.
+
+d. Le Responsable des Tournois Nationaux fixe les modalités de chaque match de barrage. Il détermine le local (terrain neutre) où ce match aura lieu. Il fait également le tirage au sort pour déterminer quelle équipe joue avec les blancs sur le premier échiquier. Il se charge lui-même qu’un arbitre soit désigné par le président de la CAI.
+
+Si le match de barrage se termine par un match nul, le tirage au sort sera déterminant. 
+
+Seuls les joueurs qui sont sur la liste de force et qui ont joué au moins 3 matches dans cette équipe, sont autorisés pour jouer ce match de barrage.
+
+L’ordre de la composition des joueurs est déterminé par la liste de force qui était en vigueur pendant toute la saison.
+
+### Article 38. Local et conditions de jeu, exigences de la compétition et réserve.
+
+a. L'équipe visitée est tenue de fournir un local présentant des conditions de jeu normales et fera en sorte que les jeux, échiquiers, pendules et feuilles de notation soient installés à l'heure prévue pour le début de la partie. Lors de son inscription à la compétition, chaque club est tenu de fournir certains renseignements sur l'accessibilité de ses locaux. Il sera notamment indiqué si la salle de jeu est facilement accessible aux handicapés moteurs ne pouvant se déplacer qu'en chaise roulante. Les renseignements précis à fournir seront définis par le Responsable des tournois nationaux lors de l'annonce annuelle des interclubs communiquant aux clubs les dates et modalités d'inscription.
+
+b. L'heure du début de la rencontre doit être strictement respectée.
+
+c. Tout club visité dont le matériel n'est pas en place à l'heure fixée pour le début de la partie subira le retard de la pendule. Ce retard est compté comme temps de réflexion pour tous les joueurs de l'équipe locale.
+
+d. Les pendules employées doivent être d'un modèle agréé par la FIDE
+
+e. Le club visité doit avoir un membre disponible pour l'inscription des parties en cas de zeitnot réciproque. Toutefois, ce membre ne peut faire état de cette fonction pour procéder à des interventions relevant de la qualité d'arbitre (par exemple, il n'a pas le droit de signaler la chute d'un drapeau).
+
+f. Le capitaine d'équipe n'a le droit d'intervenir que pour accepter ou refuser une proposition de nulle envisagée par son joueur. Il n'a pas le droit de signaler, par exemple, la chute d'un drapeau.
+
+g. L’équipe visitée doit mettre suffisamment de feuilles de parties à disposition des visiteurs. Pour les parties de la première division, des feuilles de partie avec carbone sont mises à disposition (il faut les demander au président de la Commission des Arbitres Internationaux (CAI)). En première division, il y a obligation de donner les feuilles de partie originale au club visité. Ce club doit les encoder et les envoyer électroniquement. Aussi bien la personne à qui elles doivent être envoyées que le format et le délai pour les envoyer sont décidés par l’organe d’administration. La personne choisie rassemble toutes les parties envoyées et les publie sur un site web.
+
+h. Le club visité doit avoir dans son local la dernière version des règles du jeu de la FIDE en anglais, néerlandais, français et allemand ; ainsi que la dernière version du Règlement des tournois de la FRBÉ.
+
+i. Le club visité doit aussi numéroter les échiquiers (voir article 31.f). Il doit également disposer dans un endroit central (par exemple tableau d’information, tableau d’école, grande affiche,…) un aperçu du nom des joueurs de toutes les parties de tous les matches. Les résultats des parties terminées doivent également y figurer.
+
+j. Toute réserve faite par l'équipe visiteuse concernant le local, les conditions de jeu, les exigences du match, etc., devra l'être avant le début de la rencontre, établie par écrit et contresignée par l'équipe adverse comme accusé de réception. Les réserves se rapportant à un fait nouveau survenu au cours de la rencontre devront être faites aussi tôt que possible, selon la même procédure. Ce document doit être adressé dans les trois jours au Responsable des Tournois Nationaux. La signature de l'équipe adverse ne sert que de prise de connaissance, elle n’entraîne aucune déclaration de responsabilité ou autre. Elle est dès lors obligatoire. Lorsque la version décrite dans le document ne correspond pas à la version des faits de la personne qui signe, il doit consigner sa version par écrit, la faire signer par la partie adverse pour prise de connaissance et l’envoyer dans les mêmes délais au Responsable des tournois nationaux. 
 
 
-    L’ordre de la composition des joueurs est déterminé par la liste de force qui était en vigueur pendant toute la saison.
-
-### Article 38. LOCAL ET CONDITIONS DE JEU, EXIGENCES DE LA COMPETITION ET RESERVE.
-
-    1. L'équipe visitée est tenue de fournir un local présentant des conditions de jeu normales et fera en sorte que les jeux, échiquiers, pendules et feuilles de notation soient installés à l'heure prévue pour le début de la partie. Lors de son inscription à la compétition, chaque club est tenu de fournir certains renseignements sur l'accessibilité de ses locaux. Il sera notamment indiqué si la salle de jeu est facilement accessible aux handicapés moteurs ne pouvant se déplacer qu'en chaise roulante. Les renseignements précis à fournir seront définis par le Responsable des tournois nationaux lors de l'annonce annuelle des interclubs communiquant aux clubs les dates et modalités d'inscription.
-    2. L'heure du début de la rencontre doit être strictement respectée.
-    3. Tout club visité dont le matériel n'est pas en place à l'heure fixée pour le début de la partie subira le retard de la pendule. Ce retard est compté comme temps de réflexion pour tous les joueurs de l'équipe locale.
-    4. Les pendules employées doivent être d'un modèle agréé par la FIDE
-    5. Le club visité doit avoir un membre disponible pour l'inscription des parties en cas de zeitnot réciproque. Toutefois, ce membre ne peut faire état de cette fonction pour procéder à des interventions relevant de la qualité d'arbitre (par exemple, il n'a pas le droit de signaler la chute d'un drapeau).
-    6. Le capitaine d'équipe n'a le droit d'intervenir que pour accepter ou refuser une proposition de nulle envisagée par son joueur. Il n'a pas le droit de signaler, par exemple, la chute d'un drapeau.
-    7. L’équipe visitée doit mettre suffisamment de feuilles de parties à disposition des visiteurs. Pour les parties de la première division, des feuilles de partie avec carbone sont mises à disposition (il faut les demander au président de la Commission des Arbitres Internationaux (CAI)). En première division, il y a obligation de donner les feuilles de partie originale au club visité. Ce club doit les encoder et les envoyer électroniquement. Aussi bien la personne à qui elles doivent être envoyées que le format et le délai pour les envoyer sont décidés par l’organe d’administration. La personne choisie rassemble toutes les parties envoyées et les publie sur un site web.
-    8. Le club visité doit avoir dans son local la dernière version des règles du jeu de la FIDE en anglais, néerlandais, français et allemand ; ainsi que la dernière version du Règlement des tournois de la FRBÉ.
-    9. Le club visité doit aussi numéroter les échiquiers (voir article 31.f). Il doit également disposer dans un endroit central (par exemple tableau d’information, tableau d’école, grande affiche,…) un aperçu du nom des joueurs de toutes les parties de tous les matches. Les résultats des parties terminées doivent également y figurer.
-    10. Toute réserve faite par l'équipe visiteuse concernant le local, les conditions de jeu, les exigences du match, etc., devra l'être avant le début de la rencontre, établie par écrit et contresignée par l'équipe adverse comme accusé de réception. Les réserves se rapportant à un fait nouveau survenu au cours de la rencontre devront être faites aussi tôt que possible, selon la même procédure. Ce document doit être adressé dans les trois jours au Responsable des Tournois Nationaux. La signature de l'équipe adverse ne sert que de prise de connaissance, elle n’entraîne aucune déclaration de responsabilité ou autre. Elle est dès lors obligatoire. Lorsque la version décrite dans le document ne correspond pas à la version des faits de la personne qui signe, il doit consigner sa version par écrit, la faire signer par la partie adverse pour prise de connaissance et l’envoyer dans les mêmes délais au Responsable des tournois nationaux. 
-
-
-### Article 38 bis. ARBITRAGE. 
+### Article 38 bis. Arbitrage. 
 
 Pour chaque match, il doit toujours y avoir un responsable de la rencontre. Une même personne peut être responsable de plusieurs rencontres.
 
 **Des arbitres officiellement désignés.**
 
+a. Un arbitre est désigné par le président de la Commission des Arbitres Internationaux (CAI) pour chaque rencontre de division 1. Si le Responsable des tournois nationaux l’estime nécessaire en fonction de l’importance du match, il peut également demander que le président de la CAI désigne un arbitre pour des rencontres d’autres divisions. La liste des rencontres avec des arbitres désignés est publiée via le moyen de communication choisi par l’organe d’administration.
 
+b. Chaque arbitre reçoit une indemnité pour ses frais de voyage et une indemnité journalière. Ces montants sont fixés annuellement par l’organe d’administration.
 
-    1. Un arbitre est désigné par le président de la Commission des Arbitres Internationaux (CAI) pour chaque rencontre de division 1. Si le Responsable des tournois nationaux l’estime nécessaire en fonction de l’importance du match, il peut également demander que le président de la CAI désigne un arbitre pour des rencontres d’autres divisions. La liste des rencontres avec des arbitres désignés est publiée via le moyen de communication choisi par l’organe d’administration.
-    2. Chaque arbitre reçoit une indemnité pour ses frais de voyage et une indemnité journalière. Ces montants sont fixés annuellement par l’organe d’administration.
-    3. L'arbitre a les tâches suivantes:
-        1. veiller au bon déroulement de la rencontre, comme prévu au règlement de la FIDE ;
-        1. vérifier si les conditions de jeu sont acceptables ;
-        2. noter l'alignement des équipes et les résultats, remettre un rapport concernant les conditions de jeu et les décisions prises au Responsable des tournois nationaux et au président de la Commission des Arbitres Internationaux (CAI).
-    2. Si un club n'est pas d'accord avec une décision de l'arbitre, il a la possibilité d'aller en appel, endéans les cinq jours ouvrables, auprès du Responsable des tournois nationaux.
-    3. Les clubs visités s’engagent à autoriser l’arbitre à accéder à la salle de jeu au moins une heure avant le début de la rencontre.
-    4. L’arbitre est également chargé de la direction de toutes les rencontres qui se déroulent dans le même local à la même heure.
+c. L'arbitre a les tâches suivantes:
+    
+  1. veiller au bon déroulement de la rencontre, comme prévu au règlement de la FIDE ;
+  
+  2. vérifier si les conditions de jeu sont acceptables ;
+  
+  3. noter l'alignement des équipes et les résultats, remettre un rapport concernant les conditions de jeu et les décisions prises au Responsable des tournois nationaux et au président de la Commission des Arbitres Internationaux (CAI).
+
+d. Si un club n'est pas d'accord avec une décision de l'arbitre, il a la possibilité d'aller en appel, endéans les cinq jours ouvrables, auprès du Responsable des tournois nationaux.
+
+e. Les clubs visités s’engagent à autoriser l’arbitre à accéder à la salle de jeu au moins une heure avant le début de la rencontre.
+
+f. L’arbitre est également chargé de la direction de toutes les rencontres qui se déroulent dans le même local à la même heure.
 
 **Du responsable de la rencontre.**
 
@@ -751,51 +787,68 @@ Lorsqu’un club n’est pas d’accord avec une décision du responsable de la 
 
 **Les arrangements pratiques suivants s'appliquent également :**
 
+  - L'arbitre ou le responsable de la rencontre doit tout mettre en œuvre pour respecter l'heure théorique de début des parties, fixée par le Responsable des Tournois Nationaux avant la compétition . Toutefois, si pour des raisons indépendantes de sa volonté, cette heure théorique ne peut être respectée, c'est l'arbitre ou le responsable de la rencontre qui décide de l'heure de début des parties et des retards subis à la pendule. Ainsi, et dans le respect de l’article 31.f, si le conducteur des Blancs est absent, sa pendule est mise en marche, que le conducteur des Noirs soit présent ou pas ; si le conducteur des Blancs est présent et celui des Noirs absent, la pendule des Noirs est mise en marche après que les Blancs aient exécuté leur coup.
+
+  - En ce qui concerne la fumée dans la salle de jeu, c'est le règlement de la FRBÉ qui est d'application. Il est valable également pour d'autres rencontres dans la même salle.
+
+  - Un arbitre ou le responsable de la rencontre peut interrompre un match pour cause de conditions de jeu inacceptables. Il doit alors rédiger un rapport pour chaque match, contresigné par les deux capitaines et envoyé au Responsable des Tournois Nationaux. Celui-ci prendra une décision sur le fait de faire rejouer le match, de le déclarer perdu ou il prendra toute autre décision adéquate.
 
 
-            * L'arbitre ou le responsable de la rencontre doit tout mettre en œuvre pour respecter l'heure théorique de début des parties, fixée par le Responsable des Tournois Nationaux avant la compétition . Toutefois, si pour des raisons indépendantes de sa volonté, cette heure théorique ne peut être respectée, c'est l'arbitre ou le responsable de la rencontre qui décide de l'heure de début des parties et des retards subis à la pendule. Ainsi, et dans le respect de l’article 31.f, si le conducteur des Blancs est absent, sa pendule est mise en marche, que le conducteur des Noirs soit présent ou pas ; si le conducteur des Blancs est présent et celui des Noirs absent, la pendule des Noirs est mise en marche après que les Blancs aient exécuté leur coup.
-            * En ce qui concerne la fumée dans la salle de jeu, c'est le règlement de la FRBÉ qui est d'application. Il est valable également pour d'autres rencontres dans la même salle.
-            * Un arbitre ou le responsable de la rencontre peut interrompre un match pour cause de conditions de jeu inacceptables. Il doit alors rédiger un rapport pour chaque match, contresigné par les deux capitaines et envoyé au Responsable des Tournois Nationaux. Celui-ci prendra une décision sur le fait de faire rejouer le match, de le déclarer perdu ou il prendra toute autre décision adéquate.
-
-
-## TOURNOIS INTERNATIONAUX
+## Tournois internationaux
 
 Les articles 39 à 42bis ne concernent pas les tournois internationaux réservés aux joueurs de moins de 20 ans.
 
 ### Article 39. Généralités.
 
 1. L’envoi d’une équipe et/ou d’un ou plusieurs joueurs représentant la FRBÉ à une compétition internationale dépend des conditions suivantes :
-    1. Des critères de sélection détaillés aux articles 40 à 42bis pour chaque compétition.
-    2. Des règlements de la FIDE, de l’ECU et des organisateurs.
-    3. Des règlements de la FRBÉ, de son budget ou de financements extérieurs.
-    4. La FRBÉ (Organe d’administration) se réserve le droit de ne pas participer à une compétition lorsqu’il apparaît notamment que :
-            1. l’endroit de la compétition est situé dans une zone de guerre ou de guerre civile, 
-            2. les moyens de transport disponibles ne répondent pas à des normes convenables de sécurité,
-            3. Abrogé. 
-            4. il n’y a pas assez de moyens financiers disponibles.
-    1. La décision de participer à une compétition revient à l’organe d’administration de la FRBÉ, sur proposition du Responsable International. Le Responsable international met en œuvre la décision de l’organe.
-    2. a) La sélection des joueurs figurant sur la liste belge du classement FIDE se  fait selon les articles 11b et 11c, en prenant la liste disponible au moment de la date limite des candidatures indiquée au point 13.
+    
+    a. Des critères de sélection détaillés aux articles 40 à 42bis pour chaque compétition.
+    
+    b. Des règlements de la FIDE, de l’ECU et des organisateurs.
+    
+    c. Des règlements de la FRBÉ, de son budget ou de financements extérieurs.
+    
+    d. La FRBÉ (Organe d’administration) se réserve le droit de ne pas participer à une compétition lorsqu’il apparaît notamment que :
+      
+      1. l’endroit de la compétition est situé dans une zone de guerre ou de guerre civile, 
+      2. les moyens de transport disponibles ne répondent pas à des normes convenables de sécurité,
+      3. Abrogé. 
+      4. il n’y a pas assez de moyens financiers disponibles.
 
-    b) L’alignement des joueurs sera déterminé par accord commun par l'intermédiaire du capitaine de l'équipe. S'il n'y a pas de consensus, c’est le Responsable des Tournois Internationaux qui décidera (conformément l’art. 41.c).
+2. La décision de participer à une compétition revient à l’organe d’administration de la FRBÉ, sur proposition du Responsable International. Le Responsable international met en œuvre la décision de l’organe.
 
-    3. Une personne ayant la nationalité belge doit être reprise sur la liste ELO FIDE belge.
-    4. Une personne de nationalité étrangère n’est sélectionnable comme joueur de la délégation de la FRBÉ que si, en plus d’être inscrite sur la liste belge du classement ELO de la FIDE, elle est domiciliée en Belgique au moins depuis le 1er janvier de l’année précédant celle où la compétition a lieu.
-    5. En plus, pour être sélectionnable, un joueur doit dans les cinq ans précédant   la date limite de l'année de la sélection fixée dans article 39.3 :
-* avoir joué au moins 30 parties ou bien en Belgique où les parties sont comptabilisées pour le classement ELO FIDE standard, ou bien à l’étranger où il a représenté la Belgique dans un événement officiel de la FIDE ou l’ECU, ou bien un mix des deux, et                               
-* avoir participé au moins une fois au championnat de Belgique (Jeunes, Experts, Dames ou Open).
+3. 
+  a) La sélection des joueurs figurant sur la liste belge du classement FIDE se  fait selon les articles 11b et 11c, en prenant la liste disponible au moment de la date limite des candidatures indiquée au point 13.
+
+  b) L’alignement des joueurs sera déterminé par accord commun par l'intermédiaire du capitaine de l'équipe. S'il n'y a pas de consensus, c’est le Responsable des Tournois Internationaux qui décidera (conformément l’art. 41.c).
+
+4. Une personne ayant la nationalité belge doit être reprise sur la liste ELO FIDE belge.
+
+5. Une personne de nationalité étrangère n’est sélectionnable comme joueur de la délégation de la FRBÉ que si, en plus d’être inscrite sur la liste belge du classement ELO de la FIDE, elle est domiciliée en Belgique au moins depuis le 1er janvier de l’année précédant celle où la compétition a lieu.
+
+6. En plus, pour être sélectionnable, un joueur doit dans les cinq ans précédant   la date limite de l'année de la sélection fixée dans article 39.3 :
+
+   - avoir joué au moins 30 parties ou bien en Belgique où les parties sont comptabilisées pour le classement ELO FIDE standard, ou bien à l’étranger où il a représenté la Belgique dans un événement officiel de la FIDE ou l’ECU, ou bien un mix des deux, et                               
+ 
+   - avoir participé au moins une fois au championnat de Belgique (Jeunes, Experts, Dames ou Open).
 
 Si une de ces deux conditions n’est pas réalisée, mais si un joueur a bien réalisée l’autre condition deux fois (donc au moins 60 parties ou deux participations au CB), alors ceci compte comme réalisation des deux conditions.
 
+7. Pour les compétitions open, l’ELO FIDE minimum requis pour être sélectionné est de 2300 points (voir art. 11.b).
+   
+8. Pour les compétitions exclusivement réservées aux Dames, l’ELO FIDE minimum requis pour être sélectionné est de 1800 points (voir art.11.b).   
 
+9. Lorsqu’il est fait appel au champion ou à la championne de Belgique, il s’agit du champion ou de la championne en titre au moment de la date limite des candidatures prévue au point 13. Dans le cas d'une compétition bisannuelle (par exemple le championnat d'Europe par équipes et les Olympiades),les champions de Belgique des deux années précédentes ont priorité dans la sélection.
 
-    6. Pour les compétitions open, l’ELO FIDE minimum requis pour être sélectionné est de 2300 points (voir art. 11.b).
-    7. Pour les compétitions exclusivement réservées aux Dames, l’ELO FIDE minimum requis pour être sélectionné est de 1800 points (voir art.11.b).   
-    8. Lorsqu’il est fait appel au champion ou à la championne de Belgique, il s’agit du champion ou de la championne en titre au moment de la date limite des candidatures prévue au point 13. Dans le cas d'une compétition bisannuelle (par exemple le championnat d'Europe par équipes et les Olympiades),les champions de Belgique des deux années précédentes ont priorité dans la sélection.
-    9. Aucune condition de nationalité ou d'appartenance à la liste FIDE belge n'est nécessaire pour être capitaine ou accompagnateur de la délégation.
-    10. Le Responsable International fixe, en fonction des critères précédents et des décisions de l’organe d’administration de la FRBÉ, les modalités prévues pour le déplacement, le séjour, l’organisation de la délégation de la FRBÉ et le remboursement des frais des membres de la délégation. Le Responsable International communique les modalités via le site web et/ou  par écrit et/ou par e-mail à chaque membre de la délégation de la FRBÉ (joueurs, capitaine éventuel, accompagnateur éventuel). Ces membres sont tenus d’accepter ces modalités par écrit ou par e-mail. Le Responsable International ne peut pas sélectionner une personne qui refuse de les accepter, à moins qu’il trouve avec cette personne un autre arrangement qui ne désavantage en rien la FRBÉ.
-    11. La Commission des Litiges peut être saisie d’un recours contre les décisions du Responsable International et de l’organe d’administration, dans la même mesure et de la même manière qu’il peut être saisi d’un recours contre les décisions du Responsable des Tournois Nationaux et de l’organe d’administration pour les tournois organisés par la FRBÉ en Belgique.
-    12. L’organe d'administration détermine la date limite et la procédure de soumission des candidatures des joueurs, capitaines ou des accompagnateurs éventuels.
-    13. Les joueurs qui annulent leur participation après la confirmation devront payer (sauf en cas de force majeure) les frais causés par cette annulation.
+10. Aucune condition de nationalité ou d'appartenance à la liste FIDE belge n'est nécessaire pour être capitaine ou accompagnateur de la délégation.
+
+11. Le Responsable International fixe, en fonction des critères précédents et des décisions de l’organe d’administration de la FRBÉ, les modalités prévues pour le déplacement, le séjour, l’organisation de la délégation de la FRBÉ et le remboursement des frais des membres de la délégation. Le Responsable International communique les modalités via le site web et/ou  par écrit et/ou par e-mail à chaque membre de la délégation de la FRBÉ (joueurs, capitaine éventuel, accompagnateur éventuel). Ces membres sont tenus d’accepter ces modalités par écrit ou par e-mail. Le Responsable International ne peut pas sélectionner une personne qui refuse de les accepter, à moins qu’il trouve avec cette personne un autre arrangement qui ne désavantage en rien la FRBÉ.
+
+12. La Commission des Litiges peut être saisie d’un recours contre les décisions du Responsable International et de l’organe d’administration, dans la même mesure et de la même manière qu’il peut être saisi d’un recours contre les décisions du Responsable des Tournois Nationaux et de l’organe d’administration pour les tournois organisés par la FRBÉ en Belgique.
+
+13. L’organe d'administration détermine la date limite et la procédure de soumission des candidatures des joueurs, capitaines ou des accompagnateurs éventuels.
+
+14. Les joueurs qui annulent leur participation après la confirmation devront payer (sauf en cas de force majeure) les frais causés par cette annulation.
 
 ### Article 40. Championnat d’Europe individuel open ou Dames et/ou Tournoi zonal qualificatif pour le    championnat du monde individuel.
 
@@ -804,17 +857,20 @@ Le Responsable International se charge des inscriptions de tous les joueurs int�
 Si dans les dispositions de la FIDE, l’ECU ou l’organisation le nombre des joueurs qualifiés est limité, le Responsable International donnera priorité au champion ou à la championne de Belgique (s’ils remplissent les conditions d’ELO minimal de l’article 39) et ensuite aux autres candidats dans l'ordre descendant d’ELO.
 
 ### Article 41. Championnat d’Europe par équipes et Olympiades.
-    1. Pour qu’une équipe open soit envoyée à une de ces deux compétitions, elle doit satisfaire à la condition suivante: il faut une équipe complète de joueurs qui répondent aux conditions fixées par l’article 39.
 
-    Le Responsable International fera d’abord appel au champion de Belgique (s’il satisfait aussi aux conditions de l’article 39) et ensuite aux candidats dans l’ordre des joueurs les mieux classés.
+a. Pour qu’une équipe open soit envoyée à une de ces deux compétitions, elle doit satisfaire à la condition suivante: il faut une équipe complète de joueurs qui répondent aux conditions fixées par l’article 39.
 
-    1. Pour qu’une équipe féminine soit envoyée à une de ces deux compétitions, elle doit satisfaire à la condition suivante : il faut une équipe complète de joueuses qui répondent aux conditions fixées par l’article 39.
+Le Responsable International fera d’abord appel au champion de Belgique (s’il satisfait aussi aux conditions de l’article 39) et ensuite aux candidats dans l’ordre des joueurs les mieux classés.
 
-    Le Responsable International fera d’abord appel à la championne de Belgique (si elle satisfait aussi aux conditions de l’article 39) et ensuite aux candidates dans l’ordre des joueuses les mieux classées.
+b. Pour qu’une équipe féminine soit envoyée à une de ces deux compétitions, elle doit satisfaire à la condition suivante : il faut une équipe complète de joueuses qui répondent aux conditions fixées par l’article 39.
 
-    2. L'ordre d'alignement des joueurs est en principe fixé suivant le classement ELO établi par l’article 39. Le capitaine de l’équipe peut déroger à cet ordre d’alignement, après avoir consulté tous les joueurs de l’équipe.
-    3. L’organe d’administration désigne le capitaine de l’équipe. Il peut être un des joueurs ou non. L’organe d’administration peut en outre désigner un accompagnateur.
-    4. Une équipe complète minimale est définie comme une équipe avec le nombre des joueurs où chaque joueur doit jouer chaque ronde. Donc une équipe sans joueur(s) de réserve et sans coach.
+Le Responsable International fera d’abord appel à la championne de Belgique (si elle satisfait aussi aux conditions de l’article 39) et ensuite aux candidates dans l’ordre des joueuses les mieux classées.
+
+c. L'ordre d'alignement des joueurs est en principe fixé suivant le classement ELO établi par l’article 39. Le capitaine de l’équipe peut déroger à cet ordre d’alignement, après avoir consulté tous les joueurs de l’équipe.
+
+d. L’organe d’administration désigne le capitaine de l’équipe. Il peut être un des joueurs ou non. L’organe d’administration peut en outre désigner un accompagnateur.
+
+e. Une équipe complète minimale est définie comme une équipe avec le nombre des joueurs où chaque joueur doit jouer chaque ronde. Donc une équipe sans joueur(s) de réserve et sans coach.
 
 ### Article 42. Autres tournois internationaux.
 
@@ -833,9 +889,7 @@ En cas de désistement d’un ou des clubs qualifiés, ils ne peuvent être remp
 
 A leur demande, le Responsable international inscrit les clubs qualifiés à la compétition. Les droits d’inscriptions sont à charge des clubs sauf si l’organe d’administration de la FRBÉ prend une autre décision. Les clubs inscrits s’engagent à respecter les règlements de la FIDE, de l’ECU ou l’organisation et à dédommager la FRBÉ e.a. en cas de désistement après inscription.
 
-
-## REGLEMENT DE LA JEUNESSE : Les règles générales
-
+## Règlement de la jeunesse: Les règles générales
 
 ### Article 43. Fonction du Directeur national de la jeunesse
 
@@ -850,14 +904,11 @@ Tout championnat de la jeunesse est réservé aux membres affiliés à un club d
 
 ### Article 45. Titres
 
-Abrogé.
-
-
+_Abrogé_.
 
 ### Article 46. Définition de l’ELO
 
 Comme ELO, on prend la plus élevée de la côte nationale et de la côte FIDE, sauf quand il y est dérogé de façon explicite.
-
 
 ## Championnats Nationaux de la Jeunesse
 
@@ -871,11 +922,11 @@ Les championnats sont organisés pendant les vacances de Pâques. Lorsque les jo
 
 Les organisateurs sont chargés : 
 
-* de la désignation des arbitres ;
-* des conditions de séjour des joueurs et des accompagnateurs ;
-* des inscriptions ;
-* de la fixation du droit d’inscription ;
-* du règlement de la compétition .
+ - de la désignation des arbitres ;
+ - des conditions de séjour des joueurs et des accompagnateurs ;
+ - des inscriptions ;
+ - de la fixation du droit d’inscription ;
+ - du règlement de la compétition .
 
 Les organisateurs concertent toutes les décisions prises avec le directeur national de la jeunesse.
 
@@ -891,7 +942,9 @@ Pour toutes les catégories d'âge, on joue un championnat de neuf parties en se
 
 Les championnats Open se disputent selon le système Suisse ou selon les tables de Berger si le nombre de participants le permet.
 
-### Article 51. Abrogé
+### Article 51. 
+
+_Abrogé_
 
 ### Article 52. Inscriptions 
 
@@ -907,8 +960,8 @@ L'organisation envoie la liste complète des joueurs participants au directeur n
 
 Les droits d'inscription doivent être affectés comme suit :
 
-* minimum 80% pour les prix;
-* un maximum de 20% est destiné à couvrir les frais administratifs.
+ - minimum 80% pour les prix;
+ - un maximum de 20% est destiné à couvrir les frais administratifs.
 
 L'organisation tient les comptes du tournoi à disposition du directeur de la jeunesse pour contrôle. 
 
@@ -916,17 +969,14 @@ L'organisation tient les comptes du tournoi à disposition du directeur de la je
 
 La FRBÉ met un subside à la disposition des organisateurs des championnats nationaux. Celui-ci est affecté comme suit ;
 
+ - séjour et indemnisation forfaitaire de frais pour les arbitres ;
+ - séjour et indemnisation forfaitaire de frais pour les organisateurs et le directeur national de la jeunesse ;
+ - frais d’administration;
+ - activités accessoires.
 
-
-* séjour et indemnisation forfaitaire de frais pour les arbitres ;
-* séjour et indemnisation forfaitaire de frais pour les organisateurs et le directeur national de la jeunesse ;
-* frais d’administration;
-* activités accessoires.
-55. Cadence
+### Article 55. Cadence
 
 Pour toutes les catégories d'âge, la cadence des parties des Championnats de Belgique de la Jeunesse doit être une cadence qui est acceptée pour le traitement de l’ELO belge et de l’ELO FIDE. Le directeur national de la jeunesse fixe la cadence en concordance avec celle des championnats mondiaux et/ou des championnats européens de la jeunesse.
-
-
 
 ### Article 56. Plaintes 
 
@@ -948,7 +998,6 @@ Dans la salle du tournoi, il y un espace réservé uniquement aux joueurs, arbit
 
 Les parties de toutes les catégories d’âge sont transmises au responsable du classement ELO par l’arbitre principal dans la semaine qui suit le championnat.
 
-
 ## Sélections internationales pour les jeunes
 
 ### Article 60. Tournois internationaux 
@@ -965,15 +1014,19 @@ Tout joueur sélectionné peut participer au tournoi de son choix. Si un joueur 
 
 Les joueurs suivants sont retenus: 
 
-* les 2 premiers joueurs, par catégorie et par sexe.
+ - les 2 premiers joueurs, par catégorie et par sexe.
 
 Si un joueur ne souhaite pas participer à un tournoi international, le droit n’est pas transmis ~~a~~ux autres joueurs moins bien classés.  
 
 Chaque joueur sélectionné désirant participer à un tournoi international doit déposer sa candidature auprès du responsable des envois internationaux des jeunes au plus tard 14 jours après la fin du CBJ.
 
-### Article 63. Abrogé
+### Article 63. 
 
-### Article 64.  Abrogé
+_Abrogé_
+
+### Article 64.  
+
+_Abrogé_
 
 ### Article 65. Autres Participants
 
@@ -981,15 +1034,13 @@ Chaque jeune joueur qui est considéré par la FIDE comme Belge peut déposer sa
 
 La candidature comprend : 
 
-
-
-* le tournoi auquel le joueur souhaite participer..
+ -  le tournoi auquel le joueur souhaite participer..
 
     Les joueurs qui ne sont pas sélectionnés par la FRBÉ sur base d’un des critères de sélection prévus  à l’article 62 sont inscrits à la compétition pour autant que l’inscription de ces joueurs sélectionnés ne crée pas d'embarras par suite d'un trop grand nombre. Ils sont inscrits à leurs risques et périls. Ils déchargent la FRBÉ de toute responsabilité. La FRBÉ peut en outre exiger que leur responsabilité civile soit assurée et, s’ils sont mineurs d’âge, qu’ils soient accompagnés à leurs frais par un majeur qui en assurera la surveillance et  l’accompagnement.
 
 ### Article 66. 
 
-En fixant les détails du voyage, le directeur de la jeunesse tient compte autant que possible des souhaits des joueurs. 
+_Abrogé_ 
 
 ### Article 67. Inscription 
 
@@ -1013,82 +1064,15 @@ La FRBÉ se réserve le droit de ne pas participer à une compétition lorsqu’
 
 Voici un tableau montrant les différents coûts du programme. Pour chaque groupe, on a identifié qui supporte les coûts. 
 
-
-<table>
-  <tr>
-   <td>
-   </td>
-   <td><strong>Critère </strong>
-   </td>
-   <td><strong>Autres participants       (art. 65)</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>Ticket de vol
-   </td>
-   <td>Joueur
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Transport local
-   </td>
-   <td>Joueur
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Séjour
-   </td>
-   <td>Joueur
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Coûts logistiques de l’organisation
-   </td>
-   <td>Joueur
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Droits d’inscription organisation
-   </td>
-   <td>FRBÉ
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Registration FIDE
-   </td>
-   <td>FRBÉ
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>Accompagnement officiel
-   </td>
-   <td>FRBÉ
-   </td>
-   <td>Joueur
-   </td>
-  </tr>
-  <tr>
-   <td>
-   </td>
-   <td>
-   </td>
-   <td>
-   </td>
-  </tr>
-</table>
-
+| | Critère | Autres participants (art. 65)|
+|-|-|-|
+| VliegtuTicket de voligticket | joueur | joueur |
+| Transport local | joueur | joueur |
+| Séjour | joueur | joueur |
+| Coûts logistiques de l’organisation |  joueur | joueur |
+| Droits d’inscription organisation | FRBE | joueur |
+| Registration FIDE | FRBE | joueur |
+| Accompagnement officiel | FRBE | joueur |
 
 La FRBÉ couvrira les coûts prévu dans ce règlement pour autant qu’un budget a été approuvé par l’AG 
 
@@ -1098,10 +1082,10 @@ La FRBÉ se réserve le droit de ne pas participer à une compétition lorsqu’
 
 Dans la plupart des tournois, il y a un séjour (presque) gratuit pour 1 ou plusieurs joueurs par catégorie d'âge. Ce privilège est octroyé au meilleur joueur(s) selon l’ordre suivant: 
 
-* tout d’abord selon le classement du dernier CBJ pour les joueurs de norme de sélection de la même catégorie;
-* puis selon le classement du  dernier CBJ pour le joueur qui termine à la 3ème place de la même catégorie.
-* après suivant l’ELO le plus élevé utilisé lors du CBJ pour toutes les autres sélections (seulement des joueurs ayants participés au CBJ) ;
-* Enfin, pour tous les autres joueurs suivant l’ELO à utiliser le plus haut au moment du CBJ.
+ - tout d’abord selon le classement du dernier CBJ pour les joueurs de norme de sélection de la même catégorie;
+ - puis selon le classement du  dernier CBJ pour le joueur qui termine à la 3ème place de la même catégorie.
+ - après suivant l’ELO le plus élevé utilisé lors du CBJ pour toutes les autres sélections (seulement des joueurs ayants participés au CBJ) ;
+ - Enfin, pour tous les autres joueurs suivant l’ELO à utiliser le plus haut au moment du CBJ.
 
 ## Championnats Nationaux de Parties rapides et de Parties Eclairs pour la Jeunesse
 
@@ -1119,9 +1103,11 @@ Un championnat est organisé pour les filles et les garçons dans les catégorie
 
 ### Article 74. Système et formule de jeu, cadence.
 
-        1. Parties rapides : les championnats de parties rapides se jouent en un jour dans les différentes catégories. Le tournoi compte en principe 7 rondes et la cadence est de 25 minutes par joueur et par partie.
-        1. Parties éclairs : les championnats de parties éclairs se jouent en un jour dans les différentes catégories. Le tournoi compte en principe 11 rondes et la cadence est de 5 minutes par joueur, par partie.
-        2. Général : D’après le nombre des participants, ils se jouent en un tournoi complet ou selon les règles « suisses », admises par la FIDE En raison du nombre limité de rondes, l’arbitre est invité à appliquer un système suisse avec appariements accélérés. Pour déterminer les classements finaux en cas d’égalité de points, les systèmes de départage prévus par la FIDE sont d’application. Les systèmes utilisés doivent être annoncés aux participants avant le début du tournoi.
+1. Parties rapides : les championnats de parties rapides se jouent en un jour dans les différentes catégories. Le tournoi compte en principe 7 rondes et la cadence est de 25 minutes par joueur et par partie.
+
+2. Parties éclairs : les championnats de parties éclairs se jouent en un jour dans les différentes catégories. Le tournoi compte en principe 11 rondes et la cadence est de 5 minutes par joueur, par partie.
+
+3. Général : D’après le nombre des participants, ils se jouent en un tournoi complet ou selon les règles « suisses », admises par la FIDE En raison du nombre limité de rondes, l’arbitre est invité à appliquer un système suisse avec appariements accélérés. Pour déterminer les classements finaux en cas d’égalité de points, les systèmes de départage prévus par la FIDE sont d’application. Les systèmes utilisés doivent être annoncés aux participants avant le début du tournoi.
 
 ### Article 75. 
 
@@ -1132,7 +1118,8 @@ Un emplacement sera réservé dans la salle du tournoi aux joueurs et aux arbitr
 Le montant des droits d’inscription est fixé chaque année par le directeur national de la jeunesse.
 
 ### Article 77. Titres   
-Abrogé.
+
+_Abrogé._
 
 ### Article 78. Prix
 
@@ -1140,9 +1127,9 @@ Les droits d’inscription doivent être affectés comme suit (à prouver par l�
 
 ### Article 79. Tournois internationaux
 
-    1. Parties rapides : Les championnats de parties rapides valent comme critère de sélection pour les tournois internationaux de parties rapides. 
-    5. Parties éclairs : Les championnats de parties éclair valent comme critère de sélection pour les tournois internationaux de parties éclairs.
+a. Parties rapides : Les championnats de parties rapides valent comme critère de sélection pour les tournois internationaux de parties rapides. 
 
+b. Parties éclairs : Les championnats de parties éclair valent comme critère de sélection pour les tournois internationaux de parties éclairs.
 
 ## Championnats Nationaux Inter-Ecoles.
 
@@ -1150,11 +1137,11 @@ Les droits d’inscription doivent être affectés comme suit (à prouver par l�
 
 La FRBÉ organise une finale inter-écoles comprenant au moins 25 équipes par réseau scolaire (primaire, secondaire), sélectionnées comme suit :
 
-* 1 place pour l’école du champion sortant ;
-* 1 place désignée par l’école organisatrice ;
-* au moins 10 équipes désignées par la V.S.F. ;
-* au moins 10 équipes désignées par la F.E.F.B.;
-* au moins 3 équipes désignées par  la S.V.D.B.
+ -  1 place pour l’école du champion sortant ;
+ -  1 place désignée par l’école organisatrice ;
+ -  au moins 10 équipes désignées par la V.S.F. ;
+ -  au moins 10 équipes désignées par la F.E.F.B.;
+ -  au moins 3 équipes désignées par  la S.V.D.B.
 
 Si l’organisation peut recevoir plus d’équipes, elle peut augmenter le nombre des équipes.
 
@@ -1162,63 +1149,68 @@ Le directeur national de la jeunesse peut accorder une équipe supplémentaire �
 
 A partir du Championnat Nationaux Inter-Ecoles les catégories suivantes sont utilisées :
 
-	A1. enseignement primaire mini (étudiants de la 1ère à la 3ème année);
+ - A1. enseignement primaire mini (étudiants de la 1ère à la 3ème année);
 
-	A2. enseignement primaire (étudiants de la 1ère à la 6ème année);
+ - A2. enseignement primaire (étudiants de la 1ère à la 6ème année);
 
-	B. enseignement secondaire;
+ - B. enseignement secondaire;
 
 avec le nombre d'équipes suivant:
 
 A1. enseignement primaire mini (11 équipes)
 
-	1 place pour l’école du champion sortant;
+  - 1 place pour l’école du champion sortant;
 
-	1 place désignée par l’école organisatrice;
+  - 1 place désignée par l’école organisatrice;
 
-	au moins 4 équipes désignées par la V.S.F.
+  - au moins 4 équipes désignées par la V.S.F.
 
-	au moins 4 équipes désignées par la F.EF.B.;
+  - au moins 4 équipes désignées par la F.EF.B.;
 
-	au moins 1 équipe désignée par la S.V.D.B.
+  - au moins 1 équipe désignée par la S.V.D.B.
 
 A2. enseignement primaire (16 équipes)
 
-	1 place pour l’école du champion sortant;
+  - 1 place pour l’école du champion sortant;
 
-	1 place désignée par l’école organisatrice;
+  - 1 place désignée par l’école organisatrice;
 
-	au moins 6 équipes désignées par la V.S.F.
+  - au moins 6 équipes désignées par la V.S.F.
 
-	au moins 6 équipes désignées par la F.EF.B.;
+  - au moins 6 équipes désignées par la F.EF.B.;
 
-	au moins 2 équipes désignées par la S.V.D.B.
+  - au moins 2 équipes désignées par la S.V.D.B.
 
 B. enseignement secondaire (25 équipes)
 
-	1 place pour l’école du champion sortant;
+  - 1 place pour l’école du champion sortant;
 
-	1 place désignée par l’école organisatrice;
+  - 1 place désignée par l’école organisatrice;
 
-	au moins 10 équipes désignées par la V.S.F.
+  - au moins 10 équipes désignées par la V.S.F.
 
-	au moins 10 équipes désignées par la F.EF.B.;
+  - au moins 10 équipes désignées par la F.EF.B.;
 
-	au moins 3 équipes désignées par la S.V.D.B.
+  - au moins 3 équipes désignées par la S.V.D.B.
 
 
+### Article 81. Composition de l'équipe
 
-### Article 81. Chaque équipe compte quatre étudiants de :
-    1. l'enseignement secondaire <span style="text-decoration:underline;">d'une même école belge </span>(*1). Un élève de l’enseignement primaire peut participer au championnat inter-écoles secondaires si cette école primaire est liée à l’école secondaire.
-    1. l'enseignement primaire <span style="text-decoration:underline;">d'une même école belge </span>(*2). Un enfant inscrit dans une classe maternelle dans la même école, peut participer au championnat inter-écoles primaires.
+Chaque équipe compte quatre étudiants de :
 
-    Lors de l'enregistrement au tournoi, les chefs d'équipe doivent produire une attestation scolaire (avec le nom et la signature du directeur / de la directrice) certifiant que tous les participants sont inscrits comme élèves de la même école.
+1. l'enseignement secondaire d'une même école belge. Un élève de l’enseignement primaire peut participer au championnat inter-écoles secondaires si cette école primaire est liée à l’école secondaire.
 
-    2. les équipes sont alignées selon les dernières listes Belges d'Elo. On peut attribuer à un joueur non-classé jusqu'à 1300 elo.
-    3. chaque équipe de catégorie l'enseignement primaire mini est composée avec au moins une fille.
+2. l'enseignement primaire d'une même école belge. Un enfant inscrit dans une classe maternelle dans la même école, peut participer au championnat inter-écoles primaires.
 
-### Article 82. Système du tournoi : 
-neuf rondes, système suisse.
+Lors de l'enregistrement au tournoi, les chefs d'équipe doivent produire une attestation scolaire (avec le nom et la signature du directeur / de la directrice) certifiant que tous les participants sont inscrits comme élèves de la même école.
+
+1. les équipes sont alignées selon les dernières listes Belges d'Elo. On peut attribuer à un joueur non-classé jusqu'à 1300 elo.
+
+2. chaque équipe de catégorie l'enseignement primaire mini est composée avec au moins une fille.
+
+### Article 82. Système du tournoi :
+
+Neuf rondes, système suisse.
 
 ### Article 83. 
 
@@ -1234,25 +1226,32 @@ Chaque capitaine d'équipe communique à chaque ronde le résultat complet de so
 
 ### Article  85 bis. Système de départage
 
+a. points de match;
 
+b. points de tableau (1, 1/2, 0 par tableau);
 
-        1. points de match;
-        2. points de tableau (1, 1/2, 0 par tableau);
-        3. rencontre mutuelle;
-        4. si l'égalité subsiste, un match de barrage doit être joué selon les règles de blitz lorsque le titre en dépend (tirage au sort pour les couleurs). 
-        5. en cas de nouvelle égalité, le système Sonneborn-Berger sera appliqué aux points de  match, 
-        6. et ensuite aux points de tableau.
+c. rencontre mutuelle;
+
+d. si l'égalité subsiste, un match de barrage doit être joué selon les règles de blitz lorsque le titre en dépend (tirage au sort pour les couleurs). 
+
+e. en cas de nouvelle égalité, le système Sonneborn-Berger sera appliqué aux points de  match, 
+
+f. et ensuite aux points de tableau.
 
 ### Article 86. 
+
 En cas de besoin, les joueurs peuvent toujours consulter le directeur du tournoi.
 
 ### Article 87. 
+
 La direction du tournoi décide dans tous les cas non prévus.
 
 ### Article 88. 
-abrogé
+
+_abrogé_
 
 ### Article 89. 
+
 L'équipe gagnante reçoit le titre « Champion de Belgique inter-écoles (primaires ou secondaires) + l’année ».
 
 L’équipe composée uniquement de filles classée la meilleure reçoit le titre « Meilleure équipe féminine belge inter-écoles (primaires ou secondaires) + l’année ».
@@ -1277,35 +1276,45 @@ Les règlements de la FRBÉ pour les interclubs nationaux sont d'application, à
 Le nombre d’équipes, dans chacune des deux catégories, est limité à 16.
 
 ### Article 92. 
+
 Les équipes sont composées de joueurs licenciés par le club de la FRBÉ qu'elles représentent.
-        1. Chaque équipe se compose de quatre joueurs n’ayant pas, au 1er janvier de l’année en cours, atteint l’âge de 16 ans en catégorie B ou de 20 ans en catégorie A.
-        2. Les clubs participants transmettent au directeur national de la jeunesse et dans les délais fixés par lui, une liste en double de leurs joueurs et réserves, classés par ordre de force et en mentionnant les numéros de matricule, date de naissance et numéro du club. Tous les joueurs inscrits ultérieurement sont ajoutés comme réserves en fin de liste.
-        3. L'ordre de force peut être modifié entre chaque jour de jeu. Les modifications doivent être signalées au directeur national de la jeunesse dans les délais fixés par lui.
-        4. Les joueurs et les réserves ne peuvent être alignés que dans l'ordre de force indiqué. Cela signifie que les joueurs réserves doivent toujours être alignés aux derniers tableaux et dans l'ordre indiqué.
-        5. Les joueurs de réserve inscrits en cours de compétition ne peuvent être alignés qu'après réception par le responsable du club d'un avis du directeur national de la jeunesse confirmant que ces joueurs peuvent être alignés. Toute infraction à cette règle entraîne la perte de la partie du joueur aligné irrégulièrement.
+
+1. Chaque équipe se compose de quatre joueurs n’ayant pas, au 1er janvier de l’année en cours, atteint l’âge de 16 ans en catégorie B ou de 20 ans en catégorie A.
+
+2. Les clubs participants transmettent au directeur national de la jeunesse et dans les délais fixés par lui, une liste en double de leurs joueurs et réserves, classés par ordre de force et en mentionnant les numéros de matricule, date de naissance et numéro du club. Tous les joueurs inscrits ultérieurement sont ajoutés comme réserves en fin de liste.
+
+3. L'ordre de force peut être modifié entre chaque jour de jeu. Les modifications doivent être signalées au directeur national de la jeunesse dans les délais fixés par lui.
+
+4. Les joueurs et les réserves ne peuvent être alignés que dans l'ordre de force indiqué. Cela signifie que les joueurs réserves doivent toujours être alignés aux derniers tableaux et dans l'ordre indiqué.
+
+5. Les joueurs de réserve inscrits en cours de compétition ne peuvent être alignés qu'après réception par le responsable du club d'un avis du directeur national de la jeunesse confirmant que ces joueurs peuvent être alignés. Toute infraction à cette règle entraîne la perte de la partie du joueur aligné irrégulièrement.
 
 ### Article 93. 
+
 En cas d'infraction aux règles énumérées aux points 3 et/ou 4 de l’article 84, le directeur de la compétition déclare toujours perdues les parties jouées par des joueurs non qualifiés, ou alignés à un tableau plus bas que prévu par l'ordre d'alignement.
 
 ### Article 94. 
+
 Dans chaque catégorie, les équipes sont réparties en groupes de quatre équipes par le directeur national de la jeunesse, en accord avec le directeur de la compétition. Chaque groupe dispute un tournoi complet simple. Les deux premiers de chaque groupe sont qualifiés pour les demi-finales.
 
 ### Article 95. 
+
 Les équipes qualifiées pour les demi-finales sont réparties en deux groupes de quatre, en évitant que deux équipes qui se sont déjà rencontrées lors des éliminatoires se retrouvent dans la même demi-finale. Chaque groupe dispute un tournoi complet simple. Les deux premiers de chaque groupe sont qualifiés pour la finale.
 
 ### Article 96. 
+
 La finale se joue en un tour complet simple.
 
 ### Article 97. 
+
 La compétition est dirigée par un arbitre, le directeur de la compétition interclubs pour jeunes de la FRBÉ, et qui est désigné par l’organe d’administration. Ce directeur de la compétition interclubs pour jeunes de la FRBÉ est chargé de l'exécution et de l'application du présent règlement, et de trancher tout différend ou cas imprévu qui pourrait se présenter en la matière.
 
 ### Article 98. 
+
 L'équipe qui remporte la finale obtient le titre de "championne de Belgique par équipes de jeunes" suivi de la catégorie et de l'année.
 
 
 ## Structure des joueurs talentueux.
-
-**Introduction**
 
 La FRBE souhaite soutenir les jeunes joueurs d'échecs talentueux dans leur développement en les identifiant de manière objective et en les répartissant en différents groupes. Ces groupes peuvent bénéficier d'avantages en fonction du budget disponible.
 
@@ -1335,11 +1344,11 @@ Explication: l’indice de référence est publié en septembre et est donc suff
 
 Un avantage financier est accordé aux groupes en fonction du budget disponible.
 
-A.Groupe internationales	Training (T x 2,5)	Un équivalent du coûts moyen pour un séjour CE/CM
+A. Groupe internationales	Training (T x 2,5)	Un équivalent du coûts moyen pour un séjour CE/CM
 
-B.Groupe nationale	Training (T x 2,5)	-
+B. Groupe nationale	Training (T x 2,5)	-
 
-C.Groupe espoir	Training (T)	-
+C. Groupe espoir	Training (T)	-
 
 S'il y a peu ou pas de budget fourni par l'Assemblée générale, la commission de la jeunesse répartira l'allocation des avantages ou la réduira à zéro pour un ou plusieurs groupes.
 
