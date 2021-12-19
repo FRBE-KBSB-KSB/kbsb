@@ -29,7 +29,6 @@ export default {
           pt = this.page.body[this.$i18n.locale].value
         }
       }
-      console.log('body')
       return marked(pt)
     },
 
@@ -41,7 +40,6 @@ export default {
           pt = this.page.intro[this.$i18n.locale].value
         }
       }
-      console.log('intro')
       return marked(pt)
     },
 

@@ -1,2 +1,2 @@
 #!/bin/bash
-pipenv run uvicorn kbsb:app --reload --reload-dir backend/kbsb --reload-dir ../reddevil/reddevil
+pipenv run uvicorn kbsb.main:app --reload --reload-dir backend/kbsb

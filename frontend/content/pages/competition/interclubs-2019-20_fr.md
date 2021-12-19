@@ -4,7 +4,7 @@ title: Interclub 2019-20
 
 ###  Data NIC 2019-2020
 
-![R10-R11](https://www.frbe-kbsb-ksb.be/api/filecontent/ICNR10-R11__095955.png)<br><br>
+![R10-R11](https://www.frbe-kbsb-ksb.be/img/ICNR10-R11__095955.png)<br><br>
 [**FAQ: Veel gestelde vragen**](https://www.frbe-kbsb-ksb.be/page/faq-nic-icn-2019-2020/nl) : nieuwe covidregels vanaf 01/09/2021, verantwoordelijke ontmoeting, beleid ten opzichte van de forfaits, enz.<br> 
 
 [**LOGIN INTERCLUBS MANAGER**](https://www.frbe-kbsb.be/sites/manager/GestionCOMMON/GestionLogin.php) met SCHRIJFPERMISSIE
@@ -42,7 +42,7 @@ title: Interclub 2019-20
 **21/03/2020**: het bestuursorgaan (BO) van de KBSB beslist om het NIC-seizoen 2019-2020 na 9 ronden stop te zetten en alle resultaten te annuleren.<br>
 **05/04/2020**: negen clubs dienen een gezamenlijke klacht in bij de Geschillencommissie.<br>
 **02/06/2020**: beslissing van de geschillencommissie.<br>
-**17/06/2020**: het BO van de KBSB tekent beroep aan bij de Beroepscommissie. U vindt alle details en links naar alle documenten van het dossier in [de bijlage aan de notulen van 20/06/2020, punt 3](https://www.frbe-kbsb-ksb.be/api/filecontent/20200620%20PV%20OA%20-%20Verslag%20BO__066242.pdf). U zult merken dat de procedure in het Frans is gevoerd en dat de meeste documenten alleen in het Frans zijn opgesteld.<br>
+**17/06/2020**: het BO van de KBSB tekent beroep aan bij de Beroepscommissie. U vindt alle details en links naar alle documenten van het dossier in de bijlage aan de notulen van 20/06/2020, punt 3. U zult merken dat de procedure in het Frans is gevoerd en dat de meeste documenten alleen in het Frans zijn opgesteld.<br>
 **18/07/2020**: [definitieve beslissing van de Beroepscommissie](https://drive.google.com/file/d/1i6vQWSpAfAj72RrOkIkz_U204kxfow1s/view?usp=sharing).
 
 Dit zijn de belangrijkste elementen van de beslissing van de Beroepscommissie:
@@ -55,7 +55,7 @@ Dit zijn de belangrijkste elementen van de beslissing van de Beroepscommissie:
 - De normen die spelers of scheidsrechters op het einde van de eerste 9 ronden hebben bereikt, blijven verworven.<br>
 
 **29/07/2020**: het BO van de KBSB overweegt verschillende scenario's om deze beslissing van de Beroepscommissie uit te voeren.<br>
-**29/08/2020**: de BAV van de KBSB stemt ermee in dat de laatste twee ronden van de NIC's 2019-2020 worden gespeeld wanneer de Veiligheidsraad besluit de veiligheidsmaatregelen te beperken of zelfs af te schaffen, bijvoorbeeld in het geval van een ruime beschikbaarheid van een vaccin: [zie punt 12 van de notulen en blz. 320 tot en met 326](https://www.frbe-kbsb-ksb.be/api/filecontent/20200829%20PV%20AGE%20-%20Verslag%20BAV__842274.pdf).<br>
+**29/08/2020**: de BAV van de KBSB stemt ermee in dat de laatste twee ronden van de NIC's 2019-2020 worden gespeeld wanneer de Veiligheidsraad besluit de veiligheidsmaatregelen te beperken of zelfs af te schaffen, bijvoorbeeld in het geval van een ruime beschikbaarheid van een vaccin: zie punt 12 van de notulen en blz. 320 tot en met 326.<br>
 **09/11/2020**: AV van de KBSB.<br> 
 
 Verschillende clubs vonden dat er een einde moest gesteld worden aan de NIC's 2019-2020 zonder de laatste twee rondes te spelen.
@@ -128,7 +128,7 @@ De ontmoetingen van rondes 10 (05/09/2021) en 11 (12/09/2021) tellen mee voor de
 
 ###  Data NIC 2019-2020
 
-![R10-R11](https://www.frbe-kbsb-ksb.be/api/filecontent/ICNR10-R11__931688.png)
+![R10-R11](https://www.frbe-kbsb-ksb.be/img/ICNR10-R11__931688.png)
 
 Sergio Zamparo
 Co-Verantwoordelijke Nationale Toernooien

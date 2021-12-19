@@ -12,9 +12,9 @@ import kbsb.api.api_member
 import kbsb.api.api_club
 import kbsb.api.api_book100
 
-from .. import app
+from kbsb.main import app
 
-@app.get('/api')
+
+@app.get("/api")
 def root():
-    return {'hello': 'world'}
-
+    return {"hello": "world"}

@@ -13,7 +13,7 @@ from kbsb.models.md_club import (
     ClubOptional,
     ClubBasic
 )
-from kbsb import app, url
+from kbsb.main import app, url
 
 log = logging.getLogger('kbsb')
 

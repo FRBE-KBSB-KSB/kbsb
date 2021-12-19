@@ -1,7 +1,24 @@
 <template>
   <v-container>
     <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    <v-container class="mt-1 markedcontent elevation-2">
+      <v-tabs v-model="tab" light slider-color="deep-purple">
+        <v-tab class="mx-2">
+          NL
+        </v-tab>
+        <v-tab class="mx-2">
+          FR
+        </v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <nuxt-content :document="pagenl" class="mt-3" />
+        </v-tab-item>
+        <v-tab-item>
+          <nuxt-content :document="pagefr" class="mt-3" />
+        </v-tab-item>
+      </v-tabs-items>
+    </v-container>
   </v-container>
 </template>
 
@@ -12,8 +29,10 @@ export default {
 
   async asyncData ({ $content, app }) {
     const page = await $content('pages', 'youth', `school-chess_${app.i18n.locale}`).fetch()
+    const pagenl = await $content('pages', 'youth', 'school-chess_nl').fetch()
+    const pagefr = await $content('pages', 'youth', 'school-chess_fr').fetch()
     return {
-      page
+      page, pagefr, pagenl
     }
   },
 

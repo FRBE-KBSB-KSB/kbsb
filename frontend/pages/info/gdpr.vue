@@ -1,7 +1,24 @@
 <template>
   <v-container>
     <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    <v-container class="mt-1 markedcontent elevation-2">
+      <v-tabs v-model="tab" light slider-color="deep-purple">
+        <v-tab class="mx-2">
+          NL
+        </v-tab>
+        <v-tab class="mx-2">
+          FR
+        </v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <nuxt-content :document="pagenl" class="mt-3" />
+        </v-tab-item>
+        <v-tab-item>
+          <nuxt-content :document="pagefr" class="mt-3" />
+        </v-tab-item>
+      </v-tabs-items>
+    </v-container>
   </v-container>
 </template>
 
@@ -11,9 +28,11 @@ export default {
   layout: 'default',
 
   async asyncData ({ $content, app }) {
+    const pagenl = await $content('pages', 'info', 'gdpr_nl').fetch()
+    const pagefr = await $content('pages', 'info', 'gdpr_fr').fetch()
     const page = await $content('pages', 'info', `gdpr_${app.i18n.locale}`).fetch()
     return {
-      page
+      page, pagenl, pagefr
     }
   },
 

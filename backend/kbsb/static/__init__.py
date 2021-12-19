@@ -2,49 +2,26 @@
 from fastapi import HTTPException
 from fastapi.responses import RedirectResponse, HTMLResponse
 import os.path
-from .. import app
-
-@app.get('/')
-def htmlroot():
-    return RedirectResponse('/page')
-
-@app.get('/page{path:path}')
-def htmlpage(path: str):
-    fn = os.path.join(os.path.dirname(__file__), 'page.html')
-    try:
-        with open(fn) as f:
-            page = f.read()
-        return HTMLResponse(page)
-    except Exception:
-        raise HTTPException(status_code=401, detail='page.html not found')
+from kbsb.main import app
 
 
-@app.get('/mgmt{path:path}')
-def htmlmgmt(path:str):
-    fn = os.path.join(os.path.dirname(__file__), 'mgmt.html')
-    try:
-        with open(fn) as f:
-            page = f.read()
-        return HTMLResponse(page)
-    except Exception:
-        raise HTTPException(status_code=401, detail='mgmt.html not found')
-
-@app.get('/ratingnl')
+@app.get("/ratingnl")
 def ratingnl():
-    fn = os.path.join(os.path.dirname(__file__), 'ratingnl.html')
+    fn = os.path.join(os.path.dirname(__file__), "ratingnl.html")
     try:
         with open(fn) as f:
             page = f.read()
         return HTMLResponse(page)
     except Exception:
-        raise HTTPException(status_code=401, detail='ratingnl.html not found')
+        raise HTTPException(status_code=401, detail="ratingnl.html not found")
 
-@app.get('/ratingfr')
+
+@app.get("/ratingfr")
 def ratingfr():
-    fn = os.path.join(os.path.dirname(__file__), 'ratingfr.html')
+    fn = os.path.join(os.path.dirname(__file__), "ratingfr.html")
     try:
         with open(fn) as f:
             page = f.read()
         return HTMLResponse(page)
     except Exception:
-        raise HTTPException(status_code=401, detail='ratingfr.html not found')
+        raise HTTPException(status_code=401, detail="ratingfr.html not found")

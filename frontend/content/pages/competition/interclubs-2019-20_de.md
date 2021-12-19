@@ -3,7 +3,7 @@ title: Interclub 2019-20
 ---
 ###  Zwei Finalrunden NIC 2019-2020
 
-![R10-R11](https://www.frbe-kbsb-ksb.be/api/filecontent/ICNR10-R11__095955.png)
+![R10-R11](/img/ICNR10-R11__095955.png)
 
 [**FAQ: Oft gestellte Fragen**](https://www.frbe-kbsb-ksb.be/page/faq-nic-icn-2019-2020/nl) : neue covid-Regeln ab dem 01/09/2021, Verantwortlichen für die Begegnung, Politik in Bezug auf Forfaits, usw.<br> 
 
@@ -39,7 +39,7 @@ title: Interclub 2019-20
 **21/03/2020**: das Verwaltungsorgan (VO) der KSB entscheidet, die NIC-Saison 2019-2020 nach 9 Runden zu beenden und alle Ergebnisse zu streichen.<br>  
 **05/04/2020**: neun Vereine reichen eine gemeinsame Beschwerde beim Konfliktkomitee ein.<br>
 **02/06/2020**: Entscheidung des Konfliktkomitees.<br>
-**17/06/2020**: das VO der KSB hat bei der Berufungskommission Berufung eingelegt. Die vollständigen Details und Links zu allen Dokumenten in der Datei finden Sie im [Anhang des Protokolls vom 20/06/2020, Punkt 3](https://www.frbe-kbsb-ksb.be/api/filecontent/20200620%20PV%20OA%20-%20Verslag%20BO__066242.pdf). Sie werden feststellen, dass das Verfahren in französischer Sprache durchgeführt wurde und dass die meisten Dokumente nur in französischer Sprache vorliegen.<br>
+**17/06/2020**: das VO der KSB hat bei der Berufungskommission Berufung eingelegt. Die vollständigen Details und Links zu allen Dokumenten in der Datei finden Sie im Anhang des Protokolls vom 20/06/2020, Punkt 3. Sie werden feststellen, dass das Verfahren in französischer Sprache durchgeführt wurde und dass die meisten Dokumente nur in französischer Sprache vorliegen.<br>
 **18/07/2020**: [endgültige Entscheidung der Berufungskommission](https://drive.google.com/file/d/1i6vQWSpAfAj72RrOkIkz_U204kxfow1s/view?usp=sharing).
 
 Hier sind die wichtigsten Elemente der Entscheidung der Berufungskommission:
@@ -53,7 +53,7 @@ Hier sind die wichtigsten Elemente der Entscheidung der Berufungskommission:
 
 **29/07/2020**: das VO der KSB erwägt mehrere Szenarien, um diese Entscheidung der Berufungkommission durchzuführen.<br>
 
-**29/08/2020**: die KSB-Sondergeneralversammlung stimmt zu, dass die letzten beiden Runden der NICs 2019-2020 gespielt werden, wenn der Sicherheitsrat beschließt, die Sicherheitsmaßnahmen einzuschränken oder sogar abzuschaffen, z. B. im Falle einer breiten Verfügbarkeit eines Impfstoffs: siehe [Protokollpunkt 12 und Seiten 320 bis 326](https://www.frbe-kbsb-ksb.be/api/filecontent/20200829%20PV%20AGE%20-%20Verslag%20BAV__842274.pdf).<br>
+**29/08/2020**: die KSB-Sondergeneralversammlung stimmt zu, dass die letzten beiden Runden der NICs 2019-2020 gespielt werden, wenn der Sicherheitsrat beschließt, die Sicherheitsmaßnahmen einzuschränken oder sogar abzuschaffen, z. B. im Falle einer breiten Verfügbarkeit eines Impfstoffs: siehe Protokollpunkt 12 und Seiten 320 bis 326.<br>
 
 **09/11/2020**: GV der KSB.<br>
 
@@ -127,7 +127,7 @@ Die Partien der Runden 10 (05.09.2021) und 11 (12.09.2021) werden für das FIDE-
 
 ### Zwei Finalrunden NIC 2019-2020
 
-![R10-R11](https://www.frbe-kbsb-ksb.be/api/filecontent/ICNR10-R11__931688.png)
+![R10-R11](https://www.frbe-kbsb-ksb.be/img/ICNR10-R11__931688.png)
 
 Sergio Zamparo
 Co-Verantwortlicher der Nationalen Turniere

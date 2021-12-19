@@ -77,7 +77,7 @@ export default {
   target: 'static',
 
   vuetify: {
-    customVariables: ['~/assets/variables.scss'],
+    // customVariables: ['~/assets/variables.scss'],
     theme: {
       light: true
     }
