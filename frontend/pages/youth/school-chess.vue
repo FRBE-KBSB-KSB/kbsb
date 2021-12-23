@@ -30,8 +30,7 @@ export default {
   async asyncData ({ $content, app }) {
     const page = await $content('pages', 'youth', `school-chess_${app.i18n.locale}`).fetch()
     const pagenl = await $content('pages', 'youth', 'school-chess_nl').fetch()
-    const pagefr = await $content('pages', 'youth
-2. Perform a “soft reset” on your phone.', 'school-chess_fr').fetch()
+    const pagefr = await $content('pages', 'youth', 'school-chess_fr').fetch()
     return {
       page, pagefr, pagenl
     }
