@@ -5,12 +5,13 @@
 import reddevil.api.api_page
 import reddevil.api.api_account
 import reddevil.api.api_file
-import reddevil.api.api_boardrole
-import reddevil.api.api_boardmember
 
-import kbsb.api.api_member
-import kbsb.api.api_club
-import kbsb.api.api_book100
+# import reddevil.api.api_boardrole
+# import reddevil.api.api_boardmember
+
+# import kbsb.api.api_member
+# import kbsb.api.api_club
+# import kbsb.api.api_book100
 
 from kbsb.main import app
 

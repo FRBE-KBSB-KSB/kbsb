@@ -21,14 +21,13 @@ python-slugify = "*"
 requests = "*"
 uvicorn = "*"
 bcrypt = "*"
-sqlalchemy = "*"
-mysqlclient = "*"
 pymysql = "*"
 reddevil = {path = "./libs/reddevil-2.2.5-py3-none-any.whl"}
 markdown2 = "*"
 google-auth-httplib2 = "*"
 google-auth-oauthlib = "*"
 google-api-python-client = "*"
+mysql-connector-python = "*"
 
 [requires]
 python_version = "3.9"

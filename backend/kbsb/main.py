@@ -27,7 +27,7 @@ app = FastAPI(
 url = "/api"
 
 # register the mongob connection
-from kbsb.crud import get_mongodb
+from kbsb.db import get_mongodb
 from reddevil.common import register_app
 
 register_app(settings, app, get_mongodb, url)

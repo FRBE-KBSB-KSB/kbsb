@@ -34,6 +34,3 @@ frontend/node_modules
 frontend/.nuxt
 
 
-# security
-kbsb_sendemail.json
-frbekbsb_google_credentials.json
