@@ -33,10 +33,8 @@ def get_mongodb():
         loop = get_event_loop()
 
         with open(
-            Path(
-                settings.SECRETS_PATH
-                / ".".join(["kbsb-mongodb", settings.SECRETS_EXTENSION])
-            )
+            Path(settings.SECRETS_PATH)
+            / ".".join(["kbsb-mongodb", settings.SECRETS_EXTENSION])
         ) as f:
             mongoparams = json.load(f)
         client = AsyncIOMotorClient(mongoparams["url"], io_loop=loop)
