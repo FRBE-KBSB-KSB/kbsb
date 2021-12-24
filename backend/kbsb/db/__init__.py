@@ -32,10 +32,7 @@ def get_mongodb():
     if not hasattr(get_mongodb, "database"):
         loop = get_event_loop()
 
-        with open(
-            Path(settings.SECRETS_PATH)
-            / ".".join(["kbsb-mongodb", settings.SECRETS_EXTENSION])
-        ) as f:
+        with open(settings.SECRETS_PATHS["mongodb"]) as f:
             mongoparams = json.load(f)
         client = AsyncIOMotorClient(mongoparams["url"], io_loop=loop)
         setattr(get_mongodb, "database", client[mongoparams["db"]])
@@ -47,10 +44,7 @@ def get_mysql():
     a singleton function to get the mongodb database asynchronously
     """
     if not hasattr(get_mysql, "conn"):
-        with open(
-            Path(settings.SECRETS_PATHS)
-            / ".".join(["kbsb-mongodb", settings.SECRETS_EXTENSION])
-        ) as f:
+        with open(settings.SECRETS_PATHS["mysql"]) as f:
             mysqlparams = json.load(f)
         try:
             conn = mc.connect(

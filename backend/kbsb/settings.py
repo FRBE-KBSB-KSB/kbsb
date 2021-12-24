@@ -32,8 +32,8 @@ LOG_CONFIG = {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            "formatter": "color",
-            # 'formatter': 'simple',
+            # "formatter": "color",
+            "formatter": "simple",
             "stream": "ext://sys.stderr",
         }
     },
@@ -68,8 +68,10 @@ GOOGLE_CLIENT_ID = (
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 
-SECRETS_PATH = "/etc//secrets"
-SECRETS_EXTENSION = ""
+SECRETS_PATHS = {
+    "mongodb": "/etc/secrets/kbsb-mongodb/kbsb-mongodb",
+    "mysql": "/etc/secrets/kbsb-mysql/kbsb-mysql",
+}
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

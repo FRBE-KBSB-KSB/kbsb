@@ -14,8 +14,22 @@ import reddevil.api.api_file
 # import kbsb.api.api_book100
 
 from kbsb.main import app
+from pathlib import Path
 
 
 @app.get("/api")
 def root():
     return {"hello": "world"}
+
+
+def walk(path):
+    for p in Path(path).iterdir():
+        if p.is_dir():
+            yield from walk(p)
+            continue
+        yield p.resolve()
+
+
+@app.get("/api/list")
+def test():
+    return list(walk("/etc/secrets"))
