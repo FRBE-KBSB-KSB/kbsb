@@ -13,16 +13,16 @@
     <v-divider />
 
     <div class="btn-language green darken-1">
-      <v-btn text dark class="hover-darker btn-language" @click="$i18n.setLocale('nl')">
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('nl')">
         NL
       </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="$i18n.setLocale('fr')">
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('fr')">
         FR
       </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="$i18n.setLocale('de')">
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('de')">
         DE
       </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="$i18n.setLocale('en')">
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('en')">
         EN
       </v-btn>
     </div>
@@ -185,6 +185,13 @@ export default {
   computed: {
     gotorating () {
       return this.$i18n.locale === 'nl' ? '/tools/ratingnl' : '/tools/ratingfr'
+    }
+  },
+
+  methods: {
+    setLocale (l) {
+      console.log('changing to locale', l)
+      this.$i18n.setLocale('nl')
     }
   }
 

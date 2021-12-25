@@ -21,7 +21,7 @@ LOG_CONFIG = {
     "version": 1,
     "formatters": {
         "simple": {
-            "format": "%(levelname)s: %(asctime)s - %(name)s - %(message)s",
+            "format": "%(levelname)s: %(name)s - %(message)s",
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
@@ -43,11 +43,7 @@ LOG_CONFIG = {
             "level": "INFO",
             "propagate": False,
         },
-        "reddevil": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
+        "reddevil": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "fastapi": {
             "handlers": ["console"],
             "level": "INFO",
