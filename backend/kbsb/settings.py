@@ -67,11 +67,17 @@ GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "testwebsitekbsb")
 
 #
 SECRETS = {
-    "mongodb": "latest",
-    "mysql": "latest",
+    "mongodb": {
+        "name": "kbsb_mongodb",
+        "manager": "googlejson",
+    },
+    "mysql": {
+        "name": "kbsb_mysql",
+        "manager": "googlejson",
+    },
 }
-SECRET_MANAGER = "google"
-SECRET_PATH = ""
+
+SECRETS_PATH = ""
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

@@ -30,6 +30,7 @@ google-api-python-client = "*"
 mysql-connector-python = "*"
 "google.cloud" = "*"
 gunicorn = "*"
+google-cloud-secret-manager = "*"
 
 [requires]
 python_version = "3.9"
