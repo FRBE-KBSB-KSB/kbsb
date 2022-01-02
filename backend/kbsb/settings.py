@@ -63,15 +63,19 @@ GOOGLE_CLIENT_ID = (
     "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com"
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
+GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "testwebsitekbsb")
 
-SECRETS_PATHS = {
-    "mongodb": "/etc/secrets/kbsb-mongodb/kbsb-mongodb",
-    "mysql": "/etc/secrets/kbsb-mysql/kbsb-mysql",
+#
+SECRETS = {
+    "mongodb": "latest",
+    "mysql": "latest",
 }
+SECRET_MANAGER = "google"
+SECRET_PATH = ""
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
-    "secret": "Pakjezakjemaggoan",
+    "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",
     "algorithm": "HS256",
     "nocheck": True,
 }

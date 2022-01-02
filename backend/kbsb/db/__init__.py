@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from datetime import datetime, date
 from kbsb import settings
+from kbsb.service.secrets import get_secret
 import mysql.connector as mc
 
 
@@ -30,10 +31,8 @@ def get_mongodb():
     from asyncio import get_event_loop
 
     if not hasattr(get_mongodb, "database"):
+        mongoparams = get_secret("mongodb")
         loop = get_event_loop()
-
-        with open(settings.SECRETS_PATHS["mongodb"]) as f:
-            mongoparams = json.load(f)
         client = AsyncIOMotorClient(mongoparams["url"], io_loop=loop)
         setattr(get_mongodb, "database", client[mongoparams["db"]])
     return get_mongodb.database
@@ -44,8 +43,7 @@ def get_mysql():
     a singleton function to get the mongodb database asynchronously
     """
     if not hasattr(get_mysql, "conn"):
-        with open(settings.SECRETS_PATHS["mysql"]) as f:
-            mysqlparams = json.load(f)
+        mysqlparams = get_secret("mysql")
         try:
             conn = mc.connect(
                 host=mysqlparams["dbhost"],

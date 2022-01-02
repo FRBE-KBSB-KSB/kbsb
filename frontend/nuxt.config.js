@@ -20,6 +20,11 @@ export default {
 
   css: [],
 
+  generate: {
+    fallback: true,
+    dir: '../backend/public'
+  },
+
   head: {
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     meta: [
@@ -32,7 +37,7 @@ export default {
   },
 
   i18n: {
-    baseUrl: process.env.I18N_URL || '',
+    // baseUrl: process.env.I18N_URL || '',
     lazy: true,
     locales: [
       { code: 'nl', file: 'nl.js' },

@@ -117,16 +117,18 @@ export default {
   },
 
   mounted () {
-    console.log('LandingPage Mounted')
+    console.log('LandingPage Mounted', this, this.$api)
     this.getActiveArticles()
+    console.log('m1')
   },
 
   methods: {
 
     getActiveArticles () {
+      console.log('fetching articles', this.$api)
       this.$api.content.getActiveArticles().then(
         (resp) => {
-          console.log('get articles', resp.data.articles)
+          console.log('got articles', resp.data.articles)
           this.readArticles(resp.data.articles)
         },
         resp => (console.error('could not fetch articles', resp))
@@ -151,7 +153,6 @@ export default {
       this.articleRest = []
       articles.forEach((a, index) => {
         const b = { slug: a.slug }
-        console.log('art', a.intro.nl.value)
         if (!a.title[locale] || !a.title[locale].value || !a.title[locale].value.length) {
           b.title = notitle[locale]
         } else {
@@ -162,7 +163,6 @@ export default {
         } else {
           b.intro = marked.parse(a.intro[locale].value)
         }
-        console.log('b', b)
         if (index < 3) {
           this.articles3.push(b)
         } else {

@@ -191,7 +191,7 @@ export default {
   methods: {
     setLocale (l) {
       console.log('changing to locale', l)
-      this.$i18n.setLocale('nl')
+      this.$i18n.setLocale(l)
     }
   }
 

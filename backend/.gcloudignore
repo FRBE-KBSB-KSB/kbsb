@@ -1,0 +1,10 @@
+.gcloudignore
+.git
+.gitignore
+
+# Python pycache:
+.pytest_cache
+.mypy_cache
+
+local_settings.py
+app.yaml

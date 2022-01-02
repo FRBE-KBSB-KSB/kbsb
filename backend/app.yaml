@@ -1,0 +1,17 @@
+runtime: python39
+entrypoint: gunicorn kbsb.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+
+handlers:
+
+- url: /api.*
+  script: auto
+
+- url: /(.*\..+)$
+  static_files: public/\1
+  upload: (.*\..+)$
+
+
+- url: /.*
+  static_files: public/index.html
+  upload: public/index.html
+

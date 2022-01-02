@@ -2,13 +2,13 @@
   <v-app-bar v-cloak fixed dark app class="green darken-2">
     <v-app-bar-nav-icon @click.stop="toggleDrawer" />
     <v-toolbar-items>
-      <v-btn text large href="/">
+      <v-btn text large to="/">
         {{ $t("RBCF") }}
       </v-btn>
     </v-toolbar-items>
     <v-spacer />
     <v-toolbar-items class="hidden-sm-and-down">
-      <v-btn text large href="/competition/interclubs-2021-22">
+      <v-btn text large to="/competition/interclubs-2021-22">
         Interclub 21-22
       </v-btn>
       <v-btn text large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
