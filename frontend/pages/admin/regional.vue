@@ -10,21 +10,25 @@ export default {
 
   layout: 'default',
 
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', 'admin',`regional_${app.i18n.locale}`).fetch()
-    return {
-      page
-    }
-  },
-
   data () {
     return {
+      page__nl: {},
+      page__fr: {},
+      page__de: {},
+      page__en: {},
       tab: 0
     }
   },
 
+  async fetch () {
+    this.page__nl = await this.$content('pages', 'admin', 'regional_nl').fetch()
+    this.page__fr = await this.$content('pages', 'admin', 'regional_fr').fetch()
+    this.page__de = await this.$content('pages', 'admin', 'regional_de').fetch()
+    this.page__en = await this.$content('pages', 'admin', 'regional_en').fetch()
+  },
+
   head: {
-    title: 'Regionaal - Régional',
+    title: 'Regionaal - Régional: VSF - FEFB - SVDB',
     link: [
       {
         rel: 'stylesheet',
@@ -54,6 +58,11 @@ export default {
         defer: true
       }
     ]
+  },
+
+  computed: {
+    page () { return this['page__' + this.$i18n.locale] }
   }
+
 }
 </script>

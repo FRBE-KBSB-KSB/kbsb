@@ -17,6 +17,11 @@ EMAIL = {
 
 EXTRASALT = "Zugzwang"
 
+FILESTORE = {
+    "manager": "google",
+    "bucket": os.environ.get("FILESTORE_BUCKET", "testwebsitekbsb.appspot.com"),
+}
+
 LOG_CONFIG = {
     "version": 1,
     "formatters": {
@@ -59,25 +64,29 @@ LOG_CONFIG = {
 
 
 # login details
-GOOGLE_CLIENT_ID = (
-    "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = os.environ.get(
+    "GOOGLE_CLIENT_ID",
+    "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "testwebsitekbsb")
+GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
 #
 SECRETS = {
     "mongodb": {
-        "name": "kbsb_mongodb",
+        "name": "kbsb-mongodb",
         "manager": "googlejson",
     },
     "mysql": {
-        "name": "kbsb_mysql",
+        "name": "kbsb-mysql",
         "manager": "googlejson",
     },
+    "gdrive": "kbsb-gdrive",
+    "manager": "filejson",
 }
-
 SECRETS_PATH = ""
+
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

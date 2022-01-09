@@ -6,21 +6,26 @@
 </template>
 
 <script>
+
 export default {
 
   layout: 'default',
 
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', 'competition', `interclubs-2019-20_${app.i18n.locale}`).fetch()
+  data () {
     return {
-      page
+      page__nl: {},
+      page__fr: {},
+      page__de: {},
+      page__en: {},
+      tab: 0
     }
   },
 
-  data () {
-    return {
-      tab: 0
-    }
+  async fetch () {
+    this.page__nl = await this.$content('pages', 'competition', 'interclubs-2019-20_nl').fetch()
+    this.page__fr = await this.$content('pages', 'competition', 'interclubs-2019-20_fr').fetch()
+    this.page__de = await this.$content('pages', 'competition', 'interclubs-2019-20_de').fetch()
+    this.page__en = await this.$content('pages', 'competition', 'interclubs-2019-20_en').fetch()
   },
 
   head: {
@@ -54,6 +59,10 @@ export default {
         defer: true
       }
     ]
+  },
+  computed: {
+    page () { return this['page__' + this.$i18n.locale] }
   }
+
 }
 </script>

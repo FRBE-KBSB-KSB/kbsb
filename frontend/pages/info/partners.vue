@@ -9,11 +9,14 @@
 export default {
   layout: 'default',
 
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', 'info', 'partner').fetch()
+  data () {
     return {
-      page
+      page: {}
     }
+  },
+
+  async fetch () {
+    this.page = await this.$content('pages', 'info', 'partner').fetch()
   },
 
   head: {

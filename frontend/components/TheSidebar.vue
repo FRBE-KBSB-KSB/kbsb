@@ -115,6 +115,9 @@
         <template #activator>
           <v-list-item-content>{{ $t('Useful information') }}</v-list-item-content>
         </template>
+        <v-list-item to="/info/calendar">
+          <v-list-item-content>{{ $t('Calendar') }}</v-list-item-content>
+        </v-list-item>
         <v-list-item to="/info/email-addresses">
           <v-list-item-content>{{ $t('Email addresses') }}</v-list-item-content>
         </v-list-item>

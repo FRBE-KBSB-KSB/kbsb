@@ -4,7 +4,8 @@
 # import reddevil.boardmember.api_bmember
 import reddevil.api.api_page
 import reddevil.api.api_account
-import reddevil.api.api_file
+
+# import reddevil.api.api_file
 
 # import reddevil.api.api_boardrole
 # import reddevil.api.api_boardmember
@@ -12,6 +13,7 @@ import reddevil.api.api_file
 # import kbsb.api.api_member
 # import kbsb.api.api_club
 # import kbsb.api.api_book100
+import kbsb.api.api_file
 
 from kbsb.main import app
 from pathlib import Path
@@ -33,3 +35,14 @@ def walk(path):
 @app.get("/api/list")
 def test():
     return list(walk("/etc/secrets"))
+
+
+from fastapi.responses import Response
+
+
+@app.get("/api/report")
+def readme():
+    from kbsb.service.file import readFilecontent
+
+    contents = readFilecontent("reports_bm/20211122 PV OA - BO verslag__957163.pdf")
+    return Response(contents, media_type="application/pdf")

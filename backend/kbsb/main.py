@@ -8,7 +8,7 @@ from reddevil.common.configreader import SettingsProxy
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
-__all__ = ["app"]
+__all__ = ["app", "settings"]
 
 # load settings
 settings = SettingsProxy("kbsb.settings")

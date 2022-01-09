@@ -1,7 +1,10 @@
 <template>
   <v-container>
-    <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    <h1>Vademecum</h1>
+    <p>
+      Nederlandstalige versie dd 29-11-2021: <a href="/docs/vademecum_nl.pdf">vademecum_nl.pdf</a>
+    </p>
+    <p>La version en français est actuellement indisponible.  Nos excuses.</p>
   </v-container>
 </template>
 
@@ -20,15 +23,8 @@ export default {
     }
   },
 
-  async fetch () {
-    this.page__nl = await this.$content('pages', 'info', 'elo-processing_nl').fetch()
-    this.page__fr = await this.$content('pages', 'info', 'elo-processing_fr').fetch()
-    this.page__de = await this.$content('pages', 'info', 'elo-processing_de').fetch()
-    this.page__en = await this.$content('pages', 'info', 'elo-processing_en').fetch()
-  },
-
   head: {
-    title: 'Eloverwerking - Traitement Elo',
+    title: 'Vademecum',
     link: [
       {
         rel: 'stylesheet',
@@ -50,17 +46,8 @@ export default {
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'home', name: 'description', content: 'Meta description' }
-    ],
-    script: [
-      {
-        src: 'https://apis.google.com/js/platform.js',
-        async: true,
-        defer: true
-      }
     ]
-  },
-  computed: {
-    page () { return this['page__' + this.$i18n.locale] }
   }
+
 }
 </script>

@@ -37,6 +37,27 @@
               </div>
             </v-card-text>
           </v-card>
+          <v-card class="mt-2">
+            <v-card-title class="green darken-1 white--text pa-3 hyphen">
+              {{ $t('Calendar') }}
+            </v-card-title>
+            <v-card-text class="mt-2">
+              <ul>
+                <li
+                  v-for="c,ix in calitems"
+                  :key="ix"
+                >
+                  {{ calenderItem(c) }}
+                </li>
+              </ul>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn to="/info/calendar">
+                {{ $t('More') }} ...
+              </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-col>
       </v-row>
       <v-row class="mt-2">
@@ -100,29 +121,54 @@ import { phpbaseurl, notitle, nointro } from '@/util/cms'
 export default {
   layout: 'landing',
 
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', `index_${app.i18n.locale}`).fetch()
-    return {
-      page
-    }
-  },
-
   data () {
     return {
       articles3: [],
       articlesRest: [],
-      page: {},
+      calitems: [],
+      page__nl: {},
+      page__fr: {},
+      page__de: {},
+      page__en: {},
       phpbaseurl
     }
   },
 
+  async fetch () {
+    const today = (new Date()).toISOString()
+    this.page__nl = await this.$content('pages', 'index_nl').fetch()
+    this.page__fr = await this.$content('pages', 'index_fr').fetch()
+    this.page__de = await this.$content('pages', 'index_de').fetch()
+    this.page__en = await this.$content('pages', 'index_en').fetch()
+    const reply = await this.$content('calendar').fetch()
+    this.calitems = reply.calendar
+      .filter(c => c.datum > today)
+      .sort((a, b) => a.datum > b.datum ? 1 : -1)
+      .slice(0, 4)
+  },
+
+  computed: {
+    page () { return this['page__' + this.$i18n.locale] }
+  },
+
   mounted () {
-    console.log('LandingPage Mounted', this, this.$api)
+    console.log('$content', this.$content)
     this.getActiveArticles()
-    console.log('m1')
+    console.log()
   },
 
   methods: {
+
+    calenderItem (c) {
+      const output = []
+      output.push((new Date(c.datum)).toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
+      output.push(c.title)
+      if (c.round) {
+        output.push(this.$t('Round'))
+        output.push(c.round)
+      }
+      return output.join(' ')
+    },
 
     getActiveArticles () {
       console.log('fetching articles', this.$api)

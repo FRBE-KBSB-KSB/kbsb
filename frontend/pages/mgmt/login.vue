@@ -60,7 +60,7 @@ export default {
     return {
       login: {},
       googleSignInParams: {
-        client_id: '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
+        client_id: process.env.google_client_id
       }
     }
   },

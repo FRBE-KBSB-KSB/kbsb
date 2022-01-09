@@ -10,17 +10,15 @@ export default {
 
   layout: 'default',
 
-  async asyncData ({ $content, app }) {
-    const page = await $content('pages', 'youth', 'g-licence_fr').fetch()
+  data () {
     return {
-      page
+      page: {},
+      tab: 0
     }
   },
 
-  data () {
-    return {
-      tab: 0
-    }
+  async fetch () {
+    this.page = await this.$content('pages', 'youth', 'g-licence_fr').fetch()
   },
 
   head: {

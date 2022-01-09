@@ -157,18 +157,26 @@
 
 export default {
 
-  async asyncData ({ $content }) {
-    const members = await $content('app/board').fetch()
-    const board = members.filter(m => m.category === 'board')
-    const collaborator = members.filter(m => m.category === 'collaborator')
-    const ombudsman = members.filter(m => m.category === 'ombudsman')
-    const honorary = members.filter(m => m.category === 'honorary')
-    const honorpres = members.filter(m => m.category === 'honorpres')
+  data () {
     return {
-      board, collaborator, ombudsman, honorary, honorpres
+      board: [],
+      collaborator: [],
+      ombudsman: [],
+      honorary: [],
+      honorpres: []
     }
-  }
+  },
 
+  async fetch () {
+    const members = await this.$content('app', 'board').fetch()
+    this.board = members.filter(m => m.category === 'board')
+    this.collaborator = members.filter(m => m.category === 'collaborator')
+    this.ombudsman = members.filter(m => m.category === 'ombudsman')
+    this.honorary = members.filter(m => m.category === 'honorary')
+    this.honorpres = members.filter(m => m.category === 'honorpres')
+  },
+
+  fetchKey: 'board'
 }
 </script>
 

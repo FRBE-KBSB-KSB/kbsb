@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 def secretmanager_client():
     if not hasattr(secretmanager_client, "sc"):
         setattr(secretmanager_client, "sc", secretmanager.SecretManagerServiceClient())
-    return
+        log.info(f"secretmanagerclient {secretmanager_client.sc}")
+    return secretmanager_client.sc
 
 
 def get_secret(name: str) -> Any:

@@ -31,6 +31,8 @@ mysql-connector-python = "*"
 "google.cloud" = "*"
 gunicorn = "*"
 google-cloud-secret-manager = "*"
+google-cloud-storage = "*"
+dnspython = "*"
 
 [requires]
 python_version = "3.9"

@@ -20,6 +20,12 @@ export default {
 
   css: [],
 
+  env: {
+    google_client_id: process.env.GOOGLE_CLIENT_ID ||
+    '635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com'
+    // for prod '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
+  },
+
   generate: {
     fallback: true,
     dir: '../backend/public'
