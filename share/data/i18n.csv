@@ -21,6 +21,7 @@ BC Youth,BC Youth,BK Jeugd,CB Jeunesse,BLM Jugend
 Board,Board,Bestuur,Organe d'administration,Verwaltungsrat
 Board members,Board members,Bestuursleden,Administrateurs,Vorstandsmitglieder
 Book 100 years,Book 100 years,Boek 100 jaar,Livre 100 ans,Buch 100 Jahre
+Calendar,Calender,Kalender,Calendrier,Kalender
 Chess equiment,Chess equiment,Schaakmateriaal,Equipement d'échecs,Schachausrüstung
 Committees,Committees,Commissies,Commissions,Ausschüsse
 Competitions,Competitions,Competities,Compétitions,Wettbewerbe
@@ -48,6 +49,7 @@ International competitions,International competitions,Internationale competities
 Last name,Last name,Familienaam,Nom,Nachname
 Mandated persons,Mandated persons,Gemandateerden,Personnes mandatées,Mandierte Personen
 Mobile phone,Mobile phone,GSM,GSM,Handy
+More,More,Meer,Plus,Mehr
 Order created successfully,Order created successfully,Bestelling succesvol aangemaakt,Commande créée avec succès,Bestellung erfolgreich erstellt
 Ordering form,Ordering form,Bestelformulier,Formulaire de commande,Bestellformular
 Ordering the book 100 years of Belgian chess history,Ordering the book 100 years of Belgian chess history,Bestellen boek 100 jaar Belgische schaakgeschiedenis,Commander le livre 100 ans d'histoire des échecs en Belgique,Bestellung des Buches 100 Jahre Belgische Schachgeschichte
@@ -58,6 +60,7 @@ Regional,Regional,Regionaal,Régional,Regional
 Registered office,Registered office,Maatschappelijke zetel,Siège social,Sitz der Gesellschaft
 Reports,Reports,Verslagen,Procès verbaux,Berichte
 Results SWAR,Results SWAR,Resulaten SWAR,Résultats SWAR,Ergebnisse SWAR
+Round,Round,Ronde,Ronde,Runde
 Royal Belgian Chess Federation npo,Royal Belgian Chess Federation npo,Koninklijke Belgische Schaakbond vzw.,Fédération Royale Belge des Echecs asbl.,Königlicher Schachbund Belgien VoE
 Social media,Social media,Socliale media,Mediasociaux,Sozialen Medien
 Statutes,Statutes,Statuten,Statuts,Statuten
@@ -66,3 +69,26 @@ Tournament rules,Tournament rules,Wedstrijdreglement,Règlement des tournois,Tur
 Useful information,Useful information,Nuttige informatie,Information utile,Nützliche Informationen
 Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
 Youth,Youth,Jeugd,Jeunesse,Jugend
+President,President,Voorzitter,Président,Prásident
+President CIS,President CIS,Voorzitter CIS,Président CIS,Prásident CIS
+Representative BOIC,Representative BOIC,BOIC afgevaardigde,Délegué COIB,Stellvertreter BOIC
+Treasurer,Treasurer,Penningmeester,Trésorier,Schatzmeister
+Secretary,Secretary,Secretaris,Secrétaire,Sekretär
+Webmaster,Webmaster,Webmaster,Webmaster,Webmaster
+Representative for FIDE & ECU,Representative for FIDE & ECU,Afgevaardigde FIDE & ECU,Représentant pour FIDE & ECU,Vertreter für FIDE & ECU
+Tournament director,Tournament director,Toernooidirecteur,Directeur de tournoi,Turnierleiter
+Manager international selections,Manager international selections,Manager internationale selecties,Responsable sélections internationales,Manager internationale Auswahlen
+Representative titled players,Representative titled players,Vertegenwoordiger  titelspelers,Représentant joueurs titrés,Vertreter für Titelspieler
+Representative female players,Representative female players,Vertegenwoordiger speelsters,Représentant joueuses,Vertreter für Spielerinnen
+Youth director,Youth director,Jeugdleider,Directeur de la jeunesse,Jugendleiter
+Communication manager,Communication manager,Communicatiemanager,Responsable de la communication,Kommunikationsmanager
+Rating manager,Rating manager,Ratingmanager,Responsable du classement ELO,Ratingmanager
+Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
+Ombudsman,Ombudsman,Ombudsman,Médiateur,Ombudsmann
+Collaborator,Collaborator,Medewerker,Collaborateur,Mitarbeiter
+Honorary members,Honorary members,Ereleden,Membres d'honneur,Ehrenmitglieder
+Honorary president,Honorary president,Erevoorzitter,Président d'honneur,Ehrenpräsident
+Vice president,Vice president,Vicevoorzitter,Vice-président,Vizepräsident
+Secretary general,Secretary general,Secretaris-generaal,Secrétaire général,Generalsekretär
+RBCF,RCBF,KBSB,FRBE,KBSB
+postponed,postponed,uitgesteld,reporté,verschoben

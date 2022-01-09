@@ -82,8 +82,6 @@ SECRETS = {
         "name": "kbsb-mysql",
         "manager": "googlejson",
     },
-    "gdrive": "kbsb-gdrive",
-    "manager": "filejson",
 }
 SECRETS_PATH = ""
 

@@ -23,7 +23,7 @@ def get_secret(name: str) -> Any:
     sconfig = settings.SECRETS.get(name, None)
     if not sconfig:
         log.error(f"Secret {name} not configured")
-        raise RdInternalServerError(desription="SecretNotConfigured")
+        raise RdInternalServerError(description="SecretNotConfigured")
     sname = sconfig.get("name", name)
     manager = sconfig.get("manager", "filejson")
     if manager == "googlejson":

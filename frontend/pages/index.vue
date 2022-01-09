@@ -140,10 +140,11 @@ export default {
     this.page__fr = await this.$content('pages', 'index_fr').fetch()
     this.page__de = await this.$content('pages', 'index_de').fetch()
     this.page__en = await this.$content('pages', 'index_en').fetch()
-    const reply = await this.$content('calendar').fetch()
+    const reply = await this.$content('app', 'calendar').fetch()
     this.calitems = reply.calendar
-      .filter(c => c.datum > today)
-      .sort((a, b) => a.datum > b.datum ? 1 : -1)
+      .filter(c => c.date > today)
+      .filter(c => c.status !== 'disabled')
+      .sort((a, b) => a.date > b.date ? 1 : -1)
       .slice(0, 4)
   },
 
@@ -161,11 +162,14 @@ export default {
 
     calenderItem (c) {
       const output = []
-      output.push((new Date(c.datum)).toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
+      output.push((new Date(c.date)).toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
       output.push(c.title)
       if (c.round) {
         output.push(this.$t('Round'))
         output.push(c.round)
+      }
+      if (c.status === 'postponed') {
+        output.push(this.$t('postponed'))
       }
       return output.join(' ')
     },

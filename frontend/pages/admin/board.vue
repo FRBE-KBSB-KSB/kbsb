@@ -15,7 +15,7 @@
             </div>
             <div class="pa-3">
               <div v-for="r in bm.roles" :key="r">
-                {{ r }}
+                {{ $t(r) }}
               </div>
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
@@ -59,7 +59,7 @@
             </div>
             <div class="pa-3">
               <div v-for="r in bm.roles" :key="r">
-                {{ r }}
+                {{ $t(r) }}
               </div>
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
@@ -103,7 +103,7 @@
             </div>
             <div class="pa-3">
               <div v-for="r in bm.roles" :key="r">
-                {{ r }}
+                {{ $t(r) }}
               </div>
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
@@ -132,7 +132,7 @@
       </v-col>
     </v-row>
     <h2 class="mt-3">
-      {{ $t("Honorary member") }}
+      {{ $t("Honorary members") }}
     </h2>
     <ul>
       <li v-for="bm in honorary" :key="bm.last_name">

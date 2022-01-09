@@ -61,8 +61,8 @@
   last_name: Dardha
   roles: 
     - "Manager international selections"
-    - "Representative for titled players"
-    - "Representative for female players"
+    - "Representative titled players"
+    - "Representative female players"
   slug: arben
 
 - 
@@ -72,7 +72,7 @@
   last_name: Vukojevic
   mobile: "+32497166318"
   roles: 
-    - "Youth manager"
+    - "Youth director"
     - "Communication manager"
   slug: philippe
 
@@ -89,8 +89,8 @@
   first_name: Jan 
   last_name: Vanhercke
   roles: 
-    - "Manager Rating"
-    - "Manager affiliations"
+    - Rating manager
+    - Affiliations manager
   slug: jan
 
 - 
