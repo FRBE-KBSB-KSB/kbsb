@@ -18,6 +18,10 @@ export default {
 
   components: true,
 
+  content: {
+    dir: '../share/content'
+  },
+
   css: [],
 
   env: {
@@ -28,7 +32,7 @@ export default {
 
   generate: {
     fallback: true,
-    dir: '../backend/public'
+    dir: '../kbsb_backend/public'
   },
 
   head: {

@@ -1,0 +1,27 @@
+runtime: python39
+entrypoint: gunicorn kbsb.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+env_variables:
+  GOOGLE_CLIENT_ID: '635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com'
+
+
+handlers:
+
+- url: /api.*
+  script: auto
+
+- url: /(.*\..+)$
+  static_files: public/\1
+  upload: public/(.*\..+)$
+
+- url: /
+  static_files: public/index.html
+  upload: public/index.html
+
+- url: /([^\.]*)$
+  static_files: public/\1/index.html
+  upload: public/([^\.]*)/index.html
+
+- url: /.*
+  static_files: public/index.html
+  upload: public/index.html
+

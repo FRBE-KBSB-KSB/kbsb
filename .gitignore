@@ -1,19 +1,6 @@
-.DS_Store
-
-
-# local files
-.env.local
-.env.*.local
-/data
-/fs/
 
 # Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-selenium-debug.log
-chromedriver.log
-geckodriver.log
+*.log*
 
 # Editor directories and files
 .idea
@@ -21,18 +8,14 @@ geckodriver.log
 *.code-workspace
 vetur.config.js
 
-# python backend
-backend/local_settings.py
-backend/reddevil/
+# backend
+kbsb_backend/public
+kbsb_backend/local_settings.py
 .mypy_cache
 __pycache__/
 *.pyc
 
 # vue frontend
-frontend/dist
-frontend/node_modules
-frontend/.nuxt
-backend/public
+kbsb_frontend/node_modules
+kbsb_frontend/.nuxt
 
-# data 
-filestore/
