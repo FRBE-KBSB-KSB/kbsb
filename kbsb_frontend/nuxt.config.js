@@ -5,7 +5,7 @@ export default {
   },
 
   build: {
-    extend (config, { loaders }) {
+    extend(config, { loaders }) {
       config.module.rules.push({
         test: /\.ya?ml$/,
         type: 'json', // Required by Webpack v4
@@ -26,8 +26,8 @@ export default {
 
   env: {
     google_client_id: process.env.GOOGLE_CLIENT_ID ||
-    '635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com'
-    // for prod '767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com'
+      '658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com'
+    // '635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com'   dev
   },
 
   generate: {
