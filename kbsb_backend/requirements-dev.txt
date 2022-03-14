@@ -10,28 +10,5 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
-aiofiles
-bcrypt
-colorlog
-dnspython
-fastapi
-google
-google-api-python-client
-google-auth
-google-auth-httplib2
-google-auth-oauthlib
-google-cloud-secret-manager
-google-cloud-storage
-gunicorn
-markdown2
-motor
-mysql-connector-python
-passlib
-pymongo
-python-dateutil
-python-jose[cryptography]
-python-slugify
-pyyaml
-requests
-uvicorn
-./libs/reddevil-2.2.5-py3-none-any.whl
+mypy
+pytest

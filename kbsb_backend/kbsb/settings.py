@@ -69,7 +69,7 @@ GOOGLE_CLIENT_ID = os.environ.get(
     "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
-GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "testwebsitekbsb")
+GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "")
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
 #
