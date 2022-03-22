@@ -66,10 +66,13 @@ LOG_CONFIG = {
 # login details
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",
-    "767432590119-itkr36suu2qn41irsf5ie3mekfqdgt1q.apps.googleusercontent.com",
+    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
-GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "")
+GOOGLE_PROJECT = os.environ.get(
+    "GOOGLE_PROJECT",
+    "",
+)
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
 #

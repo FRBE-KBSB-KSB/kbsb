@@ -1,8 +1,10 @@
 runtime: python39
 entrypoint: gunicorn kbsb.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 env_variables:
+  ACTIVE_ENV: prod
+  FILESTORE_BUCKET: website-kbsb-prod.appspot.com
   GOOGLE_PROJECT: website-kbsb-prod
-  GOOGLE_CLIENT_ID: "635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com"
+  GOOGLE_CLIENT_ID: "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com"
 
 handlers:
   - url: /api.*
