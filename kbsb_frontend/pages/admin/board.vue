@@ -20,7 +20,7 @@
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
               </div>
-              <div>e-mail: {{ bm.email }}@frbe-kbsb.be</div>
+              <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
               <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
@@ -64,7 +64,7 @@
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
               </div>
-              <div>e-mail: {{ bm.email }}@frbe-kbsb.be</div>
+              <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
               <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
@@ -108,7 +108,7 @@
               <div v-show="bm.mobile">
                 tel: {{ bm.mobile }}
               </div>
-              <div>e-mail: {{ bm.email }}@frbe-kbsb.be</div>
+              <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
               <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
