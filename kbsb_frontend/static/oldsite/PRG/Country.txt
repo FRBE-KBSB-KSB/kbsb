@@ -1,0 +1,216 @@
+BEL Belgium
+ABW Aruba
+AFG Afghanistan
+AGO Angola
+AHO Netherlands Antilles
+ALB Albania
+ALG Algeria
+AND Andorra
+ANG Angola
+ARG Argentina
+ARM Armenia
+ARU Aruba
+ASA Samoa américaines
+AUS Australia
+AUT Austria
+AZE Azerbaijan
+BAH Bahamas
+BAN Bangladesh
+BAR Barbados
+BER Bermuda
+BDI Burundi
+BEN Benin
+BER Bermudes
+BHU Bhoutan
+BIH Bosnia & Herzegovina
+BIZ Belize
+BLR Belarus
+BOL Bolivia
+BOT Botswana
+BRA Brazil
+BRN Bahrain
+BRU Brunei Darussalam
+BUL Bulgaria
+BUR Burkina Faso
+CAF Centre Afrique
+CAM Cambodge
+CAN Canada
+CAY Cayman
+CGO Republique du Congo
+CHA Tchad
+CHI Chile
+CHN China
+CIV Côte Yvoir
+CMR Cameroun
+COD Rep.Dem.Congo
+COK Iles Cook
+COL Colombia
+COM Comores
+CPV Cap Vert
+CRC Costa Rica
+CRO Croatia
+CUB Cuba
+CYP Cyprus
+CZE Czech Republic
+DEN Denmark
+DJI Djibouti
+DMA Dominican Republic
+DOM Dominican Republic
+ECU Ecuador
+EGY Egypt
+ENG England
+ERI Erythree
+ESA El Salvador
+ESP Spain
+EST Estonia
+ETH Ethiopia
+FAI Faroe Islands
+FIJ Fiji
+FIN Finland
+FRA France
+FSM Micronésir
+GAB Gabon
+GAM Gambie
+GCI Guernsey
+GBR Grande Bretagne
+GBS Guinee-Bissau
+GEO Georgia
+GEQ Guinee Equatoriale
+GER Germany
+GHA Ghana
+GRE Greece
+GRN Grenade
+GUA Guatemala
+GUI Guinée
+GUM Guam
+GUY Guyane
+HAI Haiti
+HKG Hong Kong
+HON Honduras
+HUN Hungary
+INA Indonesia
+IND India
+IRI Iran
+IRL Ireland
+IRQ Iraq
+ISL Iceland
+ISR Israel
+ISV US Virgin Islands
+ITA Italy
+IVB British Virgin Islands
+JAM Jamaica
+JCI Jersey
+JOR Jordan
+JPN Japan
+KAZ Kazakhstan
+KEN Kenya
+KGZ Kirgizistan
+KIR Kiribati
+KOR South Korea
+KUW Kuwait
+LAO Laos
+LAT Latvia
+LBA Libya
+LBN Lebanon
+LBR Liberia
+LCA Saite-Lucie
+LES Lesotho
+LIB Lebanon
+LIE Liechtenstein
+LTU Lithuania
+LUX Luxembourg
+MAS Madagascar
+MAC Macau
+MAR Morocco
+MAS Malaysia
+MAW Malawi
+MDA Moldavie
+MDV Maldives
+MEX Mexico
+MGL Mongolia
+MHL Marshall
+MKD Macedonia
+MLI Mali
+MLT Malta
+MON Monaco
+MNC Monaco
+MNE Montenegro
+MOZ Mozambique
+MRI Maurice
+MRI Mauritius
+MYA Myanmar(Birmanie)
+NAM Namibia
+NCA Nicaragua
+NED Netherlands
+NEP Nepal
+NGR Nigeria
+NIG Nigeria
+NOR Norway
+NRU Nauru
+NZL New Zealand
+OMA Oman
+PAK Pakistan
+PAN Panama
+PAR Paraguay
+PER Peru
+PHI Philippines
+PLE Palestine
+PLW Palaos
+PNG Papua New Guinea
+POL Poland
+POR Portugal
+PRK Corée Nord
+PUR Puerto Rico
+QAT Qatar
+ROM Romania
+ROU Roumanie
+RSA South Africa
+RUS Russia
+RWA Rwanda
+SAM Samoa
+SCO Scotland
+SEN Senegal
+SEY Seychelles
+SKN St.Kitts and Nevis
+SIN Singapore
+SLE Sierra Leone
+SLO Slovenia
+SMR San Marino
+SOL Salomon
+SOM Somalie
+SRB Serbia
+SRI Sri Lanka
+STP Sao Tome and Principe
+SUD Sudan
+SUI Switzerland
+SUR Surinam
+SVK Slovakia
+SWE Sweden
+SWZ Swaziland
+SYR Syria
+TAN Tanzanie
+TGA Tonga
+THA Thailand
+TJK Tajikistan
+TKM Turkmenistan
+TLS Timor-Leste
+TOG Togo
+TPE Chinese Taipei
+TRI Trinidad & Tobago
+TUN Tunisia
+TUR Turkey
+TUV Tuvalu
+UAE United Arab Emirates
+UGA Uganda
+UKR Ukraine
+URU Uruguay
+USA United States of America
+UZB Uzbekistan
+VAN Vanuatu
+VEN Venezuela
+VIE Vietnam
+VIN Saint-Vincentand Grenadines
+WLS Wales
+YEM Yemen
+ZAM Zambia
+ZIM Zimbabwe

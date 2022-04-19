@@ -1,8 +1,8 @@
 ---
-title: Belgisch kampioenschap 2021
+title: Belgisch kampioenschap 2022
 ---
 
-Het Belgisch Kampioenschap vindt plaats tijdens de editie van de Brugse Meesters 2021. De ‘Koninklijke Brugse Schaakkring’ organiseert haar 7de editie van de ‘Brugse Meesters’ in zaal Tabigha (Noordzandstraat 46) te Brugge. Naast het gesloten expertenkampioenschap (10 spelers) (trouwens een GM-normentoernooi) zijn er ook twee open groepen 
+Het Belgisch Kampioenschap vindt plaats tijdens de editie van de Brugse Meesters 2022. De ‘Koninklijke Brugse Schaakkring’ organiseert haar 7de editie van de ‘Brugse Meesters’ in zaal Tabigha (Noordzandstraat 46) te Brugge. Naast het gesloten expertenkampioenschap (10 spelers) (trouwens een GM-normentoernooi) zijn er ook twee open groepen 
 
 ## Speeldata, aanvangsuur, speeltempo en andere info
 
