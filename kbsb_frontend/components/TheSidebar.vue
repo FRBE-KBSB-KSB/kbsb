@@ -101,7 +101,7 @@
           <v-list-item-content>{{ $t('BC Youth') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/youth/international-youth">
-          <v-list-item-content>{{ $t('International') }}}</v-list-item-content>
+          <v-list-item-content>{{ $t('International') }}</v-list-item-content>
         </v-list-item>
         <v-list-item to="/youth/school-chess">
           <v-list-item-content>{{ $t('BC School chess') }}</v-list-item-content>

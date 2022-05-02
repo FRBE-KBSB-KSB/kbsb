@@ -1,5 +1,5 @@
 ---
-title: Belgian Youth Chess Championships 2021
+title: Belgian Youth Chess Championships 2022
 ---
 
 

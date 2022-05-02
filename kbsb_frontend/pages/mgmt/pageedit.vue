@@ -63,7 +63,6 @@
                   <v-text-field v-model="p.name" label="Name" />
                   <v-text-field v-model="p.created_by" label="Owner" />
                   <v-text-field v-model="p.slug" label="Slug" />
-                  <v-select v-model="p.doctype" :items="doctypes" label="Document type" />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-checkbox v-model="p.enabled" label="Enabled" />

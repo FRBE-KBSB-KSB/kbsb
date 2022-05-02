@@ -1,5 +1,5 @@
 ---
-title: Championnats belges d'échecs de la jeunesse 2021
+title: Championnats belges d'échecs de la jeunesse 2022
 ---
 
 

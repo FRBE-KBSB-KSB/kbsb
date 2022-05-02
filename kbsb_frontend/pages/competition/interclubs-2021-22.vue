@@ -1,83 +1,68 @@
 <template>
   <v-container>
-    <h1>Interclub 2021 - 2022</h1>
-    <div class="mt-1" v-html="intro" />
-    <div class="mt-1" v-html="body" />
+    <h1>{{ page.title }}</h1>
+    <nuxt-content :document="page" />
   </v-container>
 </template>
 
 <script>
 
-import { marked } from 'marked'
-
 export default {
-  layout: 'landing',
+
+  layout: 'default',
 
   data () {
     return {
-      page: {}
+      page__nl: {},
+      page__fr: {},
+      page__de: {},
+      page__en: {},
+      tab: 0
     }
   },
 
+  async fetch () {
+    this.page__nl = await this.$content('pages', 'competition', 'interclubs-2021-22_nl').fetch()
+    this.page__fr = await this.$content('pages', 'competition', 'interclubs-2021-22_fr').fetch()
+    this.page__de = await this.$content('pages', 'competition', 'interclubs-2021-22_de').fetch()
+    this.page__en = await this.$content('pages', 'competition', 'interclubs-2021-22_en').fetch()
+  },
+
+  head: {
+    title: 'Interclubs 2021-22',
+    link: [
+      {
+        rel: 'stylesheet',
+        href:
+          'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css?family=Material+Icons'
+      },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css'
+      },
+      { rel: 'favicon', href: 'favicon.ico' }
+    ],
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'home', name: 'description', content: 'Meta description' }
+    ],
+    script: [
+      {
+        src: 'https://apis.google.com/js/platform.js',
+        async: true,
+        defer: true
+      }
+    ]
+  },
   computed: {
-
-    body () {
-      let pt = ''
-      if (this.page.body) {
-        pt = this.page.body.default.value
-        if (this.page.body[this.$i18n.locale]) { pt = this.page.body[this.$i18n.locale].value }
-      }
-      return marked(pt)
-    },
-
-    intro () {
-      let pt = ''
-      if (this.page.intro) {
-        pt = this.page.intro.default.value
-        if (this.page.intro[this.$i18n.locale]) { pt = this.page.intro[this.$i18n.locale].value }
-      }
-      return marked(pt)
-    }
-  },
-
-  mounted () {
-    console.log('ic 2122 mounted')
-    this.getContent()
-  },
-
-  methods: {
-
-    getContent () {
-      this.$api.page.anon_slug_page({ slug: 'interclub-2021-22' }).then(
-        (resp) => {
-          console.log('ic resp', resp)
-          this.page = resp.data
-        },
-        resp => (console.error('could not fetch articles', resp))
-      )
-    }
-
+    page () { return this['page__' + this.$i18n.locale] }
   }
 
 }
 </script>
-
-<style>
-h1:after
-{
-    content:' ';
-    display: block;
-    border:1px solid #aaa;
-    margin-bottom: 1em;
-}
-.nuxt-content td, .nuxt-content th {
-  padding: 8px;
-  border: 1px solid #ddd;
-}
-.nuxt-content table {
-  border-collapse: collapse;
-}
-.nuxt-content ul , .nuxt-content ol, .nuxt-content h2, .nuxt-content h3 {
-    margin-bottom: 0.5em;
-}
-</style>
