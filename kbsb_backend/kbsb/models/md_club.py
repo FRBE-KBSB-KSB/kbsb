@@ -7,6 +7,8 @@ import logging
 from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
+from enum import Enum
+
 
 
 # Table p_clubs
@@ -44,6 +46,68 @@ from pydantic import BaseModel
 #     Column('CreDate', DATE(), table=<p_clubs>), 
 #     Column('SupDate', DATE(), table=<p_clubs>)
 
+class Visibility(str, Enum):
+    hidden = 'HIDDEN'       # only by member itself and by KBSB baord
+    club = 'CLUB'           # club members are added
+    public = 'PUBLIC'       # to everyone
+
+class Federation(str, Enum):
+    v = 'V'
+    f = 'F'
+    d = 'D'
+
+class Day(str, Enum):
+    monday = "Monday"
+    tuesday = "Tuesday"
+    wednesday = "Wednesday"
+    thursday = "Thursday"
+    friday = "Friday"
+    saturday = "Saturday"
+    sunday = "Sunday"
+
+
+class Opening:
+    day: Day
+    starthour: str
+    endhour: str
+    nature: str               # youth, adult, main
+
+class BoardMember(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    mobile: str
+    email_visibility: Visibility
+    mobile_visibility: Visibility
+    
+class Club(BaseModel):
+    """
+    basic club used in service layer 
+    """
+    address: str                    # full contact address
+    bankaccount_name: str       
+    bankaccount_iban: str
+    bankaccount_bic: str
+    boardmembers: List(BoardMember)
+    email_admin: str                 # email address for administrative tasks
+    email_finance: str               # email address for financial tasks
+    email_interclub: str             # email_fdor interclub tasks
+    email_main: str                  # main email address to contact, must be available
+    enabled: bool
+    federation: Federation
+    name_long: str                   # long name without abbrevioations
+    name_short: str                  # short name with abbreviations
+    openinghours: List[Opening]
+    venue: str                       # full multiline address of playing venue
+    website: str
+
+
+class ClubHistory(BaseModel):
+    action: str
+    topic: str
+    time: datetime
+
+
 class ClubOptional(BaseModel):
     """
     Primary class used in service level to represent a club
@@ -61,17 +125,6 @@ class ClubOptional(BaseModel):
     federation: Optional[str]
     forum: Optional[str]
     id: Optional[str]
-    id_president: Optional[str]
-    id_vicepresident: Optional[str]
-    id_treasurer: Optional[str]
-    id_secretary: Optional[str]
-    id_tournament: Optional[str]
-    id_youth: Optional[str]
-    id_interclub: Optional[str]
-    league: Optional[str]
-    long_name: Optional[str]
-    modification_date: Optional[date]
-    modification_login: Optional[str]
     playdates: Optional[str]
     registered_office: Optional[str]
     remarks: Optional[str]
@@ -104,40 +157,3 @@ class ClubBasic(BaseModel):
     short_name: str
     webmaster: Optional[str] = ''
     website: Optional[str] = ''
-
-    
-club_o2n: Dict[str,dict] = {
-    'Club': {'name': 'id', 'conversion': str},
-    'Federation': {'name': 'federation'},
-    'Ligue': {'name': 'league', 'conversion': str},
-    'Intitule': {'name': 'long_name'},
-    'Abbrev': {'name': 'short_name'},
-    'Local': {'name': 'address_venue'},
-    'Adresse': {'name': 'address_street'},
-    'CodePostal': {'name': 'address_postal_code'},
-    'Localite': {'name': 'address_town'},
-    'Telephone': {'name': 'phone'},
-    'SiegeSocial': {'name': 'registered_office'},
-    'JoursDeJeux': {'name':'playdates'},
-    'WebSite': {'name': 'website'},
-    'WebMaster': {'name': 'webmaster'},
-    'Forum': {'name': 'forum'},
-    'Email': {'name': 'email'},
-     # 'Mandataire' not converted
-     # 'MandataireNr' not converted
-    'PresidentMat': {'name': 'id_president', 'conversion': str},
-    'ViceMat': {'name': 'id_vicepresident', 'conversion': str},
-    'TresorierMat': {'name': 'id_treasurer', 'conversion': str},
-    'SecretaireMat': {'name': 'id_secretary', 'conversion': str},
-    'TournoiMat': {'name': 'id_tournament', 'conversion': str},
-    'JeunesseMat': {'name': 'id_youth', 'conversion': str},
-    'InterclubMat': {'name': 'id_interclub', 'conversion': str},
-    'BqueTitulaire': {'name': 'bankaccount_name'},
-    'BqueCompte': {'name': 'bankaccount_iban'},
-    'BqueBIC': {'name': 'bankaccount_bic'},
-    'Divers': {'name': 'remarks'},
-    'ModifMat': {'name': 'modification_login'},
-    'ModifDate': {'name': 'modification_date'},
-    'CreDate': {'name': 'creation_date'},
-    'SupDate': {'name': 'removal_date'},
-}
