@@ -1,5 +1,5 @@
 ---
-title: Belgischen Jugendschachmeisterschaften 2021
+title: Belgischen Jugendschachmeisterschaften 2022
 ---
 
 

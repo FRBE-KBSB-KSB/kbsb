@@ -6,7 +6,8 @@
       :items="filteredfiles"
       :footer-props="footerProps"
       class="elevation-1"
-      sort-by="fullname"
+      sort-by="topicdate"
+      sort-desc="1"
     >
       <template #top>
         <v-toolbar flat color="white">

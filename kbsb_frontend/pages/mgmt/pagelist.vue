@@ -12,11 +12,6 @@
         <v-card color="grey lighten-4">
           <v-card-title>
             <v-row class="px-2">
-              <v-checkbox v-model="filter.normal" label="page" />
-              <v-spacer />
-              <v-checkbox v-model="filter.article" label="article" />
-              <v-spacer />
-              <v-checkbox v-model="filter.app" label="app" />
               <v-spacer />
               <v-tooltip bottom>
                 <template #activator="{ on }">
@@ -102,24 +97,25 @@ export default {
 
   computed: {
     filteredpages () {
-      const pa = []
-      if (!this.filter.normal && !this.filter.article && !this.filter.app) {
-        return this.pages
-      }
-      this.pages.forEach((p) => {
-        if (p.doctype === 'normal-page' && this.filter.normal) {
-          pa.push(p)
-          return
-        }
-        if (p.doctype === 'article' && this.filter.article) {
-          pa.push(p)
-          return
-        }
-        if (p.doctype === 'app-page' && this.filter.app) {
-          pa.push(p)
-        }
-      })
-      return pa
+      return this.pages
+      // const pa = []
+      // if (!this.filter.normal && !this.filter.article && !this.filter.app) {
+      //   return this.pages
+      // }
+      // this.pages.forEach((p) => {
+      //   if (p.doctype === 'normal-page' && this.filter.normal) {
+      //     pa.push(p)
+      //     return
+      //   }
+      //   if (p.doctype === 'article' && this.filter.article) {
+      //     pa.push(p)
+      //     return
+      //   }
+      //   if (p.doctype === 'app-page' && this.filter.app) {
+      //     pa.push(p)
+      //   }
+      // })
+      // return pa
     },
     token () { return this.$store.state.token.value }
   },

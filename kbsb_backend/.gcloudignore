@@ -11,3 +11,4 @@ app.yaml
 Pipfile
 Pipfile.lock
 requirements-dev.txt
+.venv

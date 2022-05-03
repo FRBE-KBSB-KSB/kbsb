@@ -1,5 +1,5 @@
 ---
-title: Belgische Jeugdkampioenschappen 2021
+title: Belgische Jeugdkampioenschappen 2022
 ---
 
 

@@ -35,7 +35,6 @@
       </v-card-title>
       <v-card-text>
         <v-text-field v-model="name" label="Name" />
-        <v-select v-model="doctype" :items="doctypes" label="Document type" />
       </v-card-text>
     </v-card>
   </v-container>
@@ -72,7 +71,7 @@ export default {
     async save () {
       try {
         const resp = await this.$api.page.add_page({
-          doctype: this.doctype,
+          doctype: 'article',
           name: this.name,
           locale: 'nl',
           token: this.token
