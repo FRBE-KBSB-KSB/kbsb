@@ -32,7 +32,6 @@ export default {
   async fetch () {
     const reply = await this.$content('calendar').fetch()
     this.calitems = []
-    console.log(reply)
     this.parseCalendarItems(reply)
     this.calitems.sort(compareDates)
   },
