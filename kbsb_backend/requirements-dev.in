@@ -1,0 +1,7 @@
+asyncio
+black
+httpx
+mypy
+pip-tools
+pytest
+pytest-asyncio

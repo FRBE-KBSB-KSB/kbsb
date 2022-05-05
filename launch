@@ -1,0 +1,3 @@
+#!/bin/bash
+source election-backend/.venv/bin/activate
+PYTHONPATH=election-backend uvicorn talistro_election.main:app --reload

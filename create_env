@@ -1,0 +1,5 @@
+#!/bin/bash
+python3 -m venv kbsb_backend/.venv
+source kbsb_backend/.venv/bin/activate
+pip install -r kbsb_backend/requirements.txt
+pip install -r kbsb_backend/requirements-dev.txt
