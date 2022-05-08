@@ -1,6 +1,5 @@
 # copyright Chessdevil Consulting BVBA 2018 - 2020
 
-import reddevil.api.api_page
 import reddevil.api.api_account
 import kbsb.api.api_file
 import kbsb.api.api_site

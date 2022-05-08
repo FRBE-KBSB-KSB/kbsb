@@ -1,3 +1,4 @@
 #!/bin/bash
-source election-backend/.venv/bin/activate
-PYTHONPATH=election-backend uvicorn talistro_election.main:app --reload
+pushd kbsb_backend
+poetry run uvicorn kbsb.main:app --reload
+popd

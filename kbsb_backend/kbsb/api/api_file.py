@@ -4,8 +4,9 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List
-from reddevil.common import RdException
-from reddevil.service.security import bearer_schema, validate_token
+from reddevil.common import RdException, bearer_schema
+from reddevil.service.account import validate_token
+
 from kbsb.main import app
 from kbsb.service.file import (
     createFile,
