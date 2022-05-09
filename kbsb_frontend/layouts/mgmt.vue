@@ -29,13 +29,19 @@
           <v-list-item-icon>
             <v-icon>mdi-file</v-icon>
           </v-list-item-icon>
-          <v-list-item-content>Pages</v-list-item-content>
+          <v-list-item-content>Articles</v-list-item-content>
         </v-list-item>
         <v-list-item to="/mgmt/filelist">
           <v-list-item-icon>
             <v-icon>mdi-file-document</v-icon>
           </v-list-item-icon>
           <v-list-item-content>Files</v-list-item-content>
+        </v-list-item>
+        <v-list-item to="/mgmt/filelist">
+          <v-list-item-icon>
+            <v-icon>mdi-account-group</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>Clubs</v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>

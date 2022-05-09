@@ -26,8 +26,7 @@ export default {
 
   env: {
     google_client_id: process.env.GOOGLE_CLIENT_ID ||
-      '658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com'
-    // '635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com'   dev
+      "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
   },
 
   generate: {
