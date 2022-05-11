@@ -3,7 +3,7 @@
     <h1>Management Clubs</h1>
     <v-data-table
       :headers="headers"
-      :items="filteredpages"
+      :items="clubs"
       :footer-props="footerProps"
       class="elevation-1"
       :sort-by="['name','modified']"
@@ -25,7 +25,7 @@
                     <v-icon>mdi-plus</v-icon>
                   </v-btn>
                 </template>
-                Add Page
+                Add Club
               </v-tooltip>
             </v-row>
           </v-card-title>
@@ -52,7 +52,7 @@
 
 export default {
 
-  name: 'Pagelist',
+  name: 'Clublist',
 
   layout: 'mgmt',
 
@@ -60,82 +60,58 @@ export default {
     return {
       filter: {},
       footerProps: {
-        itemsPerPageOptions: [20, 50, -1],
-        itemsPerPage: 20
+        itemsPerClubOptions: [20, 50, -1],
+        itemsPerClub: 20
       },
       headers: [
         {
           text: 'Nr', value: 'idclub'
         },
         {
-          text: 'Name', value: 'name'
+          text: 'Long name', value: 'name'
         },
         {
-          text: 'Doctype', value: 'doctype'
-        },
-        {
-          text: 'Enabled', value: 'enabled'
+          text: 'Short name', value: 'doctype'
         },
         {
           text: 'Actions', value: 'action', sortable: false
         }
       ],
-      pages: []
+      clubs: []
     }
   },
 
   computed: {
-    filteredpages () {
-      return this.pages
-      // const pa = []
-      // if (!this.filter.normal && !this.filter.article && !this.filter.app) {
-      //   return this.pages
-      // }
-      // this.pages.forEach((p) => {
-      //   if (p.doctype === 'normal-page' && this.filter.normal) {
-      //     pa.push(p)
-      //     return
-      //   }
-      //   if (p.doctype === 'article' && this.filter.article) {
-      //     pa.push(p)
-      //     return
-      //   }
-      //   if (p.doctype === 'app-page' && this.filter.app) {
-      //     pa.push(p)
-      //   }
-      // })
-      // return pa
-    },
     token () { return this.$store.state.token.value }
   },
 
   mounted () {
-    this.getPages()
+    this.getClubs()
   },
 
   methods: {
 
-    addPage () {
-      this.$router.push('/mgmt/pageadd')
+    addClub () {
+      this.$router.push('/mgmt/clubadd')
     },
 
-    editPage (item) {
-      this.$router.push('/mgmt/pageedit/?id=' + item.id)
+    editClub (item) {
+      this.$router.push('/mgmt/clubedit/?id=' + item.id)
     },
 
-    async getPages () {
+    async getClubs () {
       try {
-        const resp = await this.$api.page.get_pages({
+        const resp = await this.$api.club.get_clubs({
           token: this.token
         })
-        this.pages = resp.data.pages
+        this.clubs = resp.data.clubs
       } catch (error) {
         const resp = error.response
-        console.error('getting getPages', resp)
+        console.error('getting getClubs', resp)
         if (resp.status === 401) {
           this.$router.push('/mgmt/login')
         } else {
-          this.$root.$emit('snackbar', { text: 'Getting pages failed', reason: resp.data.detail })
+          this.$root.$emit('snackbar', { text: 'Getting clubs failed', reason: resp.data.detail })
         }
       }
     }

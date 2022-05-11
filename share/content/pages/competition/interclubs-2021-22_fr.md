@@ -24,7 +24,7 @@ title: Interclubs 2021-22
 [R9](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/klas09.pdf) 
 [R10](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/klas10.pdf) 
 [R11](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/klas11.pdf)
-
+[Classement final](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/klas.pdf)
 
 #### Résultats par équipes
 
@@ -56,19 +56,18 @@ title: Interclubs 2021-22
 
 #### Amendes
 
-[R1](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes01.html) 
-[R2](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes02.html) 
-[R3](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes03.html) 
-[R4](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes04.html) 
-[R5](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes05.html) 
-[R6](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes06.html) 
-[R7](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes07.html) 
-[R8](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes08.html) 
-[R9](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes09.html) 
-[R10](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes10.html) 
-[R11](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes11.html)
-
+[Amendes](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/boetes.html) 
 
 #### Parties première division 
 
 Voir [Website Valery Maes](http://users.telenet.be/vmaes/interclub/)
+
+#### Divers
+
+[Fichier Excel ICN 2021-2022](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/NationaalInterclub2021-2022_Uitslagen.xlsm)<br>
+[Datas.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Datas.zip)<br>
+[IntNat.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/IntNat.zip)
+
+#### Saison 2022-2023
+
+[Dates saison 2022-2023](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Data_NIC_2022_2023.xlsx) --> attention, pas encore définitif

@@ -22,6 +22,9 @@ FILESTORE = {
     "bucket": os.environ.get("FILESTORE_BUCKET", "testwebsitekbsb.appspot.com"),
 }
 
+JWT_ALGORITHM = "HS256"
+JWT_SECRET = "levedetorrevanostende"
+
 LOG_CONFIG = {
     "version": 1,
     "formatters": {
