@@ -66,10 +66,10 @@ See [Website Valery Maes](http://users.telenet.be/vmaes/interclub/)
 
 #### Miscellaneous
 
-[Excel file NIC 2021-2022](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/NationaalInterclub2021-2022_Uitslagen.xlsm)
-[Datas.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Datas.zip)
+[Excel file NIC 2021-2022](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/NationaalInterclub2021-2022_Uitslagen.xlsm)<br>
+[Datas.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Datas.zip)<br>
 [IntNat.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/IntNat.zip)
 
 #### Season 2022-2023
 
-[Dates season 2022-2023 --> attention, not final yet](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Data_NIC_2022_2023.xlsx)
+[Dates season 2022-2023](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Data_NIC_2022_2023.xlsx) --> attention, not final yet
