@@ -2,7 +2,7 @@
   <v-container>
     <h1>{{ $t('Calender') }}</h1>
     <ul>
-      <li v-for="c,ix in future_ci" :key="ix">
+      <li v-for="c,ix in future_ci" :key="ix" class="calenderitem">
         {{ calenderItem(c) }}
         <div v-if="!!c.text">
           {{ calendarText(c) }}
@@ -10,7 +10,6 @@
         <div v-if="!!c.link">
           URL: <a :href="c.link">{{ c.link }}</a>
         </div>
-        <br>
       </li>
     </ul>
   </v-container>
@@ -90,5 +89,8 @@ export default {
 }
 .postponed {
   color: #bbb
+}
+.calenderitem {
+  margin: 8px 0;
 }
 </style>
