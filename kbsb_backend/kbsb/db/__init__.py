@@ -1,11 +1,14 @@
 # copyright Ruben Decrop 2012 - 2020
+from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
 import json
 from pathlib import Path
 from datetime import datetime, date
 from kbsb import settings
 from kbsb.service.secrets import get_secret
-import mysql.connector as mc
+from fastapi import HTTPException
+from sqlalchemy import create_engine
+import pymysql, pymysql.cursors
 
 
 log = logging.getLogger("kbsb")
@@ -40,12 +43,12 @@ def get_mongodb():
 
 def get_mysql():
     """
-    a singleton function to get the mongodb database asynchronously
+    a singleton function to get the mysql database
     """
     if not hasattr(get_mysql, "conn"):
         mysqlparams = get_secret("mysql")
         try:
-            conn = mc.connect(
+            conn = pymysql.connect(
                 host=mysqlparams["dbhost"],
                 user=mysqlparams["dbuser"],
                 password=mysqlparams["dbpassword"],
@@ -53,10 +56,23 @@ def get_mysql():
                 ssl_disabled=True,
             )
             setattr(get_mysql, "conn", conn)
-        except mc.Error as e:
+        except pymysql.Error as e:
             log.error(f"Failed to set up Mysql connection: {e}")
             raise HTTPException(status_code=503, detail="CannotConnectMysql")
     return getattr(get_mysql, "conn")
+
+def mysql_engine():
+    """
+    create an sqlalchemy engine for the mysql database
+    """
+    mysqlparams = get_secret("mysql")
+    host=mysqlparams["dbhost"],
+    user=mysqlparams["dbuser"],
+    password=mysqlparams["dbpassword"],
+    dbname=mysqlparams["dbname"],    
+    return create_engine(f"mysql+pymysql://{user}:{password}@{host}/{dbname}", connect_args={
+        "ssl_disabled" : True,
+    })
 
 
 # import all database classes
