@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>{{ $t('Calender') }}</h1>
+    <h1>{{ $t('Calendar') }}</h1>
     <ul>
       <li v-for="c,ix in future_ci" :key="ix" class="calenderitem">
         {{ calenderItem(c) }}
