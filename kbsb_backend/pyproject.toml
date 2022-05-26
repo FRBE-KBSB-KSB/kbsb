@@ -26,7 +26,6 @@ passlib = "^1.7.4"
 pymongo = "^4.1.1"
 python-dateutil = "^2.8.2"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-python-slugify = "^6.1.2"
 PyYAML = "^6.0"
 requests = "^2.27.1"
 uvicorn = "^0.17.6"

@@ -5,11 +5,12 @@ import yaml
 from pathlib import Path
 from typing import Any
 from google.cloud import secretmanager
-from kbsb.main import settings
+from reddevil.common import get_settings
 from reddevil.common.errors import RdInternalServerError
 
 log = logging.getLogger(__name__)
 
+settings = get_settings()
 
 def secretmanager_client():
     if not hasattr(secretmanager_client, "sc"):
@@ -19,7 +20,7 @@ def secretmanager_client():
 
 
 def get_secret(name: str) -> Any:
-    project = settings.GOOGLE_PROJECT
+    project = settings.GOOGLE_PROJECT_ID
     sconfig = settings.SECRETS.get(name, None)
     if not sconfig:
         log.error(f"Secret {name} not configured")

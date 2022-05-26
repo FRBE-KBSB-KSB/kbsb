@@ -18,3 +18,4 @@ class DbFile(DbBase):
     DOCUMENTTYPE = "Club"
     VERSION = 1
     IDGENERATOR = "objectid"
+

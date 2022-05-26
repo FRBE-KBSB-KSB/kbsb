@@ -37,7 +37,7 @@ def get_mongodb():
         mongoparams = get_secret("mongodb")
         loop = get_event_loop()
         client = AsyncIOMotorClient(mongoparams["url"], io_loop=loop)
-        setattr(get_mongodb, "database", client[mongoparams["db"]])
+        get_mongodb.database = client[mongoparams["db"]]
     return get_mongodb.database
 
 
@@ -63,16 +63,19 @@ def get_mysql():
 
 def mysql_engine():
     """
-    create an sqlalchemy engine for the mysql database
+    a singleton function returning a sqlalchemy engine for the mysql database
     """
-    mysqlparams = get_secret("mysql")
-    host=mysqlparams["dbhost"],
-    user=mysqlparams["dbuser"],
-    password=mysqlparams["dbpassword"],
-    dbname=mysqlparams["dbname"],    
-    return create_engine(f"mysql+pymysql://{user}:{password}@{host}/{dbname}", connect_args={
-        "ssl_disabled" : True,
-    })
+    if not hasattr(mysql_engine, "engine"):
+        mysqlparams = get_secret("mysql")
+        host=mysqlparams["dbhost"]
+        user=mysqlparams["dbuser"]
+        password=mysqlparams["dbpassword"]
+        dbname=mysqlparams["dbname"]
+        url = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
+        mysql_engine.engine = create_engine(url, connect_args={
+            "ssl_disabled" : True,
+        })
+    return mysql_engine.engine
 
 
 # import all database classes
