@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Management Pages</h1>
+    <h1>Management News Articles</h1>
     <v-data-table
       :headers="headers"
       :items="filteredpages"

@@ -2,7 +2,7 @@
   <v-container>
     <v-card>
       <v-card-title color="grey lighten-4">
-        <h2>Edit Page: {{ p.name }}</h2>
+        <h2>Edit News Artcile: {{ p.name }}</h2>
         <v-spacer />
         <v-tooltip bottom>
           <template #activator="{ on }">

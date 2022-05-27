@@ -29,7 +29,7 @@
           <v-list-item-icon>
             <v-icon>mdi-file</v-icon>
           </v-list-item-icon>
-          <v-list-item-content>Pages</v-list-item-content>
+          <v-list-item-content>News Articles</v-list-item-content>
         </v-list-item>
         <v-list-item to="/mgmt/filelist">
           <v-list-item-icon>
