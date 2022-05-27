@@ -56,6 +56,7 @@ class FileIn(BaseModel):
     contains the minimal fields (doctype and name) to create a new page
     """
     content: bytes           # base64 encoded content of file
+    topic: Optional[str]
     name: str
 
 class FileOut(BaseModel):
@@ -67,9 +68,9 @@ class FileOut(BaseModel):
     filelength: int
     id: str
     locale: str = ''
-    mimetype: str
+    mimetype: Optional[str]
     name: str
-    topic: str = 'Unknown'    # report BM, report GA, ....
+    topic: Optional[str] = 'Other'    # report BM, report GA, ....
     topicdate: str
     url: str
     _creationtime: datetime

@@ -143,7 +143,7 @@ python-slugify==6.1.2
     # via -r kbsb_backend/requirements.in
 pyyaml==6.0
     # via -r kbsb_backend/requirements.in
-libs/reddevil-2.2.5-py3-none-any.whl
+reddevil @ file:///home/ruben/develop/websites/kbsb/kbsb_backend/libs/reddevil-2.2.5-py3-none-any.whl
     # via -r kbsb_backend/requirements.in
 requests==2.27.1
     # via

@@ -37,12 +37,16 @@
     </v-row>
     <h4>Drop Area</h4>
     <file-pond ref="pond" class-name="dropbox" @addfile="handleFile" />
+    <v-select v-model="topic" :items="topictypes" label="Topic" />
+
   </v-container>
 </template>
 
 <script>
 import 'filepond/dist/filepond.min.css'
 import vueFilePond from 'vue-filepond'
+import { topictypes } from '@/util/cms'
+
 const FilePond = vueFilePond()
 
 export default {
@@ -59,7 +63,9 @@ export default {
     return {
       content: '',
       f: {},
-      name: ''
+      name: '',
+      topictypes,
+      topic: 'Report Board Meeting'
     }
   },
 
@@ -92,6 +98,7 @@ export default {
         const resp = await this.$api.file.add_file({
           name: this.name,
           content: this.content,
+          topic: this.topic,
           token: this.token
         })
         console.log('file added', resp.data)

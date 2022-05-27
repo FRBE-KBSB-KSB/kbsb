@@ -180,10 +180,12 @@ def writeFilecontent(path: str, fileobj: IO) -> None:
     wrtite a file like object to the filestore
     """
     if settings.FILESTORE["manager"] == "google":
+        log.info(f'Will upload file {path} to Google Cloud Storage')
         client = storage_client()
         bucket = client.bucket(settings.FILESTORE["bucket"])
         blob = Blob(path, bucket)
         blob.upload_from_file(fileobj)
+        log.info(f'Uploaded {path} to bucket {settings.FILESTORE["bucket"]}')
     if settings.FILESTORE["manager"] == "local":
         basedir = Path(settings.FILESTORE["basedir"])
         with open(basedir / path, "wb") as f:

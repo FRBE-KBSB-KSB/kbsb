@@ -49,10 +49,9 @@ export const nointro = {
 }
 
 export const topictypes = [
-  'Annex to page or article',
   'Report Board Meeting',
   'Report General Assembly',
-  'Unknown'
+  'Other'
 ]
 
 export const topic_i18n = {
