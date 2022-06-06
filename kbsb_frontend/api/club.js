@@ -27,6 +27,15 @@ export default context => ({
     })
     return resp
   },
+  async get_c_club (options) {
+    const { id, token } = options
+    const resp = await context.$axios.get(`/api/v1/c/club/${id}`, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    return resp
+  },
   async get_anon_club (options) {
     const { id} = options
     const resp = await context.$axios.get(`/api/v1/a/club/${id}`, {
@@ -43,7 +52,7 @@ export default context => ({
     })
     return resp
   },
-  async get_old_clubs (options) {
+  async get_c_clubs (options) {
     const { token } = options
     console.log('api get_old_clubs', token)
     const resp = await context.$axios.get('/api/v1/c/clubs', {
@@ -65,5 +74,14 @@ export default context => ({
       }
     })
     return resp
-  }
+  },
+  async update_c_club (options) {
+    const { id, token, ...options1 } = options
+    const resp = await context.$axios.put(`/api/v1/c/club/${id}`, options1, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    return resp
+  }  
 })

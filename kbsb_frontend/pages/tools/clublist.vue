@@ -119,9 +119,9 @@ export default {
   },
 
   mounted () {
-    const token = this.oldlogin
-    if (!token || !token.length) {
-        this.gotoLogin()
+    this.$store.commit('oldlogin/startup')
+    if (!this.oldlogin.length) {
+      this.gotoLogin()
     }
     this.getClubs()
   },
@@ -136,14 +136,14 @@ export default {
     async getClubs () {
       console.log('getClubs', this.oldlogin)
       try {
-        const reply = await this.$api.club.get_old_clubs({
+        const reply = await this.$api.club.get_c_clubs({
           token: this.oldlogin
         })
         console.log('reply', reply.data)
         this.clubs = reply.data.clubs
       } catch (error) {
         const reply = error.replyonse
-        console.error('getting getclubs', reply)
+        console.error('getting get_c_clubs', reply)
         if (reply.status === 401) {
             this.gotoLogin()
         } else {

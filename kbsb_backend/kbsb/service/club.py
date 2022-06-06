@@ -64,10 +64,12 @@ async def get_clubs(options: dict = {}) -> ClubList:
 
 
 
-async def update_club(id:str, c: Club, options: dict) -> Club:
+async def update_club(id:str, c: Club, options: dict = {}) -> Club:
     """
     update a club
     """
+    log.info(f'id {id} c {c}, dict {c.dict(exclude_unset=True)}')
     validator = options.pop("_class", Club)
     cdict = await DbClub.update(id, c.dict(exclude_unset=True), options)
+    log.info(f'updated cdict {cdict}')
     return cast(Club, encode_model(cdict, validator))

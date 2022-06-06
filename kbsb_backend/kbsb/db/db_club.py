@@ -7,5 +7,5 @@ class DbClub(DbBase):
     COLLECTION = "club"
     DOCUMENTTYPE = "Club"
     VERSION = 1
-    IDGENERATOR = "objectid"
+    IDGENERATOR = "uuid"
 

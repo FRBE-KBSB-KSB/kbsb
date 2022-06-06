@@ -119,10 +119,9 @@ class ClubUpdate(BaseModel):
     email_finance: Optional[str]  # email address for financial tasks
     email_interclub: Optional[str]  # email_fdor interclub tasks
     email_main: Optional[str]  # main email address to contact, must be available
-    federation: Federation
-    idclub: int
-    name_long: str  # long name without abbrevioations
-    name_short: str  # short name with abbreviations
+    federation: Optional[Federation]
+    name_long: Optional[str]  # long name without abbrevioations
+    name_short: Optional[str]  # short name with abbreviations
     openinghours: Optional[List[Opening]]
     venue: Optional[str]  # full multiline address of playing venue
     website: Optional[str]

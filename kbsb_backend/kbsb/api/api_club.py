@@ -95,6 +95,19 @@ async def api_get_club(
         log.exception("failed api call get_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.get("/api/v1/c/club/{id}", response_model=Club)
+async def api_get_c_club(
+    id: str, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+):
+    try:
+        await validate_oldtoken(auth)
+        return await get_club(id)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call get_c_club")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 
 @app.delete("/api/v1/club/{id}")
 async def api_delete_club(
@@ -116,6 +129,20 @@ async def api_update_club(
 ):
     try:
         await validate_token(auth)
+        await update_club(id, p)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call update_club")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.put("/api/v1/c/club/{id}", response_model=Club)
+async def api_update_club(
+    id: str, p: ClubUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+):
+    try:
+        await validate_oldtoken(auth)
+        log.info(f'clubupdate {p}')
         await update_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

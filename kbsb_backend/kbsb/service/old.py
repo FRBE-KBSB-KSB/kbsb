@@ -62,7 +62,6 @@ async def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     token = auth.credentials if auth else None
     if not token:
         raise RdNotAuthorized(description="MissingToken")
-    log.info(f'validate token 2')
     try:
         payload = jwt_getunverifiedpayload(token)
     except:
