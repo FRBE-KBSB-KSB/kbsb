@@ -1,0 +1,2 @@
+#!/bin/bash
+mysqldump --ssl-mode=DISABLED -u esyy_frbekbsbDad -h esyy.myd.infomaniak.com -pFouine17  --column-statistics=0 esyy_frbekbsbbe $1 > $1.sql

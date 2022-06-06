@@ -35,7 +35,18 @@ export default context => ({
   },
   async get_clubs (options) {
     const { token } = options
+    console.log('api get_clubs', token)
     const resp = await context.$axios.get('/api/v1/clubs', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    return resp
+  },
+  async get_old_clubs (options) {
+    const { token } = options
+    console.log('api get_old_clubs', token)
+    const resp = await context.$axios.get('/api/v1/c/clubs', {
       headers: {
         Authorization: 'Bearer ' + token
       }
