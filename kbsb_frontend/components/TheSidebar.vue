@@ -138,9 +138,14 @@
             {{ $t('ELO tournaments') }}
           </v-list-item-content>
         </v-list-item>
+        <v-list-item to="/tools/clublist">
+          <v-list-item-content>
+            Club Manager
+          </v-list-item-content>
+        </v-list-item>
         <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
           <v-list-item-content>
-            Player - Club Manager
+            Player Manager
           </v-list-item-content>
         </v-list-item>
         <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">

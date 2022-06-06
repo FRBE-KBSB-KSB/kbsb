@@ -12,6 +12,9 @@ vetur.config.js
 kbsb_backend/.venv
 kbsb_backend/public
 kbsb_backend/local_settings.py
+kbsb_backend/env_local.py
+kbsb_backend/env_staging.py
+kbsb_backend/env_prod.py
 .mypy_cache
 __pycache__/
 *.pyc
@@ -20,3 +23,5 @@ __pycache__/
 kbsb_frontend/node_modules
 kbsb_frontend/.nuxt
 
+# data
+share/mysql/*.sql
