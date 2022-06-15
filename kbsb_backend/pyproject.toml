@@ -29,9 +29,10 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 PyYAML = "^6.0"
 requests = "^2.27.1"
 uvicorn = "^0.17.6"
-reddevil = {path = "libs/reddevil-2.5.8-py3-none-any.whl"}
 SQLAlchemy = "^1.4.36"
 PyMySQL = "^1.0.2"
+reddevil = {path = "libs/reddevil-2.5.9-py3-none-any.whl"}
+python-slugify = "^6.1.2"
 
 [tool.poetry.dev-dependencies]
 asyncio = "^3.4.3"

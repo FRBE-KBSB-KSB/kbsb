@@ -9,16 +9,7 @@ from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
 
 register_app(settingsmodule='kbsb.settings')
 settings = get_settings()
-
-settings.SECRETS["mysql"] = {
-    "name": "kbsb-mysql-local",
-    "manager": "filejson",    
-}
-settings.SECRETS["mongodb"] ={
-    "name": "kbsb-mongodb-local",
-    "manager": "filejson",
-}
-settings.SECRETS_PATH = "/home/ruben/develop/secrets/kbsb"
+print("settings", settings.SECRETS)
 
 import kbsb.service
 from kbsb.db import mysql_engine

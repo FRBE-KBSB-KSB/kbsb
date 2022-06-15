@@ -33,6 +33,7 @@ def do_oldlogin(ol: OldLogin) -> str:
     use the mysql database to mimic the old php login procedure
     return a JWT token
     """
+    log.info('doing old login')
     session = sessionmaker(mysql_engine())()
     query = session.query(P_User).filter(P_User.user == ol.idnumber)
     user = query.one_or_none()

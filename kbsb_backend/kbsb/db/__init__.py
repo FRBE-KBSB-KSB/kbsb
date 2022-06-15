@@ -5,13 +5,13 @@ import json
 from pathlib import Path
 from datetime import datetime, date
 from kbsb import settings
-from kbsb.service.secrets import get_secret
+from reddevil.service.secrets import get_secret
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 import pymysql, pymysql.cursors
 
 
-log = logging.getLogger("kbsb")
+log = logging.getLogger(__file__)
 
 
 def date2datetime(d: dict, f: str):

@@ -176,10 +176,10 @@ export default {
 
     getActiveArticles () {
       console.log('fetching articles', this.$api)
-      this.$api.content.getActiveArticles().then(
+      this.$api.page.get_anon_articles().then(
         (resp) => {
-          console.log('got articles', resp.data.articles)
-          this.readArticles(resp.data.articles)
+          console.log('got articles', resp.data.pages)
+          this.readArticles(resp.data.pages)
         },
         resp => (console.error('could not fetch articles', resp))
       )
