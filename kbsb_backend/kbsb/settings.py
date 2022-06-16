@@ -1,5 +1,4 @@
-# copyright Ruben Decrop 2012 - 2015
-# copyright Chessdevil Consulting BVBA 2015 - 2020
+# copyright Ruben Decrop 2012 - 2022
 
 import os
 import logging
@@ -19,8 +18,11 @@ EXTRASALT = "Zugzwang"
 
 FILESTORE = {
     "manager": "google",
-    "bucket": os.environ.get("FILESTORE_BUCKET", "testwebsitekbsb.appspot.com"),
+    "bucket": os.environ.get("FILESTORE_BUCKET", "webite-kbsb-prod.appspot.com"),
 }
+
+JWT_ALGORITHM = "HS256"
+JWT_SECRET = "levedetorrevanostende"
 
 LOG_CONFIG = {
     "version": 1,
@@ -69,10 +71,7 @@ GOOGLE_CLIENT_ID = os.environ.get(
     "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
-GOOGLE_PROJECT = os.environ.get(
-    "GOOGLE_PROJECT",
-    "",
-)
+GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "")
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
 #

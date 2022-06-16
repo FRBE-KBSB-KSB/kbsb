@@ -1,5 +1,6 @@
 <template>
-  <v-app-bar v-cloak fixed dark app class="green darken-2">
+  <v-app-bar v-cloak dark app class="green darken-2" landing="landing" :drawer="drawer" 
+        clipped-left>
     <v-app-bar-nav-icon @click.stop="toggleDrawer" />
     <v-toolbar-items>
       <v-btn text large to="/">
@@ -31,7 +32,7 @@ export default {
     },
     drawer: {
       type: Boolean,
-      default: null
+      default: false
     }
   },
 
@@ -42,6 +43,7 @@ export default {
   },
 
   methods: {
+
     toggleDrawer () {
       this.$emit('updateDrawer', !this.drawer)
     }

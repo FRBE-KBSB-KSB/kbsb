@@ -4,6 +4,7 @@ import reddevil.api.api_page
 import reddevil.api.api_account
 import kbsb.api.api_file
 import kbsb.api.api_site
+import kbsb.api.api_old
 
 from kbsb.main import app
 from pathlib import Path

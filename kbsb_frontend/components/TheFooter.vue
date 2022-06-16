@@ -1,5 +1,5 @@
 <template>
-  <v-footer height="auto" color="green" dark class="mt-2 footer">
+  <v-footer height="auto" color="green" dark class="mt-2 footer" app absolute>
     <v-container fluid>
       <v-row class="py-3 px-2">
         <v-col cols="12" sm="4" class="mt-2">

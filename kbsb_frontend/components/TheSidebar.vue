@@ -1,37 +1,25 @@
 <template>
-  <div>
-    <v-toolbar text class="green" dark>
-      <v-list>
-        <v-list-item>
-          <v-list-item-title class="title">
-            Menu
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-toolbar>
+<div>
 
-    <v-divider />
+  <div class="btn-language green darken-1">
+    <v-btn text dark class="hover-darker btn-language" @click="setLocale('nl')">
+      NL
+    </v-btn>
+    <v-btn text dark class="hover-darker btn-language" @click="setLocale('fr')">
+      FR
+    </v-btn>
+    <v-btn text dark class="hover-darker btn-language" @click="setLocale('de')">
+      DE
+    </v-btn>
+    <v-btn text dark class="hover-darker btn-language" @click="setLocale('en')">
+      EN
+    </v-btn>
+  </div>
 
-    <div class="btn-language green darken-1">
-      <v-btn text dark class="hover-darker btn-language" @click="setLocale('nl')">
-        NL
-      </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="setLocale('fr')">
-        FR
-      </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="setLocale('de')">
-        DE
-      </v-btn>
-      <v-btn text dark class="hover-darker btn-language" @click="setLocale('en')">
-        EN
-      </v-btn>
-    </div>
-
-    <v-list dark dense class="green darken-1">
-      <v-list-item to="/">
-        <v-list-item-content>{{ $t('Home') }}</v-list-item-content>
-      </v-list-item>
-
+  <v-list dark dense class="green darken-1">
+    <v-list-item to="/">
+      <v-list-item-content>{{ $t('Home') }}</v-list-item-content>
+    </v-list-item>
       <v-list-group no-action>
         <template #activator>
           <v-list-item-content>{{ $t('Administration') }}</v-list-item-content>
@@ -166,8 +154,9 @@
       <v-list-item to="/info/partners">
         <v-list-item-content>Partners</v-list-item-content>
       </v-list-item>
-    </v-list>
-  </div>
+  </v-list>
+
+</div>
 </template>
 
 <script>

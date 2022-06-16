@@ -10,7 +10,7 @@ import logging
 import asyncio
 from datetime import datetime, date, timezone
 from typing import Dict, List, Any, Optional 
-from reddevil.crud.db_base import DbBase
+from reddevil.db.db_base import DbBase
 
 
 class DbFile(DbBase):
