@@ -85,13 +85,13 @@
 
 - 
   category: collaborator
-  email: jan.vanhercke
-  first_name: Jan 
-  last_name: Vanhercke
+  email: daniel.halleux
+  first_name: Daniel 
+  last_name: Halleux
   roles: 
     - Rating manager
     - Affiliations manager
-  slug: jan
+  slug: daniel
 
 - 
   category: ombudsman
@@ -102,11 +102,6 @@
     - "Ombudsman"
   slug: daniel
 
-- 
-  category: honorary
-  first_name: Daniel
-  last_name: Halleux
-  slug: hm_halleux
 
 - 
   category: honorary

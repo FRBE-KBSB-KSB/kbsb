@@ -1,36 +1,34 @@
-# copyright Chessdevil Consulting BVBA 2018 - 2020
+# copyright Ruben Decrop 2015-22
 
 import os.path
 import logging, logging.config
 
-from . import version
-from reddevil.common.configreader import SettingsProxy
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from reddevil.common import register_app, get_settings
+from kbsb import version
 
-__all__ = ["app", "settings"]
 
-# load settings
-settings = SettingsProxy("kbsb.settings")
-logging.config.dictConfig(settings.LOG_CONFIG)
-backenddir = os.path.dirname(os.path.dirname(__file__))
-rootdir = os.path.dirname(backenddir)
-log = logging.getLogger("kbsb")
-log.info(f"Starting website FRBE-KBSB-KSB v{version} ...")
-
-# load app
+# register app
 app = FastAPI(
     title="FRBE-KBSB-KSB",
     description="Website Belgian Chess federation FRBE KBSB KSB",
     version=version,
 )
-url = "/api"
+register_app(app, "kbsb.settings", "/api")
 
-# register the mongob connection
-from kbsb.db import get_mongodb
-from reddevil.common import register_app
+settings = get_settings()
+logging.config.dictConfig(settings.LOG_CONFIG)
+log = logging.getLogger("election")
+log.info(f"Starting Talistro Election v{version} ...")
+log.info(f"email {settings.EMAIL}")
 
-register_app(settings, app, get_mongodb, url)
+# set up the database async handlers
+from reddevil.db import connect_mongodb, close_mongodb
+
+app.add_event_handler("startup", connect_mongodb)
+app.add_event_handler("shutdown", close_mongodb)
+log.info(f"Mongodb event handlers added")
 
 # import service layer
 import kbsb.service
@@ -42,14 +40,10 @@ import kbsb.api
 
 log.info(f"Api layer loaded")
 
-#    Simplify operation IDs so that generated API clients have simpler function
-#    names.
-
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
-# import static html endpoints
-import kbsb.static
+# import static endpoints fro rating reports
 
-log.info(f"static html endpoints loaded")
+from kbsb.static import ratingfr, ratingnl

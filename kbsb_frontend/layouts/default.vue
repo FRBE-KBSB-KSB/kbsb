@@ -10,7 +10,7 @@
     height="100%"
   >
 
-    <TheTopbar />
+    <TheSidebar />
     
   </v-navigation-drawer>
     
@@ -37,6 +37,7 @@
 
 <script>
 import TheTopbar from '../components/TheTopbar.vue';
+import TheSidebar from '../components/TheSidebar.vue';
 export default {
     data() {
         return {
@@ -50,6 +51,6 @@ export default {
             this.drawer = value;
         }
     },
-    components: { TheTopbar }
+    components: { TheTopbar, TheSidebar }
 }
 </script>
