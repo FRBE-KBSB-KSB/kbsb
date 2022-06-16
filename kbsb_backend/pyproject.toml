@@ -31,8 +31,8 @@ requests = "^2.27.1"
 uvicorn = "^0.17.6"
 SQLAlchemy = "^1.4.36"
 PyMySQL = "^1.0.2"
-reddevil = {path = "libs/reddevil-2.5.9-py3-none-any.whl"}
 python-slugify = "^6.1.2"
+reddevil = {path = "libs/reddevil-2.5.10-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 asyncio = "^3.4.3"

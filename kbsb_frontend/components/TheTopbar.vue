@@ -9,8 +9,8 @@
     </v-toolbar-items>
     <v-spacer />
     <v-toolbar-items class="hidden-sm-and-down">
-      <v-btn text large to="/competition/interclubs-2021-22">
-        Interclub 21-22
+      <v-btn text large to="/competition/interclubs-2022-23">
+        Interclub 22-23
       </v-btn>
       <v-btn text large :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
         ELO
