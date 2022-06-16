@@ -16,15 +16,14 @@ app = FastAPI(
     version=version,
 )
 register_app(app, "kbsb.settings", "/api")
-
 settings = get_settings()
 logging.config.dictConfig(settings.LOG_CONFIG)
-log = logging.getLogger("election")
-log.info(f"Starting Talistro Election v{version} ...")
-log.info(f"email {settings.EMAIL}")
+log = logging.getLogger(__name__)
+log.info(f"Starting KBSB ...")
 
 # set up the database async handlers
 from reddevil.db import connect_mongodb, close_mongodb
+log.info(f"imported connect_mongodb")
 
 app.add_event_handler("startup", connect_mongodb)
 app.add_event_handler("shutdown", close_mongodb)
@@ -47,3 +46,5 @@ for route in app.routes:
 # import static endpoints fro rating reports
 
 from kbsb.static import ratingfr, ratingnl
+
+log.info(f"Static path loaded")

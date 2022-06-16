@@ -1,17 +1,13 @@
+
 # copyright Ruben Decrop 2012 - 2020
-from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
-import json
-from pathlib import Path
+log = logging.getLogger(__name__)
+
 from datetime import datetime, date
-from kbsb import settings
 from reddevil.service.secrets import get_secret
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 import pymysql, pymysql.cursors
-
-
-log = logging.getLogger(__file__)
 
 
 def date2datetime(d: dict, f: str):
@@ -78,6 +74,7 @@ def mysql_engine():
     return mysql_engine.engine
 
 
+log.info('db init 5')
 
 # import all database classes
 

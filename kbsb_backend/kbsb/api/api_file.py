@@ -1,10 +1,13 @@
 import logging
 
+log = logging.getLogger(__name__)
+
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List
 from reddevil.common import RdException
+
 from reddevil.common.security import bearer_schema
 from reddevil.service.account import validate_token
 from kbsb.main import app
@@ -23,7 +26,6 @@ from kbsb.models.md_file import (
     FileUpdate,
 )
 
-log = logging.getLogger(__name__)
 
 
 @app.get("/api/files", response_model=FileListOut)

@@ -1,4 +1,10 @@
-# copyright Chessdevil Consulting BVBA 2018 - 2020
+# copyright Ruben Descrop 2015 - 2022
+# copyright Chessdevil Consulting BVBA 2018 - 2022
+
+import logging
+
+log = logging.getLogger(__name__)
+
 
 import reddevil.api.api_page
 import reddevil.api.api_account
