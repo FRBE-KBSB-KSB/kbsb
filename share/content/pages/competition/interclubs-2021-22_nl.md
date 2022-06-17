@@ -70,7 +70,4 @@ Zie [Website Valery Maes](http://users.telenet.be/vmaes/interclub/)
 [Datas.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Datas.zip)<br>
 [IntNat.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/IntNat.zip)
 
-#### Seizoen 2022-2023
-
-[Data seizoen 2022-2023](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Data_NIC_2022_2023.xlsx) --> opgepast, nog niet definitief]
 

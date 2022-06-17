@@ -56,7 +56,7 @@
             <v-col cols="12" sm="6">
               <v-text-field v-model="f.name" label="Name" />
               <v-text-field v-model="f.created_by" label="Owner" />
-              <v-select v-model="f.topic" :items="topictypes" label="Topic" />
+              <div>Topic: {{ f.topic}}</div>
             </v-col>
             <v-col cols="12" sm="6">
               <p>URL: <a :href="'/api/filecontent/' + f.url">/api/filecontent/{{ f.url }}</a> </p>

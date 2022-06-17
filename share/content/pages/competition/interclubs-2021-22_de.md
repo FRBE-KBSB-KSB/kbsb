@@ -3,7 +3,6 @@ title: Interclub 2021-22
 ---
 
 
-
 [INTERCLUBS MANAGER](https://www.frbe-kbsb.be/sites/manager/GestionCOMMON/GestionLogin.php) mit Schreibrechten
 
 #### Beratung
@@ -69,6 +68,3 @@ Siehe [Website Valery Maes](http://users.telenet.be/vmaes/interclub/)
 [Datas.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Datas.zip)<br>
 [IntNat.zip ChessManager](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/IntNat.zip)
 
-#### Saison 2022-2023
-
-[Daten Saison 2022-2023](https://www.frbe-kbsb.be/sites/manager/ICN/21-22/Data_NIC_2022_2023.xlsx) --> Achtung, noch nicht final

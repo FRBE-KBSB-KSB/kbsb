@@ -2,7 +2,7 @@
   <v-container>
     <v-card>
       <v-card-title color="grey lighten-4">
-        <h2>New Page</h2>
+        <h2>New News Article</h2>
         <v-spacer />
         <v-tooltip bottom>
           <template #activator="{ on }">

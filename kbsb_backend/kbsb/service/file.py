@@ -1,7 +1,11 @@
 # copyright Ruben Decrop 2012 - 2015
 # copyright Chessdevil Consulting BVBA 2015 - 2019
 
-import logging, uuid
+import logging
+
+log = logging.getLogger(__name__)
+
+import uuid
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime, timezone
@@ -14,6 +18,7 @@ from fastapi.responses import Response
 from reddevil.common import (
     RdInternalServerError,
     RdNotFound,
+    get_settings,
 )
 
 from kbsb.models.md_file import (
@@ -23,12 +28,7 @@ from kbsb.models.md_file import (
     FileListOut,
     FileOptional,
 )
-from kbsb.main import settings
-
 from kbsb.db.db_file import DbFile
-
-log = logging.getLogger(__name__)
-
 
 def encode_file(e: dict, _class=FileOptional) -> FileOptional:
     try:
@@ -138,7 +138,6 @@ async def updateFile(id: str, d: FileUpdate) -> FileOptional:
         writeFilecontent(ufd["path"], fileobj)
     return encode_file(ufd)
 
-
 from google.cloud import storage
 from google.cloud.storage import Blob
 from google.api_core import exceptions
@@ -155,6 +154,7 @@ def readFilecontent(path: str) -> bytes:
     read the file from the filestore
     returns bytes object
     """
+    settings = get_settings()
     if settings.FILESTORE["manager"] == "google":
         log.info(f"reading {path}")
         client = storage_client()
@@ -179,6 +179,7 @@ def writeFilecontent(path: str, fileobj: IO) -> None:
     """
     wrtite a file like object to the filestore
     """
+    settings = get_settings()
     if settings.FILESTORE["manager"] == "google":
         client = storage_client()
         bucket = client.bucket(settings.FILESTORE["bucket"])

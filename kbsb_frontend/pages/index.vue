@@ -44,7 +44,7 @@
             <v-card-text class="mt-2">
               <ul>
                 <li
-                  v-for="c,ix in calitems"
+                  v-for="c,ix in future_4ci"
                   :key="ix"
                 >
                   {{ calenderItem(c) }}
@@ -118,6 +118,10 @@
 import { marked } from 'marked'
 import { phpbaseurl, notitle, nointro } from '@/util/cms'
 
+function compareDates (a, b) {
+  return a.date - b.date
+}
+
 export default {
   layout: 'landing',
 
@@ -135,41 +139,35 @@ export default {
   },
 
   async fetch () {
-    const today = (new Date()).toISOString()
     this.page__nl = await this.$content('pages', 'index_nl').fetch()
     this.page__fr = await this.$content('pages', 'index_fr').fetch()
     this.page__de = await this.$content('pages', 'index_de').fetch()
     this.page__en = await this.$content('pages', 'index_en').fetch()
-    const reply = await this.$content('app', 'calendar').fetch()
-    this.calitems = reply.calendar
-      .filter(c => c.date > today)
-      .filter(c => c.status !== 'disabled')
-      .sort((a, b) => a.date > b.date ? 1 : -1)
-      .slice(0, 4)
+    this.parseCalendarItems(await this.$content('calendar').fetch())
+    this.calitems.sort(compareDates)
   },
 
   computed: {
-    page () { return this['page__' + this.$i18n.locale] }
+    page () { return this['page__' + this.$i18n.locale] },
+    future_4ci () {
+      const yesterday = new Date() - 86400000
+      return this.calitems.filter(ci => ci.date > yesterday).slice(0, 4)
+    }
   },
 
   mounted () {
-    console.log('$content', this.$content)
     this.getActiveArticles()
-    console.log()
   },
 
   methods: {
 
     calenderItem (c) {
       const output = []
-      output.push((new Date(c.date)).toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
+      output.push(c.date.toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
       output.push(c.title)
       if (c.round) {
         output.push(this.$t('Round'))
         output.push(c.round)
-      }
-      if (c.status === 'postponed') {
-        output.push(this.$t('postponed'))
       }
       return output.join(' ')
     },
@@ -187,6 +185,25 @@ export default {
 
     gotoArticle (a) {
       window.location.href = '/article?slug=' + a.slug
+    },
+
+    parseCalendarItems (listci) {
+      listci.forEach((ci) => {
+        if (ci.multiple) {
+          this.parseCalendarItems(ci.multiple)
+        }
+        if (ci.date) {
+          const item = { ...ci, date: new Date(ci.date) }
+          this.calitems.push(item)
+          return
+        }
+        if (ci.rounds) {
+          Object.entries(ci.rounds).forEach(([rnr, date]) => {
+            const { rounds, ...item } = { ...ci, date: new Date(date), round: rnr }
+            this.calitems.push(item)
+          })
+        }
+      })
     },
 
     ratingtrn () {

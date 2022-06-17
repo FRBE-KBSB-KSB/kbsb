@@ -10,7 +10,7 @@
     height="100%"
   >
 
-    <TheTopbar />
+    <TheSidebar />
     
   </v-navigation-drawer>
     
@@ -36,20 +36,18 @@
 </template>
 
 <script>
-import TheTopbar from '../components/TheTopbar.vue';
 export default {
-    data() {
-        return {
-            drawer: null,
-            snackbar: false,
-            snacktext: ""
-        };
-    },
-    methods: {
-        updateDrawer(value) {
-            this.drawer = value;
-        }
-    },
-    components: { TheTopbar }
+  data() {
+      return {
+          drawer: null,
+          snackbar: false,
+          snacktext: ""
+      };
+  },
+  methods: {
+      updateDrawer(value) {
+          this.drawer = value;
+      }
+  },
 }
 </script>

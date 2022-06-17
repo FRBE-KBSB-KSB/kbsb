@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <h1>{{ $t('Calender') }}</h1>
+    <h1>{{ $t('Calendar') }}</h1>
     <ul>
-      <li v-for="c,ix in calitems" :key="ix" :class="{postponed: postponed(c), disabled: disabled(c)}">
+      <li v-for="c,ix in future_ci" :key="ix" class="calenderitem">
         {{ calenderItem(c) }}
         <div v-if="!!c.text">
           {{ calendarText(c) }}
@@ -16,6 +16,10 @@
 </template>
 
 <script>
+
+function compareDates (a, b) {
+  return a.date - b.date
+}
 export default {
 
   data () {
@@ -23,19 +27,26 @@ export default {
       calitems: []
     }
   },
+
   async fetch () {
-    const today = (new Date()).toISOString()
-    const reply = await this.$content('app', 'calendar').fetch()
-    this.calitems = reply.calendar
-      .filter(c => c.date > today)
-      .sort((a, b) => a.date > b.date ? 1 : -1)
+    const reply = await this.$content('calendar').fetch()
+    this.calitems = []
+    this.parseCalendarItems(reply)
+    this.calitems.sort(compareDates)
+  },
+
+  computed: {
+    future_ci () {
+      const yesterday = new Date() - 86400000
+      return this.calitems.filter(ci => ci.date > yesterday)
+    }
   },
 
   methods: {
 
     calenderItem (c) {
       const output = []
-      output.push((new Date(c.date)).toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
+      output.push(c.date.toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
       output.push(c.title)
       if (c.round) {
         output.push(this.$t('Round'))
@@ -49,8 +60,24 @@ export default {
     calenderText (c) {
       return ''
     },
-    disabled: c => c.status === 'disabled',
-    postponed: c => c.status === 'postponed'
+    parseCalendarItems (listci) {
+      listci.forEach((ci) => {
+        if (ci.multiple) {
+          this.parseCalendarItems(ci.multiple)
+        }
+        if (ci.date) {
+          const item = { ...ci, date: new Date(ci.date) }
+          this.calitems.push(item)
+          return
+        }
+        if (ci.rounds) {
+          Object.entries(ci.rounds).forEach(([rnr, date]) => {
+            const { rounds, ...item } = { ...ci, date: new Date(date), round: rnr }
+            this.calitems.push(item)
+          })
+        }
+      })
+    }
   }
 
 }
@@ -62,5 +89,8 @@ export default {
 }
 .postponed {
   color: #bbb
+}
+.calenderitem {
+  margin: 8px 0;
 }
 </style>
