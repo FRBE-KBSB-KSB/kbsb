@@ -8,6 +8,9 @@ from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
 
+class OldLogin(BaseModel):
+    idnumber: int
+    password: str
 
 class Member(BaseModel):
     """

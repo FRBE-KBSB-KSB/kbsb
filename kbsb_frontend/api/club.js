@@ -83,5 +83,15 @@ export default context => ({
       }
     })
     return resp
-  }  
+  },
+  async verify_club_access (options) {
+    const { idclub, token, role } = options
+    const resp = await context.$axios.get(`/api/v1/c/clubs/${idclub}/access/${role}`, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    return resp
+  } 
+     
 })

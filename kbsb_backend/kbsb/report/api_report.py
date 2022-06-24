@@ -10,7 +10,7 @@ from reddevil.common import RdException
 from reddevil.common.security import bearer_schema
 from reddevil.service.account import validate_token
 from kbsb.main import app
-from kbsb.service.file import (
+from kbsb.report.report import (
     createFile,
     deleteFile,
     getFile,
@@ -18,7 +18,7 @@ from kbsb.service.file import (
     getFiles,
     updateFile,
 )
-from kbsb.models.md_file import (
+from kbsb.report.md_report import (
     FileIn,
     FileListOut,
     FileOptional,

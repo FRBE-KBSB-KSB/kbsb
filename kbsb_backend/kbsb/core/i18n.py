@@ -5,7 +5,7 @@ import logging
 from fastapi import HTTPException, BackgroundTasks
 from reddevil.common import RdException
 from kbsb.main import app
-from kbsb.service.site import fetchI18n
+from kbsb.core.site import fetchI18n
 
 log = logging.getLogger("kbsb")
 

@@ -77,4 +77,4 @@ def mysql_engine():
 
 # import all database classes
 
-import kbsb.db.mysql_signaletique
+import kbsb.oldkbsb.db_old

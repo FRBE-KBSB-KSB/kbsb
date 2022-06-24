@@ -8,18 +8,18 @@ register_app(settingsmodule='kbsb.settings')
 settings = get_settings()
 
 settings.SECRETS["mysql"] = {
-    "name": "kbsb-mysql-local",
+    "name": "kbsb-mysql-infomaniak",
     "manager": "filejson",    
 }
 settings.SECRETS["mongodb"] ={
-    "name": "kbsb-mongodb-local",
+    "name": "kbsb-mongodb-staging",
     "manager": "filejson",
 }
 settings.SECRETS_PATH = "/home/ruben/develop/secrets/kbsb"
 
 import kbsb.service
-from kbsb.models.md_interclub import InterclubPrevious
-from kbsb.service.interclub import create_interclubprevious
+from kbsb.interclub.md_interclub import InterclubPrevious
+from kbsb.interclub.interclub import create_interclubprevious
 
 
 class MongodbInterclubPreviousWriter:

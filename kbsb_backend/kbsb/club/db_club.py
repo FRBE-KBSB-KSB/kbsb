@@ -1,4 +1,13 @@
-# copyright Ruben Decrop 2022
+# copyright Ruben Decrop 2012 - 2022
+# copyright Chessdevil Consulting BVBA 2015 - 2022
+
+from reddevil.db.db_base import DbBase
+
+class DbClub(DbBase):
+    COLLECTION = "club"
+    DOCUMENTTYPE = "Club"
+    VERSION = 1
+    IDGENERATOR = "uuid"
 
 # We define the p_clubs ao the old  myssql database in SQLALchemy
 
@@ -32,7 +41,7 @@ class P_Clubs(Base):
     vicemat = Column('ViceMat', Integer)
     tresoriermat = Column('TresorierMat', Integer)
     secretairemat = Column('SecretaireMat', Integer)
-    torunoimat = Column('TournoiMat', Integer)
+    tournoimat = Column('TournoiMat', Integer)
     jeunessemat = Column('JeunesseMat', Integer)
     interclubmat = Column('InterclubMat', Integer)
     bquetitulaire = Column('BqueTitulaire', String(collation='latin1_general_cs'))

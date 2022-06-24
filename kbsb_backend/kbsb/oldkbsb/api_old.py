@@ -8,8 +8,8 @@ import logging
 from fastapi import HTTPException
 from reddevil.common import RdException
 from kbsb.main import app
-from kbsb.models.md_old import OldLogin
-from kbsb.service.old import do_oldlogin
+from kbsb.oldkbsb.md_old import OldLogin
+from kbsb.oldkbsb.old import do_oldlogin
 
 log = logging.getLogger(__name__)
 

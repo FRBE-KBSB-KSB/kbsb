@@ -10,21 +10,20 @@
         <v-autocomplete
           v-model="idclub"
           :items="clubs"
-          item-text="idclub"
+          item-text="merged"
           item-value="idclub"
           color="white"
           label="Club"
           filled
-          dense
-          @onchange="selectclub"
+          @change="selectclub"
         >
           <template v-slot:item="data">
-           {{ data.item.idclub}}: {{ data.item.name_short}} {{ data.item.name_long}}
+           {{ data.item.merged}}
           </template>
         </v-autocomplete>
       </v-card-text>
     </v-card>
-    <h2 class="mt-2">Active club: {{ idclub }} </h2>
+    <h2 class="mt-2">Active club: {{ activeclub.idclub }} {{ activeclub.name_short}}</h2>
     <div class="elevation-2">
 
     <v-tabs v-model="tab">
@@ -37,11 +36,7 @@
     </v-tabs>
     <v-tabs-items v-model="tab">
       <v-tab-item>
-        <v-container>
-          <h3>Enrollment</h3>
-          <div v-if="!idclub">Please select a club to view the enrollment</div>
-
-        </v-container>
+        <InterclubEnrollment @interface="registerChildMethod" />
       </v-tab-item>
       <v-tab-item>
         <h3>Venue</h3>
@@ -68,13 +63,14 @@
 
 export default {
 
-  name: 'Clublist',
+  name: 'Interclub',
 
   layout: 'default',
 
   data () {
     return {
-      activeclub: null,
+      activeclub: {},
+      childmethods: {},
       footerProps: {
         itemsPerPageOptions: [150, -1]
       },
@@ -85,12 +81,12 @@ export default {
   },
 
   computed: {
-    oldlogin () { return this.$store.state.oldlogin.value },
+    logintoken () { return this.$store.state.oldlogin.value },
   },
 
   mounted () {
     this.$store.commit('oldlogin/startup')
-    if (!this.oldlogin.length) {
+    if (!this.logintoken.length) {
       this.gotoLogin()
     }
     this.getClubs()
@@ -98,14 +94,19 @@ export default {
 
   methods: {
 
+    registerChildMethod(child, method) {
+      this.childmethods[child] = method
+    },
+
     async getClubs () {
-      console.log('getClubs', this.oldlogin)
       try {
         const reply = await this.$api.club.get_c_clubs({
-          token: this.oldlogin
+          token: this.logintoken
         })
-        console.log('reply', reply.data)
         this.clubs = reply.data.clubs
+        this.clubs.forEach(p => {
+          p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
+        })
       } catch (error) {
         console.log('error', error)
         const reply = error.response
@@ -124,6 +125,11 @@ export default {
 
     selectclub() {
       console.log('selected ', this.idclub)
+      this.clubs.forEach(c => {
+        if (c.idclub == this.idclub) this.activeclub = c
+      })
+      const getAnonEnrollment = this.childmethods.enrollment
+      getAnonEnrollment(this.activeclub)
     }
 
   }
@@ -132,7 +138,4 @@ export default {
 </script>
 
 <style>
-.lightgreyrow {
-  color: #bbb;
-}
 </style>

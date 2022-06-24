@@ -23,28 +23,21 @@ log.info(f"Starting KBSB ...")
 
 # set up the database async handlers
 from reddevil.db import connect_mongodb, close_mongodb
-log.info(f"imported connect_mongodb")
-
 app.add_event_handler("startup", connect_mongodb)
 app.add_event_handler("shutdown", close_mongodb)
 log.info(f"Mongodb event handlers added")
 
-# import service layer
-import kbsb.service
+# import different modules
 
-log.info(f"Service layer loaded")
+import reddevil.api.api_account
+import kbsb.club
+import kbsb.report
+import kbsb.oldkbsb
+import kbsb.interclub
 
-# import api endpoints
-import kbsb.api
-
-log.info(f"Api layer loaded")
 
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
-# import static endpoints fro rating reports
-
-from kbsb.static import ratingfr, ratingnl
-
-log.info(f"Static path loaded")
+log.info('initialisation done')

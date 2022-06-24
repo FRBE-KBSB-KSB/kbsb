@@ -49,7 +49,7 @@ class ClubMember(BaseModel):
     mobile_visibility: Optional[Visibility]
 
 class ClubRole(BaseModel):
-    description: str
+    nature: str
     memberlist: List[int]  # list of id numbers that have the role
 
 class Club(BaseModel):
@@ -93,6 +93,7 @@ class ClubIn(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
+    clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks
     email_interclub: Optional[str]  # email_fdor interclub tasks

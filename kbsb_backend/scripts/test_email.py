@@ -1,2 +1,2 @@
-from kbsb.service.mail import test_mail
+from kbsb.core.mail import test_mail
 test_mail()

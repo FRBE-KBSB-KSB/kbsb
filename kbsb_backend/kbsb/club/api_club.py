@@ -8,20 +8,20 @@ from reddevil.common import RdException, bearer_schema
 from reddevil.service.account import validate_token
 
 from kbsb.main import app
-from kbsb.service.club import (
+from kbsb.club import (
     create_club,
     delete_club,
     get_club,
     get_clubs,
     update_club,
-)
-from kbsb.service.old import validate_oldtoken
-from kbsb.models.md_club import (
+    find_club,
+    verify_club_access,
     Club,
     ClubIn,
     ClubList,
     ClubUpdate,
 )
+from kbsb.oldkbsb.old import validate_oldtoken
 
 log = logging.getLogger(__name__)
 
@@ -148,4 +148,22 @@ async def api_update_club(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call update_club")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.get("/api/v1/c/clubs/{idclub}/access/{role}", response_model=bool)
+async def api_verify_club_access(
+    idclub: int, 
+    role: str, 
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+):
+    """
+    verifies if a user identified by token has access to a club role
+    """
+    try:
+        idnumber = await validate_oldtoken(auth)
+        return await verify_club_access(idclub=idclub, idnumber=idnumber, role=role)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call verify_club_access")
         raise HTTPException(status_code=500, detail="Internal Server Error")

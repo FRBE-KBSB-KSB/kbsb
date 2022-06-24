@@ -21,14 +21,14 @@ from reddevil.common import (
     get_settings,
 )
 
-from kbsb.models.md_file import (
+from . import (
     FileIn,
     FileOut,
     FileUpdate,
     FileListOut,
     FileOptional,
+    DbFile
 )
-from kbsb.db.db_file import DbFile
 
 def encode_file(e: dict, _class=FileOptional) -> FileOptional:
     try:

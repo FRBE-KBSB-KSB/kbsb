@@ -1,0 +1,102 @@
+# copyright Ruben Decrop 2012 - 2022
+
+import logging
+from typing import cast, Any, Optional
+
+from reddevil.common import (
+    RdBadRequest,
+    RdNotFound,
+    encode_model,
+)
+
+from kbsb.interclub import (
+    DbInterclubEnrollment, 
+    DbInterclubPrevious,
+    InterclubEnrollment,
+    InterclubEnrollmentIn,
+    InterclubPrevious,
+    InterclubEnrollmentList,
+)
+from kbsb.club import get_clubs
+
+
+log = logging.getLogger(__name__)
+
+# basic CRUD actions
+
+async def create_interclubenrollment(c: InterclubEnrollment) -> str:
+    """
+    create a new InterclubEnrollment returning its id
+    """
+    return await DbInterclubEnrollment.add(c.dict())
+
+
+async def get_interclubenrollment(id: str, options: dict = {}) -> InterclubEnrollment:
+    """
+    get the interclub enrollment
+    """
+    _class = options.pop("_class", InterclubEnrollment)
+    filter = dict(id=id, **options)
+    fdict = await DbInterclubEnrollment.find_single(filter)
+    return encode_model(fdict, _class)
+
+
+async def get_interclubenrollments(options: dict = {}) -> InterclubEnrollmentList:
+    """
+    get the interclub enrollment
+    """
+    _class = options.pop("_class", InterclubEnrollment)
+    docs = await DbInterclubEnrollment.find_multiple(options)
+    enrs = [encode_model(d, _class) for d in docs]
+    return InterclubEnrollmentList(enrollments=enrs)
+
+
+async def update_interclubenrollment(id:str, c: InterclubEnrollment, options: dict = {}) -> InterclubEnrollment:
+    """
+    update a interclub enrollment
+    """
+    validator = options.pop("_class", InterclubEnrollment)
+    cdict = await DbInterclubEnrollment.update(id, c.dict(exclude_unset=True), options)
+    log.info(f'updated cdict {cdict}')
+    return cast(InterclubEnrollment, encode_model(cdict, validator))
+
+
+async def create_interclubprevious(c: InterclubPrevious) -> str:
+    """
+    create a new InterclubPrevious returning its id
+    """
+    return await DbInterclubPrevious.add(c.dict())
+
+# business logic
+
+async def find_interclubenrollment(idclub: str) -> Optional[InterclubEnrollment]:
+    """
+    find an enrollment by idclub
+    """
+    enrs = (await get_interclubenrollments({'idclub': idclub})).enrollments
+    return enrs[0] if enrs else None
+
+
+async def make_enrollment(ie: InterclubEnrollmentIn) -> InterclubEnrollment:
+    """
+    make an new enrollment
+    """
+    if await find_interclubenrollment(ie.idclub):
+        raise RdBadRequest(description="ClubAlreadyEnrolled")
+    clubs = (await get_clubs({"idclub": ie.idclub})).clubs
+    if clubs:
+        club = clubs[0]
+    else:
+        raise RdNotFound(description="ClubNotFound")
+    id = await DbInterclubEnrollment.add({
+        "idclub": ie.idclub,
+        "name_long": club.name_long,
+        "name_short": club.name_short,
+        "teams1": ie.teams1,
+        "teams2": ie.teams2,
+        "teams3": ie.teams3,
+        "teams4": ie.teams4,
+        "teams5": ie.teams5,
+    })
+    log.info(f'Enrollment added TODO send confirmation email')
+    return await get_interclubenrollment(id)

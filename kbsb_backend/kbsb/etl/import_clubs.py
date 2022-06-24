@@ -1,21 +1,22 @@
 import asyncio
-from csv import writer
 
+from csv import writer
+from fastapi import FastAPI
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
 from reddevil.common import register_app, get_settings
 from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
 
-register_app(settingsmodule='kbsb.settings')
+app = FastAPI(
+    title="FRBE-KBSB-KSB",
+    description="Website Belgian Chess federation FRBE KBSB KSB",
+    version="0",
+)
+register_app(app=app, settingsmodule='kbsb.settings')
 settings = get_settings()
-print("settings", settings.SECRETS)
 
-import kbsb.service
-from kbsb.db import mysql_engine
-from kbsb.db.p_clubs import P_Clubs
-from kbsb.models.md_club import ClubIn
-from kbsb.service.club import create_club
+from kbsb.core.db import mysql_engine
+from kbsb.club import P_Clubs, ClubIn, ClubRole, create_club
 
 
 class MongodbClubWriter:
@@ -31,11 +32,27 @@ class MongodbClubWriter:
         email = p.email
         if email:
             email = email.replace("[at]","@")
+        staff = []
+        for f in ["presidentmat", "vicemat", "tresoriermat", "secretairemat",
+                "tournoimat", "jeunessemat", "interclubmat"]:
+            if id := getattr(p, f, 0): 
+                staff.append(id)
+        clubroles = [
+            ClubRole(
+                nature="ClubAdmin",
+                memberlist=staff,
+            ),
+            ClubRole(
+                nature="InterclubAdmin",
+                memberlist=staff,
+            )
+        ]
         c = ClubIn(
             address = p.siegesocial,
             bankaccount_name = p.bquetitulaire,
             bankaccount_iban = p.bquecompter,
             bankaccount_bic = p.bquebic,
+            clubroles = clubroles,
             email_admin = "",
             email_finance = "",
             email_interclub = "",

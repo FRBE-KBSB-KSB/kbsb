@@ -1,4 +1,5 @@
 # copyright Ruben Decrop 2012 - 2022
+# copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
 import hashlib
@@ -9,21 +10,19 @@ from sqlalchemy.orm import sessionmaker
 from typing import cast, Any, IO
 
 from reddevil.common import (
-    RdInternalServerError,
     RdNotAuthorized,
     get_settings,
     jwt_encode,
     jwt_getunverifiedpayload,
     jwt_verify,
 )
-from kbsb.models.md_old import (
+from kbsb.oldkbsb import (
     OldLogin,
 )
-from kbsb.db.p_user import P_User
-from kbsb.db import mysql_engine
+from kbsb.oldkbsb import P_User
+from kbsb.core.db import mysql_engine
 
 log = logging.getLogger(__name__)
-settings = get_settings()
 
 # we simplify the normal jwt libs by setting the SALT fixed 
 SALT = "OLDSITE"
@@ -33,7 +32,7 @@ def do_oldlogin(ol: OldLogin) -> str:
     use the mysql database to mimic the old php login procedure
     return a JWT token
     """
-    log.info('doing old login')
+    settings = get_settings()
     session = sessionmaker(mysql_engine())()
     query = session.query(P_User).filter(P_User.user == ol.idnumber)
     user = query.one_or_none()

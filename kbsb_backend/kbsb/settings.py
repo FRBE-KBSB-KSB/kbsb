@@ -32,7 +32,7 @@ LOG_CONFIG = {
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
-            "()": "kbsb.util.colorlogfactory.cf",
+            "()": "kbsb.core.colorlogfactory.cf",
         },
     },
     "handlers": {
