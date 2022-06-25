@@ -13,16 +13,15 @@ from kbsb.oldkbsb import validate_oldtoken
 from .interclub import (
     find_interclubenrollment,
     make_interclubenrollment,
-    update_interclubenrollment,
+    modify_interclubenrollment,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubEnrollmentUpdate,
 )
 
+
 @app.get("/api/v1/a/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
-async def api_anon_get_enrollment(
-    idclub: int
-):
+async def api_anon_get_enrollment(idclub: int):
     """
     return an enrollment by idclub
     """
@@ -37,8 +36,8 @@ async def api_anon_get_enrollment(
 
 @app.post("/api/v1/c/interclub/enrollment", response_model=InterclubEnrollment)
 async def api_make_enrollment(
-    ie: InterclubEnrollmentIn, 
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+    ie: InterclubEnrollmentIn,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
         await validate_oldtoken(auth)
@@ -51,21 +50,19 @@ async def api_make_enrollment(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.put("/api/v1/a/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
-async def api_anon_get_enrollment(
+@app.put("/api/v1/c/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
+async def api_update_enrollment(
     idclub: int,
-    iu: InterclubEnrollmentUpdate, 
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+    iu: InterclubEnrollmentUpdate,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     """
     return an enrollment by idclub
     """
     try:
-        return await update_interclubenrollment(idclub)
+        return await modify_interclubenrollment(idclub, iu)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call update_interclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-

@@ -30,16 +30,11 @@ LOG_CONFIG = {
         "simple": {
             "format": "%(levelname)s: %(name)s - %(message)s",
         },
-        "color": {
-            "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
-            "()": "kbsb.core.colorlogfactory.cf",
-        },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            # "formatter": "color",
             "formatter": "simple",
             "stream": "ext://sys.stderr",
         }
