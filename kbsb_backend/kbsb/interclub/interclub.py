@@ -9,11 +9,12 @@ from reddevil.common import (
     encode_model,
 )
 
-from kbsb.interclub import (
+from . import (
     DbInterclubEnrollment, 
     DbInterclubPrevious,
     InterclubEnrollment,
     InterclubEnrollmentIn,
+    InterclubEnrollmentUpdate,
     InterclubPrevious,
     InterclubEnrollmentList,
 )
@@ -51,7 +52,7 @@ async def get_interclubenrollments(options: dict = {}) -> InterclubEnrollmentLis
     return InterclubEnrollmentList(enrollments=enrs)
 
 
-async def update_interclubenrollment(id:str, c: InterclubEnrollment, options: dict = {}) -> InterclubEnrollment:
+async def update_interclubenrollment(id:str, c: InterclubEnrollmentUpdate, options: dict = {}) -> InterclubEnrollment:
     """
     update a interclub enrollment
     """
@@ -77,7 +78,7 @@ async def find_interclubenrollment(idclub: str) -> Optional[InterclubEnrollment]
     return enrs[0] if enrs else None
 
 
-async def make_enrollment(ie: InterclubEnrollmentIn) -> InterclubEnrollment:
+async def make_interclubenrollment(ie: InterclubEnrollmentIn) -> InterclubEnrollment:
     """
     make an new enrollment
     """

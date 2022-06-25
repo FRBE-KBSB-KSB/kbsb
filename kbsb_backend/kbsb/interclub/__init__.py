@@ -6,6 +6,7 @@
 from .md_interclub import (
     InterclubEnrollment,
     InterclubEnrollmentIn,
+    InterclubEnrollmentUpdate,
     InterclubPlayer,
     InterclubPrevious,
     InterclubSerie,
@@ -17,7 +18,7 @@ from .db_interclub import DbInterclubEnrollment, DbInterclubPrevious
 
 from .interclub import (
     find_interclubenrollment,
-    make_enrollment,
+    make_interclubenrollment,
 )
 
 import kbsb.interclub.api_interclub 

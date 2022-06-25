@@ -10,11 +10,13 @@ from reddevil.service.account import validate_token
 
 from kbsb.main import app
 from kbsb.oldkbsb import validate_oldtoken
-from kbsb.interclub import (
+from .interclub import (
     find_interclubenrollment,
-    make_enrollment,
+    make_interclubenrollment,
+    update_interclubenrollment,
     InterclubEnrollment,
     InterclubEnrollmentIn,
+    InterclubEnrollmentUpdate,
 )
 
 @app.get("/api/v1/a/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
@@ -25,7 +27,7 @@ async def api_anon_get_enrollment(
     return an enrollment by idclub
     """
     try:
-        await find_interclubenrollment(idclub)
+        return await find_interclubenrollment(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
@@ -41,9 +43,29 @@ async def api_make_enrollment(
     try:
         await validate_oldtoken(auth)
         # TODO check club autorization
-        return await make_enrollment(ie)
+        return await make_interclubenrollment(ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call update_interclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.put("/api/v1/a/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
+async def api_anon_get_enrollment(
+    idclub: int,
+    iu: InterclubEnrollmentUpdate, 
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
+):
+    """
+    return an enrollment by idclub
+    """
+    try:
+        return await update_interclubenrollment(idclub)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call update_interclub")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+

@@ -10,7 +10,14 @@ export default context => ({
       headers: {
         Authorization: 'Bearer ' + token
       }
-  })
+    })
+    return resp
+  },
+  async update_enrollment (options) {
+    const { token, idclub, ...enrollment } = options
+    const resp = await context.$axios.put(`/api/v1/a/interclub/enrollment/${idclub}`, 
+      enrollment, { headers: { Authorization: 'Bearer ' + token }}
+    )
     return resp
   },
 })

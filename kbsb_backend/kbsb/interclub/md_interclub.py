@@ -62,6 +62,12 @@ class InterclubEnrollmentIn(BaseModel):
     teams4: int
     teams5: int
 
+class InterclubEnrollmentUpdate(BaseModel):
+    teams1: int
+    teams2: int
+    teams3: int
+    teams4: int
+    teams5: int
 
 class InterclubPrevious(BaseModel):
     idclub: int

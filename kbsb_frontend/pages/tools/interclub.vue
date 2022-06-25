@@ -12,9 +12,9 @@
           :items="clubs"
           item-text="merged"
           item-value="idclub"
-          color="white"
+          color="green"
           label="Club"
-          filled
+          clearable
           @change="selectclub"
         >
           <template v-slot:item="data">
@@ -26,7 +26,7 @@
     <h2 class="mt-2">Active club: {{ activeclub.idclub }} {{ activeclub.name_short}}</h2>
     <div class="elevation-2">
 
-    <v-tabs v-model="tab">
+    <v-tabs v-model="tab" color="green">
       <v-tabs-slider color="green"></v-tabs-slider>
       <v-tab>Enrollment</v-tab>
       <v-tab>Venue</v-tab>
