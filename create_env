@@ -1,8 +1,4 @@
 #!/bin/bash
-python3 -m venv kbsb_backend/.venv
-source kbsb_backend/.venv/bin/activate
-pip install pip-tools
-pip-compile kbsb_backend/requirements.in
-pip-compile kbsb_backend/requirements-dev.in
-pip install -r kbsb_backend/requirements.txt
-pip install -r kbsb_backend/requirements-dev.txt
+pushd kbsb_backend
+poetry install
+popd

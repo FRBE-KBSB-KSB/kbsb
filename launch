@@ -1,3 +1,4 @@
 #!/bin/bash
-source kbsb_backend/.venv/bin/activate
-PYTHONPATH=kbsb_backend uvicorn kbsb.main:app --reload
+pushd kbsb_backend
+poetry run uvicorn kbsb.main:app --reload
+popd
