@@ -82,6 +82,8 @@ SECRETS = {
 }
 SECRETS_PATH = ""
 
+# relatively to backend path
+TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

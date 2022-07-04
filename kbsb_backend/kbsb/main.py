@@ -23,6 +23,7 @@ log.info(f"Starting KBSB ...")
 
 # set up the database async handlers
 from reddevil.db import connect_mongodb, close_mongodb
+
 app.add_event_handler("startup", connect_mongodb)
 app.add_event_handler("shutdown", close_mongodb)
 log.info(f"Mongodb event handlers added")
@@ -34,10 +35,11 @@ import kbsb.club
 import kbsb.report
 import kbsb.oldkbsb
 import kbsb.interclub
+import kbsb.util
 
 
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
-log.info('initialisation done')
+log.info("initialisation done")

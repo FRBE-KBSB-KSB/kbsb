@@ -1,4 +1,5 @@
-# copyright Ruben Decrop 2012 - 2021
+# copyright Ruben Decrop 2012 - 2022
+# copyright Chessdevil Consulting BVBA 2015 - 2022
 
 # all models in the service level exposed to the API
 # we are using pydantic as tool
@@ -48,9 +49,11 @@ class ClubMember(BaseModel):
     mobile: Optional[str]
     mobile_visibility: Optional[Visibility]
 
+
 class ClubRole(BaseModel):
     nature: str
     memberlist: List[int]  # list of id numbers that have the role
+
 
 class Club(BaseModel):
     """
@@ -89,6 +92,7 @@ class ClubIn(BaseModel):
     """
     Validator for inserting a club
     """
+
     address: Optional[str]  # full contact address
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
@@ -112,6 +116,7 @@ class ClubUpdate(BaseModel):
     """
     Validator for updating a club
     """
+
     address: Optional[str]  # full contact address
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
@@ -126,6 +131,7 @@ class ClubUpdate(BaseModel):
     openinghours: Optional[List[Opening]]
     venue: Optional[str]  # full multiline address of playing venue
     website: Optional[str]
+
 
 class ClubListItem(BaseModel):
     email_main: Optional[str]

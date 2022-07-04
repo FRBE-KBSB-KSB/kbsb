@@ -8,7 +8,7 @@ from reddevil.common import (
     RdNotFound,
     encode_model,
 )
-
+from reddevil.service.mail import sendEmail, MailParams
 from . import (
     DbInterclubEnrollment,
     DbInterclubPrevious,
@@ -18,7 +18,7 @@ from . import (
     InterclubPrevious,
     InterclubEnrollmentList,
 )
-from kbsb.club import get_clubs
+from kbsb.club import get_clubs, get_club, club_locale
 
 
 log = logging.getLogger(__name__)
@@ -90,21 +90,33 @@ async def make_interclubenrollment(ie: InterclubEnrollmentIn) -> InterclubEnroll
         raise RdBadRequest(description="ClubAlreadyEnrolled")
     clubs = (await get_clubs({"idclub": ie.idclub})).clubs
     if clubs:
-        club = clubs[0]
+        club = await get_club(clubs[0].id)
     else:
         raise RdNotFound(description="ClubNotFound")
-    id = await DbInterclubEnrollment.add(
-        {
-            "idclub": ie.idclub,
-            "name_long": club.name_long,
-            "name_short": club.name_short,
-            "teams1": ie.teams1,
-            "teams2": ie.teams2,
-            "teams3": ie.teams3,
-            "teams4": ie.teams4,
-            "teams5": ie.teams5,
-        }
+    log.info(f"club {club}")
+    enr_dict = {
+        "idclub": ie.idclub,
+        "name_long": club.name_long,
+        "name_short": club.name_short,
+        "locale": club_locale(club),
+        "teams1": ie.teams1,
+        "teams2": ie.teams2,
+        "teams3": ie.teams3,
+        "teams4": ie.teams4,
+        "teams5": ie.teams5,
+    }
+    id = await DbInterclubEnrollment.add(enr_dict)
+    receiver = club.email_main
+    if club.email_interclub:
+        receiver = ",".join([club.email_interclub, receiver])
+    mp = MailParams(
+        locale=enr_dict["locale"],
+        receiver=receiver,
+        sender="noreply@frbe-kbsb-ksb.be",
+        subject="Interclub 2022-23",
+        template="interclub/enrollment_{locale}.md",
     )
+    sendEmail(mp, enr_dict, "interclub enrollment")
     log.info(f"Enrollment added TODO send confirmation email")
     return await get_interclubenrollment(id)
 

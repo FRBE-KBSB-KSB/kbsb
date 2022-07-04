@@ -11,10 +11,12 @@ from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
 from enum import Enum
 
+
 class InterclubPlayer(BaseModel):
     """
     Player on player list of a club
     """
+
     first_name: str
     last_name: str
     idnumber: int
@@ -32,15 +34,18 @@ class InterclubTeam(BaseModel):
 
 class InterclubSerie(BaseModel):
     """
-    representation of 
+    representation of
     """
+
     division: int
     serie: str
     teams: List[InterclubTeam]
 
+
 class InterclubEnrollment(BaseModel):
     id: Optional[str]
     idclub: Optional[int]
+    locale: Optional[str]
     name_long: Optional[str]
     name_short: Optional[str]
     teams1: Optional[int]
@@ -51,16 +56,20 @@ class InterclubEnrollment(BaseModel):
     idpaymentrequest: Optional[str]
     idinvoice: Optional[str]
 
+
 class InterclubEnrollmentList(BaseModel):
     enrollments: List[Any]
 
+
 class InterclubEnrollmentIn(BaseModel):
     idclub: int
+    locale: Optional[str] = "nl"
     teams1: int
     teams2: int
     teams3: int
     teams4: int
     teams5: int
+
 
 class InterclubEnrollmentUpdate(BaseModel):
     teams1: int
@@ -68,6 +77,7 @@ class InterclubEnrollmentUpdate(BaseModel):
     teams3: int
     teams4: int
     teams5: int
+
 
 class InterclubPrevious(BaseModel):
     idclub: int
@@ -81,4 +91,3 @@ class InterclubPrevious(BaseModel):
     promotionFrom: Optional[List[int]] = None
     degradationFrom: Optional[List[int]] = None
     stopped: Optional[List[int]] = None
-

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Interclubs Manager</h1>
+    <h1>Club Manager</h1>
     <v-card>
       <v-card-title>
         {{ $t('Select the club') }}
@@ -20,24 +20,23 @@
 
       <v-tabs v-model="tab" color="green">
         <v-tabs-slider color="green"></v-tabs-slider>
-        <v-tab>{{ $t('Enrollment') }}</v-tab>
-        <v-tab>{{ $t('Venue') }}</v-tab>
-        <v-tab>{{ $t('Player list') }}</v-tab>
-        <v-tab>{{ $t('Planning') }}</v-tab>
-        <v-tab>{{ $t('Results') }}</v-tab>
+        <v-tab>{{ $t('Details') }}</v-tab>
+        <v-tab>{{ $t('Access Rights') }}</v-tab>
+        <v-tab>{{ $t('Members') }}</v-tab>
+        <v-tab>{{ $t('Affiliations') }}</v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item>
-          <InterclubEnrollment @interface="registerChildMethod" />
+          <ClubDetail @interface="registerChildMethod" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubVenue @interface="registerChildMethod" />
+          <ClubAccessRights @interface="registerChildMethod" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubPlayerlist @interface="registerChildMethod" />
+          <ClubMembers @interface="registerChildMethod" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubPlanning @interface="registerChildMethod" />
+          <ClubAffiliations @interface="registerChildMethod" />
         </v-tab-item>
         <v-tab-item>
           <InterclubResult @interface="registerChildMethod" />
@@ -45,13 +44,14 @@
       </v-tabs-items>
     </div>
   </v-container>
+  </v-container>
 </template>
 
 <script>
 
 export default {
 
-  name: 'Interclub',
+  name: 'Club',
 
   layout: 'default',
 
@@ -79,6 +79,10 @@ export default {
 
   methods: {
 
+    editClub(item) {
+      this.$router.push('/tools/clubedit/?id=' + item.id)
+    },
+
     registerChildMethod(methodname, method) {
       this.childmethods[methodname] = method
     },
@@ -105,7 +109,7 @@ export default {
     },
 
     gotoLogin() {
-      this.$router.push('/tools/oldlogin?url=__tools__interclub')
+      this.$router.push('/tools/oldlogin?url=__tools__club')
     },
 
     selectclub() {
@@ -117,7 +121,7 @@ export default {
           if (c.idclub == this.idclub) this.activeclub = c
         })
       }
-      this.childmethods.getAnonEnrollment(this.activeclub)
+      this.childmethods.getClubDetails(this.activeclub)
     }
 
   }
@@ -126,4 +130,7 @@ export default {
 </script>
 
 <style>
+.lightgreyrow {
+  color: #bbb;
+}
 </style>

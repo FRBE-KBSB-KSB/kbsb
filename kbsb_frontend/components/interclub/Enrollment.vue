@@ -1,39 +1,44 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to view the enrollment</p>
+    <p v-if="!club.idclub">{{ $t('Please select a club to view the enrollment') }}</p>
     <div v-if="club.idclub">
-      <h3 v-show="status_consulting">Existing Enrollment</h3>
-      <h3 v-show="status_adding">Add Enrollment</h3>
-      <h3 v-show="status_modifying">Modify Enrollment</h3>
+      <h3 v-show="status_consulting">{{ $t('Existing Enrollment') }}</h3>
+      <h3 v-show="status_adding">{{ $t('Add Enrollment') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modify Enrollment') }}</h3>
       <div v-show="!enrollment.id && status_consulting">
-        <p>The club is not enrolled yet</p>
+        <p>{{ $t('The club is not enrolled yet') }}</p>
         <v-btn @click="newEnrollment">
-          New enrollment
+          {{ $t('New enrollment') }}
         </v-btn>
       </div>
       <div v-show="enrollment.id && status_consulting">
         <ul>
-          <li>Teams in division 1: {{ enrollment.teams1 }}</li>
-          <li>Teams in division 2: {{ enrollment.teams2 }}</li>
-          <li>Teams in division 3: {{ enrollment.teams3 }} </li>
-          <li>Teams in division 4: {{ enrollment.teams4 }} </li>
-          <li>Teams in division 5: {{ enrollment.teams5 }}</li>
+          <li>{{ $t('Teams in division') }} 1: {{ enrollment.teams1 }}</li>
+          <li>{{ $t('Teams in division') }} 2: {{ enrollment.teams2 }}</li>
+          <li>{{ $t('Teams in division') }} 3: {{ enrollment.teams3 }} </li>
+          <li>{{ $t('Teams in division') }} 4: {{ enrollment.teams4 }} </li>
+          <li>{{ $t('Teams in division') }} 5: {{ enrollment.teams5 }}</li>
         </ul>
         <v-btn @click="modifyEnrollment">
-          Modify enrollment
+          {{ $t('Modify enrollment') }}
         </v-btn>
       </div>
       <div v-show="status_adding || status_modifying">
-        <v-text-field v-model="enrollment.teams1" label="Teams in division 1" type="number" min="0" max="15" />
-        <v-text-field v-model="enrollment.teams2" label="Teams in division 2" type="number" min="0" max="15" />
-        <v-text-field v-model="enrollment.teams3" label="Teams in division 3" type="number" min="0" max="15" />
-        <v-text-field v-model="enrollment.teams4" label="Teams in division 4" type="number" min="0" max="15" />
-        <v-text-field v-model="enrollment.teams5" label="Teams in division 5" type="number" min="0" max="15" />
+        <v-text-field v-model="enrollment.teams1" :label="$t('Teams in division') + ' 1'" type="number" min="0"
+          max="1" />
+        <v-text-field v-model="enrollment.teams2" :label="$t('Teams in division') + ' 2'" type="number" min="0"
+          max="15" />
+        <v-text-field v-model="enrollment.teams3" :label="$t('Teams in division') + ' 3'" type="number" min="0"
+          max="15" />
+        <v-text-field v-model="enrollment.teams4" :label="$t('Teams in division') + ' 4'" type="number" min="0"
+          max="15" />
+        <v-text-field v-model="enrollment.teams5" :label="$t('Teams in division') + ' 5'" type="number" min="0"
+          max="15" />
         <v-btn @click="saveEnrollment">
-          Save enrollment
+          {{ $t('Save enrollment') }}
         </v-btn>
         <v-btn @click="cancelEnrollment">
-          Cancel
+          {{ $t('Cancel') }}
         </v-btn>
       </div>
     </div>
@@ -45,6 +50,14 @@ const ENROLLMENT_STATUS = {
   ADDING: 1,
   MODIFYING: 2,
 }
+const empty_enrollment = {
+  teams1: 0,
+  teams2: 0,
+  teams3: 0,
+  teams4: 0,
+  teams5: 0,
+}
+
 export default {
 
   name: 'Enrollment',
@@ -52,13 +65,7 @@ export default {
   data() {
     return {
       club: {},
-      enrollment: {
-        teams1: 0,
-        teams2: 0,
-        teams3: 0,
-        teams4: 0,
-        teams5: 0,
-      },
+      enrollment: empty_enrollment,
       status: ENROLLMENT_STATUS.CONSULTING,
     }
   },
@@ -75,10 +82,11 @@ export default {
 
     cancelEnrollment() {
       this.status = ENROLLMENT_STATUS.CONSULTING
+      this.enrollment = empty_enrollment
     },
 
     emitInterface() {
-      this.$emit("interface", "enrollment", this.getAnonEnrollment);
+      this.$emit("interface", "getAnonEnrollment", this.getAnonEnrollment);
     },
 
     async getAnonEnrollment(activeclub) {
@@ -100,7 +108,8 @@ export default {
           this.gotoLogin()
         }
         else {
-          this.$root.$emit('snackbar', { text: 'Getting existing enrollment failed', reason: reply.data.detail })
+          log.error('Getting existing enrollment failed', reply.data.detail)
+          this.$root.$emit('snackbar', { text: this.$t('Getting existing enrollment failed') })
         }
       }
     },
@@ -112,20 +121,17 @@ export default {
           idclub: this.club.idclub,
           role: "InterclubAdmin"
         })
-        const hasaccess = reply.data
-        console.log('hasaccess', hasaccess)
-        if (hasaccess) {
+        if (reply.data) {
           this.status = ENROLLMENT_STATUS.ADDING
         }
       } catch (error) {
-        console.log('error', error)
         const reply = error.response
-        console.error('getting verify_club_access', reply)
         if (reply.status === 401) {
           this.gotoLogin()
         }
         else {
-          this.$root.$emit('snackbar', { text: 'Getting access rules club failed', reason: reply.data.detail })
+          console.error('Getting accessrules club failed', reply.data.detail)
+          this.$root.$emit('snackbar', { text: this.$t('Getting accessrules club failed') })
         }
       }
     },
@@ -161,15 +167,14 @@ export default {
         }
         this.status = ENROLLMENT_STATUS.CONSULTING
       } catch (error) {
-        console.error('error', error)
-        // const reply = error.response
-        // console.error('save enrollemt', reply)
-        // if (reply.status === 401) {
-        //   this.gotoLogin()
-        // }
-        // else {
-        //   this.$root.$emit('snackbar', { text: 'Saving enrollment', reason: reply.data.detail })
-        // }
+        const reply = error.response
+        if (reply.status === 401) {
+          this.gotoLogin()
+        }
+        else {
+          console.error('Saving enrollment', reply.data.detail)
+          this.$root.$emit('snackbar', { text: this.$t('Saving enrollment') })
+        }
       }
     },
 
@@ -177,7 +182,6 @@ export default {
 
   mounted() {
     this.emitInterface();
-    console.log('uid enrollment', this._uid)
   },
 
 }

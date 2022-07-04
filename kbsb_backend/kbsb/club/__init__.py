@@ -15,6 +15,7 @@ from .md_club import (
 from .db_club import DbClub, P_Clubs
 
 from .club import (
+    club_locale,
     create_club,
     delete_club,
     get_club,
@@ -24,4 +25,4 @@ from .club import (
     verify_club_access,
 )
 
-import  kbsb.club.api_club
+import kbsb.club.api_club
