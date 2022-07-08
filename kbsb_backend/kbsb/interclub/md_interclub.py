@@ -5,11 +5,8 @@
 # all models in the service level exposed to the API
 # we are using pydantic as tool
 
-import logging
-from datetime import datetime, date
-from typing import Dict, Any, List, Optional, Type, Union
+from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
-from enum import Enum
 
 
 class InterclubPlayer(BaseModel):
@@ -45,6 +42,8 @@ class InterclubSerie(BaseModel):
 class InterclubEnrollment(BaseModel):
     id: Optional[str]
     idclub: Optional[int]
+    idinvoice: Optional[str]
+    idpaymentrequest: Optional[str]
     locale: Optional[str]
     name_long: Optional[str]
     name_short: Optional[str]
@@ -53,8 +52,7 @@ class InterclubEnrollment(BaseModel):
     teams3: Optional[int]
     teams4: Optional[int]
     teams5: Optional[int]
-    idpaymentrequest: Optional[str]
-    idinvoice: Optional[str]
+    wishes: Optional[Dict]
 
 
 class InterclubEnrollmentList(BaseModel):

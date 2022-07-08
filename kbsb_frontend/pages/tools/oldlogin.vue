@@ -7,27 +7,18 @@
             <v-icon large>
               mdi-account
             </v-icon>
-            <label class="headline ml-3">Login</label>
+            <label class="headline ml-3">{{ $t('Sign in') }}</label>
             <v-spacer />
           </v-card-title>
           <v-divider />
           <v-card-text>
-              <v-text-field
-                v-model="login.idnumber"
-                label="Idnumber"
-              />
-              <v-text-field
-                v-model="login.password"
-                xs="12"
-                lg="6"
-                label="Password"
-                type="password"
-              />
+            <v-text-field v-model="login.idnumber" :label="$t('ID number')" />
+            <v-text-field v-model="login.password" xs="12" lg="6" :label="$t('Password')" type="password" />
           </v-card-text>
           <v-card-actions>
             <v-spacer />
             <v-btn @click="dologin()">
-              Submit
+              {{ $t('Submit') }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -42,7 +33,7 @@ import Vue from 'vue'
 export default {
   layout: 'default',
 
-  data () {
+  data() {
     return {
       login: {},
       url: this.$route.query.url
@@ -78,8 +69,8 @@ export default {
   methods: {
 
 
-    dologin () {
-      const returnUrl = this.url ? this.url.replaceAll("__","/") : '/'
+    dologin() {
+      const returnUrl = this.url ? this.url.replaceAll("__", "/") : '/'
       this.$api.old.login({
         idnumber: this.login.idnumber,
         password: this.login.password
@@ -98,6 +89,4 @@ export default {
 </script>
 
 <style>
-
-
 </style>

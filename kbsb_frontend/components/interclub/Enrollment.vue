@@ -2,9 +2,9 @@
   <v-container>
     <p v-if="!club.idclub">{{ $t('Please select a club to view the enrollment') }}</p>
     <div v-if="club.idclub">
-      <h3 v-show="status_consulting">{{ $t('Existing Enrollment') }}</h3>
-      <h3 v-show="status_adding">{{ $t('Add Enrollment') }}</h3>
-      <h3 v-show="status_modifying">{{ $t('Modify Enrollment') }}</h3>
+      <h3 v-show="status_consulting">{{ $t('Existing enrollment') }}</h3>
+      <h3 v-show="status_adding">{{ $t('Add enrollment') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modify enrollment') }}</h3>
       <div v-show="!enrollment.id && status_consulting">
         <p>{{ $t('The club is not enrolled yet') }}</p>
         <v-btn @click="newEnrollment">
@@ -166,6 +166,7 @@ export default {
           })
         }
         this.status = ENROLLMENT_STATUS.CONSULTING
+        this.getAnonEnrollment(this.club)
       } catch (error) {
         const reply = error.response
         if (reply.status === 401) {

@@ -132,4 +132,23 @@ async def modify_interclubenrollment(
         enr = enrs[0]
     else:
         raise RdNotFound(description="EnrollmentNotFound")
-    return await update_interclubenrollment(enr.id, iu)
+    clubs = (await get_clubs({"idclub": idclub})).clubs
+    if clubs:
+        club = await get_club(clubs[0].id)
+    else:
+        raise RdNotFound(description="ClubNotFound")
+    upd = await update_interclubenrollment(enr.id, iu)
+    receiver = club.email_main
+    if club.email_interclub:
+        receiver = ",".join([club.email_interclub, receiver])
+    mp = MailParams(
+        locale=club_locale(club),
+        receiver=receiver,
+        sender="noreply@frbe-kbsb-ksb.be",
+        subject="Interclub 2022-23",
+        template="interclub/enrollment_{locale}.md",
+    )
+    enr_dict = upd.dict()
+    enr_dict["locale"] = mp.locale
+    sendEmail(mp, enr_dict, "interclub enrollment")
+    return upd
