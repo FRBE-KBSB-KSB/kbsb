@@ -89,3 +89,24 @@ class InterclubPrevious(BaseModel):
     promotionFrom: Optional[List[int]] = None
     degradationFrom: Optional[List[int]] = None
     stopped: Optional[List[int]] = None
+
+
+class InterclubVenue(BaseModel):
+    address: str
+    email: str
+    phone: str
+    capacity: int  # number of boards, 0  is unlimited
+    notavailable: List[str]
+
+
+class InterclubVenueList(BaseModel):
+    venues: List[InterclubVenue]
+
+
+class InterclubVenues(InterclubVenueList):
+    id: str
+    idclub: int
+
+
+class InterclubVenuesList(BaseModel):
+    clubvenues: List[Any]

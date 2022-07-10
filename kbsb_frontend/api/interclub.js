@@ -22,4 +22,18 @@ export default context => ({
     )
     return resp
   },
+  async get_interclubvenues(options) {
+    console.log('api get_interclubvenues')
+    const { token, idclub } = options
+    const resp = await context.$axios.get(`/api/v1/c/interclub/venues/${idclub}`)
+    return resp
+  },
+  async set_interclubvenues(options) {
+    console.log('api set_interclubvenues')
+    const { token, idclub, venues } = options
+    const resp = await context.$axios.post(`/api/v1/c/interclub/venues/${idclub}`,
+      { venues }, { headers: { Authorization: 'Bearer ' + token } }
+    )
+    return resp
+  },
 })

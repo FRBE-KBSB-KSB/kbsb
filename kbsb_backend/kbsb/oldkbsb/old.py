@@ -24,8 +24,9 @@ from kbsb.core.db import mysql_engine
 
 log = logging.getLogger(__name__)
 
-# we simplify the normal jwt libs by setting the SALT fixed 
+# we simplify the normal jwt libs by setting the SALT fixed
 SALT = "OLDSITE"
+
 
 def do_oldlogin(ol: OldLogin) -> str:
     """
@@ -37,18 +38,19 @@ def do_oldlogin(ol: OldLogin) -> str:
     query = session.query(P_User).filter(P_User.user == ol.idnumber)
     user = query.one_or_none()
     if user is None:
-        log.info(f'not authorized: idnumber {ol.idnumber} not found')
+        log.info(f"not authorized: idnumber {ol.idnumber} not found")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     hash = f"Le guide complet de PHP 5 par Francois-Xavier Bois{ol.password}"
     pwcheck = hashlib.md5(hash.encode("utf-8")).hexdigest()
     if user.password != pwcheck:
-        log.info(f'not authorized: password hash {pwcheck} not correct')
+        log.info(f"not authorized: password hash {pwcheck} not correct")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     payload = {
         "sub": str(ol.idnumber),
-        "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"])
+        "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
     }
     return jwt_encode(payload, SALT)
+
 
 async def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     """
@@ -63,20 +65,14 @@ async def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     if not token:
         raise RdNotAuthorized(description="MissingToken")
     try:
-        payload = jwt_getunverifiedpayload(token)
-    except:
-        log.exception("invalid token without verification")
-        raise RdNotAuthorized(description="BadToken")
-    try:
-        idnumber = int(payload.get("sub"))
-    except ValueError:
-        log.exception("invalid idnumber")
-        raise RdNotAuthorized(description="BadToken")
-    try:
-        jwt_verify(token, settings.JWT_SECRET + SALT)
-    except JWTError:
-        raise RdNotAuthorized(description="BadToken")
+        payload = jwt_verify(token, settings.JWT_SECRET + SALT)
     except ExpiredSignatureError:
-        log.debug("JWT Token expired")
+        log.info("JWT Token expired")
         raise RdNotAuthorized(description="TokenExpired")
-    return idnumber
+    except JWTError:
+        log.info("Bad JWT Token")
+        raise RdNotAuthorized(description="BadToken")
+    except:
+        log.exception("General JWT Error")
+    log.debug(f"payload: {payload}")
+    return payload.get("sub")

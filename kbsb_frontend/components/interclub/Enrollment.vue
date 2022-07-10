@@ -91,6 +91,10 @@ export default {
 
     async getAnonEnrollment(activeclub) {
       this.club = activeclub;
+      if (!this.club.id) {
+        this.enrollment = empty_enrollment
+        return
+      }
       try {
         const reply = await this.$api.interclub.anon_get_enrollment({
           idclub: this.club.idclub

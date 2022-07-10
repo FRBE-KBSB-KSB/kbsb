@@ -18,7 +18,7 @@
     <h2 class="mt-2">{{ $t('Selected club') }}: {{ activeclub.idclub }} {{ activeclub.name_short }}</h2>
     <div class="elevation-2">
 
-      <v-tabs v-model="tab" color="green">
+      <v-tabs v-model="tab" color="green" @change="call_childmethods">
         <v-tabs-slider color="green"></v-tabs-slider>
         <v-tab>{{ $t('Enrollment') }}</v-tab>
         <v-tab>{{ $t('Venue') }}</v-tab>
@@ -49,6 +49,8 @@
 
 <script>
 
+const noop = function () { }
+
 export default {
 
   name: 'Interclub',
@@ -58,7 +60,10 @@ export default {
   data() {
     return {
       activeclub: {},
-      childmethods: {},
+      childmethods: {
+        getAnonEnrollment: noop,
+        getInterclubVenues: noop,
+      },
       clubs: [],
       idclub: null,
       tab: null,
@@ -79,8 +84,8 @@ export default {
 
   methods: {
 
-    registerChildMethod(methodname, method) {
-      this.childmethods[methodname] = method
+    call_childmethods() {
+      Object.keys(this.childmethods).forEach((v) => this.childmethods[v](this.activeclub))
     },
 
     async getClubs() {
@@ -104,8 +109,14 @@ export default {
       }
     },
 
+
+
     gotoLogin() {
       this.$router.push('/tools/oldlogin?url=__tools__interclub')
+    },
+
+    registerChildMethod(methodname, method) {
+      this.childmethods[methodname] = method
     },
 
     selectclub() {
@@ -117,7 +128,7 @@ export default {
           if (c.idclub == this.idclub) this.activeclub = c
         })
       }
-      this.childmethods.getAnonEnrollment(this.activeclub)
+      this.call_childmethods()
     }
 
   }

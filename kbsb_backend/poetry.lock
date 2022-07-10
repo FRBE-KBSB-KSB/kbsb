@@ -291,7 +291,7 @@ test = ["pytest (>=6.2.4,<7.0.0)", "pytest-cov (>=2.12.0,<4.0.0)", "mypy (==0.91
 
 [[package]]
 name = "fonttools"
-version = "4.33.3"
+version = "4.34.4"
 description = "Tools to manipulate font files"
 category = "main"
 optional = false
@@ -1039,15 +1039,15 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "reddevil"
-version = "2.5.10"
-description = "Reddevil python library"
+version = "2.5.11"
+description = "A librery for cms application using"
 category = "main"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = ">=3.8"
 
 [package.source]
 type = "file"
-url = "libs/reddevil-2.5.10-py3-none-any.whl"
+url = "libs/reddevil-2.5.11-py3-none-any.whl"
 
 [[package]]
 name = "requests"
@@ -1297,7 +1297,7 @@ test = ["pytest"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f678e01b838c6c03331bfd812e6ec7478d001d2fc7f81e82b79b5697c0cb7f8f"
+content-hash = "aac65483a64880e6c1ec8f189f50a04f3f442d3ad2e4a5de83b4f841389daadd"
 
 [metadata.files]
 aiofiles = [
@@ -1580,10 +1580,7 @@ fastapi = [
     {file = "fastapi-0.76.0-py3-none-any.whl", hash = "sha256:1e05c868651e3935bd9b290c61a3661a54e37471d3a0700bc5e4380f9ed935ae"},
     {file = "fastapi-0.76.0.tar.gz", hash = "sha256:a5f99f6e827c7108a8efaf1d7f19d6cf2d735ad984f5e44d33ccec6ee88a7da1"},
 ]
-fonttools = [
-    {file = "fonttools-4.33.3-py3-none-any.whl", hash = "sha256:f829c579a8678fa939a1d9e9894d01941db869de44390adb49ce67055a06cc2a"},
-    {file = "fonttools-4.33.3.zip", hash = "sha256:c0fdcfa8ceebd7c1b2021240bd46ef77aa8e7408cf10434be55df52384865f8e"},
-]
+fonttools = []
 google = [
     {file = "google-3.0.0-py2.py3-none-any.whl", hash = "sha256:889cf695f84e4ae2c55fbc0cfdaf4c1e729417fa52ab1db0485202ba173e4935"},
     {file = "google-3.0.0.tar.gz", hash = "sha256:143530122ee5130509ad5e989f0512f7cb218b2d4eddbafbad40fd10e8d8ccbe"},
@@ -2256,7 +2253,7 @@ pyyaml = [
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
 reddevil = [
-    {file = "reddevil-2.5.10-py3-none-any.whl", hash = "sha256:aefa7f214e6052a002d2768d24abfa4f8c2c17db351ac2597794517e3a999049"},
+    {file = "reddevil-2.5.11-py3-none-any.whl", hash = "sha256:4bb370c3df5fa82d07f0024bfec8bf484a24dba8841f9d9716340252ff5e82ed"},
 ]
 requests = [
     {file = "requests-2.28.0-py3-none-any.whl", hash = "sha256:bc7861137fbce630f17b03d3ad02ad0bf978c844f3536d0edda6499dafce2b6f"},

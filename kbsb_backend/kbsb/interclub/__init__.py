@@ -12,13 +12,24 @@ from .md_interclub import (
     InterclubSerie,
     InterclubTeam,
     InterclubEnrollmentList,
+    InterclubVenue,
+    InterclubVenueList,
+    InterclubVenues,
+    InterclubVenuesList,
 )
 
-from .db_interclub import DbInterclubEnrollment, DbInterclubPrevious
+from .db_interclub import (
+    DbInterclubEnrollment,
+    DbInterclubVenues,
+    DbInterclubPrevious,
+)
 
 from .interclub import (
     find_interclubenrollment,
+    find_interclubvenues_club,
     make_interclubenrollment,
+    modify_interclubenrollment,
+    set_interclubvenues,
 )
 
-import kbsb.interclub.api_interclub 
+import kbsb.interclub.api_interclub

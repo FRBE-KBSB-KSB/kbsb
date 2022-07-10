@@ -1,7 +1,7 @@
 # copyright Ruben Decrop 2012 - 2022
 
 import logging
-from typing import cast, Any, Optional
+from typing import cast, Any, Optional, List
 
 from reddevil.common import (
     RdBadRequest,
@@ -9,14 +9,20 @@ from reddevil.common import (
     encode_model,
 )
 from reddevil.service.mail import sendEmail, MailParams
+
+from kbsb.interclub.md_interclub import InterclubVenue
 from . import (
     DbInterclubEnrollment,
     DbInterclubPrevious,
+    DbInterclubVenues,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubEnrollmentUpdate,
     InterclubPrevious,
     InterclubEnrollmentList,
+    InterclubVenues,
+    InterclubVenueList,
+    InterclubVenuesList,
 )
 from kbsb.club import get_clubs, get_club, club_locale
 
@@ -69,6 +75,45 @@ async def create_interclubprevious(c: InterclubPrevious) -> str:
     create a new InterclubPrevious returning its id
     """
     return await DbInterclubPrevious.add(c.dict())
+
+
+async def create_interclubvenues(iv: InterclubVenues) -> str:
+    """
+    create a new InterclubVenues returning its id
+    """
+    return await DbInterclubVenues.add(iv.dict())
+
+
+async def get_interclubvenues(id: str, options: dict = {}) -> InterclubVenues:
+    """
+    get the interclubvenues
+    """
+    _class = options.pop("_class", InterclubVenues)
+    filter = dict(id=id, **options)
+    fdict = await DbInterclubVenues.find_single(filter)
+    return encode_model(fdict, _class)
+
+
+async def get_interclubvenues_clubs(options: dict = {}) -> InterclubVenuesList:
+    """
+    get the interclubvenues of all clubs
+    """
+    _class = options.pop("_class", InterclubVenues)
+    docs = await DbInterclubVenues.find_multiple(options)
+    log.debug(f"ivsclubs docs: {docs}")
+    clubvenues = [encode_model(d, _class) for d in docs]
+    return InterclubVenuesList(clubvenues=clubvenues)
+
+
+async def update_interclubvenues(
+    id: str, ivl: InterclubVenueList, options: dict = {}
+) -> InterclubVenues:
+    """
+    update a interclub venue
+    """
+    validator = options.pop("_class", InterclubVenues)
+    docdict = await DbInterclubVenues.update(id, ivl.dict(exclude_unset=True), options)
+    return cast(InterclubVenues, encode_model(docdict, validator))
 
 
 # business logic
@@ -152,3 +197,21 @@ async def modify_interclubenrollment(
     enr_dict["locale"] = mp.locale
     sendEmail(mp, enr_dict, "interclub enrollment")
     return upd
+
+
+async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
+    clvns = (await get_interclubvenues_clubs({"idclub": idclub})).clubvenues
+    return clvns[0] if clvns else None
+
+
+async def set_interclubvenues(idclub: str, ivl: InterclubVenueList) -> InterclubVenues:
+    log.debug(f"ivl {ivl}")
+    vns = await find_interclubvenues_club(idclub)
+    if vns:
+        log.debug(f"vns: {vns}")
+        return await update_interclubvenues(vns.id, ivl)
+    else:
+        id = await create_interclubvenues(
+            InterclubVenues(idclub=idclub, venues=ivl.venues)
+        )
+        return await get_interclubvenues(id)

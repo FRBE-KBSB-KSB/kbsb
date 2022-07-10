@@ -30,6 +30,10 @@ LOG_CONFIG = {
         "simple": {
             "format": "%(levelname)s: %(name)s - %(message)s",
         },
+        "color": {
+            "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
+            "()": "reddevil.common.colorlogfactory.c_factory",
+        },
     },
     "handlers": {
         "console": {
@@ -95,6 +99,14 @@ TOKEN = {
 try:
     from local_settings import *
 
-    print("local settings loaded")
+    ls = "local settings loaded"
 except ImportError:
-    print("No local settings found")
+    ls = "No local settings found"
+
+
+if COLORLOG:
+    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
+if DEBUG:
+    LOG_CONFIG["handlers"]["console"]["level"] = "DEBUG"
+    LOG_CONFIG["loggers"]["kbsb"]["level"] = "DEBUG"
+    LOG_CONFIG["loggers"]["reddevil"]["level"] = "DEBUG"

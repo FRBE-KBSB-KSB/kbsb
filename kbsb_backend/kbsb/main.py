@@ -21,6 +21,10 @@ logging.config.dictConfig(settings.LOG_CONFIG)
 log = logging.getLogger(__name__)
 log.info(f"Starting KBSB ...")
 
+from kbsb.settings import ls
+
+log.info(ls)
+
 # set up the database async handlers
 from reddevil.db import connect_mongodb, close_mongodb
 
