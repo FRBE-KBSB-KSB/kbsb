@@ -2,14 +2,15 @@
   <v-container>
     <p v-if="!club.idclub">{{ $t('Please select a club to view the interclub venues') }}</p>
     <div v-if="club.idclub">
-      <h3 v-show="status_consulting">{{ $t('Interclub venues') }}</h3>
-      <h3 v-show="status_modifying">{{ $t('Modify venues') }}</h3>
+      <h3>{{ $t('Interclub venues') }}</h3>
       <div v-show="!venues.length && status_consulting">
         <p>{{ $t('No interclub venue is defined yet') }}</p>
       </div>
       <div v-show="status_consulting">
         <v-card v-for="(v, ix) in venues" :key="ix" class="elevation-4 my-2">
-          <v-card-title>{{ $t('Venue') }}: {{ ix + 1 }}</v-card-title>
+          <v-card-title>
+            {{ $t('Venue') }}: {{ ix + 1 }}
+          </v-card-title>
           <v-card-text>
             <div><b>{{ $t('Address') }}:</b> <br />
               <span v-html="v.address.split('\n').join('<br />')"></span>
@@ -28,18 +29,22 @@
         <v-row v-for="(v, ix) in venues" :key="ix" class="elevation-4 my-2">
           <v-col cols="12" sm="5">
             <h4>{{ $t('Venue') }}: {{ ix + 1 }}</h4>
-            <v-textarea v-model="v.address" :label="$t('Address')" rows="3" @input="addEmptyVenue" outlined />
+            <v-textarea v-model="v.address" :label="$t('Address')" rows="3" @input="addEmptyVenue"
+              outlined />
             <v-text-field v-model="v.email" :label="$t('Email address')" />
             <v-text-field v-model="v.phone" :label="$t('Telephone number')" />
-            <v-text-field v-model="v.capacity" :label="$t('Capacity (boards)')" type="number" min="1" max="99" />
+            <v-text-field v-model="v.capacity" :label="$t('Capacity (boards)')" type="number"
+              min="1" max="99" />
           </v-col>
           <v-col cols="12" sm="5">
             <h4>{{ $t('Availability') }}</h4>
             <v-radio-group v-model="v.available">
               <v-radio value="all" :label="$t('All rounds')" />
-              <v-radio value="selected" :label="$t('The venue is not available on following rounds')" />
+              <v-radio value="selected"
+                :label="$t('The venue is not available on following rounds')" />
             </v-radio-group>
-            <v-select multiple v-show="v.available != 'all'" :items="rounds" chips v-model="v.notavailable"
+            <v-select multiple v-show="v.available != 'all'" :items="rounds" chips
+              v-model="v.notavailable"
               :label="$t('Select the rounds the venue is not available')" />
           </v-col>
           <v-col cols="12" sm="2">
@@ -95,13 +100,15 @@ export default {
 
   data() {
     return {
-      club: {},
       status: VENUE_STATUS.CONSULTING,
       rounds: Object.entries(ROUNDS).map(x => ({ value: x[1], text: `R${x[0]}: ${x[1]}` })),
       venues: [],
     }
   },
 
+  props: {
+    club: Object
+  },
 
   computed: {
     logintoken() { return this.$store.state.oldlogin.value },
@@ -116,12 +123,14 @@ export default {
       const last = this.venues[this.venues.length - 1]
       if (!last || last.address !== '') {
         this.venues.push({ ...empty_venue })
-      }
+      } this.childmethods
+      this.status = VENUE_STATUS.CONSULTING
+      this.getInterclubVenues(this.club)
     },
 
     cancelVenues() {
       this.status = VENUE_STATUS.CONSULTING
-      this.getInterclubVenues(this.club)
+      this.find_interclubvenues()
     },
 
     deleteVenue(ix) {
@@ -130,21 +139,21 @@ export default {
     },
 
     emitInterface() {
-      this.$emit("interface", "getInterclubVenues", this.getInterclubVenues);
+      this.$emit("interface", "find_interclubvenues", this.find_interclubvenues);
     },
 
-    async getInterclubVenues(activeclub) {
-      console.log('Calling getInterclubVenues', activeclub)
-      this.club = activeclub;
+    async find_interclubvenues() {
+      console.log('running find_interclubvenues', this.club)
       if (!this.club.id) {
         this.venues = []
         return
       }
       try {
-        const reply = await this.$api.interclub.get_interclubvenues({
+        const reply = await this.$api.interclub.find_interclubvenues({
           idclub: this.club.idclub
         })
-        this.readVenues(reply.data.venues)
+        console.log('get venues', reply.data)
+        this.readVenues(reply.data ? reply.data.venues : [])
       } catch (error) {
         const reply = error.response
         console.error('Getting interclub venues failed', reply.data.detail)
@@ -152,9 +161,29 @@ export default {
       }
     },
 
-    modifyVenues() {
-      this.status = VENUE_STATUS.MODIFYING
-      this.addEmptyVenue()
+    async modifyVenues() {
+      try {
+        const reply = await this.$api.club.verify_club_access({
+          token: this.logintoken,
+          idclub: this.club.idclub,
+          role: "InterclubAdmin"
+        })
+        this.status = VENUE_STATUS.MODIFYING
+        this.addEmptyVenue()
+      } catch (error) {
+        const reply = error.response
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break;
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t("You don't have the access right to perfom this action") })
+            break;
+          default:
+            console.error('Getting accessrules club failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting accessrules club failed') })
+        }
+      }
     },
 
     readVenues(venues) {
@@ -163,7 +192,6 @@ export default {
         v.available = v.notavailable.length ? "selected" : "all"
         this.venues.push(v)
       })
-      this.addEmptyVenue()
     },
 
     async saveVenues() {
@@ -183,8 +211,7 @@ export default {
           venues: savedvenues,
         })
         this.status = VENUE_STATUS.CONSULTING
-        console.log(4)
-        this.getInterclubVenues(this.club)
+        this.find_interclubvenues()
       } catch (error) {
         const reply = error.response
         switch (reply.status) {
@@ -208,6 +235,9 @@ export default {
 
   mounted() {
     this.emitInterface();
+    this.$nextTick(() => {
+      this.find_interclubvenues();
+    })
   },
 
 }

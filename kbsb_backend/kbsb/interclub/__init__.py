@@ -6,14 +6,13 @@
 from .md_interclub import (
     InterclubEnrollment,
     InterclubEnrollmentIn,
-    InterclubEnrollmentUpdate,
     InterclubPlayer,
     InterclubPrevious,
     InterclubSerie,
     InterclubTeam,
     InterclubEnrollmentList,
     InterclubVenue,
-    InterclubVenueList,
+    InterclubVenuesIn,
     InterclubVenues,
     InterclubVenuesList,
 )
@@ -27,8 +26,7 @@ from .db_interclub import (
 from .interclub import (
     find_interclubenrollment,
     find_interclubvenues_club,
-    make_interclubenrollment,
-    modify_interclubenrollment,
+    set_interclubenrollment,
     set_interclubvenues,
 )
 

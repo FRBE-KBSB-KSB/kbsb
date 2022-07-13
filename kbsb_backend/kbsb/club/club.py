@@ -19,6 +19,7 @@ from . import (
     DbClub,
 )
 
+from kbsb.core import RdForbidden
 
 # basic CRUD actions
 
@@ -83,15 +84,15 @@ async def verify_club_access(idclub: int, idnumber: int, role: str) -> bool:
     """
     checks if the person identified by idnumber belongs to the memberlist
     of role inside a club, identified by club,
-    returns True if the person has the role, otherwise False
+    if check fails
     """
     club = await find_club(idclub)
-    log.info(f"club in verify {club}")
+    log.debug(f"club in verify {club}")
     if club and club.clubroles:
         for r in club.clubroles:
             if role == r.nature:
-                return idnumber in r.memberlist
-    return False
+                return
+    raise RdForbidden()
 
 
 def club_locale(club: Club):

@@ -7,15 +7,16 @@
       </v-card-title>
       <v-card-text>
         <div>{{ $t('Start typing to filter (clubnumber or name)') }}</div>
-        <v-autocomplete v-model="idclub" :items="clubs" item-text="merged" item-value="idclub" color="green"
-          label="Club" clearable @change="selectclub">
+        <v-autocomplete v-model="idclub" :items="clubs" item-text="merged" item-value="idclub"
+          color="green" label="Club" clearable @change="selectclub">
           <template v-slot:item="data">
             {{ data.item.merged }}
           </template>
         </v-autocomplete>
       </v-card-text>
     </v-card>
-    <h2 class="mt-2">{{ $t('Selected club') }}: {{ activeclub.idclub }} {{ activeclub.name_short }}</h2>
+    <h2 class="mt-2">{{ $t('Selected club') }}: {{ activeclub.idclub }} {{ activeclub.name_short }}
+    </h2>
     <div class="elevation-2">
 
       <v-tabs v-model="tab" color="green" @change="call_childmethods">
@@ -28,19 +29,19 @@
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item>
-          <InterclubEnrollment @interface="registerChildMethod" />
+          <InterclubEnrollment @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubVenue @interface="registerChildMethod" />
+          <InterclubVenue @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubPlayerlist @interface="registerChildMethod" />
+          <InterclubPlayerlist @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubPlanning @interface="registerChildMethod" />
+          <InterclubPlanning @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
         <v-tab-item>
-          <InterclubResult @interface="registerChildMethod" />
+          <InterclubResult @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -48,6 +49,8 @@
 </template>
 
 <script>
+import TheCarouselVue from '../../components/TheCarousel.vue'
+
 
 const noop = function () { }
 
@@ -61,8 +64,8 @@ export default {
     return {
       activeclub: {},
       childmethods: {
-        getAnonEnrollment: noop,
-        getInterclubVenues: noop,
+        find_interclubenrollment: noop,
+        find_interclubvenues: noop,
       },
       clubs: [],
       idclub: null,
@@ -85,7 +88,9 @@ export default {
   methods: {
 
     call_childmethods() {
-      Object.keys(this.childmethods).forEach((v) => this.childmethods[v](this.activeclub))
+      Object.keys(this.childmethods).forEach((v) => {
+        this.childmethods[v]()
+      })
     },
 
     async getClubs() {
@@ -97,6 +102,7 @@ export default {
         this.clubs.forEach(p => {
           p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
         })
+        console.log('clubs from server', this.clubs)
       } catch (error) {
         const reply = error.response
         console.error('getting get_c_clubs', reply)
@@ -121,14 +127,19 @@ export default {
 
     selectclub() {
       if (!this.idclub) {
+        console.log('No idclub defined, active club becomes null')
         this.activeclub = {}
       }
       else {
-        this.clubs.forEach(c => {
-          if (c.idclub == this.idclub) this.activeclub = c
+        this.clubs.forEach((c) => {
+          if (c.idclub == this.idclub) {
+            console.log('active club found', c)
+            this.activeclub = c
+          }
         })
       }
-      this.call_childmethods()
+      console.log('club selected', this.idclub, this.activeclub)
+      this.$nextTick(() => this.call_childmethods())
     }
 
   }

@@ -60,21 +60,12 @@ class InterclubEnrollmentList(BaseModel):
 
 
 class InterclubEnrollmentIn(BaseModel):
-    idclub: int
-    locale: Optional[str] = "nl"
     teams1: int
     teams2: int
     teams3: int
     teams4: int
     teams5: int
-
-
-class InterclubEnrollmentUpdate(BaseModel):
-    teams1: int
-    teams2: int
-    teams3: int
-    teams4: int
-    teams5: int
+    wishes: dict
 
 
 class InterclubPrevious(BaseModel):
@@ -99,13 +90,16 @@ class InterclubVenue(BaseModel):
     notavailable: List[str]
 
 
-class InterclubVenueList(BaseModel):
+class InterclubVenuesIn(BaseModel):
     venues: List[InterclubVenue]
 
 
-class InterclubVenues(InterclubVenueList):
-    id: str
-    idclub: int
+class InterclubVenues(BaseModel):
+    id: Optional[str]
+    idclub: Optional[int]
+    name_long: Optional[str]
+    name_short: Optional[str]
+    venues: List[InterclubVenue]
 
 
 class InterclubVenuesList(BaseModel):

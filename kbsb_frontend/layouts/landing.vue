@@ -1,14 +1,7 @@
 <template>
   <v-app>
 
-    <v-navigation-drawer
-      v-cloak
-      v-model="drawer"
-      app
-      class="green darken-1"
-      clipped
-      height="100%"
-    >
+    <v-navigation-drawer v-cloak v-model="drawer" class="green darken-1" app height="100%">
       <TheSidebar />
     </v-navigation-drawer>
 
@@ -17,10 +10,12 @@
     <v-main>
       <nuxt />
       <TheCarousel />
+      <hr />
+      <TheFooter />
     </v-main>
 
-    <TheFooter />
-    
+    <TheCredentials />
+
     <v-snackbar v-model="snackbar" top>
       {{ snacktext }}
       <template #action="{ attrs }">
@@ -30,9 +25,12 @@
       </template>
     </v-snackbar>
 
+
   </v-app>
 </template>
 <script>
+import TheCredentials from "../components/TheCredentials.vue";
+import TheFooter from "../components/TheFooter.vue";
 export default {
   data() {
     return {
@@ -46,5 +44,11 @@ export default {
       this.drawer = value;
     }
   },
+  components: { TheCredentials, TheFooter }
 }
 </script>
+<style scoped>
+.footer a {
+  color: white;
+}
+</style>

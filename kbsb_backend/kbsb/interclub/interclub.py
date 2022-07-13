@@ -9,22 +9,22 @@ from reddevil.common import (
     encode_model,
 )
 from reddevil.service.mail import sendEmail, MailParams
+from reddevil.common import get_settings
 
 from kbsb.interclub.md_interclub import InterclubVenue
+from kbsb.club import find_club, club_locale
 from . import (
     DbInterclubEnrollment,
     DbInterclubPrevious,
     DbInterclubVenues,
     InterclubEnrollment,
     InterclubEnrollmentIn,
-    InterclubEnrollmentUpdate,
-    InterclubPrevious,
     InterclubEnrollmentList,
+    InterclubPrevious,
     InterclubVenues,
-    InterclubVenueList,
+    InterclubVenuesIn,
     InterclubVenuesList,
 )
-from kbsb.club import get_clubs, get_club, club_locale
 
 
 log = logging.getLogger(__name__)
@@ -60,12 +60,13 @@ async def get_interclubenrollments(options: dict = {}) -> InterclubEnrollmentLis
 
 
 async def update_interclubenrollment(
-    id: str, iu: InterclubEnrollmentUpdate, options: dict = {}
+    id: str, iu: InterclubEnrollment, options: dict = {}
 ) -> InterclubEnrollment:
     """
     update a interclub enrollment
     """
     validator = options.pop("_class", InterclubEnrollment)
+    iu.id = None  # don't override the id
     cdict = await DbInterclubEnrollment.update(id, iu.dict(exclude_unset=True), options)
     return cast(InterclubEnrollment, encode_model(cdict, validator))
 
@@ -106,13 +107,14 @@ async def get_interclubvenues_clubs(options: dict = {}) -> InterclubVenuesList:
 
 
 async def update_interclubvenues(
-    id: str, ivl: InterclubVenueList, options: dict = {}
+    id: str, iu: InterclubVenues, options: dict = {}
 ) -> InterclubVenues:
     """
     update a interclub venue
     """
     validator = options.pop("_class", InterclubVenues)
-    docdict = await DbInterclubVenues.update(id, ivl.dict(exclude_unset=True), options)
+    iu.id = None  # don't override the id
+    docdict = await DbInterclubVenues.update(id, iu.dict(exclude_unset=True), options)
     return cast(InterclubVenues, encode_model(docdict, validator))
 
 
@@ -127,76 +129,61 @@ async def find_interclubenrollment(idclub: str) -> Optional[InterclubEnrollment]
     return enrs[0] if enrs else None
 
 
-async def make_interclubenrollment(ie: InterclubEnrollmentIn) -> InterclubEnrollment:
-    """
-    make an new enrollment
-    """
-    if await find_interclubenrollment(ie.idclub):
-        raise RdBadRequest(description="ClubAlreadyEnrolled")
-    clubs = (await get_clubs({"idclub": ie.idclub})).clubs
-    if clubs:
-        club = await get_club(clubs[0].id)
-    else:
-        raise RdNotFound(description="ClubNotFound")
-    log.info(f"club {club}")
-    enr_dict = {
-        "idclub": ie.idclub,
-        "name_long": club.name_long,
-        "name_short": club.name_short,
-        "locale": club_locale(club),
-        "teams1": ie.teams1,
-        "teams2": ie.teams2,
-        "teams3": ie.teams3,
-        "teams4": ie.teams4,
-        "teams5": ie.teams5,
-    }
-    id = await DbInterclubEnrollment.add(enr_dict)
-    receiver = club.email_main
-    if club.email_interclub:
-        receiver = ",".join([club.email_interclub, receiver])
-    mp = MailParams(
-        locale=enr_dict["locale"],
-        receiver=receiver,
-        sender="noreply@frbe-kbsb-ksb.be",
-        subject="Interclub 2022-23",
-        template="interclub/enrollment_{locale}.md",
-    )
-    sendEmail(mp, enr_dict, "interclub enrollment")
-    log.info(f"Enrollment added TODO send confirmation email")
-    return await get_interclubenrollment(id)
-
-
-async def modify_interclubenrollment(
-    idclub: str, iu: InterclubEnrollmentUpdate
+async def set_interclubenrollment(
+    idclub: str, ie: InterclubEnrollmentIn
 ) -> InterclubEnrollment:
     """
-    update a interclub enrollment
+    set enrollment (and overwrite it if it already exists)
     """
-    enrs = (await get_interclubenrollments({"idclub": idclub})).enrollments
-    if enrs:
-        enr = enrs[0]
-    else:
-        raise RdNotFound(description="EnrollmentNotFound")
-    clubs = (await get_clubs({"idclub": idclub})).clubs
-    if clubs:
-        club = await get_club(clubs[0].id)
-    else:
+    club = await find_club(idclub)
+    if not club:
         raise RdNotFound(description="ClubNotFound")
-    upd = await update_interclubenrollment(enr.id, iu)
-    receiver = club.email_main
+    locale = club_locale(club)
+    settings = get_settings()
+    enr = await find_interclubenrollment(idclub)
+    if enr:
+        nenr = await update_interclubenrollment(
+            enr.id,
+            InterclubEnrollment(
+                teams1=ie.teams1,
+                teams2=ie.teams2,
+                teams3=ie.teams3,
+                teams4=ie.teams4,
+                teams5=ie.teams5,
+                wishes=ie.wishes,
+            ),
+        )
+    else:
+        id = await create_interclubenrollment(
+            InterclubEnrollment(
+                idclub=idclub,
+                locale=locale,
+                name_long=club.name_long,
+                name_short=club.name_short,
+                teams1=ie.teams1,
+                teams2=ie.teams2,
+                teams3=ie.teams3,
+                teams4=ie.teams4,
+                teams5=ie.teams5,
+                wishes=ie.wishes,
+            )
+        )
+        nenr = await get_interclubenrollment(id)
+    receiver = [club.email_main]
     if club.email_interclub:
-        receiver = ",".join([club.email_interclub, receiver])
+        receiver.append(club.email_interclub)
+    log.debug(f"EMAIL settings {settings.EMAIL}")
     mp = MailParams(
-        locale=club_locale(club),
-        receiver=receiver,
+        locale=locale,
+        receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
+        cc="interclubs@frbe-kbsb-ksb.be",
+        bcc=settings.EMAIL["blindcopy"],
         subject="Interclub 2022-23",
         template="interclub/enrollment_{locale}.md",
     )
-    enr_dict = upd.dict()
-    enr_dict["locale"] = mp.locale
-    sendEmail(mp, enr_dict, "interclub enrollment")
-    return upd
+    sendEmail(mp, nenr.dict(), "interclub enrollment")
+    return nenr
 
 
 async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
@@ -204,14 +191,38 @@ async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
     return clvns[0] if clvns else None
 
 
-async def set_interclubvenues(idclub: str, ivl: InterclubVenueList) -> InterclubVenues:
-    log.debug(f"ivl {ivl}")
-    vns = await find_interclubvenues_club(idclub)
-    if vns:
-        log.debug(f"vns: {vns}")
-        return await update_interclubvenues(vns.id, ivl)
+async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubVenues:
+    club = await find_club(idclub)
+    if not club:
+        raise RdNotFound(description="ClubNotFound")
+    locale = club_locale(club)
+    log.debug(f"locale {locale}")
+    settings = get_settings()
+    ivn = await find_interclubvenues_club(idclub)
+    iv = InterclubVenues(
+        idclub=idclub,
+        name_long=club.name_long,
+        name_short=club.name_short,
+        venues=ivi.venues,
+    )
+    if ivn:
+        niv = await update_interclubvenues(ivn.id, iv)
     else:
-        id = await create_interclubvenues(
-            InterclubVenues(idclub=idclub, venues=ivl.venues)
-        )
-        return await get_interclubvenues(id)
+        id = await create_interclubvenues(iv)
+        niv = await get_interclubvenues(id)
+    receiver = [club.email_main]
+    if club.email_interclub:
+        receiver.append(club.email_interclub)
+    mp = MailParams(
+        locale=locale,
+        receiver=",".join(receiver),
+        sender="noreply@frbe-kbsb-ksb.be",
+        cc="interclubs@frbe-kbsb-ksb.be",
+        bcc=settings.EMAIL["blindcopy"],
+        subject="Interclub 2022-23",
+        template="interclub/venues_{locale}.md",
+    )
+    nivdict = niv.dict()
+    nivdict["locale"] = locale
+    sendEmail(mp, nivdict, "interclub venues")
+    niv
