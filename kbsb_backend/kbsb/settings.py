@@ -7,6 +7,9 @@ API_BASE_URL = "/api"
 
 BOOKS_CC = "ruben@kosk.be"
 
+COLORLOG = False
+DEBUG = False
+
 EMAIL = {
     "backend": "GMAIL",
     "serviceaccountfile": "kbsb-gmail.json",
