@@ -123,9 +123,7 @@ export default {
       const last = this.venues[this.venues.length - 1]
       if (!last || last.address !== '') {
         this.venues.push({ ...empty_venue })
-      } this.childmethods
-      this.status = VENUE_STATUS.CONSULTING
-      this.getInterclubVenues(this.club)
+      }
     },
 
     cancelVenues() {

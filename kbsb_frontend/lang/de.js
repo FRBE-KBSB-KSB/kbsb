@@ -54,7 +54,7 @@ export default {
 "ID number": `ID-Nummer`,
 "Identity": `Identität`,
 "In 1 series": `In 1 Einzelserie`,
-"In mulitple series": `In mehrere Serien`,
+"In multiple series": `In mehrere Serien`,
 "Interclub enrollment": `Interclub-Anmeldung`,
 "Interclub venues": `Interclub-Spielorte`,
 "Internal rules": `interne Regulierung`,

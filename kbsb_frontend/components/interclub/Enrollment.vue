@@ -15,6 +15,13 @@
             <li>{{ $t('Teams in division') }} 4: {{ enrollment.teams4 }}</li>
             <li>{{ $t('Teams in division') }} 5: {{ enrollment.teams5 }}</li>
           </ul>
+          <div>{{ $t('Wishes') }}</div>
+          <ul>
+            <li>{{ $t('Teams grouped by pairing number') }}: {{ groupingvalue }} </li>
+            <li>{{ $t('Distribution of teams in same division') }}: {{ splittingvalue }} </li>
+            <li>{{ $t('Regional preferences') }}: {{ enrollment.wishes.regional }} </li>
+            <li>{{ $t('Remarks') }}: {{ enrollment.wishes.remarks }} </li>
+          </ul>
         </div>
         <v-btn @click="modifyEnrollment">
           {{ $t('Modify enrollment') }}
@@ -60,7 +67,7 @@
             <h4>{{ $t('Remarks') }}</h4>
             <v-card class="elevation-4">
               <v-card-text>
-                <v-textarea rows="5" v-model="enrollment.wishes.other" :label="$t('Remarks')" />
+                <v-textarea rows="5" v-model="enrollment.wishes.remarks" :label="$t('Remarks')" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -100,13 +107,13 @@ export default {
   data() {
     return {
       grouping: [
-        { "text": this.$t("no preference"), "value": "0" },
+        { "text": this.$t("No preference"), "value": "0" },
         { "text": this.$t("1 group"), "value": "1" },
         { "text": this.$t("2 opposite groups"), "value": "2" },
       ],
       splitting: [
-        { "text": this.$t("Don't split over multiple series"), "value": "1" },
-        { "text": this.$t("Split over multiple series"), "value": "2" },
+        { "text": this.$t("In 1 series"), "value": "1" },
+        { "text": this.$t("In multiple series"), "value": "2" },
       ],
       enrollment: empty_enrollment,
       status: ENROLLMENT_STATUS.CONSULTING,
@@ -119,6 +126,14 @@ export default {
 
   computed: {
     logintoken() { return this.$store.state.oldlogin.value },
+    groupingvalue() {
+      const gr = this.grouping.filter(x => x.value == this.enrollment.wishes.grouping)
+      return gr.length > 0 ? gr[0].text : ""
+    },
+    splittingvalue() {
+      const spl = this.splitting.filter(x => x.value == this.enrollment.wishes.split)
+      return spl.length > 0 ? spl[0].text : ""
+    },
     status_consulting() { return this.status == ENROLLMENT_STATUS.CONSULTING },
     status_modifying() { return this.status == ENROLLMENT_STATUS.MODIFYING },
   },

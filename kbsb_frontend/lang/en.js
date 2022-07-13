@@ -54,7 +54,7 @@ export default {
 "ID number": `ID number`,
 "Identity": `Identity`,
 "In 1 series": `In 1 series`,
-"In mulitple series": `In mulitple series`,
+"In multiple series": `In multiple series`,
 "Interclub enrollment": `Interclub enrollment`,
 "Interclub venues": `Interclub venues`,
 "Internal rules": `Internal rules`,

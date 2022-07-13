@@ -16,17 +16,25 @@
             </v-card-title>
             <v-card-text>
               <div class="pa-2">
-                <a class="green--text" :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
+                <a class="green--text"
+                  :href="phpbaseurl + 'sites/manager/GestionFICHES/FRBE_Fiche.php'">
                   Elo
                 </a>
               </div>
               <div class="pa-2">
-                <a class="green--text" :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
-                  Player - Club -  Interclub manager
+                <b>NEW</b> <a class="green--text" href="/tools/interclub">
+                  Interclub manager
                 </a>
               </div>
               <div class="pa-2">
-                <a class="green--text" :href="phpbaseurl + 'sites/manager/GestionSWAR/SwarResults.php'">
+                <a class="green--text"
+                  href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
+                  Player - Club manager
+                </a>
+              </div>
+              <div class="pa-2">
+                <a class="green--text"
+                  :href="phpbaseurl + 'sites/manager/GestionSWAR/SwarResults.php'">
                   {{ $t('Results SWAR') }}
                 </a>
               </div>
@@ -43,10 +51,7 @@
             </v-card-title>
             <v-card-text class="mt-2">
               <ul>
-                <li
-                  v-for="c,ix in future_4ci"
-                  :key="ix"
-                >
+                <li v-for="c, ix in future_4ci" :key="ix">
                   {{ calenderItem(c) }}
                 </li>
               </ul>
@@ -77,21 +82,9 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-parallax
-      v-if="$vuetify.breakpoint.mdAndUp"
-      src="/img/chesscrowd_big.jpg"
-      height="400"
-    />
-    <v-parallax
-      v-if="$vuetify.breakpoint.sm"
-      src="/img/chesscrowd_medium.jpg"
-      height="300"
-    />
-    <v-parallax
-      v-if="$vuetify.breakpoint.xs"
-      src="/img/chesscrowd_small.jpg"
-      height="200"
-    />
+    <v-parallax v-if="$vuetify.breakpoint.mdAndUp" src="/img/chesscrowd_big.jpg" height="400" />
+    <v-parallax v-if="$vuetify.breakpoint.sm" src="/img/chesscrowd_medium.jpg" height="300" />
+    <v-parallax v-if="$vuetify.breakpoint.xs" src="/img/chesscrowd_small.jpg" height="200" />
     <v-container>
       <v-row class="mt-2">
         <v-col v-for="a in articlesRest" :key="a.id" cols="12" sm="6" md="4">
@@ -118,14 +111,14 @@
 import { marked } from 'marked'
 import { phpbaseurl, notitle, nointro } from '@/util/cms'
 
-function compareDates (a, b) {
+function compareDates(a, b) {
   return a.date - b.date
 }
 
 export default {
   layout: 'landing',
 
-  data () {
+  data() {
     return {
       articles3: [],
       articlesRest: [],
@@ -138,7 +131,7 @@ export default {
     }
   },
 
-  async fetch () {
+  async fetch() {
     this.page__nl = await this.$content('pages', 'index_nl').fetch()
     this.page__fr = await this.$content('pages', 'index_fr').fetch()
     this.page__de = await this.$content('pages', 'index_de').fetch()
@@ -148,20 +141,20 @@ export default {
   },
 
   computed: {
-    page () { return this['page__' + this.$i18n.locale] },
-    future_4ci () {
+    page() { return this['page__' + this.$i18n.locale] },
+    future_4ci() {
       const yesterday = new Date() - 86400000
       return this.calitems.filter(ci => ci.date > yesterday).slice(0, 4)
     }
   },
 
-  mounted () {
+  mounted() {
     this.getActiveArticles()
   },
 
   methods: {
 
-    calenderItem (c) {
+    calenderItem(c) {
       const output = []
       output.push(c.date.toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
       output.push(c.title)
@@ -172,7 +165,7 @@ export default {
       return output.join(' ')
     },
 
-    getActiveArticles () {
+    getActiveArticles() {
       console.log('fetching articles', this.$api)
       this.$api.page.get_anon_articles().then(
         (resp) => {
@@ -183,11 +176,11 @@ export default {
       )
     },
 
-    gotoArticle (a) {
+    gotoArticle(a) {
       window.location.href = '/article?slug=' + a.slug
     },
 
-    parseCalendarItems (listci) {
+    parseCalendarItems(listci) {
       listci.forEach((ci) => {
         if (ci.multiple) {
           this.parseCalendarItems(ci.multiple)
@@ -206,7 +199,7 @@ export default {
       })
     },
 
-    ratingtrn () {
+    ratingtrn() {
       if (this.$i18n.locale === 'nl') {
         window.location.href = '/tools/ratingnl'
       } else {
@@ -214,7 +207,7 @@ export default {
       }
     },
 
-    readArticles (articles) {
+    readArticles(articles) {
       const locale = this.$i18n.locale
       this.articles3 = []
       this.articleRest = []
@@ -243,21 +236,27 @@ export default {
 </script>
 
 <style>
-h1:after
-{
-    content:' ';
-    display: block;
-    border:1px solid #aaa;
-    margin-bottom: 1em;
+h1:after {
+  content: ' ';
+  display: block;
+  border: 1px solid #aaa;
+  margin-bottom: 1em;
 }
-.nuxt-content td, .nuxt-content th {
+
+.nuxt-content td,
+.nuxt-content th {
   padding: 8px;
   border: 1px solid #ddd;
 }
+
 .nuxt-content table {
   border-collapse: collapse;
 }
-.nuxt-content ul , .nuxt-content ol, .nuxt-content h2, .nuxt-content h3 {
-    margin-bottom: 0.5em;
+
+.nuxt-content ul,
+.nuxt-content ol,
+.nuxt-content h2,
+.nuxt-content h3 {
+  margin-bottom: 0.5em;
 }
 </style>
