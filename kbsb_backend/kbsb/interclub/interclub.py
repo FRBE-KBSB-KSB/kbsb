@@ -29,14 +29,18 @@ from . import (
 
 log = logging.getLogger(__name__)
 
+INTERCLUB_EMAIL = "interclubs@frbe-kbsb-ksb.be"
+
 # basic CRUD actions
 
 
-async def create_interclubenrollment(c: InterclubEnrollment) -> str:
+async def create_interclubenrollment(enr: InterclubEnrollment) -> str:
     """
     create a new InterclubEnrollment returning its id
     """
-    return await DbInterclubEnrollment.add(c.dict())
+    enrdict = enr.dict()
+    enrdict.pop("id", None)
+    return await DbInterclubEnrollment.add(enrdict)
 
 
 async def get_interclubenrollment(id: str, options: dict = {}) -> InterclubEnrollment:
@@ -82,7 +86,9 @@ async def create_interclubvenues(iv: InterclubVenues) -> str:
     """
     create a new InterclubVenues returning its id
     """
-    return await DbInterclubVenues.add(iv.dict())
+    ivdict = iv.dict()
+    ivdict.pop("id", None)
+    return await DbInterclubVenues.add(ivdict)
 
 
 async def get_interclubvenues(id: str, options: dict = {}) -> InterclubVenues:
@@ -177,7 +183,7 @@ async def set_interclubenrollment(
         locale=locale,
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
-        cc="interclubs@frbe-kbsb-ksb.be",
+        cc=INTERCLUB_EMAIL,
         bcc=settings.EMAIL["blindcopy"],
         subject="Interclub 2022-23",
         template="interclub/enrollment_{locale}.md",
@@ -193,10 +199,11 @@ async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
 
 async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubVenues:
     club = await find_club(idclub)
+    log.info(f"set_interclubvenues: {idclub} {ivi}")
     if not club:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
-    log.debug(f"locale {locale}")
+    log.info(f"locale {locale}")
     settings = get_settings()
     ivn = await find_interclubvenues_club(idclub)
     iv = InterclubVenues(
@@ -206,8 +213,10 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
         venues=ivi.venues,
     )
     if ivn:
+        log.info(f"update interclubvenues {ivn.id} {iv}")
         niv = await update_interclubvenues(ivn.id, iv)
     else:
+        log.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
     receiver = [club.email_main]
