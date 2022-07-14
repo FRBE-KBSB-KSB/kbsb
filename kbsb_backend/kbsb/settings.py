@@ -87,6 +87,10 @@ SECRETS = {
         "name": "kbsb-mysql",
         "manager": "googlejson",
     },
+    "gmail": {
+        "name": "kbsb-gmail",
+        "manager": "googlejson",
+    },
 }
 SECRETS_PATH = ""
 
