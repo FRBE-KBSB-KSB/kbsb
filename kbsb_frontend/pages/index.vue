@@ -28,7 +28,7 @@
               </div>
               <div class="pa-2">
                 <a class="green--text"
-                  href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
+                  :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
                   Player - Club manager
                 </a>
               </div>
