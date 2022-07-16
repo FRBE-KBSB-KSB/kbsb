@@ -175,7 +175,7 @@ async def set_interclubenrollment(
             )
         )
         nenr = await get_interclubenrollment(id)
-    receiver = [club.email_main]
+    receiver = [club.email_main, INTERCLUB_EMAIL]
     if club.email_interclub:
         receiver.append(club.email_interclub)
     log.debug(f"EMAIL settings {settings.EMAIL}")
@@ -183,7 +183,6 @@ async def set_interclubenrollment(
         locale=locale,
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
-        cc=INTERCLUB_EMAIL,
         bcc=settings.EMAIL["blindcopy"],
         subject="Interclub 2022-23",
         template="interclub/enrollment_{locale}.md",
@@ -219,14 +218,13 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
         log.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
-    receiver = [club.email_main]
+    receiver = [club.email_main, INTERCLUB_EMAIL]
     if club.email_interclub:
         receiver.append(club.email_interclub)
     mp = MailParams(
         locale=locale,
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
-        cc="interclubs@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL["blindcopy"],
         subject="Interclub 2022-23",
         template="interclub/venues_{locale}.md",

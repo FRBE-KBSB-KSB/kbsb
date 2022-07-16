@@ -103,6 +103,6 @@ def club_locale(club: Club):
         return "nl"
     if club.federation.startswith("F"):
         return "fr"
-    if club.federation.startswith("V"):
+    if club.federation.startswith("D"):
         return "de"
     return "nl"
