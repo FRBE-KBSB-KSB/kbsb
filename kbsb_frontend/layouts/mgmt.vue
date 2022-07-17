@@ -10,12 +10,7 @@
       <v-spacer />
       <v-toolbar-title>Admin Interface</v-toolbar-title>
     </v-app-bar>
-    <v-navigation-drawer
-      v-cloak
-      v-model="drawer"
-      app
-      class="deep-purple darken-2"
-    >
+    <v-navigation-drawer v-cloak v-model="drawer" app class="deep-purple darken-2">
       <v-list dark>
         <v-list-item>
           <v-list-item-title class="title">
@@ -31,18 +26,24 @@
           </v-list-item-icon>
           <v-list-item-content>News Articles</v-list-item-content>
         </v-list-item>
-        <v-list-item to="/mgmt/filelist">
+        <!-- <v-list-item to="/mgmt/filelist">
           <v-list-item-icon>
             <v-icon>mdi-file-document</v-icon>
           </v-list-item-icon>
           <v-list-item-content>Files</v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/mgmt/clublist">
+        </v-list-item> -->
+        <v-list-item to="/mgmt/interclub">
           <v-list-item-icon>
-            <v-icon>mdi-account-group</v-icon>
+            <v-icon>mdi-arrow-left-right</v-icon>
           </v-list-item-icon>
-          <v-list-item-content>Clubs</v-list-item-content>
+          <v-list-item-content>Interclub</v-list-item-content>
         </v-list-item>
+        <!-- <v-list-item to="/mgmt/clublist">
+        <v-list-item-icon>
+          <v-icon>mdi-account-group</v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>Clubs</v-list-item-content>
+      </v-list-item> -->
       </v-list>
     </v-navigation-drawer>
 
@@ -63,7 +64,7 @@
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       drawer: false,
       snackbar: false,
@@ -71,7 +72,7 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.$root.$on('snackbar', (ev) => {
       console.log('received snackbar event', ev.text)
       if (ev.text) {
@@ -83,7 +84,7 @@ export default {
   },
 
   methods: {
-    updateDrawer (value) {
+    updateDrawer(value) {
       this.drawer = value
     }
   }

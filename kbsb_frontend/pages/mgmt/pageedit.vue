@@ -6,14 +6,7 @@
         <v-spacer />
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              slot="activator"
-              outlined
-              fab
-              color="deep-purple"
-              v-on="on"
-              @click="back()"
-            >
+            <v-btn slot="activator" outlined fab color="deep-purple" v-on="on" @click="back()">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -21,14 +14,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              slot="activator"
-              outlined
-              fab
-              color="deep-purple"
-              v-on="on"
-              @click="save()"
-            >
+            <v-btn slot="activator" outlined fab color="deep-purple" v-on="on" @click="save()">
               <v-icon>mdi-content-save</v-icon>
             </v-btn>
           </template>
@@ -36,14 +22,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              slot="activator"
-              outlined
-              fab
-              color="deep-purple"
-              v-on="on"
-              @click="remove()"
-            >
+            <v-btn slot="activator" outlined fab color="deep-purple" v-on="on" @click="remove()">
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
@@ -68,43 +47,23 @@
                   <v-checkbox v-model="p.enabled" label="Enabled" />
                   <p>Page created: {{ p._creationtime }}</p>
                   <p>Page modified: {{ p._modificationtime }}</p>
-                  <v-menu
-                    v-model="menu_published"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                  >
+                  <v-menu v-model="menu_published" :close-on-content-click="false" :nudge-right="40"
+                    transition="scale-transition" offset-y min-width="290px">
                     <template #activator="{ on }">
-                      <v-text-field
-                        v-model="p.publicationdate"
-                        label="Publication date"
-                        prepend-icon="mdi-calendar-range"
-                        readonly
-                        v-on="on"
-                      />
+                      <v-text-field v-model="p.publicationdate" label="Publication date"
+                        prepend-icon="mdi-calendar-range" readonly v-on="on" />
                     </template>
-                    <v-date-picker v-model="p.publicationdate" color="deep-purple" @input="menu_published = false" />
+                    <v-date-picker v-model="p.publicationdate" color="deep-purple"
+                      @input="menu_published = false" />
                   </v-menu>
-                  <v-menu
-                    v-model="menu_expired"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                  >
+                  <v-menu v-model="menu_expired" :close-on-content-click="false" :nudge-right="40"
+                    transition="scale-transition" offset-y min-width="290px">
                     <template #activator="{ on }">
-                      <v-text-field
-                        v-model="p.expirationdate"
-                        label="Expiry date"
-                        prepend-icon="mdi-calendar-range"
-                        readonly
-                        v-on="on"
-                      />
+                      <v-text-field v-model="p.expirationdate" label="Expiry date"
+                        prepend-icon="mdi-calendar-range" readonly v-on="on" />
                     </template>
-                    <v-date-picker v-model="p.expirationdate" color="deep-purple" @input="menu_expired = false" />
+                    <v-date-picker v-model="p.expirationdate" color="deep-purple"
+                      @input="menu_expired = false" />
                   </v-menu>
                 </v-col>
               </v-row>
@@ -132,7 +91,7 @@ export default {
 
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       activetab: '',
       dialogDelete: false,
@@ -150,7 +109,7 @@ export default {
   },
 
   computed: {
-    enabledLang () {
+    enabledLang() {
       const la = []; const self = this
       this.lang.available.forEach(function (l) {
         if (self.lang.enabled[l] === true) {
@@ -159,20 +118,20 @@ export default {
       })
       return la
     },
-    token () { return this.$store.state.token.value }
+    token() { return this.$store.state.newlogin.value }
   },
 
-  mounted () {
+  mounted() {
     this.getPage()
   },
 
   methods: {
 
-    back () {
+    back() {
       this.$router.push('/mgmt/pagelist')
     },
 
-    async getPage () {
+    async getPage() {
       try {
         const resp = await this.$api.page.get_page({
           id: this.$route.query.id,
@@ -190,7 +149,7 @@ export default {
       }
     },
 
-    readPage (page) {
+    readPage(page) {
       const self = this; let ls
       this.p = { ...page }
       this.enabled = { en: false, nl: false, fr: false, de: false }
@@ -216,7 +175,7 @@ export default {
       })
     },
 
-    async remove () {
+    async remove() {
       if (window.confirm('Are you sure to delete page "' + this.p.name + '"?')) {
         try {
           await this.$api.page.delete_page({
@@ -237,7 +196,7 @@ export default {
       }
     },
 
-    async save () {
+    async save() {
       const self = this; const ls = []
       this.languages.forEach(function (l) {
         if (self.enabled[l]) {
@@ -290,7 +249,7 @@ export default {
       }
     },
 
-    toggleLang (l) {
+    toggleLang(l) {
       this.p.languages = this.enabledLang
       if (l in this.p.page_i18n_fields === false) {
         this.p.page_i18n_fields[l] = {

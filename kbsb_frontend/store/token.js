@@ -1,9 +1,0 @@
-export const state = () => ({
-  value: ''
-})
-
-export const mutations = {
-  update (state, payload) {
-    state.value = payload
-  }
-}

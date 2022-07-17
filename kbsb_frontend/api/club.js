@@ -1,5 +1,5 @@
 export default context => ({
-  async add_club (options) {
+  async add_club(options) {
     const { token, ...options1 } = options
     console.log('add club', options1, token)
     const resp = await context.$axios.post('/api/v1/club', options1, {
@@ -9,7 +9,7 @@ export default context => ({
     })
     return resp
   },
-  async delete_club (options) {
+  async delete_club(options) {
     const { id, token } = options
     const resp = await context.$axios.delete(`/api/v1/club/${id}`, {
       headers: {
@@ -18,7 +18,7 @@ export default context => ({
     })
     return resp
   },
-  async get_club (options) {
+  async get_club(options) {
     const { id, token } = options
     const resp = await context.$axios.get(`/api/v1/club/${id}`, {
       headers: {
@@ -27,7 +27,7 @@ export default context => ({
     })
     return resp
   },
-  async get_c_club (options) {
+  async get_c_club(options) {
     const { id, token } = options
     const resp = await context.$axios.get(`/api/v1/c/club/${id}`, {
       headers: {
@@ -36,23 +36,22 @@ export default context => ({
     })
     return resp
   },
-  async get_anon_club (options) {
-    const { id} = options
+  async get_anon_club(options) {
+    const { id } = options
     const resp = await context.$axios.get(`/api/v1/a/club/${id}`, {
     })
     return resp
   },
-  async get_clubs (options) {
-    const { token } = options
-    console.log('api get_clubs', token)
+  async get_clubs(options) {
+    const { logintoken } = options
     const resp = await context.$axios.get('/api/v1/clubs', {
       headers: {
-        Authorization: 'Bearer ' + token
+        Authorization: 'Bearer ' + logintoken
       }
     })
     return resp
   },
-  async get_c_clubs (options) {
+  async get_c_clubs(options) {
     const { token } = options
     console.log('api get_old_clubs', token)
     const resp = await context.$axios.get('/api/v1/c/clubs', {
@@ -62,11 +61,11 @@ export default context => ({
     })
     return resp
   },
-  async get_anon_clubs (options) {
+  async get_anon_clubs(options) {
     const resp = await context.$axios.get('/api/v1/a/clubs')
     return resp
   },
-  async update_club (options) {
+  async update_club(options) {
     const { id, token, ...options1 } = options
     const resp = await context.$axios.put(`/api/v1/club/${id}`, options1, {
       headers: {
@@ -75,7 +74,7 @@ export default context => ({
     })
     return resp
   },
-  async update_c_club (options) {
+  async update_c_club(options) {
     const { id, token, ...options1 } = options
     const resp = await context.$axios.put(`/api/v1/c/club/${id}`, options1, {
       headers: {
@@ -84,7 +83,7 @@ export default context => ({
     })
     return resp
   },
-  async verify_club_access (options) {
+  async verify_club_access(options) {
     const { idclub, token, role } = options
     const resp = await context.$axios.get(`/api/v1/c/clubs/${idclub}/access/${role}`, {
       headers: {
@@ -92,6 +91,6 @@ export default context => ({
       }
     })
     return resp
-  } 
-     
+  }
+
 })

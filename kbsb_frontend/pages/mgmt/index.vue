@@ -8,8 +8,12 @@
 export default {
   layout: 'mgmt',
 
+  computed: {
+    logintoken() { return this.$store.state.oldlogin.value },
+  },
+
   head: {
-    title: 'Partners',
+    title: 'Management KBSB - FREB- KSB',
     link: [
       {
         rel: 'stylesheet',
@@ -39,6 +43,22 @@ export default {
         defer: true
       }
     ]
-  }
+  },
+
+  methods: {
+
+    gotoLogin() {
+      this.$router.push('/mgmt/login?url=__mgmt__interclub')
+    },
+
+  },
+
+  mounted() {
+    this.$store.commit('newlogin/startup')
+    if (!this.logintoken.length) {
+      this.gotoLogin()
+    }
+  },
+
 }
 </script>

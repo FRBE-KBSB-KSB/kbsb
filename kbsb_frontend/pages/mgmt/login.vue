@@ -10,16 +10,13 @@
             <label class="headline ml-3">Login</label>
             <v-spacer />
           </v-card-title>
-          <v-divider />
           <v-card-text>
             <v-col cols="12">
-              <g-signin-button
-                :params="googleSignInParams"
-                @success="onSignInSuccess"
-                @error="onSignInError"
-              />
+              <div>Login with your @frbe-kbsb-ksb.be account</div>
+              <g-signin-button :params="googleSignInParams" @success="onSignInSuccess"
+                @error="onSignInError" />
             </v-col>
-            <v-divider />
+            <!-- <v-divider />
             <v-col cols="12">
               <v-text-field
                 v-model="login.username"
@@ -33,15 +30,14 @@
                 lg="6"
                 label="Password"
                 type="password"
-              />
-            </v-col>
+              /> -->
           </v-card-text>
-          <v-card-actions>
+          <!-- <v-card-actions>
             <v-spacer />
             <v-btn @click="dologin()">
               Submit
             </v-btn>
-          </v-card-actions>
+          </v-card-actions> -->
         </v-card>
       </v-col>
     </v-row>
@@ -56,12 +52,13 @@ Vue.use(GSignInButton)
 export default {
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       login: {},
       googleSignInParams: {
         client_id: process.env.google_client_id
-      }
+      },
+      url: this.$route.query.url
     }
   },
 
@@ -100,15 +97,16 @@ export default {
 
   methods: {
 
-    onSignInSuccess (googleUser) {
+    onSignInSuccess(googleUser) {
       const idToken = googleUser.getAuthResponse().id_token
       this.$api.root.login({
         logintype: 'google',
         token: idToken
       }).then(
         (resp) => {
-          this.$store.commit('token/update', resp.data)
-          this.$router.push('/mgmt/pagelist')
+          this.$store.commit('newlogin/update', resp.data)
+          const returnUrl = this.url ? this.url.replaceAll("__", "/") : '/mgmt/pagelist'
+          this.$router.push(returnUrl)
         },
         (error) => {
           const resp = error.response
@@ -117,18 +115,18 @@ export default {
       )
     },
 
-    onSignInError (error) {
+    onSignInError(error) {
       console.log('Google login failed', error)
     },
 
-    dologin () {
+    dologin() {
       this.$api.root.login({
         logintype: 'email',
         username: this.login.username,
         password: this.login.password
       }).then(
         (data) => {
-          this.$store.commit('token/update', data.obj)
+          this.$store.commit('newlogin/update', data.obj)
           this.$router.push('/mgmt/pagelist')
         },
         (data) => {
@@ -142,13 +140,12 @@ export default {
 
 <style>
 .g-signin-button {
-   height: 46px;
-   width: 191px;
-   background-image: url('/img/btn_google_signin_light_normal_web.png');
+  height: 46px;
+  width: 191px;
+  background-image: url('/img/btn_google_signin_light_normal_web.png');
 }
 
 .g-signin-button:hover {
-   background-image: url('/img/btn_google_signin_light_focus_web.png');
+  background-image: url('/img/btn_google_signin_light_focus_web.png');
 }
-
 </style>
