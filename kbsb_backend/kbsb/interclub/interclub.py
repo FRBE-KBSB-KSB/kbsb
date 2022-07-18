@@ -2,6 +2,7 @@
 
 import logging
 from typing import cast, Any, Optional, List
+import io, csv
 
 from reddevil.common import (
     RdBadRequest,
@@ -191,6 +192,45 @@ async def set_interclubenrollment(
     return nenr
 
 
+async def csv_interclubenrollments() -> str:
+    """
+    get all enrollments in csv format
+    """
+    wishes_keys = [
+        "wishes.grouping",
+        "wishes.split",
+        "wishes.regional",
+        "wishes.remarks",
+    ]
+    fieldnames = [
+        "idclub",
+        "locale",
+        "name_long",
+        "name_short",
+        "teams1",
+        "teams2",
+        "teams3",
+        "teams4",
+        "teams5",
+        "idinvoice",
+        "idpaymentrequest",
+    ]
+    csvstr = io.StringIO()
+    csvf = csv.DictWriter(csvstr, fieldnames + wishes_keys)
+    csvf.writeheader()
+    for enr in await DbInterclubEnrollment.find_multiple(
+        {"_fieldlist": fieldnames + ["wishes"]}
+    ):
+        id = enr.pop("id", None)
+        wishes = enr.pop("wishes", {})
+        enr["wishes.grouping"] = wishes.get("grouping", "")
+        enr["wishes.split"] = wishes.get("split", "")
+        enr["wishes.regional"] = wishes.get("regional", "")
+        enr["wishes.remarks"] = wishes.get("remarks", "")
+        csvf.writerow(enr)
+    return csvstr.getvalue()
+
+
 async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
     clvns = (await get_interclubvenues_clubs({"idclub": idclub})).clubvenues
     return clvns[0] if clvns else None
@@ -232,4 +272,41 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
     nivdict = niv.dict()
     nivdict["locale"] = locale
     sendEmail(mp, nivdict, "interclub venues")
-    niv
+
+
+async def csv_interclubvenues() -> str:
+    """
+    get all venues in csv format
+    """
+    fieldnames = [
+        "idclub",
+        "name_long",
+        "name_short",
+        "address",
+        "email",
+        "phone",
+        "capacity",
+        "notavailable",
+    ]
+    csvstr = io.StringIO()
+    csvf = csv.DictWriter(csvstr, fieldnames)
+    csvf.writeheader()
+    for vns in await DbInterclubVenues.find_multiple():
+        idclub = vns.get("idclub")
+        name_long = vns.get("name_long")
+        name_short = vns.get("name_short")
+        venues = vns.get("venues")
+        for v in venues:
+            csvf.writerow(
+                {
+                    "idclub": idclub,
+                    "name_long": name_long,
+                    "name_short": name_short,
+                    "address": v.get("address"),
+                    "email": v.get("email"),
+                    "phone": v.get("phone"),
+                    "capacity": v.get("capacity"),
+                    "notavailable": ",".join(v.get("notavailable", [])),
+                }
+            )
+    return csvstr.getvalue()

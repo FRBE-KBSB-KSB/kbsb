@@ -24,6 +24,8 @@ from .db_interclub import (
 )
 
 from .interclub import (
+    csv_interclubenrollments,
+    csv_interclubvenues,
     find_interclubenrollment,
     find_interclubvenues_club,
     set_interclubenrollment,

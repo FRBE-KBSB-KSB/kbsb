@@ -11,6 +11,8 @@ from reddevil.service.account import validate_token
 from kbsb.main import app
 from kbsb.oldkbsb import validate_oldtoken
 from . import (
+    csv_interclubenrollments,
+    csv_interclubvenues,
     find_interclubenrollment,
     find_interclubvenues_club,
     set_interclubenrollment,
@@ -49,6 +51,20 @@ async def api_mgmt_set_enrollment(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call update_interclub")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.get("/api/v1/csv/interclubenrollment", response_model=str)
+async def api_csv_interclubenrollments(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    await validate_token(auth)
+    try:
+        return await csv_interclubenrollments()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call csv_interclubenrollments")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -94,6 +110,20 @@ async def api_mgmt_set_interclubvenues(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call set_interclubvenues")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.get("/api/v1/csv/interclubvenues", response_model=str)
+async def api_csv_interclubvenues(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    await validate_token(auth)
+    try:
+        return await csv_interclubvenues()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call csv_interclubvenues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

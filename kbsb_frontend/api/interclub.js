@@ -23,6 +23,15 @@ export default context => ({
     })
     return resp
   },
+  async mgmt_csv_interclubenrollment(options) {
+    const { token } = options
+    const resp = await context.$axios.get(`/api/v1/csv/interclubenrollment`, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+    return resp
+  },
   async find_interclubvenues(options) {
     const { token, idclub } = options
     const resp = await context.$axios.get(`/api/v1/a/interclub/venues/${idclub}`)
@@ -40,6 +49,15 @@ export default context => ({
     const resp = await context.$axios.post(`/api/v1/interclub/venues/${idclub}`,
       { venues }, { headers: { Authorization: 'Bearer ' + token } }
     )
+    return resp
+  },
+  async mgmt_csv_interclubvenues(options) {
+    const { token } = options
+    const resp = await context.$axios.get(`/api/v1/csv/interclubvenues`, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
     return resp
   },
 })
