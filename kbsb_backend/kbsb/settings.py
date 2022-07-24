@@ -7,11 +7,15 @@ API_BASE_URL = "/api"
 
 BOOKS_CC = "ruben@kosk.be"
 
+COLORLOG = False
+DEBUG = False
+
 EMAIL = {
     "backend": "GMAIL",
     "serviceaccountfile": "kbsb-gmail.json",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
     "account": "ruben.decrop@frbe-kbsb-ksb.be",
+    "blindcopy": "ruben.kbsb@gmail.com",
 }
 
 EXTRASALT = "Zugzwang"
@@ -32,14 +36,13 @@ LOG_CONFIG = {
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
-            "()": "kbsb.util.colorlogfactory.cf",
+            "()": "reddevil.common.colorlogfactory.c_factory",
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            # "formatter": "color",
             "formatter": "simple",
             "stream": "ext://sys.stderr",
         }
@@ -84,9 +87,15 @@ SECRETS = {
         "name": "kbsb-mysql",
         "manager": "googlejson",
     },
+    "gmail": {
+        "name": "kbsb-gmail",
+        "manager": "googlejson",
+    },
 }
 SECRETS_PATH = ""
 
+# relatively to backend path
+TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
@@ -98,6 +107,14 @@ TOKEN = {
 try:
     from local_settings import *
 
-    print("local settings loaded")
+    ls = "local settings loaded"
 except ImportError:
-    print("No local settings found")
+    ls = "No local settings found"
+
+
+if COLORLOG:
+    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
+if DEBUG:
+    LOG_CONFIG["handlers"]["console"]["level"] = "DEBUG"
+    LOG_CONFIG["loggers"]["kbsb"]["level"] = "DEBUG"
+    LOG_CONFIG["loggers"]["reddevil"]["level"] = "DEBUG"

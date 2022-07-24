@@ -32,7 +32,9 @@ uvicorn = "^0.17.6"
 SQLAlchemy = "^1.4.36"
 PyMySQL = "^1.0.2"
 python-slugify = "^6.1.2"
-reddevil = {path = "./libs/reddevil-2.5.10-py3-none-any.whl"}
+Jinja2 = "^3.1.2"
+weasyprint = "^55.0"
+reddevil = {path = "libs/reddevil-2.5.15-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 asyncio = "^3.4.3"

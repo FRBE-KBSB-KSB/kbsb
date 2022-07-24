@@ -1,25 +1,26 @@
 <template>
-<div>
+  <div>
 
-  <div class="btn-language green darken-1">
-    <v-btn text dark class="hover-darker btn-language" @click="setLocale('nl')">
-      NL
-    </v-btn>
-    <v-btn text dark class="hover-darker btn-language" @click="setLocale('fr')">
-      FR
-    </v-btn>
-    <v-btn text dark class="hover-darker btn-language" @click="setLocale('de')">
-      DE
-    </v-btn>
-    <v-btn text dark class="hover-darker btn-language" @click="setLocale('en')">
-      EN
-    </v-btn>
-  </div>
+    <div class="btn-language green darken-1">
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('nl')">
+        NL
+      </v-btn>
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('fr')">
+        FR
+      </v-btn>
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('de')">
+        DE
+      </v-btn>
+      <v-btn text dark class="hover-darker btn-language" @click="setLocale('en')">
+        EN
+      </v-btn>
+    </div>
 
-  <v-list dark dense class="green darken-1">
-    <v-list-item to="/">
-      <v-list-item-content>{{ $t('Home') }}</v-list-item-content>
-    </v-list-item>
+    <v-list dark dense class="green darken-1">
+      <v-list-item to="/">
+        <v-list-item-content>{{ $t('Home') }}</v-list-item-content>
+      </v-list-item>
+
       <v-list-group no-action>
         <template #activator>
           <v-list-item-content>{{ $t('Administration') }}</v-list-item-content>
@@ -48,18 +49,16 @@
         <v-list-item to="/admin/commissions">
           <v-list-item-content>{{ $t('Committees') }} </v-list-item-content>
         </v-list-item>
-        <!-- <v-list-item to="/book100">
-          <v-list-item-content>{{ $t('Book 100 years') }} </v-list-item-content>
-        </v-list-item> -->
+
       </v-list-group>
 
       <v-list-group no-action>
         <template #activator>
           <v-list-item-content>{{ $t('Competitions') }}</v-list-item-content>
         </template>
-        <v-list-item to="/competition/interclubs-2022-23">
+        <v-list-item to="/competition/interclubs-2019-20">
           <v-list-item-content>
-            Interclubs 2022-23
+            Interclubs 2019-20
           </v-list-item-content>
         </v-list-item>
         <v-list-item to="/competition/interclubs-2021-22">
@@ -126,12 +125,17 @@
             {{ $t('ELO tournaments') }}
           </v-list-item-content>
         </v-list-item>
+        <!-- <v-list-item to="/tools/club">
+          <v-list-item-content>
+            Club Manager
+          </v-list-item-content>
+        </v-list-item> -->
         <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
           <v-list-item-content>
-            Player - Club Manager
+            Player Manager
           </v-list-item-content>
         </v-list-item>
-        <v-list-item :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
+        <v-list-item to="/tools/interclub">
           <v-list-item-content>
             Interclub Manager
           </v-list-item-content>
@@ -154,9 +158,9 @@
       <v-list-item to="/info/partners">
         <v-list-item-content>Partners</v-list-item-content>
       </v-list-item>
-  </v-list>
+    </v-list>
 
-</div>
+  </div>
 </template>
 
 <script>
@@ -166,7 +170,7 @@ export default {
 
   name: 'TheSidebar',
 
-  data () {
+  data() {
     return {
       fixtoolbar: false,
       authenticated: false,
@@ -175,16 +179,15 @@ export default {
   },
 
   computed: {
-    gotorating () {
+    gotorating() {
       return this.$i18n.locale === 'nl' ? '/tools/ratingnl' : '/tools/ratingfr'
     }
   },
 
   methods: {
-    setLocale (l) {
-      console.log('changing to locale', l)
+    setLocale(l) {
       this.$i18n.setLocale(l)
-    }
+    },
   }
 
 }
@@ -192,7 +195,6 @@ export default {
 </script>
 
 <style scoped>
-
 .v-application .primary--text {
   color: white !important;
 }
@@ -204,6 +206,7 @@ export default {
 .fixtoolbar {
   top: 50px;
 }
+
 .btn-language {
   min-width: 0 !important;
 }

@@ -6,13 +6,7 @@
         <v-spacer />
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              fab
-              outlined
-              color="deep-purple"
-              v-on="on"
-              @click="back()"
-            >
+            <v-btn fab outlined color="deep-purple" v-on="on" @click="back()">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -20,13 +14,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              fab
-              outlined
-              color="deep-purple"
-              v-on="on"
-              @click="save()"
-            >
+            <v-btn fab outlined color="deep-purple" v-on="on" @click="save()">
               <v-icon>mdi-content-save</v-icon>
             </v-btn>
           </template>
@@ -50,7 +38,7 @@ export default {
 
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       name: '',
       doctype: null,
@@ -59,16 +47,16 @@ export default {
   },
 
   computed: {
-    token () { return this.$store.state.token.value }
+    token() { return this.$store.state.newlogin.value }
   },
 
   methods: {
 
-    back () {
+    back() {
       this.$router.push('/mgmt/pagelist')
     },
 
-    async save () {
+    async save() {
       try {
         const resp = await this.$api.page.add_page({
           doctype: 'article',

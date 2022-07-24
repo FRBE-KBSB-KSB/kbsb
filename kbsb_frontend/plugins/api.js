@@ -4,6 +4,7 @@ import Root from '@/api/root'
 import File_ from '@/api/file'
 import Club from '@/api/club'
 import Old from '@/api/old'
+import Interclub from '@/api/interclub'
 
 export default (context, inject) => {
   const factories = {
@@ -13,6 +14,7 @@ export default (context, inject) => {
     file: File_(context),
     club: Club(context),
     old: Old(context),
+    interclub: Interclub(context),
   }
   inject('api', factories)
 }

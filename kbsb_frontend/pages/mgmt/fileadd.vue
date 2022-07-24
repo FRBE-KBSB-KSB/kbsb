@@ -7,13 +7,7 @@
       <v-col cols="3">
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              fab
-              outlined
-              color="deep-purple"
-              v-on="on"
-              @click="back()"
-            >
+            <v-btn fab outlined color="deep-purple" v-on="on" @click="back()">
               <v-icon>mdi-arrow-left</v-icon>
             </v-btn>
           </template>
@@ -21,13 +15,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template #activator="{ on }">
-            <v-btn
-              fab
-              outlined
-              color="deep-purple"
-              v-on="on"
-              @click="save()"
-            >
+            <v-btn fab outlined color="deep-purple" v-on="on" @click="save()">
               <v-icon>mdi-content-save</v-icon>
             </v-btn>
           </template>
@@ -59,7 +47,7 @@ export default {
 
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       content: '',
       f: {},
@@ -70,16 +58,16 @@ export default {
   },
 
   computed: {
-    token () { return this.$store.state.token.value }
+    token() { return this.$store.state.newlogin.value }
   },
 
   methods: {
 
-    back () {
+    back() {
       this.$router.push('/mgmt/filelist')
     },
 
-    handleFile (err, file) {
+    handleFile(err, file) {
       if (err) {
         console.error(err)
         return
@@ -93,7 +81,7 @@ export default {
       reader.readAsDataURL(file.file)
     },
 
-    async save () {
+    async save() {
       try {
         const resp = await this.$api.file.add_file({
           name: this.name,

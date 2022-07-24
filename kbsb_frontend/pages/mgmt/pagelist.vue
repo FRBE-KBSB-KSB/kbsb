@@ -1,13 +1,8 @@
 <template>
   <v-container>
     <h1>Management News Articles</h1>
-    <v-data-table
-      :headers="headers"
-      :items="filteredpages"
-      :footer-props="footerProps"
-      class="elevation-1"
-      :sort-by="['name','modified']"
-    >
+    <v-data-table :headers="headers" :items="filteredpages" :footer-props="footerProps"
+      class="elevation-1" :sort-by="['name', 'modified']">
       <template #top>
         <v-card color="grey lighten-4">
           <v-card-title>
@@ -15,13 +10,7 @@
               <v-spacer />
               <v-tooltip bottom>
                 <template #activator="{ on }">
-                  <v-btn
-                    fab
-                    outlined
-                    color="deep-purple"
-                    v-on="on"
-                    @click="addPage()"
-                  >
+                  <v-btn fab outlined color="deep-purple" v-on="on" @click="addPage()">
                     <v-icon>mdi-plus</v-icon>
                   </v-btn>
                 </template>
@@ -29,13 +18,7 @@
               </v-tooltip>
               <v-tooltip bottom>
                 <template #activator="{ on }">
-                  <v-btn
-                    fab
-                    outlined
-                    color="deep-purple"
-                    v-on="on"
-                    @click="backupPages()"
-                  >
+                  <v-btn fab outlined color="deep-purple" v-on="on" @click="backupPages()">
                     <v-icon>mdi-download-multiple</v-icon>
                   </v-btn>
                 </template>
@@ -70,7 +53,7 @@ export default {
 
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       filter: {},
       footerProps: {
@@ -96,7 +79,7 @@ export default {
   },
 
   computed: {
-    filteredpages () {
+    filteredpages() {
       return this.pages
       // const pa = []
       // if (!this.filter.normal && !this.filter.article && !this.filter.app) {
@@ -117,24 +100,24 @@ export default {
       // })
       // return pa
     },
-    token () { return this.$store.state.token.value }
+    token() { return this.$store.state.newlogin.value }
   },
 
-  mounted () {
+  mounted() {
     this.getPages()
   },
 
   methods: {
 
-    addPage () {
+    addPage() {
       this.$router.push('/mgmt/pageadd')
     },
 
-    editPage (item) {
+    editPage(item) {
       this.$router.push('/mgmt/pageedit/?id=' + item.id)
     },
 
-    async getPages () {
+    async getPages() {
       try {
         const resp = await this.$api.page.get_pages({
           token: this.token

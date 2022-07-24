@@ -1,13 +1,8 @@
 <template>
   <v-container>
     <h1>Management Files</h1>
-    <v-data-table
-      :headers="headers"
-      :items="files"
-      :footer-props="footerProps"
-      class="elevation-1"
-      :sort-by="['name']"
-    >
+    <v-data-table :headers="headers" :items="files" :footer-props="footerProps" class="elevation-1"
+      :sort-by="['name']">
       <template #top>
         <v-toolbar flat color="white">
           <v-toolbar-title>
@@ -16,13 +11,7 @@
           <v-spacer />
           <v-tooltip bottom>
             <template #activator="{ on }">
-              <v-btn
-                fab
-                outlined
-                color="deep-purple"
-                v-on="on"
-                @click="addFile()"
-              >
+              <v-btn fab outlined color="deep-purple" v-on="on" @click="addFile()">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </template>
@@ -53,7 +42,7 @@ export default {
 
   layout: 'mgmt',
 
-  data () {
+  data() {
     return {
       headers: [
         {
@@ -78,24 +67,24 @@ export default {
   },
 
   computed: {
-    token () { return this.$store.state.token.value }
+    token() { return this.$store.state.newlogin.value }
   },
 
-  mounted () {
+  mounted() {
     this.getFiles()
   },
 
   methods: {
 
-    addFile () {
+    addFile() {
       this.$router.push('/mgmt/fileadd')
     },
 
-    editFile (item) {
+    editFile(item) {
       this.$router.push('/mgmt/fileedit/?id=' + item.id)
     },
 
-    async getFiles () {
+    async getFiles() {
       try {
         const resp = await this.$api.file.get_files({
           token: this.token
