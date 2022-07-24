@@ -1,29 +1,18 @@
 <template>
   <v-container>
     <h1>Clubs</h1>
-    <v-data-table
-      :headers="headers"
-      :items="filtered"
-      :footer-props="footerProps"
-      class="elevation-1"
-      sort-by="idclub"
-    >
+    <v-data-table :headers="headers" :items="filtered" :footer-props="footerProps"
+      class="elevation-1" sort-by="idclub">
       <template #top>
         <v-toolbar flat color="white">
           <v-toolbar-title> {{ $t('Reports') }}</v-toolbar-title>
           <v-spacer />
           <v-row>
             <v-col cols="6">
-              <v-checkbox
-                v-model="filter.board"
-                :label="$t('Report Board Meeting')"
-              />
+              <v-checkbox v-model="filter.board" :label="$t('Report Board Meeting')" />
             </v-col>
             <v-col cols="6">
-              <v-checkbox
-                v-model="filter.ga"
-                :label="$t('Report General Assembly')"
-              />
+              <v-checkbox v-model="filter.ga" :label="$t('Report General Assembly')" />
             </v-col>
           </v-row>
         </v-toolbar>
@@ -32,7 +21,7 @@
         {{ $t(item.topic) }}
       </template>
       <template #item.path="{ item }">
-        URL: <a :href="'/api/filecontent/'+ item.url">{{ item.name }}</a>
+        URL: <a :href="'/api/filecontent/' + item.url">{{ item.name }}</a>
       </template>
       <template #no-data>
         No reports yet.
@@ -53,10 +42,10 @@ export default {
           text: 'N.', value: 'idclub'
         },
         {
-          text: $t('Long name'), value: 'name_long'
+          text: this.$t('Long name'), value: 'name_long'
         },
         {
-          text: $t('Short name'), value: 'name_short'
+          text: this.$t('Short name'), value: 'name_short'
         },
         {
           text: 'Actions', value: 'action', sortable: false
