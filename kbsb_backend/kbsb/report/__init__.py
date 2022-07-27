@@ -20,3 +20,5 @@ from .report import (
     readFilecontent,
     writeFilecontent,
 )
+
+import kbsb.report.api_report
