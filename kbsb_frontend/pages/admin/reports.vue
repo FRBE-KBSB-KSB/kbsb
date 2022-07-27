@@ -21,7 +21,7 @@
         {{ $t(item.topic) }}
       </template>
       <template #item.path="{ item }">
-        URL: <a :href="'/api/filecontent/' + item.url">{{ item.name }}</a>
+        URL: <a :href="'/api/v1/filecontent/' + item.url">{{ item.name }}</a>
       </template>
       <template #no-data>
         No reports yet.
