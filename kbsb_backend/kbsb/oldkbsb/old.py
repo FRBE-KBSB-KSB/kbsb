@@ -36,20 +36,21 @@ def do_oldlogin(ol: OldLogin) -> str:
     settings = get_settings()
     session = sessionmaker(mysql_engine())()
     query = session.query(P_User).filter(P_User.user == ol.idnumber)
-    user = query.one_or_none()
-    if user is None:
+    users = query.all()
+    if not users:
         log.info(f"not authorized: idnumber {ol.idnumber} not found")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     hash = f"Le guide complet de PHP 5 par Francois-Xavier Bois{ol.password}"
     pwcheck = hashlib.md5(hash.encode("utf-8")).hexdigest()
-    if user.password != pwcheck:
-        log.info(f"not authorized: password hash {pwcheck} not correct")
-        raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
-    payload = {
-        "sub": str(ol.idnumber),
-        "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
-    }
-    return jwt_encode(payload, SALT)
+    for user in users:
+        if user.password == pwcheck:
+            payload = {
+                "sub": str(ol.idnumber),
+                "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
+            }
+            return jwt_encode(payload, SALT)
+    log.info(f"not authorized: password hash {pwcheck} not correct")
+    raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
 
 
 async def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
