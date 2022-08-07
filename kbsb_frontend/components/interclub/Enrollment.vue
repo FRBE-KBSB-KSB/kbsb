@@ -23,7 +23,7 @@
             <li>{{ $t('Remarks') }}: {{ enrollment.wishes.remarks }} </li>
           </ul>
         </div>
-        <v-btn @click="modifyEnrollment">
+        <v-btn @click="modifyEnrollment" :disabled="new Date() > stopdate">
           {{ $t('Modify enrollment') }}
         </v-btn>
       </div>
@@ -99,6 +99,7 @@ const empty_enrollment = {
   teams5: 0,
   wishes: {},
 }
+const STOPDATE = new Date('2022-07-31')
 
 export default {
 
@@ -117,6 +118,7 @@ export default {
       ],
       enrollment: empty_enrollment,
       status: ENROLLMENT_STATUS.CONSULTING,
+      stopdate: STOPDATE,
     }
   },
 
