@@ -2,19 +2,18 @@
   <v-container>
     <h1>Club Manager</h1>
     <v-card>
-      <v-card-title>Select the club</v-card-title>
       <v-card-text>
-        <div>Start typing to filter (clubnumber or name</div>
+        Select the club. (start typing number of name)
         <v-autocomplete v-model="idclub" :items="clubs" item-text="merged" item-value="idclub"
-          color="deep-purple" label="Club" clearable @change="selectclub">
+          color="deep-purple" label="Club " clearable @change="selectclub">
           <template v-slot:item="data">
             {{ data.item.merged }}
           </template>
         </v-autocomplete>
       </v-card-text>
     </v-card>
-    <h2 class="mt-2">Selected club: {{ activeclub.idclub }} {{ activeclub.name_short }}
-    </h2>
+    <h3 class="mt-2">Selected club: {{ activeclub.idclub }} {{ activeclub.name_short }}
+    </h3>
     <div class="elevation-2">
 
       <v-tabs v-model="tab" color="deep-purple" @change="call_childmethods">
@@ -45,7 +44,7 @@ const noop = function () { }
 
 export default {
 
-  name: 'Interclub',
+  name: 'Club',
 
   layout: 'mgmt',
 
@@ -53,8 +52,8 @@ export default {
     return {
       activeclub: {},
       childmethods: {
-        find_interclubenrollment: noop,
-        find_interclubvenues: noop,
+        get_clubdetails: noop,
+        get_clubaccessrights: noop,
       },
       clubs: [],
       idclub: null,
@@ -84,7 +83,7 @@ export default {
 
     async getClubs() {
       try {
-        const reply = await this.$api.club.get_clubs({
+        const reply = await this.$api.club.mgmt_get_clubs({
           logintoken: this.logintoken
         })
         this.clubs = reply.data.clubs
@@ -94,7 +93,7 @@ export default {
         console.log('clubs from server', this.clubs)
       } catch (error) {
         const reply = error.response
-        console.error('getting get_c_clubs', reply)
+        console.error('getting mgmt_get_clubs', reply)
         if (reply.status === 401) {
           this.gotoLogin()
         } else {

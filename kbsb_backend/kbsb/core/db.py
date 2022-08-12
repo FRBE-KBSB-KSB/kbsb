@@ -1,7 +1,7 @@
-
 # copyright Ruben Decrop 2012 - 2020
 from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
+
 log = logging.getLogger(__name__)
 
 from datetime import datetime, date
@@ -58,23 +58,25 @@ def get_mysql():
             raise HTTPException(status_code=503, detail="CannotConnectMysql")
     return getattr(get_mysql, "conn")
 
+
 def mysql_engine():
     """
     a singleton function returning a sqlalchemy engine for the mysql database
     """
     if not hasattr(mysql_engine, "engine"):
         mysqlparams = get_secret("mysql")
-        host=mysqlparams["dbhost"]
-        user=mysqlparams["dbuser"]
-        password=mysqlparams["dbpassword"]
-        dbname=mysqlparams["dbname"]
+        host = mysqlparams["dbhost"]
+        user = mysqlparams["dbuser"]
+        password = mysqlparams["dbpassword"]
+        dbname = mysqlparams["dbname"]
         url = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
-        mysql_engine.engine = create_engine(url, connect_args={
-            "ssl_disabled" : True,
-        })
+        mysql_engine.engine = create_engine(
+            url,
+            connect_args={
+                "ssl_disabled": True,
+            },
+        )
     return mysql_engine.engine
 
 
 # import all database classes
-
-import kbsb.oldkbsb.db_old
