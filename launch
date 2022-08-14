@@ -1,2 +1,4 @@
 #!/bin/bash
+pushd kbsb_backend
 poetry run uvicorn kbsb.main:app --reload
+popd
