@@ -26,8 +26,7 @@ from kbsb.report.md_report import (
 )
 
 
-
-@app.get("/api/files", response_model=FileListOut)
+@app.get("/api/v1/files", response_model=FileListOut)
 async def api_getFiles(
     reports: int = 0, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
@@ -41,7 +40,7 @@ async def api_getFiles(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.get("/api/a/files", response_model=FileListOut)
+@app.get("/api/v1/a/files", response_model=FileListOut)
 async def api_anon_getFiles(reports: int = 0):
     try:
         return await getFiles(dict(reports=reports))
@@ -52,7 +51,7 @@ async def api_anon_getFiles(reports: int = 0):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.post("/api/files", response_model=str)
+@app.post("/api/v1/files", response_model=str)
 async def aoi_createFile(
     p: FileIn, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
@@ -66,7 +65,7 @@ async def aoi_createFile(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.get("/api/file/{id}", response_model=FileOptional)
+@app.get("/api/v1/file/{id}", response_model=FileOptional)
 async def api_getFile(
     id: str, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
@@ -80,7 +79,7 @@ async def api_getFile(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.delete("/api/file/{id}")
+@app.delete("/api/v1/file/{id}")
 async def api_deleteFile(
     id: str, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
@@ -94,7 +93,7 @@ async def api_deleteFile(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.put("/api/file/{id}", response_model=FileOptional)
+@app.put("/api/v1/file/{id}", response_model=FileOptional)
 async def api_updateFile(
     id: str, p: FileUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
@@ -108,7 +107,7 @@ async def api_updateFile(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.get("/api/filecontent/{url}")
+@app.get("/api/v1/filecontent/{url}")
 async def api_getFilecontent(
     url: str, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):

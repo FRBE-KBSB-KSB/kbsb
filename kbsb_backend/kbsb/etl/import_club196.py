@@ -3,18 +3,9 @@ import asyncio
 from csv import writer
 from fastapi import FastAPI
 from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 from reddevil.common import register_app, get_settings
 from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
-from kbsb.club import (
-    ClubMember,
-    ClubRole,
-    ClubIn,
-    create_club,
-    Visibility,
-)
-from kbsb.oldkbsb import OldClub_sql, OldMember_sql, old_role_mapping
-from kbsb.core.db import mysql_engine
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",
@@ -23,14 +14,12 @@ app = FastAPI(
 )
 register_app(app=app, settingsmodule="kbsb.settings")
 settings = get_settings()
-dbsession = sessionmaker(mysql_engine())()
+
+from kbsb.core.db import mysql_engine
+from kbsb.club import P_Clubs, ClubIn, ClubRole, create_club
 
 
 class MongodbClubWriter:
-    """
-    async writer of club Mongodb collection
-    """
-
     async def __aenter__(self):
         await connect_mongodb()
         return self
@@ -38,13 +27,11 @@ class MongodbClubWriter:
     async def __aexit__(self, *args):
         await close_mongodb()
 
-    async def write(self, p: OldClub_sql):
+    async def write(self, p: P_Clubs):
         email = p.email
         if email:
             email = email.replace("[at]", "@")
         staff = []
-        boardmembers = {}
-        query = dbsession.query(OldMember_sql)
         for f in [
             "presidentmat",
             "vicemat",
@@ -56,18 +43,6 @@ class MongodbClubWriter:
         ]:
             if id := getattr(p, f, 0):
                 staff.append(id)
-                m = query.filter_by(idnumber=id).one_or_none()
-                if m:
-                    cm = ClubMember(
-                        first_name=m.first_name,
-                        last_name=m.last_name,
-                        email=m.email,
-                        email_visibility=Visibility.club,
-                        idnumber=id,
-                        mobile=m.mobile,
-                        mobile_visibility=Visibility.club,
-                    )
-                    boardmembers[old_role_mapping[f]] = cm
         clubroles = [
             ClubRole(
                 nature="ClubAdmin",
@@ -83,7 +58,6 @@ class MongodbClubWriter:
             bankaccount_name=p.bquetitulaire,
             bankaccount_iban=p.bquecompter,
             bankaccount_bic=p.bquebic,
-            boardmembers=boardmembers,
             clubroles=clubroles,
             email_admin="",
             email_finance="",
@@ -96,27 +70,32 @@ class MongodbClubWriter:
             name_long=p.intitule,
             name_short=p.abbrev,
             openinghours=None,
-            venue=f"{p.local}\n{p.adresse}\n{p.codepostal} {p.localite}",
+            venue=f"{p.local}\n{p.adresse}\n{p.codepostal}\n{p.localite}",
             website=p.website,
         )
         await create_club(c)
 
 
-class MysqlClubReader:
+class MysqlClubs:
+    def __init__(self, *args, **kwargs):
+        self.engine = mysql_engine()
+        session = Session(self.engine)
+        stmt = select(P_Clubs).filter_by(club=196)
+        self.result = session.scalars(stmt)
+
     def __iter__(self):
-        self.query = dbsession.scalars(select(OldClub_sql))
-        return self.query
+        return self.result
 
     def __next__(self):
-        for r in self.query:
+        for r in self.result:
             yield r
 
 
 async def main():
     async with MongodbClubWriter() as writer:
         db = await get_mongodb()
-        await db.club.drop()
-        for record in MysqlClubReader():
+        # await db.club.drop()
+        for record in MysqlClubs():
             print(record.club)
             await writer.write(record)
 

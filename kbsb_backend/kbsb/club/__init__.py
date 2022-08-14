@@ -10,9 +10,9 @@ from .md_club import (
     ClubUpdate,
     ClubList,
     ClubListItem,
+    DbClub,
+    Visibility,
 )
-
-from .db_club import DbClub, P_Clubs
 
 from .club import (
     club_locale,

@@ -38,7 +38,8 @@
               <div>Topic: {{ f.topic }}</div>
             </v-col>
             <v-col cols="12" sm="6">
-              <p>URL: <a :href="'/api/filecontent/' + f.url">/api/filecontent/{{ f.url }}</a> </p>
+              <p>URL: <a :href="'/api/v1/filecontent/' + f.url">/api/v1/filecontent/{{ f.url }}</a>
+              </p>
               <v-menu v-model="menu_topicdate" :close-on-content-click="false" :nudge-right="40"
                 transition="scale-transition" offset-y min-width="290px">
                 <template #activator="{ on }">

@@ -4,203 +4,135 @@
 # we are using pydantic as tool
 
 import logging
+from sqlalchemy import Column, String, Integer, Date
+from sqlalchemy.orm import declarative_base
 from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
+from kbsb.core.db import get_mysql
 
-class OldLogin(BaseModel):
+logger = logging.getLogger(__name__)
+
+Base = declarative_base()
+
+
+class OldLoginValidator(BaseModel):
+    """
+    Validator for login entry
+    """
+
     idnumber: int
     password: str
 
-class Member(BaseModel):
-    """
-    An member as written in the signaletique database
-    """
-    Matricule: int
-    AnneeAffilie: int
-    Club: int
-    Nom: str
-    Prenom: str
-    Sexe: str
-    Dnaiss: date
-    LieuNaiss: str
-    Nationalite: str
-    NatFIDE: str 
-    Adresse: str 
-    Numero: str 
-    BoitePostale: str
-    CodePostal: str 
-    Localite: str 
-    Pays: str 
-    Telephone: str 
-    Gsm: str 
-    Fax: str 
-    Email: str 
-    MatFIDE: str 
-    Arbitre: str 
-    ArbitreAnnee: int
-    Federation: str
-    AdrInconnue: int
-    RevuePDF: int
-    Cotisation: str
-    DateCotisation: date
-    DateInscription: date
-    DateAffiliation: date 
-    ClubTransfert: int
-    TransfertOpp: int
-    ClubOld: int
-    FedeOld: str
-    DemiCotisation: int
-    Note: str
-    DateModif: date
-    LoginModif: str
-    Locked: int
-    MatInitial: int
-    DateTransfert: date
-    Decede: int
-    G: int
-    ArbitreFide: str
-    ArbitreAnneeFide: int
 
-class MemberOptional(BaseModel):
+class OldUser_sql(Base):
     """
-    All fields optional
+    table p_user in mysql
+    we only encode the fields we need
     """
-    address_box: Optional[str]
-    address_country: Optional[str]
-    address_number: Optional[str]
-    address_postal_code: Optional[str]
-    address_street: Optional[str]
-    address_town: Optional[str]
-    address_unknown: Optional[int]
-    affiliation_year: Optional[int]
-    affiliation_date: Optional[date]
-    affiliation_payment_date: Optional[date]
-    affiliation_initial_date: Optional[date]
-    arbiter: Optional[str]
-    arbiter_year: Optional[int]
-    arbiter_fide: Optional[str]
-    arbiter_fide_year: Optional[int]
-    birthday: Optional[date]
-    birthplace: Optional[str]
-    deceased: Optional[bool]
+
+    __tablename__ = "p_user"
+
+    user = Column("user", String, primary_key=True)
+    password = Column("password", String)
+
+
+class OldUser(BaseModel):
+    """
+    pydantic model olduser
+    """
+
+    user: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
+
+class OldMember_sql(Base):
+    """
+    table signaletique in mysql
+    we only encode the fields we need
+    """
+
+    __tablename__ = "signaletique"
+
+    birthdate = Column("Dnaiss", Date)
+    deceased = Column("Decede", Integer)
+    email = Column("Email", String(48))
+    first_name = Column("Prenom", String)
+    gender = Column("Sexe", String)
+    idclub = Column("Club", Integer, index=True)
+    idnumber = Column("Matricule", Integer, primary_key=True)
+    last_name = Column("Nom", String)
+    licence_g = Column("G", Integer)
+    locked = Column("Locked", Integer)
+    mobile = Column("Gsm", String)
+    year_affiliation = Column("AnneeAffilie", Integer, index=True)
+
+
+class OldMember(BaseModel):
+    birthdate: Optional[date]
+    deceased: Optional[int]
     email: Optional[str]
-    federation: Optional[str]
     first_name: Optional[str]
     gender: Optional[str]
-    id: Optional[str]
-    id_club: Optional[str]
-    id_initial: Optional[str]
-    id_fide: Optional[str]
-    junior: Optional[str]
+    idclub: Optional[int]
+    idnumber: Optional[int]
     last_name: Optional[str]
-    licence_g: Optional[bool]
-    locked: Optional[bool]
-    modification_date: Optional[date]
-    modification_login: Optional[str]
-    nationality: Optional[str]
-    nationality_fide: Optional[str]
-    phone_fax: Optional[str]
-    phone_fixed: Optional[str]
-    phone_mobile: Optional[str]
-    remarks: Optional[str]
-    transfer_club_new: Optional[str]
-    transfer_club_old: Optional[str]
-    transfer_date: Optional[date]
-    transfer_federation_old: Optional[str]
-    transfer_opposed: Optional[bool]
+    licence_g: Optional[int]
+    locked: Optional[int]
+    mobile: Optional[str]
+    year_affiliation: Optional[int]
 
-class MemberBasic(BaseModel):
-    """
-    basic fields only
-    """
-    address_box: str = ''
-    address_country: str = ''
-    address_number: str = ''
-    address_postal_code: str = ''
-    address_street: str = ''
-    address_town: str = ''
-    affiliation_year: int = 0
-    affiliation_date: Optional[date] = None
-    affiliation_initial_date: Optional[date] = None
-    birthday: date
-    birthplace: Optional[str] = ''
-    deceased: bool
-    email: str = ''
-    federation: str 
-    first_name: str
-    gender: str = ''
-    id: str
-    id_club: str
-    id_fide: str = ''
-    junior: str = 'S'
-    last_name: str
-    license_g: Optional[bool] = False
-    locked: bool = False
-    modification_date: Optional[date] = None
-    nationality: str
-    nationality_fide: str = ''
-    phone_fixed: str = ''
-    phone_mobile: str = '' 
-    remarks: str = ''
+    class Config:
+        orm_mode = True
 
-class MemberAnon(BaseModel):
-    """
-    Only fields that are GDPR compliant
-    """
-    affiliation_year: int = 0
-    birthday: date
-    deceased: bool
-    first_name: str
-    gender: str = ''
-    id: str
-    id_club: str
-    last_name: str
 
-member_o2n: Dict[str,dict] = {
-    'Matricule': {'name': 'id', 'conversion': str},
-    'AnneeAffilie':  {'name': 'affiliation_year'},
-    'Club':  {'name': 'id_club', 'conversion': str},
-    'Nom':  {'name': 'last_name'},
-    'Prenom':  {'name': 'first_name'},
-    'Sexe':  {'name': 'gender'},
-    'Dnaiss':  {'name': 'birthday'},
-    'LieuNaiss':  {'name': 'birthplace'},
-    'Nationalite':  {'name': 'nationality'},
-    'NatFIDE':  {'name': 'nationality_fide'},
-    'Adresse':  {'name': 'address_street'}, 
-    'Numero':  {'name': 'address_number'},
-    'BoitePostale':  {'name': 'address_box'},
-    'CodePostal':  {'name': 'address_postal_code'},
-    'Localite':  {'name': 'address_town'},
-    'Pays':  {'name': 'address_country'},
-    'Telephone':  {'name': 'phone_fixed'},
-    'Gsm': {'name': 'phone_mobile'}, 
-    'Fax': {'name': 'phone_fax'},
-    'Email': {'name': 'email'},
-    'MatFIDE': {'name': 'id_fide', 'conversion': str}, 
-    'Arbitre': {'name': 'arbiter'},
-    'ArbitreAnnee': {'name': 'arbiter_year'},
-    'Federation': {'name': 'federation'},
-    'AdrInconnue': {'name': 'address_unknown'},
-    # don't convert RevuePDF
-    'Cotisation': {'name': 'junior'},
-    'DateCotisation': {'name': 'affiliation_payment_date'},
-    'DateInscription': {'name': 'affiliation_initial_date'},
-    'DateAffiliation': {'name': 'affiliation_date'},
-    'ClubTransfert': {'name': 'transfer_club_new', 'conversion': str},
-    'TransfertOpp': {'name': 'transfer_opposed'},
-    'ClubOld': {'name': 'transfer_club_old'},
-    'FedeOld': {'name': 'transfer_federation_old'},
-    # don't convert DemiCotisation
-    'Note': {'name': 'remarks'},
-    'DateModif': {'name': 'modification_date'},
-    'LoginModif': {'name': 'modification_user'},
-    'Locked': {'name': 'locked'},
-    'MatInitial': {'name': 'id_initial', 'conversion': str},
-    'DateTransfert': {'name': 'transfer_date'},
-    'Decede': {'name': 'deceased'},
-    'G': {'name': 'license_g'},
-    'ArbitreFide': {'name': 'arbiter_fide'},
-    'ArbitreAnneeFide': {'name': 'arbiter_fide_year'},
+class OldMemberList(BaseModel):
+    members: List[OldMember]
+
+
+class OldClub_sql(Base):
+    __tablename__ = "p_clubs"
+
+    club = Column("Club", Integer, primary_key=True)
+    federation = Column("Federation", String(collation="latin1_general_cs"))
+    ligue = Column("Ligue", Integer)
+    intitule = Column("Intitule", String(collation="latin1_general_cs"))
+    abbrev = Column("Abbrev", String(collation="latin1_general_cs"))
+    local = Column("Local", String(collation="latin1_general_cs"))
+    adresse = Column("Adresse", String(collation="latin1_general_cs"))
+    codepostal = Column("CodePostal", String(collation="latin1_general_cs"))
+    localite = Column("Localite", String(collation="latin1_general_cs"))
+    telephone = Column("Telephone", String(collation="latin1_general_cs"))
+    siegesocial = Column("SiegeSocial", String(collation="latin1_general_cs"))
+    joursdejeux = Column("JoursDeJeux", String(collation="latin1_general_cs"))
+    website = Column("WebSite", String(collation="latin1_general_cs"))
+    webmaster = Column("WebMaster", String(collation="latin1_general_cs"))
+    forum = Column("Forum", String(collation="latin1_general_cs"))
+    email = Column("Email", String(collation="latin1_general_cs"))
+    mandataire = Column("Mandataire", Integer)
+    mandataire = Column("MandataireNr", Integer)
+    presidentmat = Column("PresidentMat", Integer)
+    vicemat = Column("ViceMat", Integer)
+    tresoriermat = Column("TresorierMat", Integer)
+    secretairemat = Column("SecretaireMat", Integer)
+    tournoimat = Column("TournoiMat", Integer)
+    jeunessemat = Column("JeunesseMat", Integer)
+    interclubmat = Column("InterclubMat", Integer)
+    bquetitulaire = Column("BqueTitulaire", String(collation="latin1_general_cs"))
+    bquecompter = Column("BqueCompte", String(collation="latin1_general_cs"))
+    bquebic = Column("BqueBIC", String(collation="latin1_general_cs"))
+    divers = Column("Divers", String(collation="latin1_general_cs"))
+
+
+old_role_mapping = {
+    "presidentmat": "president",
+    "vicemat": "vice_president",
+    "tresoriermat": "secretary",
+    "secretairemat": "treasurer",
+    "tournoimat": "tournament_director",
+    "jeunessemat": "youth_director",
+    "interclubmat": "interclub_director",
 }

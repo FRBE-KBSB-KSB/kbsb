@@ -8,20 +8,35 @@ import logging
 from fastapi import HTTPException
 from reddevil.common import RdException
 from kbsb.main import app
-from kbsb.oldkbsb.md_old import OldLogin
-from kbsb.oldkbsb.old import do_oldlogin
+from typing import Dict
+from kbsb.oldkbsb import (
+    OldLoginValidator,
+    OldMemberList,
+    old_login,
+    get_clubmembers,
+)
+from .md_old import OldMemberList
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 @app.post("/api/v1/old/login")
-def oldlogin(ol: OldLogin) -> str:
+def api_old_login(ol: OldLoginValidator) -> str:
     try:
-        return do_oldlogin(ol)
+        return old_login(ol)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call oldlogin")
+        logger.exception("failed api call oldlogin")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-
+@app.get("/api/v1/old/clubmembers/{idclub}", response_model=OldMemberList)
+def api_get_clubmembers(idclub: int):
+    try:
+        return get_clubmembers(idclub)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        logger.exception("failed api call get_clubmembers")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

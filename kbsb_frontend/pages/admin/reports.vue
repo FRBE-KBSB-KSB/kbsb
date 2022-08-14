@@ -1,30 +1,18 @@
 <template>
   <v-container>
     <h1>{{ $t('Reports') }}</h1>
-    <v-data-table
-      :headers="headers"
-      :items="filteredfiles"
-      :footer-props="footerProps"
-      class="elevation-1"
-      sort-by="topicdate"
-      sort-desc="1"
-    >
+    <v-data-table :headers="headers" :items="filteredfiles" :footer-props="footerProps"
+      class="elevation-1" sort-by="topicdate" :sort-desc="true">
       <template #top>
         <v-toolbar flat color="white">
           <v-toolbar-title> {{ $t('Reports') }}</v-toolbar-title>
           <v-spacer />
           <v-row>
             <v-col cols="6">
-              <v-checkbox
-                v-model="filter.board"
-                :label="$t('Report Board Meeting')"
-              />
+              <v-checkbox v-model="filter.board" :label="$t('Report Board Meeting')" />
             </v-col>
             <v-col cols="6">
-              <v-checkbox
-                v-model="filter.ga"
-                :label="$t('Report General Assembly')"
-              />
+              <v-checkbox v-model="filter.ga" :label="$t('Report General Assembly')" />
             </v-col>
           </v-row>
         </v-toolbar>
@@ -33,7 +21,7 @@
         {{ $t(item.topic) }}
       </template>
       <template #item.path="{ item }">
-        URL: <a :href="'/api/filecontent/'+ item.url">{{ item.name }}</a>
+        URL: <a :href="'/api/v1/filecontent/' + item.url">{{ item.name }}</a>
       </template>
       <template #no-data>
         No reports yet.
@@ -47,7 +35,7 @@ export default {
 
   layout: 'default',
 
-  data () {
+  data() {
     return {
       filter: {},
       headers: [
@@ -103,7 +91,7 @@ export default {
   },
 
   computed: {
-    filteredfiles () {
+    filteredfiles() {
       const self = this; const fa = []
       if (!this.filter.board && !this.filter.ga) { return this.files }
       this.files.forEach((f) => {
@@ -119,13 +107,13 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.getReports()
   },
 
   methods: {
 
-    async getReports () {
+    async getReports() {
       try {
         const resp = await this.$api.file.anon_get_files({ reports: 1 })
         this.files = resp.data.files
