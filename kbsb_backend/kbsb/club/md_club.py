@@ -9,6 +9,7 @@ from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
 from enum import Enum
+from reddevil.db.db_base import DbBase
 
 
 class Visibility(str, Enum):
@@ -64,7 +65,7 @@ class Club(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
-    boardmembers: Optional[List[ClubMember]]
+    boardmembers: Optional[Dict[str, ClubMember]]
     clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks
@@ -97,6 +98,7 @@ class ClubIn(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
+    baordmembers: Optional[Dict[str, ClubMember]]
     clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks
@@ -144,3 +146,10 @@ class ClubListItem(BaseModel):
 
 class ClubList(BaseModel):
     clubs: List[ClubListItem]
+
+
+class DbClub(DbBase):
+    COLLECTION = "club"
+    DOCUMENTTYPE = "Club"
+    VERSION = 1
+    IDGENERATOR = "uuid"

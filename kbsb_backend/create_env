@@ -1,4 +1,2 @@
 #!/bin/bash
-pushd kbsb_backend
 poetry install
-popd
