@@ -1,4 +1,4 @@
 ---
-title: Rapid Championships 2021
+title: Rapid Championships 2022
 ---
-Cancelled
+Only available in Dutch or French

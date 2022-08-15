@@ -1,5 +1,5 @@
 ---
-title: Meisterschaften Rapid 2021
+title: Meisterschaften Rapid 2022
 ---
 
-Annuliert
+Nur auf Niederländisch oder Französich verfügbar

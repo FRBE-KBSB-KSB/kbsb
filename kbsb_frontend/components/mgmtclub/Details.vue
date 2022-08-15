@@ -53,17 +53,16 @@
             <v-text-field v-model="club.email_finance" label="E-mail finance" />
             <v-textarea v-model="club.address" label="Postal address" />
           </v-col>
-
           <v-col cols="12" sm="6" lg="4">
-            <h4>Bank details</h4>Pressesprecher
+            <h4>Board Members</h4>
+            TO DO
+          </v-col>
+          <v-col cols="12" sm="6" lg="4">
+            <h4>Bank details</h4>
             <v-text-field v-model="club.bankacount_name" label="Name bank account" />
             <v-text-field v-model="club.bankaccount_iban" label="IBAN bank account" />
             <v-text-field v-model="club.bankaccount_bic" label="BIC bank account" />
           </v-col>
-        </v-row>
-        <v-row v-show="status_modifying">
-          <h4>Board Members</h4>
-          <>
         </v-row>
         <v-row v-show="status_modifying">
           <v-btn @click="saveClub">Save club</v-btn>
@@ -82,9 +81,6 @@ const CLUB_STATUS = {
 const empty_clubdetails = {
 }
 
-const roles = {
-
-}
 export default {
 
   name: 'Detail',
@@ -93,7 +89,6 @@ export default {
     return {
       status: CLUB_STATUS.CONSULTING,
       clubdetails: {},
-      boardroles: [],
     }
   },
 
@@ -116,10 +111,6 @@ export default {
 
     emitInterface() {
       this.$emit("interface", "get_clubdetails", this.get_clubdetails);
-    },
-
-    async fetch() {
-      this.boardroles = (await this.$content.fetch('boardroles.yaml')).boardroles
     },
 
     async get_clubdetails() {
