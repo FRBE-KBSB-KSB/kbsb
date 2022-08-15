@@ -1,5 +1,5 @@
 import asyncio
-
+import logging
 from csv import writer
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -24,6 +24,8 @@ app = FastAPI(
 register_app(app=app, settingsmodule="kbsb.settings")
 settings = get_settings()
 dbsession = sessionmaker(mysql_engine())()
+
+logger = logging.getLogger("kbsb")
 
 
 class MongodbClubWriter:
@@ -67,6 +69,7 @@ class MongodbClubWriter:
                         mobile=m.mobile,
                         mobile_visibility=Visibility.club,
                     )
+                    logger.debug(f"cm {cm}")
                     boardmembers[old_role_mapping[f]] = cm
         clubroles = [
             ClubRole(
@@ -116,8 +119,8 @@ async def main():
     async with MongodbClubWriter() as writer:
         db = await get_mongodb()
         await db.club.drop()
-        for record in MysqlClubReader():
-            print(record.club)
+        for i, record in enumerate(MysqlClubReader()):
+            logger.info(f"club {record.club}")
             await writer.write(record)
 
 
