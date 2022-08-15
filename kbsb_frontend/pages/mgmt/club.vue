@@ -123,12 +123,10 @@ export default {
       else {
         this.clubs.forEach((c) => {
           if (c.idclub == this.idclub) {
-            console.log('active club found', c)
             this.activeclub = c
           }
         })
       }
-      console.log('club selected', this.idclub, this.activeclub)
       this.$nextTick(() => this.call_childmethods())
     }
 
