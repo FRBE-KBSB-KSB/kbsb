@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to view the enrollment</p>
+    <p v-if="!club.idclub">Please select a club to view the club details</p>
     <div v-if="club.idclub">
       <h3 v-show="status_consulting">Consulting club details</h3>
       <h3 v-show="status_modifying">Modifying club details</h3>
@@ -138,9 +138,6 @@ const VISIBILITY = {
   public: "PUBLIC",
 }
 
-const roles = {
-
-}
 export default {
 
   name: 'Detail',

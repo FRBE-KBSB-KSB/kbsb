@@ -53,7 +53,7 @@ export default {
       activeclub: {},
       childmethods: {
         get_clubdetails: noop,
-        get_clubaccessrights: noop,
+        get_clubrights: noop,
       },
       clubs: [],
       idclub: null,
