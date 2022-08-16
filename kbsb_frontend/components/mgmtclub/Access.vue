@@ -30,21 +30,15 @@
         <v-row v-show="status_consulting">
           <v-btn @click="modifyAccess">Modify access rights</v-btn>
         </v-row>
-        <v-row v-show="status_modifying">
-          <v-col cols="12" sm="6" md="4">
-            <h4>Club Admin</h4>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <h4>Interclub Admin</h4>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <h4>Intgeclub Captain</h4>
-          </v-col>
-        </v-row>
-        <v-row v-show="status_modifying">
+        <div v-show="status_modifying">
+          <h4>Club Admin</h4>
+          <h4>Interclub Admin</h4>
+          <h4>Interclub Captain</h4>
+        </div>
+        <div v-show="status_modifying">
           <v-btn @click="saveAccess">Save access rights</v-btn>
           <v-btn @click="cancelAccess">Cancel</v-btn>
-        </v-row>
+        </div>
       </v-container>
     </div>
 
@@ -76,6 +70,7 @@ export default {
       clubmembers: {},
       clubrights: {},
       clubadmin: [],
+      eclubadmin: [],
       interclubadmin: [],
       status: ACCESS_STATUS.CONSULTING,
       visibility_items: Object.values(VISIBILITY).map(x => this.$t(x)),
