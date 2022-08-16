@@ -50,7 +50,7 @@ async def api_get_clubs(
 ):
     log.debug("api_get_clubs called")
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         return await get_clubs()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -75,7 +75,7 @@ async def api_create_club(
     p: ClubIn, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         return await create_club(p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -103,7 +103,7 @@ async def api_get_c_club(
     id: str, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         return await get_club(id)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -145,7 +145,7 @@ async def api_update_club(
     id: str, p: ClubUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         await update_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -162,7 +162,7 @@ async def api_verify_club_access(
     verifies if a user identified by token has access to a club role
     """
     try:
-        idnumber = await validate_oldtoken(auth)
+        idnumber = validate_oldtoken(auth)
         await verify_club_access(idclub=idclub, idnumber=idnumber, role=role)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
