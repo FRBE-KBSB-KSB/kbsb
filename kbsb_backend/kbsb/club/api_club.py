@@ -163,7 +163,9 @@ async def api_verify_club_access(
     """
     try:
         idnumber = validate_oldtoken(auth)
+        log.debug("before")
         await verify_club_access(idclub=idclub, idnumber=idnumber, role=role)
+        log.debug("after")
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:

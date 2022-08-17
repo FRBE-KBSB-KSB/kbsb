@@ -52,9 +52,9 @@ async def get_clubs(options: dict = {}) -> ClubList:
     """
     get all the Clubs
     """
-    log.info("getting clubs")
     _class = options.pop("_class", ClubListItem)
     docs = await DbClub.find_multiple(options)
+    log.debug(f"docs get_clubs {docs}")
     clubs = [encode_model(d, _class) for d in docs]
     return ClubList(clubs=clubs)
 

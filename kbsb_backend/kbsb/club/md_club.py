@@ -64,7 +64,7 @@ class Club(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
-    boardmembers: Optional[List[ClubMember]]
+    boardmembers: Optional[Dict[str, ClubMember]]
     clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks

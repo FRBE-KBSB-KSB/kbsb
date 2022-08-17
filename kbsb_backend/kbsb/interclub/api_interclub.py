@@ -75,7 +75,7 @@ async def api_set_enrollment(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         # TODO check club autorization
         return await set_interclubenrollment(idclub, ie)
     except RdException as e:
@@ -134,7 +134,7 @@ async def api_set_interclubvenues(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        await validate_oldtoken(auth)
+        validate_oldtoken(auth)
         return await set_interclubvenues(idclub, ivi)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

@@ -132,7 +132,7 @@ export default {
     },
 
     deleteVenue(ix) {
-      this.venue.splice(ix, 1)
+      this.venues.splice(ix, 1)
       this.addEmptyVenue()
     },
 
