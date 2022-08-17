@@ -10,14 +10,14 @@
             <h4>Club Admin</h4>
             All the person listed here, have read+write access to the Club Manager
             <ul>
-              <li v-for="m in clubadmin" :key="m">{{ m }}</li>
+              <li v-for="(m, ix in clubadmin" :key="ix">{{ m }}</li>
             </ul>
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <h4>Interclub Admin</h4>
             All the person listed here, have read+write access to the Interclub Manager
             <ul>
-              <li v-for="m in interclubadmin" :key="m">{{ m }}</li>
+              <li v-for="(m, ix) in interclubadmin" :key="ix">{{ m }}</li>
             </ul>
           </v-col>
           <v-col cols="12" sm="6" md="4">
@@ -31,7 +31,18 @@
           <v-btn @click="modifyAccess">Modify access rights</v-btn>
         </v-row>
         <div v-show="status_modifying">
-          <h4>Club Admin</h4>
+          <v-col cols="12" sm="6" md="4">
+            <h4>Club Admin</h4>
+            This list cannot be empty
+            <V-list>
+              <v-list-item v-for="(m, ix) in clubadmin" :key="m">
+                {{ m }}
+              </v-list-item>
+            </V-list>
+            Adding a member to the list
+            <v-select v-model="newclubadmin" :items="clubmembers" @change="selectNewClubadmin" />
+
+          </v-col>
           <h4>Interclub Admin</h4>
           <h4>Interclub Captain</h4>
         </div>
@@ -66,11 +77,12 @@ export default {
 
   data() {
     return {
+      addclubadmin: null,
       roles: ROLES,
       clubmembers: {},
       clubrights: {},
       clubadmin: [],
-      eclubadmin: [],
+      addclubadmin: 0,
       interclubadmin: [],
       status: ACCESS_STATUS.CONSULTING,
       visibility_items: Object.values(VISIBILITY).map(x => this.$t(x)),
@@ -163,18 +175,18 @@ export default {
         this.clubrights[cr.nature] = cr.memberlist
       })
       console.log('clubrights', this.clubrights)
-      this.clubadmin = this.clubrights["ClubAdmin"].map(
+      this.clubadmin = Object.fromEntries(this.clubrights["ClubAdmin"].map(
         (x) => {
           let cm = this.clubmembers[x] ? this.clubmembers[x] : {}
-          return `${x}: ${cm.first_name} ${cm.last_name}`
+          return [x, `${x}: ${cm.first_name} ${cm.last_name}`]
         }
-      )
-      this.interclubadmin = this.clubrights["InterclubAdmin"].map(
+      ))
+      this.interclubadmin = Object.fromEntries(this.clubrights["InterclubAdmin"].map(
         (x) => {
           let cm = this.clubmembers[x] ? this.clubmembers[x] : {}
-          return `${x}: ${cm.first_name} ${cm.last_name}`
+          return [x, `${x}: ${cm.first_name} ${cm.last_name}`]
         }
-      )
+      ))
 
     },
 
@@ -198,6 +210,10 @@ export default {
       //   }
       // }
     },
+
+    selectNewClubadmin() {
+
+    }
 
   },
 
