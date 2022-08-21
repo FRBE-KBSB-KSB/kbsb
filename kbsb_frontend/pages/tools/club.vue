@@ -86,11 +86,16 @@ export default {
         })
       } catch (error) {
         const reply = error.response
-        if (reply.status === 401) {
-          this.gotoLogin()
-        } else {
-          console.error('Getting clubs failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Getting clubs failed') })
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting clubs failed') })
         }
       }
     },

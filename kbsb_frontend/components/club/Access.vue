@@ -231,8 +231,25 @@ export default {
     },
 
     async modifyAccess() {
-      this.status = ACCESS_STATUS.MODIFYING
-      await this.get_clubmembers()
+      try {
+        const reply = await this.$api.club.verify_club_access({
+          idclub: this.club.idclub,
+          role: "ClubAdmin",
+          token: this.logintoken,
+        })
+        this.status = ACCESS_STATUS.MODIFYING
+        await this.get_clubmembers()
+      } catch (error) {
+        const reply = error.response
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+        }
+      }
     },
 
     readClubrights(details) {

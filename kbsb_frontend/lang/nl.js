@@ -105,6 +105,7 @@ const nl = {
 "Ordering form": "Bestelformulier",
 "Ordering the book 100 years of Belgian chess history": "Bestellen boek 100 jaar Belgische schaakgeschiedenis",
 "Password": "Wachtwoord",
+"Permission denied": "Geen toestemming",
 "Planning": "Planning",
 "Player list": "Spelerslijst",
 "Please select a club to view the enrollment": "Selecteer een club om de inschrijving te bekijken",

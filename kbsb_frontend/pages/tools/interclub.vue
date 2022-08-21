@@ -95,7 +95,7 @@ export default {
 
     async getClubs() {
       try {
-        const reply = await this.$api.club.get_c_clubs({
+        const reply = await this.$api.club.clb_get_clubs({
           token: this.logintoken
         })
         this.clubs = reply.data.clubs

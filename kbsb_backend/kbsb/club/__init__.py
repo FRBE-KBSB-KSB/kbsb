@@ -10,6 +10,7 @@ from .md_club import (
     ClubUpdate,
     ClubList,
     ClubListItem,
+    ClubRoleNature,
     DbClub,
     Visibility,
 )

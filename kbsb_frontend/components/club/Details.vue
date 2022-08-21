@@ -69,7 +69,7 @@
             <h4>{{ $t('Club details') }}</h4>
             <v-text-field v-model="clubdetails.name_long" label="Long name" />
             <v-text-field v-model="clubdetails.name_short" label="Short name" />
-            <v-text-field v-model="clubdetails.federation" label="Federation (V/F/D)" />
+            <p>{{ $t('Federation') }}: {{ clubdetails.federation }}</p>
             <v-textarea v-model="clubdetails.venue" label="Venue" />
             <v-text-field v-model="clubdetails.website" label="Website" />
           </v-col>
@@ -102,7 +102,7 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col cols="12" sm="6" lg="4">
+            <!-- <v-col cols="12" sm="6" lg="4">
               {{ bm.email }}
               <v-select v-model="boardmembers[f].email_visibility" :items="visibility_items"
                 color="deep-purple" @change="updateboard(f)" label="Email visibility" />
@@ -111,7 +111,7 @@
               {{ bm.mobile }}
               <v-select v-model="boardmembers[f].mobile_visibility" :items="visibility_items"
                 color="deep-purple" @change="updateboard(f)" label="Mobile visibility" />
-            </v-col>
+            </v-col> -->
           </v-row>
           <v-row>
             <v-btn @click="saveClub">{{ $t('Save club') }}</v-btn>
@@ -183,7 +183,7 @@ export default {
 
     cancelClub() {
       this.status = CLUB_STATUS.CONSULTING
-      this.getClubDetails(this.club)
+      this.get_clubdetails()
     },
 
     emitInterface() {
@@ -207,13 +207,17 @@ export default {
           (a.last_name > b.last_name ? 1 : -1)))
         this.clubmembers = Object.fromEntries(this.mbr_items.map(x => [x.idnumber, x]))
       } catch (error) {
-        const reply = error.reply
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club members failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Getting club members failed') })
+        const reply = error.response
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting club members failed') })
         }
       }
     },
@@ -230,13 +234,16 @@ export default {
         })
         this.readClubdetails(reply.data)
       } catch (error) {
-        const reply = error.reply
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club details failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Getting club details failed') })
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting club details failed') })
         }
       }
     },
@@ -245,10 +252,26 @@ export default {
       this.$router.push('/mgmt/login?url=__tools__club')
     },
 
-    modifyClub() {
-      this.status = CLUB_STATUS.MODIFYING
-      this.get_clubmembers();
-
+    async modifyClub() {
+      try {
+        const reply = await this.$api.club.verify_club_access({
+          idclub: this.club.idclub,
+          role: "ClubAdmin",
+          token: this.logintoken,
+        })
+        this.status = CLUB_STATUS.MODIFYING
+        this.get_clubmembers();
+      } catch (error) {
+        const reply = error.response
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+        }
+      }
     },
 
     readClubdetails(details) {
@@ -269,12 +292,16 @@ export default {
         this.$root.$emit('snackbar', { text: this.$t('Club saved') })
       } catch (error) {
         const reply = error.response
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Saving enrollment', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Saving enrollment') })
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Saving enrollment') })
         }
       }
     },

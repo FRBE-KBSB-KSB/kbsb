@@ -105,6 +105,7 @@ const fr = {
 "Ordering form": "Formulaire de commande",
 "Ordering the book 100 years of Belgian chess history": "Commander le livre 100 ans d'histoire des échecs en Belgique",
 "Password": "Mot de passe",
+"Permission denied": "Permission refusée",
 "Planning": "Planning",
 "Player list": "Liste de force",
 "Please select a club to view the enrollment": "Veuillez sélectionner un club pour voir l'inscription",

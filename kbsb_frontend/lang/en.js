@@ -105,6 +105,7 @@ const en = {
 "Ordering form": "Ordering form",
 "Ordering the book 100 years of Belgian chess history": "Ordering the book 100 years of Belgian chess history",
 "Password": "Password",
+"Permission denied": "Permission denied",
 "Planning": "Planning",
 "Player list": "Player list",
 "Please select a club to view the enrollment": "Please select a club to view the enrollment",

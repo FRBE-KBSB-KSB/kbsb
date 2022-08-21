@@ -24,6 +24,12 @@ class Federation(str, Enum):
     d = "D"
 
 
+class ClubRoleNature(str, Enum):
+    ClubAdmin = "ClubAdmin"
+    InterclubAdmin = "InterclubAdmin"
+    InterclubCaptain = "InterclubCaptain"
+
+
 class Day(str, Enum):
     monday = "Monday"
     tuesday = "Tuesday"
@@ -52,7 +58,7 @@ class ClubMember(BaseModel):
 
 
 class ClubRole(BaseModel):
-    nature: str
+    nature: ClubRoleNature
     memberlist: List[int]  # list of id numbers that have the role
 
 
