@@ -1,46 +1,56 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to view the club details</p>
+    <p v-if="!club.idclub">{{ $t('Please select a club to view the enrollment') }}</p>
     <div v-if="club.idclub">
-      <h3 v-show="status_consulting">Consulting club details</h3>
-      <h3 v-show="status_modifying">Modifying club details</h3>
+      <h3 v-show="status_consulting">{{ $t('Consulting club details') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modifying club details') }}</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" md="6">
-            <h4>Club details</h4>
-            <div><span class="fieldname">Long name</span>: {{ clubdetails.name_long }}</div>
-            <div><span class="fieldname">Short name</span>: {{ clubdetails.name_short }}</div>
-            <div><span class="fieldname">Federation</span>: {{ clubdetails.federation }}</div>
-            <div><span class="fieldname">Club Venue</span>:<br />
+            <h4>{{ $t('Club details') }}</h4>
+            <div><span class="fieldname">{{ $t('Long name') }}</span>: {{ clubdetails.name_long }}
+            </div>
+            <div><span class="fieldname">{{ $t('Short name') }}</span>: {{ clubdetails.name_short }}
+            </div>
+            <div><span class="fieldname">{{ $t('Federation') }}</span>: {{ clubdetails.federation }}
+            </div>
+            <div><span class="fieldname">{{ $t('Club Venue') }}</span>:<br />
               <span v-html='clubdetails.venue.replace("\n", "<br />")'></span>
             </div>
-            <div><span class="fieldname">Website</span>: {{ clubdetails.website }}</div>
-            <div><span class="fieldname">Bank account name</span>: {{ clubdetails.bankaccount_name
+            <div><span class="fieldname">{{ $t('Website') }}</span>: {{ clubdetails.website }}</div>
+            <div><span class="fieldname">{{ $t('Bank account name') }}</span>: {{
+                clubdetails.bankaccount_name
             }}
             </div>
-            <div><span class="fieldname">Bank account IBAN</span>: {{ clubdetails.bankaccount_iban
+            <div><span class="fieldname">{{ $t('Bank account IBAN') }}</span>: {{
+                clubdetails.bankaccount_iban
             }}
             </div>
-            <div><span class="fieldname">Bank account BIC</span>: {{ clubdetails.bankaccount_bic }}
+            <div><span class="fieldname">{{ $t('Bank account BIC') }}</span>: {{
+                clubdetails.bankaccount_bic
+            }}
             </div>
-            <h4 class="mt-2">Contact</h4>
-            <div><span class="fieldname">Main email address</span>: {{ clubdetails.email_main }}
+            <h4 class="mt-2">{{ $t('Contact') }}</h4>
+            <div><span class="fieldname">{{ $t('Main email address') }}</span>: {{
+                clubdetails.email_main
+            }}
             </div>
-            <div><span class="fieldname">Email address Interclub</span>: {{
+            <div><span class="fieldname">{{ $t('Email address Interclub') }}</span>: {{
                 clubdetails.email_intercLub
             }}</div>
-            <div><span class="fieldname">Email address administration</span>: {{
+            <div><span class="fieldname">{{ $t('Email address administration') }}</span>: {{
                 clubdetails.email_admin
             }}</div>
-            <div><span class="fieldname">Email address finance</span>: {{ clubdetails.email_finance
+            <div><span class="fieldname">{{ $t('Email address finance') }}</span>: {{
+                clubdetails.email_finance
             }}
             </div>
-            <div><span class="fieldname">Postal address</span>:<br />
+            <div><span class="fieldname">{{ $t('Postal address') }}</span>:<br />
               <span v-html='clubdetails.address.replace("\n", "<br />")'></span>
             </div>
           </v-col>
-          <v-col cols="12" md="6">
-            <h4>Board Members</h4>
+          <v-col cols="12" sm="6" lg="4">
+            <h4>{{ $t('Board Members') }}</h4>
             <ul>
               <li v-for="(bm, f) in clubdetails.boardmembers" :key="f">
                 <span class="fieldname">{{ boardroles[f][$i18n.locale] }}</span>:
@@ -52,7 +62,7 @@
           </v-col>
         </v-row>
         <v-row v-show="status_consulting">
-          <v-btn @click="modifyClub">Modify club</v-btn>
+          <v-btn @click="modifyClub">{{ $t('Modify club') }}</v-btn>
         </v-row>
         <v-row v-show="status_modifying">
           <v-col cols="12" md="6">
@@ -103,11 +113,11 @@
                 color="deep-purple" @change="updateboard(f)" label="Mobile visibility" />
             </v-col>
           </v-row>
+          <v-row>
+            <v-btn @click="saveClub">{{ $t('Save club') }}</v-btn>
+            <v-btn @click="cancelClub">{{ $t('Cancel') }}</v-btn>
+          </v-row>
         </div>
-        <v-row v-show="status_modifying">
-          <v-btn @click="saveClub">Save club</v-btn>
-          <v-btn @click="cancelClub">Cancel</v-btn>
-        </v-row>
       </v-container>
     </div>
   </v-container>
@@ -118,6 +128,7 @@ const CLUB_STATUS = {
   CONSULTING: 0,
   MODIFYING: 1,
 }
+
 const EMPTY_CLUBDETAILS = {
   venue: "",
   address: "",
@@ -163,7 +174,7 @@ export default {
   },
 
   computed: {
-    logintoken() { return this.$store.state.newlogin.value },
+    logintoken() { return this.$store.state.oldlogin.value },
     status_consulting() { return this.status == CLUB_STATUS.CONSULTING },
     status_modifying() { return this.status == CLUB_STATUS.MODIFYING },
   },
@@ -172,7 +183,7 @@ export default {
 
     cancelClub() {
       this.status = CLUB_STATUS.CONSULTING
-      this.get_clubdetails(this.club)
+      this.getClubDetails(this.club)
     },
 
     emitInterface() {
@@ -202,7 +213,7 @@ export default {
         }
         else {
           console.error('Getting club members failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club members failed' })
+          this.$root.$emit('snackbar', { text: this.$t('Getting club members failed') })
         }
       }
     },
@@ -213,7 +224,7 @@ export default {
         return
       }
       try {
-        const reply = await this.$api.club.mgmt_get_club({
+        const reply = await this.$api.club.clb_get_club({
           id: this.club.id,
           token: this.logintoken
         })
@@ -225,13 +236,13 @@ export default {
         }
         else {
           console.error('Getting club details failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club details failed' })
+          this.$root.$emit('snackbar', { text: this.$t('Getting club details failed') })
         }
       }
     },
 
     gotoLogin() {
-      this.$router.push('/mgmt/login?url=__mgmt__club')
+      this.$router.push('/mgmt/login?url=__tools__club')
     },
 
     modifyClub() {
@@ -250,12 +261,12 @@ export default {
     async saveClub() {
       console.log('saving', this.clubdetails)
       try {
-        const reply = await this.$api.club.mgmt_update_club({
+        const reply = await this.$api.club.clb_update_club({
           ...this.clubdetails,
           token: this.logintoken,
         })
         this.status = CLUB_STATUS.CONSULTING
-        this.$root.$emit('snackbar', { text: 'Club saved' })
+        this.$root.$emit('snackbar', { text: this.$t('Club saved') })
       } catch (error) {
         const reply = error.response
         if (reply.status === 401) {
@@ -263,7 +274,7 @@ export default {
         }
         else {
           console.error('Saving enrollment', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Saving enrollment' })
+          this.$root.$emit('snackbar', { text: this.$t('Saving enrollment') })
         }
       }
     },
@@ -307,6 +318,6 @@ export default {
 
 <style scoped>
 .fieldname {
-  color: purple;
+  color: green;
 }
 </style>

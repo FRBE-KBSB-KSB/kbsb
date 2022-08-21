@@ -22,14 +22,19 @@
                 </a>
               </div>
               <div class="pa-2">
-                <b>NEW</b> <a class="green--text" href="/tools/interclub">
+                <b>NEW</b> <a class="green--text" href="/tools/club">
+                  Club manager
+                </a>
+              </div>
+              <div class="pa-2">
+                <a class="green--text" href="/tools/interclub">
                   Interclub manager
                 </a>
               </div>
               <div class="pa-2">
                 <a class="green--text"
                   :href="phpbaseurl + 'sites/manager/GestionCOMMON/GestionLogin.php'">
-                  Player - Club manager
+                  Player manager
                 </a>
               </div>
               <div class="pa-2">

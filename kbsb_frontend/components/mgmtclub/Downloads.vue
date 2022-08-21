@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <h3>CSV Downloads</h3>
-    <v-btn @click="downloadEnrollments">Download enrollments</v-btn>
-    <v-btn @click="downloadVenues">Download venues</v-btn>
+    <!-- <v-btn @click="downloadEnrollments">Download enrollments</v-btn>
+    <v-btn @click="downloadVenues">Download venues</v-btn> -->
   </v-container>
 </template>
 <script>

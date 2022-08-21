@@ -127,14 +127,20 @@ export default {
         const resp = error.response
         console.error('getting getPages', resp)
         if (resp.status === 401) {
-          this.$router.push('/mgmt/login')
+          this.gotoLogin()
         } else {
           this.$root.$emit('snackbar', { text: 'Getting pages failed', reason: resp.data.detail })
         }
       }
-    }
+    },
+
+    gotoLogin() {
+      this.$router.push('/mgmt/login?url=__mgmt__pagelist')
+    },
 
   }
+
+
 
 }
 </script>
