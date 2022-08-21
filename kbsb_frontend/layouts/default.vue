@@ -39,10 +39,23 @@ export default {
       snacktext: ""
     };
   },
+
+  mounted() {
+    this.$root.$on('snackbar', (ev) => {
+      console.log('received snackbar event', ev.text)
+      if (ev.text) {
+        this.snacktext = ev.text
+        this.reason = ev.reason
+        this.snackbar = true
+      }
+    })
+  },
+
   methods: {
     updateDrawer(value) {
       this.drawer = value;
     }
   },
+
 }
 </script>

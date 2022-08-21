@@ -21,6 +21,10 @@ Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
 Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
 All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
 Availability,Availability,Beschikbaarheid,Disponibilité,Verfügbarkeit
+Bank account BIC,Bank account BIC,Bankrekening BIC,BIC du compte bancaire,Bankkonto-BIC
+Bank account IBAN,Bank account IBAN,Bankrekening IBAN,IBAN du compte bancaire,Bankkonto-IBAN
+Bank account name,Bank account name,Naam bankrekening,nom du compte bancaire,Bankkontoname
+Bank details,Bank details,Bankgegevens,coordonnées bancaires,Bank details
 BC Adults,BC Adults,BK volwassenen,CB adultes,BLM Erwachsene
 BC Blitz,BC Blitz,BK Blitz,CB Blitz,BLM Blitz
 BC Rapid,BC Rapid,BK Rapid,CB Rapid,BLM Rapid
@@ -33,11 +37,20 @@ Calendar,Calender,Kalender,Calendrier,Kalender
 Cancel,Cancel,Annuleren,Annuler,Absagen
 Capacity (boards),Capacity (boards),Capaciteit (borden),Capacité (échiquiers),Kapazität (Schachbretter)
 Chess equiment,Chess equiment,Schaakmateriaal,Equipement d'échecs,Schachausrüstung
+Club,Club,Club,Cercle,Verein
+CLUB,Club,Club,Cercle,Verein
+Club administrators,Club administrators,Clubbeheerders,Administrateurs du cercle,Vereinsadministratoren
+Club details,Club details,Clubgegevens,Détails du club,Vereinsdaten
+Club saved,Club saved,Club bewaard,Cercle sauvé,Verein gespeichert
+Club venue,Club venue,Clublokaal,Lieu du club,Ort des Clubs
 Collaborator,Collaborator,Medewerker,Collaborateur,Mitarbeiter
 Committees,Committees,Commissies,Commissions,Ausschüsse
 Communication manager,Communication manager,Communicatiemanager,Responsable de la communication,Kommunikationsmanager
 Competitions,Competitions,Competities,Compétitions,Wettbewerbe
 Confirm,Confirm,Bevestigen,Confirmer,Bestätigen
+Consulting access rights,Consulting access rights,Toegangsrechten raadplegen,Consulter les droits d'accès,Zugriffsrechte abfragen
+Consulting club details,Consulting club details,Clubdetails raadplegen,Consulter les details du cercle,Vereinsdetails abfragen
+Contact,Contact,Contact,Contact,Kontakt
 Contact details,Contact details,Contactdetails,Détails de contact,Kontaktdetails
 Cost,Cost,Kost,Coût,Kosten
 Delivery,Delivery,Levering,Livraison,Lieferung
@@ -49,14 +62,22 @@ E-mail,E-mail,E-mail,E-mail,E-mail
 ELO processing,ELO processing,ELO-verwerking,Traitement ELO,ELO Verarbeitung
 ELO tournaments,ELO tournaments,ELO toernooien,Tournois Elo,ELO Turniere
 Email address,Email address,E-mailadress,Adresse e-mail,E-mailadresse
+Email address administration,Email address for administration,E-mailadres voor administratie,Adresse e-mail de l'administration,E-Mail-Adresse für die Verwaltung
+Email address finance,Email address for finance,E-mailadres voor financiën,Adresse e-mail pour les finances,E-Mail-Adresse für Finanzen
+Email address Interclub,Email address for Interclub,E-mailadres voor Interclub,Adresse e-mail pour les Interclubs,E-Mail-Adresse für Interclub
 Email addresses,Email addresses,E-mailadressen,Adresses e-mail,E-mailadressen
 Enrollment,Enrollment,Inschrijving,Inscription,Anmeldung
 Existing enrollment,Existing enrollment,Bestaande inschrijving,Inscription existante,Bestehende Anmeldung
+Federation,Federation,Federatie,Fédération,Föderation
 First name,First name,Voornaam,Prénom,Vorname
 French,French,Frans,Français,Französisch
 G License,G License,G Licentie,Licence G,G Lizenz
 GDPR,GDPR,GDPR,RGPD,GDPR
 German,German,Duits,Allemand,Deutsch
+Getting club details failed,Getting club details failed,Het ophalen van clubgegevens is mislukt,Échec de l'optention des détails du club,Abrufen der Clubdetails fehlgeschlagen
+Getting club members failed,Getting club members failed,Het ophalen van clubleden is mislukt,Échec de l'obtention des membres du club,Abrufen der Mitglieder fehlgeschlagen
+Getting clubs failed,Getting clubs failed,Het ophalen van clubs is mislukt,Échec de l'obtention des clubs,Abrufen der Vereine fehlgeschlagen
+HIDDEN,hidden,verborgen,caché,versteckt
 Home,Home,Home,Accueil,Startseite
 Honorary members,Honorary members,Ereleden,Membres d'honneur,Ehrenmitglieder
 Honorary president,Honorary president,Erevoorzitter,Président d'honneur,Ehrenpräsident
@@ -64,16 +85,22 @@ ID number,ID number,Stamnummer,Matricule,ID-Nummer
 Identity,Identity,Identiteit,Identité,Identität
 In 1 series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 In multiple series,In multiple series,In meerdere reeksen,En plusieurs séries,In mehrere Serien
+Interclub Administrators,Interclub Administrators,Interclubbeheerders,Administrateurs interclubs,Interclub-Administratoren
+Interclub Captains,Interclub Captains,Interclubkapiteinen,Capitaines interclubs,Interclub-Kapitäne
 Interclub enrollment,Interclub enrollment,Inschrijving Interclub,Enregistrement Interclubs,Interclub-Anmeldung
 Interclub venues,Interclub venues,Speellokalen Interclub,Salles de jeux Interclubs,Interclub-Spielorte
 Internal rules,Internal rules,Intern reglement,Règlement interne,interne Regulierung
 International,International,Internationaal,International,International
 International competitions,International competitions,Internationale competities,Compétitions internationales,Internationale Wettbewerbe
 Last name,Last name,Familienaam,Nom,Nachname
+Long name,Long name,Lange naam,Nom long,Langer Name
+Main email address,Main email address,Hoofd e-mailadres,Adresse e-mail principale,Haupt-E-Mail-Adresse
 Manager international selections,Manager international selections,Manager internationale selecties,Responsable sélections internationales,Manager internationale Auswahlen
 Mandated persons,Mandated persons,Gemandateerden,Personnes mandatées,Mandierte Personen
 Members,Members,Leden,Membres,Mitglieder
 Mobile phone,Mobile phone,GSM,GSM,Handy
+Modify access rights,Modify access rights,Toegangsrechten wijzigen,Modifier les droits d'accès,Zugriffsrechte ändern
+Modify club,Modify club,Club wijzigen,Modifier cercle,Verein ändern
 Modify enrollment,Modify enrollment,Inschrijving wijzigen,Modifier l'inscription,Anmeldung ändern
 Modify venues,Modify venues,Lokalen wijzigen,Modifier salles de jeux,Orte ändern
 More,More,Meer,Plus,Mehr
@@ -81,11 +108,13 @@ New enrollment,New enrollment,Nieuwe inschrijving,Nouvelle inscription,Neuanmeld
 No interclub venue is defined yet,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
 No preference,No preference,Geen voorkeur,Pas de préférence,keine Präferenz
 Not available,Not available,Niet beschikbaar,Indisponible,Nicht verfügbar
+Not available yet,Not available yet,Nog niet beschikbaar,Pas encore disponible,Zurzeit nicht verfügbar
 Ombudsman,Ombudsman,Ombudsman,Médiateur,Ombudsmann
 Order created successfully,Order created successfully,Bestelling succesvol aangemaakt,Commande créée avec succès,Bestellung erfolgreich erstellt
 Ordering form,Ordering form,Bestelformulier,Formulaire de commande,Bestellformular
 Ordering the book 100 years of Belgian chess history,Ordering the book 100 years of Belgian chess history,Bestellen boek 100 jaar Belgische schaakgeschiedenis,Commander le livre 100 ans d'histoire des échecs en Belgique,Bestellung des Buches 100 Jahre Belgische Schachgeschichte
 Password,Password,Wachtwoord,Mot de passe,Passwort
+Permission denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
 Planning,Planning,Planning,Planning,Planung
 Player list,Player list,Spelerslijst,Liste de force,Spielerliste
 Please select a club to view the enrollment,Please select a club to view the enrollment,Selecteer een club om de inschrijving te bekijken,Veuillez sélectionner un club pour voir l'inscription,"Bitte wählen Sie einen Club aus, um die Anmeldung anzuzeigen"
@@ -94,6 +123,7 @@ Postal address,Postal address,Postadres,Adresse postale,Postanschrift
 postponed,postponed,uitgesteld,reporté,verschoben
 President,President,Voorzitter,Président,Prásident
 President CIS,President CIS,Voorzitter CIS,Président CIS,Prásident CIS
+PUBLIC,Public,Publiek,Public,öffentlich
 Questions,Questions,Vragen,Questions,Fragen
 Rating manager,Rating manager,Ratingmanager,Responsable du classement ELO,Ratingmanager
 RBCF,RCBF,KBSB,FRBE,KBSB
@@ -111,15 +141,21 @@ Results,Results,Resultaten,Résultats,Ergebnisse
 Results SWAR,Results SWAR,Resulaten SWAR,Résultats SWAR,Ergebnisse SWAR
 Round,Round,Ronde,Ronde,Runde
 Royal Belgian Chess Federation npo,Royal Belgian Chess Federation npo,Koninklijke Belgische Schaakbond vzw.,Fédération Royale Belge des Echecs asbl.,Königlicher Schachbund Belgien VoE
+Save access rights,Save access rights,Toegangsrechten bewaren,Enregistrer les droits d'accès,Zugriffsrechte speichern
+Save club,Save club,Club bewaren,Enregistrer le club,Verein speichern
 Save enrollment,Save enrollment,Inschrijving opslaan,Enregistrer l'inscription,Anmeldung speichern
 Save Venues,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 Secretary,Secretary,Secretaris,Secrétaire,Sekretär
 Secretary general,Secretary general,Secretaris-generaal,Secrétaire général,Generalsekretär
+Select a club to view the access rights,Select a club to view the access rights,Selecteer een club om de toegangsrechten te bekijken,Sélectionnez un club pour voir les droits d'accès,"Wählen Sie einen Club aus, um die Zugriffsrechte anzuzeigen"
+Select a club to view the club details,Select a club to view the club details,Selecteer een club om de clubdetails te bekijken,Sélectionnez un club pour afficher les détails du club,"Wählen Sie einen Club aus, um die Clubdetails anzuzeigen"
 Select the club,Select the club,Kles de club,Sélectionnez le cercle,Wählen Sie den Verein aus
 Select the rounds the venue is not available,Select the rounds the venue is not available,Selecteer de ronden waarop het lokaal niet beschikbaar is,Sélectionnez les rondes où le lieu n'est pas disponible,"Wählen Sie die Runden aus, für die der Ort nicht verfügbar ist"
 Selected club,Selected club,Geselecteerde club,Cercle sélectionné,Ausgewählter Verein
+Short name,Short name,Korte naam,Nom court,Kurzer Name
 Sign in,Sign in,Aanmelden,Identification,Einloggen
 Social media,Social media,Sociale media,Mediasociaux,Sozialen Medien
+Start typing number or name,Start typing number or name,Begin met het typen van nummer of naam,Commencez à taper le numéro ou le nom,Beginnen Sie mit der Eingabe der Nummer oder des Namens
 Start typing to filter (clubnumber or name),Start typing to filter (clubnumber or name),Begin met typen om te filteren (clubnummer of naam),Commencez à taper pour filtrer (numéro de club ou nom),"Beginnen Sie mit der Eingabe, um zu filtern (Clubnummer oder Name)"
 Statutes,Statutes,Statuten,Statuts,Statuten
 Submit,Submit,Indienen,Soumettre,Einreichen
@@ -127,7 +163,10 @@ Teams,Teams,Teams,Equipes,Mannschaften
 Teams grouped by pairing number,Teams grouped by pairing number,Teams gegroepeerd per paringsnummer,Equipes regroupées par numéro d'appariement,Teams gruppiert nach Paarung-Nummer
 Teams in division,Teams in division,Teams in divisie,Equipes en division,Mannschaften in der Division
 Telephone number,Telephone number,Telefoonnummer,Numéro de téléphone,Telefonnummer
+The club administrators have write access to the Club Manager,The club administrators have write access to the Club Manager,De clubbeheerders hebben schrijftoegang tot de Clubmanager,Les administrateurs du club ont un accès en écriture au Club Manager,Die Clubadministratoren haben Schreibzugriff auf den Clubmanager
 The club is not enrolled yet,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
+The interclub administrators have write access to the Interclub Manager,The interclub administrators have write access to the Interclub Manager,De interclubbeheerders hebben schrijftoegang tot de Interclub Manager,Les administrateurs interclubs ont accès en écriture au Interclub Manager,Die Interclub-Administratoren haben Schreibzugriff auf den Interclub Manager
+The interclub captains have write access to the planning and results of the Interclub.,The interclub captains have write access to the planning and results of the Interclub.,De interclubcaptains hebben schrijftoegang tot de planning en resultaten van de Interclub.,Les capitaines interclubs ont accès en écriture au planning et aux résultats de l'interclub.,Die Interclub-Captains haben schriftlichen Zugriff auf die Planungen und Ergebnisse des Interclubs.
 The venue is not available on following rounds,The venue is not available on following rounds,Het lokaal is niet beschikbaar in de volgende ronden,La salle n'est pas disponible pour les rondes suivantes,Der Ort ist in den folgenden Runden nicht verfügbar
 Tools,Tools,Tools,Outils,Werkzeuge
 Tournament director,Tournament director,Toernooidirecteur,Directeur de tournoi,Turnierleiter
@@ -137,6 +176,7 @@ Useful information,Useful information,Nuttige informatie,Information utile,Nütz
 Venue,Venue,Speelzaal,Salle de jeux,Spielort
 Vice president,Vice president,Vicevoorzitter,Vice-président,Vizepräsident
 Webmaster,Webmaster,Webmaster,Webmaster,Webmaster
+Website,Website,Website,Site web,Webseite
 Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
 Wishes,Wishes,Wensen,Vœux,Wünsche
 Youth,Youth,Jeugd,Jeunesse,Jugend

@@ -175,7 +175,7 @@ export default {
             this.gotoLogin()
             break;
           case 403:
-            this.$root.$emit('snackbar', { text: this.$t("You don't have the access right to perfom this action") })
+            this.$root.$emit('snackbar', { text: this.$t("Permission denied") })
             break;
           default:
             console.error('Getting accessrules club failed', reply.data.detail)

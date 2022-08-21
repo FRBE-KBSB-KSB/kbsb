@@ -1,6 +1,14 @@
 <template>
   <v-container>
     Management FRBE KBSB KSB
+    <ul>
+      <li><a href='/mgmt/pagelist'>News articles</a></li>
+      <li><a href='/mgmt/interclub'>Interclub Manager</a></li>
+      <li><a href='/mgmt/club'>Club Manager</a></li>
+    </ul>
+    <div class="mt-2">
+      <v-btn @click="logout">Logout</v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -9,7 +17,7 @@ export default {
   layout: 'mgmt',
 
   computed: {
-    logintoken() { return this.$store.state.oldlogin.value },
+    logintoken() { return this.$store.state.newlogin.value },
   },
 
   head: {
@@ -48,7 +56,11 @@ export default {
   methods: {
 
     gotoLogin() {
-      this.$router.push('/mgmt/login?url=__mgmt__interclub')
+      this.$router.push('/mgmt/login?url=__mgmt')
+    },
+
+    logout() {
+      this.$store.commit('newlogin/update', null)
     },
 
   },

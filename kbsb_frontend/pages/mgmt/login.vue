@@ -16,28 +16,7 @@
               <g-signin-button :params="googleSignInParams" @success="onSignInSuccess"
                 @error="onSignInError" />
             </v-col>
-            <!-- <v-divider />
-            <v-col cols="12">
-              <v-text-field
-                v-model="login.username"
-                xs="12"
-                lg="4"
-                label="Username"
-              />
-              <v-text-field
-                v-model="login.password"
-                xs="12"
-                lg="6"
-                label="Password"
-                type="password"
-              /> -->
           </v-card-text>
-          <!-- <v-card-actions>
-            <v-spacer />
-            <v-btn @click="dologin()">
-              Submit
-            </v-btn>
-          </v-card-actions> -->
         </v-card>
       </v-col>
     </v-row>
@@ -105,7 +84,7 @@ export default {
       }).then(
         (resp) => {
           this.$store.commit('newlogin/update', resp.data)
-          const returnUrl = this.url ? this.url.replaceAll("__", "/") : '/mgmt/pagelist'
+          const returnUrl = this.url ? this.url.replaceAll("__", "/") : '/mgmt'
           this.$router.push(returnUrl)
         },
         (error) => {

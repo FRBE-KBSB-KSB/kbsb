@@ -9,6 +9,7 @@ from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union
 from pydantic import BaseModel
 from enum import Enum
+from reddevil.db.db_base import DbBase
 
 
 class Visibility(str, Enum):
@@ -21,6 +22,12 @@ class Federation(str, Enum):
     v = "V"
     f = "F"
     d = "D"
+
+
+class ClubRoleNature(str, Enum):
+    ClubAdmin = "ClubAdmin"
+    InterclubAdmin = "InterclubAdmin"
+    InterclubCaptain = "InterclubCaptain"
 
 
 class Day(str, Enum):
@@ -51,7 +58,7 @@ class ClubMember(BaseModel):
 
 
 class ClubRole(BaseModel):
-    nature: str
+    nature: ClubRoleNature
     memberlist: List[int]  # list of id numbers that have the role
 
 
@@ -97,6 +104,7 @@ class ClubIn(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
+    boardmembers: Optional[Dict[str, ClubMember]]
     clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks
@@ -121,6 +129,8 @@ class ClubUpdate(BaseModel):
     bankaccount_name: Optional[str]
     bankaccount_iban: Optional[str]
     bankaccount_bic: Optional[str]
+    boardmembers: Optional[Dict[str, ClubMember]]
+    clubroles: Optional[List[ClubRole]]
     email_admin: Optional[str]  # email address for administrative tasks
     email_finance: Optional[str]  # email address for financial tasks
     email_interclub: Optional[str]  # email_fdor interclub tasks
@@ -144,3 +154,10 @@ class ClubListItem(BaseModel):
 
 class ClubList(BaseModel):
     clubs: List[ClubListItem]
+
+
+class DbClub(DbBase):
+    COLLECTION = "club"
+    DOCUMENTTYPE = "Club"
+    VERSION = 1
+    IDGENERATOR = "uuid"

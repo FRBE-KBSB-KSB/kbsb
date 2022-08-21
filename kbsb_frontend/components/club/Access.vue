@@ -1,37 +1,38 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to view the access rights</p>
+    <p v-if="!club.idclub">{{ $t('Select a club to view the access rights') }}</p>
     <div v-if="club.idclub">
-      <h3 v-show="status_consulting">Consulting access right</h3>
-      <h3 v-show="status_modifying">Modify access rights</h3>
+      <h3 v-show="status_consulting">{{ $t('Consulting access rights') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modify access rights') }}</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" sm="6" md="4">
-            <h4>Club Administrators</h4>
-            The club administrators have write access to the Club Manager
+            <h4>{{ $t('Club administrators') }}</h4>
+            {{ $t('The club administrators have write access to the Club Manager') }}
             <ul>
               <li v-for="(m, ix) in clubadmin" :key="ix">{{ m }}</li>
             </ul>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <h4>Interclub Adminstrators</h4>
-            The interclub administrators have write access to the Interclub Manager
+            <h4>{{ $t('Interclub Administrators') }}</h4>
+            {{ $t('The interclub administrators have write access to the Interclub Manager') }}
             <ul>
               <li v-for="(m, ix) in interclubadmin" :key="ix">{{ m }}</li>
             </ul>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <h4>Interclub Captains</h4>
-            The interclub captains have write access to the planning and results
-            of the Interclub.
-            <p>This function will become available pnce the playerlist is activated</p>
+            <h4>{{ $t('Interclub Captains') }}</h4>
+            {{ $t('The interclub captains have write access to the planning and ' +
+                'results of the Interclub.')
+            }}
+            <p>{{ $t('Not available yet') }}</p>
           </v-col>
         </v-row>
         <v-row v-show="status_consulting">
-          <v-btn @click="modifyAccess">Modify access rights</v-btn>
+          <v-btn @click="modifyAccess">{{ $t('Modify access rights') }}</v-btn>
         </v-row>
         <div v-show="status_modifying">
-          <h4>Club Administrators</h4>
+          <h4>{{ $t('Club administrators') }}</h4>
           <ul>
             <li v-for="(m, ix) in clubadmin" :key="m">
               {{ m }} &nbsp; <v-icon @click="deleteClubAdmin(ix)">mdi-delete</v-icon>
@@ -43,7 +44,7 @@
               {{ data.item.text }}
             </template>
           </v-autocomplete>
-          <h4 class="mt-2">Interclub Admin</h4>
+          <h4 class="mt-2">{{ $t('Interclub Administrators') }}</h4>
           <ul>
             <li v-for="(m, ix) in interclubadmin" :key="m">
               {{ m }} &nbsp; <v-icon @click="deleteInterclubAdmin(ix)">mdi-delete</v-icon>
@@ -55,12 +56,12 @@
               {{ data.item.text }}
             </template>
           </v-autocomplete>
-          <h4 class="mt-2">Interclub Captain</h4>
-          Not available yet
+          <h4 class="mt-2">{{ $t('Interclub Captains') }}</h4>
+          {{ $t('Not available yet') }}
         </div>
         <div v-show="status_modifying">
-          <v-btn @click="saveAccess">Save access rights</v-btn>
-          <v-btn @click="cancelAccess">Cancel</v-btn>
+          <v-btn @click="saveAccess">{{ $t('Save access rights') }}</v-btn>
+          <v-btn @click="cancelAccess">{{ $t('Cancel') }}</v-btn>
         </div>
       </v-container>
     </div>
@@ -117,7 +118,7 @@ export default {
         }
       })
     },
-    logintoken() { return this.$store.state.newlogin.value },
+    logintoken() { return this.$store.state.oldlogin.value },
     status_consulting() { return this.status == ACCESS_STATUS.CONSULTING },
     status_modifying() { return this.status == ACCESS_STATUS.MODIFYING },
   },
@@ -172,6 +173,7 @@ export default {
     },
 
     async get_clubmembers() {
+      console.log('get_clubmembers', this.club.id)
       if (!this.club.id) {
         this.clubmembers = {}
         return
@@ -188,13 +190,14 @@ export default {
           (a.last_name > b.last_name ? 1 : -1))
         this.clubmembers = Object.fromEntries(mbrsorted.map(x => [x.idnumber, x]))
       } catch (error) {
+        console.log('error get_clubmembers api', error)
         const reply = error.reply
         if (reply.status == 401) {
           this.gotoLogin()
         }
         else {
           console.error('Getting club members failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club members failed' })
+          this.$root.$emit('snackbar', { text: this.$t('Getting club members failed') })
         }
       }
     },
@@ -206,7 +209,7 @@ export default {
         return
       }
       try {
-        const reply = await this.$api.club.mgmt_get_club({
+        const reply = await this.$api.club.clb_get_club({
           id: this.club.id,
           token: this.logintoken
         })
@@ -218,17 +221,35 @@ export default {
         }
         else {
           console.error('Getting club details failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club details failed' })
+          this.$root.$emit('snackbar', { text: this.$t('Getting club details failed') })
         }
       }
     },
 
     gotoLogin() {
-      this.$router.push('/mgmt/login?url=__mgmt__club')
+      this.$router.push('/mgmt/login?url=__tools__club')
     },
 
-    modifyAccess() {
-      this.status = ACCESS_STATUS.MODIFYING
+    async modifyAccess() {
+      try {
+        const reply = await this.$api.club.verify_club_access({
+          idclub: this.club.idclub,
+          role: "ClubAdmin",
+          token: this.logintoken,
+        })
+        this.status = ACCESS_STATUS.MODIFYING
+        await this.get_clubmembers()
+      } catch (error) {
+        const reply = error.response
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          default:
+            console.error('Getting clubs failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+        }
+      }
     },
 
     readClubrights(details) {
@@ -259,7 +280,7 @@ export default {
 
     async saveAccess() {
       try {
-        const reply = await this.$api.club.mgmt_update_club({
+        const reply = await this.$api.club.clb_update_club({
           id: this.club.id,
           clubroles: [
             {
@@ -287,7 +308,7 @@ export default {
         }
         else {
           console.error('Saving access rights failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Saving access rights failed' })
+          this.$root.$emit('snackbar', { text: this.$t('Saving access rights failed') })
         }
       }
     },

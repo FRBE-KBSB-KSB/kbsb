@@ -5,7 +5,7 @@
       <v-card-text>
         Select the club. (start typing number of name)
         <v-autocomplete v-model="idclub" :items="clubs" item-text="merged" item-value="idclub"
-          color="deep-purple" label="Club " clearable @change="selectclub">
+          color="deep-purple" label="Club" clearable @change="selectclub">
           <template v-slot:item="data">
             {{ data.item.merged }}
           </template>
@@ -39,7 +39,6 @@
 
 <script>
 
-
 const noop = function () { }
 
 export default {
@@ -53,7 +52,7 @@ export default {
       activeclub: {},
       childmethods: {
         get_clubdetails: noop,
-        get_clubaccessrights: noop,
+        get_clubrights: noop,
       },
       clubs: [],
       idclub: null,
@@ -90,10 +89,8 @@ export default {
         this.clubs.forEach(p => {
           p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
         })
-        console.log('clubs from server', this.clubs)
       } catch (error) {
         const reply = error.response
-        console.error('getting mgmt_get_clubs', reply)
         if (reply.status === 401) {
           this.gotoLogin()
         } else {
@@ -105,10 +102,8 @@ export default {
       }
     },
 
-
-
     gotoLogin() {
-      this.$router.push('/mgmt/login?url=__mgmt__interclub')
+      this.$router.push('/mgmt/login?url=__mgmt__club')
     },
 
     registerChildMethod(methodname, method) {
@@ -117,18 +112,15 @@ export default {
 
     selectclub() {
       if (!this.idclub) {
-        console.log('No idclub defined, active club becomes null')
         this.activeclub = {}
       }
       else {
         this.clubs.forEach((c) => {
           if (c.idclub == this.idclub) {
-            console.log('active club found', c)
             this.activeclub = c
           }
         })
       }
-      console.log('club selected', this.idclub, this.activeclub)
       this.$nextTick(() => this.call_childmethods())
     }
 

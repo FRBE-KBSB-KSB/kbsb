@@ -5,10 +5,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from typing import cast, Optional
+from typing import cast, Optional, Union
 
 from reddevil.common import (
     encode_model,
+    RdNotFound,
 )
 
 from . import (
@@ -16,6 +17,7 @@ from . import (
     ClubIn,
     ClubList,
     ClubListItem,
+    ClubRoleNature,
     DbClub,
 )
 
@@ -70,7 +72,7 @@ async def update_club(id: str, c: Club, options: dict = {}) -> Club:
     return cast(Club, encode_model(cdict, validator))
 
 
-async def find_club(idclub: str) -> Optional[Club]:
+async def find_club(idclub: int) -> Optional[Club]:
     """
     find an club by idclub, returns None if not found
     """
@@ -80,19 +82,33 @@ async def find_club(idclub: str) -> Optional[Club]:
     return await get_club(clubs[0].id)
 
 
-async def verify_club_access(idclub: int, idnumber: int, role: str) -> bool:
+async def verify_club_access(
+    id_or_idclub: Union[int, str], idnumber: int, role: ClubRoleNature
+) -> bool:
     """
     checks if the person identified by idnumber belongs to the memberlist
-    of role inside a club, identified by club,
+    of role inside a club, identified by idclub (an int) or id (a str),
     if check fails
     """
-    club = await find_club(idclub)
-    log.debug(f"club in verify {club}")
+    idnumber = int(idnumber)
+    log.debug(f"verify {id_or_idclub} {idnumber} {role}")
+    if isinstance(id_or_idclub, str):
+        try:
+            club = await get_club(id_or_idclub)
+        except RdNotFound:
+            club = None
+    else:
+        club = await find_club(id_or_idclub)
+    log.debug(f"club in verify {club.idclub}")
     if club and club.clubroles:
         for r in club.clubroles:
+            log.debug(f"r: {r.nature} {r.memberlist}")
             if role == r.nature:
-                return
-    raise RdForbidden()
+                if idnumber in r.memberlist:
+                    return True
+                else:
+                    log.debug(f"member not in list {r.nature}")
+    raise RdForbidden
 
 
 def club_locale(club: Club):
