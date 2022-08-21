@@ -3,7 +3,7 @@
     <h1>Club Manager</h1>
     <v-card>
       <v-card-text>
-        {{ $t('Select the club') }} ({{ $t('Start typing number or name)') }})
+        {{ $t('Select the club') }} ({{ $t('Start typing number or name') }})
         <v-autocomplete v-model="idclub" :items="clubs" item-text="merged" item-value="idclub"
           color="green" :label="$t('Club')" clearable @change="selectclub">
           <template v-slot:item="data">
@@ -19,8 +19,6 @@
         <v-tabs-slider color="green"></v-tabs-slider>
         <v-tab>{{ $t('Details') }}</v-tab>
         <v-tab>{{ $t('Access Rights') }}</v-tab>
-        <!-- <v-tab>{{ $t('Members') }}</v-tab>
-        <v-tab>{{ $t('Affiliations') }}</v-tab> -->
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item>
@@ -29,12 +27,6 @@
         <v-tab-item>
           <ClubAccess @interface="registerChildMethod" :club="activeclub" />
         </v-tab-item>
-        <!-- <v-tab-item>
-          <ClubMembers @interface="registerChildMethod" />
-        </v-tab-item>
-        <v-tab-item>
-          <ClubAffiliations @interface="registerChildMethod" />
-        </v-tab-item>-->
       </v-tabs-items>
     </div>
   </v-container>

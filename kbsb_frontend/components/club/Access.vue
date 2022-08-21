@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">{{ $t('Please select a club to view the access rights') }}</p>
+    <p v-if="!club.idclub">{{ $t('Select a club to view the access rights') }}</p>
     <div v-if="club.idclub">
       <h3 v-show="status_consulting">{{ $t('Consulting access rights') }}</h3>
-      <h3 v-show="status_modifying">{{ $t('Modifying access rights') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modify access rights') }}</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" sm="6" md="4">
@@ -14,7 +14,7 @@
             </ul>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <h4>{{ $t('Interclub adminstrators') }}</h4>
+            <h4>{{ $t('Interclub Administrators') }}</h4>
             {{ $t('The interclub administrators have write access to the Interclub Manager') }}
             <ul>
               <li v-for="(m, ix) in interclubadmin" :key="ix">{{ m }}</li>
@@ -25,7 +25,7 @@
             {{ $t('The interclub captains have write access to the planning and ' +
                 'results of the Interclub.')
             }}
-            <p>{{ $t('This function will become available pnce the playerlist is activated') }}</p>
+            <p>{{ $t('Not available yet') }}</p>
           </v-col>
         </v-row>
         <v-row v-show="status_consulting">
@@ -44,7 +44,7 @@
               {{ data.item.text }}
             </template>
           </v-autocomplete>
-          <h4 class="mt-2">{{ $t('Interclub administrators') }}</h4>
+          <h4 class="mt-2">{{ $t('Interclub Administrators') }}</h4>
           <ul>
             <li v-for="(m, ix) in interclubadmin" :key="m">
               {{ m }} &nbsp; <v-icon @click="deleteInterclubAdmin(ix)">mdi-delete</v-icon>
@@ -56,7 +56,7 @@
               {{ data.item.text }}
             </template>
           </v-autocomplete>
-          <h4 class="mt-2">{{ $t('Interclub captains') }}</h4>
+          <h4 class="mt-2">{{ $t('Interclub Captains') }}</h4>
           {{ $t('Not available yet') }}
         </div>
         <div v-show="status_modifying">

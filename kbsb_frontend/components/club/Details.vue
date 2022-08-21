@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">{{ $t('Please select a club to view the enrollment') }}</p>
+    <p v-if="!club.idclub">{{ $t('Select a club to view the club details') }}</p>
     <div v-if="club.idclub">
       <h3 v-show="status_consulting">{{ $t('Consulting club details') }}</h3>
-      <h3 v-show="status_modifying">{{ $t('Modifying club details') }}</h3>
+      <h3 v-show="status_modifying">{{ $t('Modify club') }}</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" md="6">
@@ -14,7 +14,7 @@
             </div>
             <div><span class="fieldname">{{ $t('Federation') }}</span>: {{ clubdetails.federation }}
             </div>
-            <div><span class="fieldname">{{ $t('Club Venue') }}</span>:<br />
+            <div><span class="fieldname">{{ $t('Club venue') }}</span>:<br />
               <span v-html='clubdetails.venue.replace("\n", "<br />")'></span>
             </div>
             <div><span class="fieldname">{{ $t('Website') }}</span>: {{ clubdetails.website }}</div>
@@ -50,7 +50,7 @@
             </div>
           </v-col>
           <v-col cols="12" sm="6" lg="4">
-            <h4>{{ $t('Board Members') }}</h4>
+            <h4>{{ $t('Board members') }}</h4>
             <ul>
               <li v-for="(bm, f) in clubdetails.boardmembers" :key="f">
                 <span class="fieldname">{{ boardroles[f][$i18n.locale] }}</span>:
@@ -66,7 +66,7 @@
         </v-row>
         <v-row v-show="status_modifying">
           <v-col cols="12" md="6">
-            <h4>Club details</h4>
+            <h4>{{ $t('Club details') }}</h4>
             <v-text-field v-model="clubdetails.name_long" label="Long name" />
             <v-text-field v-model="clubdetails.name_short" label="Short name" />
             <v-text-field v-model="clubdetails.federation" label="Federation (V/F/D)" />
@@ -74,7 +74,7 @@
             <v-text-field v-model="clubdetails.website" label="Website" />
           </v-col>
           <v-col cols="12" md="6">
-            <h4>Contact</h4>
+            <h4>{{ $t('Contact') }}</h4>
             <v-text-field v-model="clubdetails.email_main" label="Main E-mail address" />
             <v-text-field v-model="clubdetails.email_intercub" label="E-mail Interclub" />
             <v-text-field v-model="clubdetails.email_admin" label="E-mail administration" />
@@ -83,14 +83,14 @@
           </v-col>
 
           <v-col cols="12" md="6">
-            <h4>Bank details</h4>Pressesprecher
+            <h4>{{ $t('Bank details') }}</h4>
             <v-text-field v-model="clubdetails.bankacount_name" label="Name bank account" />
             <v-text-field v-model="clubdetails.bankaccount_iban" label="IBAN bank account" />
             <v-text-field v-model="clubdetails.bankaccount_bic" label="BIC bank account" />
           </v-col>
         </v-row>
         <div v-show="status_modifying">
-          <h4>Board Members</h4>
+          <h4>{{ $t('Board members') }}</h4>
           <v-row v-for="(bm, f) in boardroles" :key="f">
             <!-- <span class="fieldname">{{ boardroles[f][$i18n.locale] }}</span>: -->
             <v-col cols="12" sm="6" lg="4">

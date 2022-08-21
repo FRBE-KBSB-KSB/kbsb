@@ -3,7 +3,7 @@
     <p v-if="!club.idclub">Please select a club to view the access rights</p>
     <div v-if="club.idclub">
       <h3 v-show="status_consulting">Consulting access right</h3>
-      <h3 v-show="status_modifying">Modifying access rights</h3>
+      <h3 v-show="status_modifying">Modify access rights</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" sm="6" md="4">

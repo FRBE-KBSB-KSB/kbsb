@@ -3,7 +3,7 @@
     <p v-if="!club.idclub">Please select a club to view the club details</p>
     <div v-if="club.idclub">
       <h3 v-show="status_consulting">Consulting club details</h3>
-      <h3 v-show="status_modifying">Modifying club details</h3>
+      <h3 v-show="status_modifying">Modify club details</h3>
       <v-container>
         <v-row v-show="status_consulting">
           <v-col cols="12" md="6">
