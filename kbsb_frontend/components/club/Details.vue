@@ -15,7 +15,7 @@
             <div><span class="fieldname">{{ $t('Federation') }}</span>: {{ clubdetails.federation }}
             </div>
             <div><span class="fieldname">{{ $t('Club venue') }}</span>:<br />
-              <span v-html='clubdetails.venue.replace("\n", "<br />")'></span>
+              <span v-html='clubdetails.venue.replaceAll("\n", "<br />")'></span>
             </div>
             <div><span class="fieldname">{{ $t('Website') }}</span>: {{ clubdetails.website }}</div>
             <div><span class="fieldname">{{ $t('Bank account name') }}</span>: {{
@@ -30,7 +30,14 @@
                 clubdetails.bankaccount_bic
             }}
             </div>
-            <h4 class="mt-2">{{ $t('Contact') }}</h4>
+            <v-layout class="mt-2">
+              <v-flex grow>
+                <h4>{{ $t('Contact') }}</h4>
+              </v-flex>
+              <v-flex>
+                <help-popup file="club_contact" />
+              </v-flex>
+            </v-layout>
             <div><span class="fieldname">{{ $t('Main email address') }}</span>: {{
                 clubdetails.email_main
             }}
@@ -46,7 +53,7 @@
             }}
             </div>
             <div><span class="fieldname">{{ $t('Postal address') }}</span>:<br />
-              <span v-html='clubdetails.address.replace("\n", "<br />")'></span>
+              <span v-html='clubdetails.address.replaceAll("\n", "<br />")'></span>
             </div>
           </v-col>
           <v-col cols="12" sm="6" lg="4">
