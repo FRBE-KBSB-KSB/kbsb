@@ -84,7 +84,7 @@ export default {
 
     async getClubs() {
       try {
-        const reply = await this.$api.club.get_clubs({
+        const reply = await this.$api.club.mgmt_get_clubs({
           logintoken: this.logintoken
         })
         this.clubs = reply.data.clubs
@@ -94,7 +94,7 @@ export default {
         console.log('clubs from server', this.clubs)
       } catch (error) {
         const reply = error.response
-        console.error('getting get_c_clubs', reply)
+        console.error('getting mgmt_get_clubs', reply)
         if (reply.status === 401) {
           this.gotoLogin()
         } else {

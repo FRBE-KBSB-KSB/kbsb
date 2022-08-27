@@ -222,8 +222,8 @@ export default {
             })
             break
           default:
-            console.error('Getting interclub venues failed', reply.data.detail)
-            this.$root.$emit('snackbar', { text: this.$t('Getting interclub venues failed') })
+            console.error('Saving interclub venues failed', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Saving interclub venues failed') })
         }
       }
     },
