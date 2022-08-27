@@ -16,7 +16,7 @@ EMAIL = {
     "serviceaccountfile": "kbsb-gmail.json",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
     "account": "ruben.decrop@frbe-kbsb-ksb.be",
-    "bcc": "ruben.kbsb@gmail.com",
+    "blindcopy": "ruben.kbsb@gmail.com",
 }
 
 EXTRASALT = "Zugzwang"
