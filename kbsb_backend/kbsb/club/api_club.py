@@ -17,6 +17,7 @@ from kbsb.club import (
     get_club,
     get_clubs,
     update_club,
+    set_club,
     find_club,
     verify_club_access,
     Club,
@@ -134,7 +135,7 @@ async def api_update_club(
 ):
     try:
         await validate_token(auth)
-        await update_club(id, p)
+        await set_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
@@ -143,13 +144,13 @@ async def api_update_club(
 
 
 @app.put("/api/v1/c/club/{id}", response_model=Club)
-async def api_update_club(
+async def api_clb_update_club(
     id: str, p: ClubUpdate, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
         idnumber = validate_oldtoken(auth)
         verify_club_access(id, idnumber, ClubRoleNature.ClubAdmin)
-        await update_club(id, p)
+        await set_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:

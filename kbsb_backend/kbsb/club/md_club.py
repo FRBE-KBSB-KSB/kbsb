@@ -6,7 +6,7 @@
 
 import logging
 from datetime import datetime, date
-from typing import Dict, Any, List, Optional, Type, Union
+from typing import Dict, Any, List, Optional, Type, Union, Set
 from pydantic import BaseModel
 from enum import Enum
 from reddevil.db.db_base import DbBase
@@ -154,6 +154,16 @@ class ClubListItem(BaseModel):
 
 class ClubList(BaseModel):
     clubs: List[ClubListItem]
+
+
+class DbClub(DbBase):
+    COLLECTION = "club"
+    DOCUMENTTYPE = "Club"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+from reddevil.db.db_base import DbBase
 
 
 class DbClub(DbBase):

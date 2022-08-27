@@ -24,6 +24,7 @@ from .club import (
     update_club,
     find_club,
     verify_club_access,
+    set_club,
 )
 
 import kbsb.club.api_club

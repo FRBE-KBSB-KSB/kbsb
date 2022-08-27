@@ -11,6 +11,10 @@ from reddevil.common import (
     encode_model,
     RdNotFound,
 )
+from reddevil.service.mail import sendEmail, MailParams
+from reddevil.common import get_settings
+
+CLUB_EMAIL = "admin@frbe-kbsb-ksb.be"
 
 from . import (
     Club,
@@ -68,7 +72,7 @@ async def update_club(id: str, c: Club, options: dict = {}) -> Club:
     log.info(f"id {id} c {c}, dict {c.dict(exclude_unset=True)}")
     validator = options.pop("_class", Club)
     cdict = await DbClub.update(id, c.dict(exclude_unset=True), options)
-    log.info(f"updated cdict {cdict}")
+    log.debug(f"updated cdict {cdict}")
     return cast(Club, encode_model(cdict, validator))
 
 
@@ -122,3 +126,72 @@ def club_locale(club: Club):
     if club.federation.startswith("D"):
         return "de"
     return "nl"
+
+
+async def set_club(id: str, c: Club) -> Club:
+    """
+    set club details ans send confirmation email
+    """
+    from kbsb.oldkbsb import get_member
+
+    settings = get_settings()
+    for cr in c.clubroles:
+        cr.memberlist = list(set(cr.memberlist))
+    clb = await update_club(id, c)
+    receiver = [clb.email_main, CLUB_EMAIL] if clb.email_main else [CLUB_EMAIL]
+    locale = club_locale(clb)
+    if clb.email_interclub:
+        receiver.append(clb.email_administration)
+    log.debug(f"EMAIL settings {settings.EMAIL}")
+    mp = MailParams(
+        locale=locale,
+        receiver=",".join(receiver),
+        sender="noreply@frbe-kbsb-ksb.be",
+        bcc=settings.EMAIL["blindcopy"],
+        subject="Club Details",
+        template="club/clubdetails_{locale}.md",
+    )
+    log.debug(f"receiver {mp.receiver}")
+    ctx = clb.dict()
+    ctx["locale"] = locale
+    ctx["email_main"] = ctx["email_main"] or ""
+    ctx["venue"] = ctx["venue"].replace("\n", "<br>")
+    ctx["address"] = ctx["address"].replace("\n", "<br>")
+    ctx["federation"] = ctx["federation"].value
+    ctx["bm"] = [
+        {
+            "first_name": b.first_name,
+            "last_name": b.last_name,
+            "function": settings.BOARDROLES[f][locale],
+        }
+        for f, b in clb.boardmembers.items()
+    ]
+    for cr in clb.clubroles:
+        if cr.nature == ClubRoleNature.ClubAdmin:
+            members = [get_member(idmember) for idmember in cr.memberlist]
+            ctx["clubadmin"] = [
+                {
+                    "first_name": p.first_name,
+                    "last_name": p.last_name,
+                }
+                for p in members
+            ]
+        if cr.nature == ClubRoleNature.InterclubAdmin:
+            members = [get_member(idmember) for idmember in cr.memberlist]
+            ctx["interclubadmin"] = [
+                {
+                    "first_name": p.first_name,
+                    "last_name": p.last_name,
+                }
+                for p in members
+            ]
+        if cr.nature == ClubRoleNature.InterclubCaptain:
+            members = [get_member(idmember) for idmember in cr.memberlist]
+            ctx["interclubcaptain"] = [
+                {
+                    "first_name": p.first_name,
+                    "last_name": p.last_name,
+                }
+                for p in members
+            ]
+    sendEmail(mp, ctx, "interclub enrollment")

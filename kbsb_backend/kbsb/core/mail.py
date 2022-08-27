@@ -36,8 +36,8 @@ def test_mail():
         msg['Subject'] = 'Testmail 2'
         msg['From'] = sender
         msg['To'] = receiver
-        if settings.EMAIL.get('bcc'):
-            msg['Bcc'] = settings.EMAIL['bcc']
+        if settings.EMAIL.get('blindcopy'):
+            msg['Bcc'] = settings.EMAIL['blindcopy']
         msg.preamble = 'This is a multi-part message in MIME format.'
         msgAlternative = MIMEMultipart('alternative')
         msgText = MIMEText("Hi it is I Leclercq, I am in disguise")
