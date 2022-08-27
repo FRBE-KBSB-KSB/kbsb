@@ -72,6 +72,8 @@ def mysql_engine():
         url = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
         mysql_engine.engine = create_engine(
             url,
+            pool_recycle=300,
+            pool_pre_ping=True,
             connect_args={
                 "ssl_disabled": True,
             },

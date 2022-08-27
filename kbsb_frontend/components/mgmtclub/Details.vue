@@ -92,7 +92,7 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col cols="12" sm="6" lg="4">
+            <!-- <v-col cols="12" sm="6" lg="4">
               {{ bm.email }}
               <v-select v-model="boardmembers[f].email_visibility" :items="visibility_items"
                 color="deep-purple" @change="updateboard(f)" label="Email visibility" />
@@ -101,7 +101,7 @@
               {{ bm.mobile }}
               <v-select v-model="boardmembers[f].mobile_visibility" :items="visibility_items"
                 color="deep-purple" @change="updateboard(f)" label="Mobile visibility" />
-            </v-col>
+            </v-col> -->
           </v-row>
         </div>
         <v-row v-show="status_modifying">

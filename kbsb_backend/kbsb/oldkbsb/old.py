@@ -8,7 +8,7 @@ from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, date
 from sqlalchemy.orm import sessionmaker
-from typing import cast, Any, IO
+from typing import cast, Any, IO, Union
 
 from reddevil.common import (
     RdNotAuthorized,
@@ -88,7 +88,7 @@ def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     return payload.get("sub")
 
 
-def get_member(cls, idbel: str) -> OldMember:
+def get_member(idbel: Union[str, int]) -> OldMember:
     settings = get_settings()
     session = sessionmaker(mysql_engine())()
     try:
@@ -98,7 +98,7 @@ def get_member(cls, idbel: str) -> OldMember:
     member = session.query(OldMember_sql).filter_by(idnumber=idbel).one_or_none()
     if not member:
         raise RdNotFound(description="MemberNotFound")
-    return OldMember(member)
+    return OldMember.from_orm(member)
 
 
 def get_clubmembers(idclub: int, active: bool = True) -> OldMemberList:

@@ -1,12 +1,13 @@
 # copyright Ruben Decrop 2012 - 2022
 
 import os
+import yaml
 import logging
 
 API_BASE_URL = "/api"
 
 BOOKS_CC = "ruben@kosk.be"
-
+BOARDROLES_PATH = os.environ.get("BOARDROLES", "../boardroles.yaml")
 COLORLOG = False
 DEBUG = False
 
@@ -32,7 +33,7 @@ LOG_CONFIG = {
     "version": 1,
     "formatters": {
         "simple": {
-            "format": "%(levelname)s: %(name)s - %(message)s",
+            "formaCOMMONt": "%(levelname)s: %(name)s - %(message)s",
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
@@ -121,3 +122,6 @@ if DEBUG:
     LOG_CONFIG["handlers"]["console"]["level"] = "DEBUG"
     LOG_CONFIG["loggers"]["kbsb"]["level"] = "DEBUG"
     LOG_CONFIG["loggers"]["reddevil"]["level"] = "DEBUG"
+
+with open(BOARDROLES_PATH) as file:
+    BOARDROLES = yaml.load(file, Loader=yaml.FullLoader)["boardroles"]

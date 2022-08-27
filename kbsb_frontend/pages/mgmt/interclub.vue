@@ -94,7 +94,7 @@ export default {
         console.log('clubs from server', this.clubs)
       } catch (error) {
         const reply = error.response
-        console.error('getting get_clubs', reply)
+        console.error('getting mgmt_get_clubs', reply)
         if (reply.status === 401) {
           this.gotoLogin()
         } else {
