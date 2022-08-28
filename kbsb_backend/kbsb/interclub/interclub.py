@@ -1,6 +1,7 @@
 # copyright Ruben Decrop 2012 - 2022
 
 import logging
+import telnetlib
 from typing import cast, Any, Optional, List
 import io, csv
 
@@ -12,7 +13,7 @@ from reddevil.common import (
 from reddevil.service.mail import sendEmail, MailParams
 from reddevil.common import get_settings
 
-from kbsb.interclub.md_interclub import InterclubVenue
+from kbsb.interclub.md_interclub import DbInterclubSeries, InterclubVenue
 from kbsb.club import find_club, club_locale
 from . import (
     DbInterclubEnrollment,
@@ -22,6 +23,8 @@ from . import (
     InterclubEnrollmentIn,
     InterclubEnrollmentList,
     InterclubPrevious,
+    InterclubTeam,
+    InterclubSeries,
     InterclubVenues,
     InterclubVenuesIn,
     InterclubVenuesList,
@@ -310,3 +313,43 @@ async def csv_interclubvenues() -> str:
                 }
             )
     return csvstr.getvalue()
+
+
+async def add_team_to_series(team: InterclubTeam) -> None:
+    """
+    add a team to the Interclub series
+    overwrite the existing team if its position is already taken
+    """
+    s = await DbInterclubSeries.find_multiple(
+        {
+            "division": team.division,
+            "index": team.index,
+        }
+    )
+    if s:
+        id = s[0]["id"]
+    else:
+        id = await DbInterclubSeries.add(
+            {
+                "division": team.division,
+                "index": team.index,
+                "teams": [
+                    {
+                        "division": team.division,
+                        "effective": [],
+                        "idclub": 0,
+                        "index": team.index,
+                        "name": "",
+                        "pairingnumber": i + 1,
+                    }
+                    for i in range(12)
+                ],
+            }
+        )
+    series = await DbInterclubSeries.find_single({"id": id})
+    for t in series["teams"]:
+        if t["pairingnumber"] == team.pairingnumber:
+            t["idclub"] = team.idclub
+            t["effective"] = [pl.dict() for pl in team.effective]
+            t["name"] = team.name
+    await DbInterclubSeries.update(id, {"teams": series["teams"]})

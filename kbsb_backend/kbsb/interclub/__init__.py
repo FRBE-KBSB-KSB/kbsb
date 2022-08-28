@@ -8,19 +8,17 @@ from .md_interclub import (
     InterclubEnrollmentIn,
     InterclubPlayer,
     InterclubPrevious,
-    InterclubSerie,
+    InterclubSeries,
     InterclubTeam,
     InterclubEnrollmentList,
     InterclubVenue,
     InterclubVenuesIn,
     InterclubVenues,
     InterclubVenuesList,
-)
-
-from .db_interclub import (
     DbInterclubEnrollment,
     DbInterclubVenues,
     DbInterclubPrevious,
+    DbInterclubSeries,
 )
 
 from .interclub import (
@@ -30,6 +28,7 @@ from .interclub import (
     find_interclubvenues_club,
     set_interclubenrollment,
     set_interclubvenues,
+    add_team_to_series,
 )
 
 import kbsb.interclub.api_interclub

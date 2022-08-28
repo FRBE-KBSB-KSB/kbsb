@@ -7,6 +7,7 @@
 
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
+from reddevil.db.db_base import DbBase
 
 
 class InterclubPlayer(BaseModel):
@@ -23,19 +24,21 @@ class InterclubPlayer(BaseModel):
 
 
 class InterclubTeam(BaseModel):
-    idclub: int
     division: int
-    serie: str
     effective: List[InterclubPlayer]
+    idclub: int
+    index: str
+    name: str
+    pairingnumber: int
 
 
-class InterclubSerie(BaseModel):
+class InterclubSeries(BaseModel):
     """
-    representation of
+    representation of a single series
     """
 
     division: int
-    serie: str
+    index: str
     teams: List[InterclubTeam]
 
 
@@ -104,3 +107,31 @@ class InterclubVenues(BaseModel):
 
 class InterclubVenuesList(BaseModel):
     clubvenues: List[Any]
+
+
+class DbInterclubPrevious(DbBase):
+    COLLECTION = "interclubprevious"
+    DOCUMENTTYPE = "InterclubPrevious"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbInterclubEnrollment(DbBase):
+    COLLECTION = "interclubenrollment"
+    DOCUMENTTYPE = "InterclubEnrollment"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbInterclubVenues(DbBase):
+    COLLECTION = "interclubvenues"
+    DOCUMENTTYPE = "InterclubVenues"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbInterclubSeries(DbBase):
+    COLLECTION = "interclubseries"
+    DOCUMENTTYPE = "InterclubSeries"
+    VERSION = 1
+    IDGENERATOR = "uuid"
