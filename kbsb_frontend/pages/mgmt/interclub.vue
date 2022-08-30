@@ -21,6 +21,7 @@
         <v-tabs-slider color="deep-purple"></v-tabs-slider>
         <v-tab>Enrollment</v-tab>
         <v-tab>Venue</v-tab>
+        <v-tab>Player list</v-tab>
         <v-tab>Downloads</v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
@@ -29,6 +30,9 @@
         </v-tab-item>
         <v-tab-item>
           <MgmtinterclubVenue @interface="registerChildMethod" :club="activeclub" />
+        </v-tab-item>
+        <v-tab-item>
+          <MgmtinterclubPlayerlist :club="activeclub" />
         </v-tab-item>
         <v-tab-item>
           <MgmtinterclubDownloads />
@@ -64,6 +68,10 @@ export default {
 
   computed: {
     logintoken() { return this.$store.state.newlogin.value }
+  },
+
+  head: {
+    title: 'Management Interclubs',
   },
 
   mounted() {
@@ -105,8 +113,6 @@ export default {
         }
       }
     },
-
-
 
     gotoLogin() {
       this.$router.push('/mgmt/login?url=__mgmt__interclub')

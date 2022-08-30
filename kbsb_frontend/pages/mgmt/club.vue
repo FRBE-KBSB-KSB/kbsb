@@ -64,6 +64,10 @@ export default {
     logintoken() { return this.$store.state.newlogin.value }
   },
 
+  head: {
+    title: 'Management Clubs',
+  },
+
   mounted() {
     this.$store.commit('newlogin/startup')
     if (!this.logintoken.length) {

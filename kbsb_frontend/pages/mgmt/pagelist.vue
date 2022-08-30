@@ -103,6 +103,10 @@ export default {
     token() { return this.$store.state.newlogin.value }
   },
 
+  head: {
+    title: 'Management Articles',
+  },
+
   mounted() {
     this.getPages()
   },

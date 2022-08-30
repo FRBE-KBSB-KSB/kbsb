@@ -42,6 +42,10 @@ export default {
 
   layout: 'mgmt',
 
+  head: {
+    title: 'Management Files',
+  },
+
   data() {
     return {
       headers: [

@@ -11,17 +11,25 @@
 import { marked } from 'marked'
 
 export default {
+
+  name: 'Article',
+
   layout: 'landing',
 
-  data () {
+  head: {
+    title: 'Article',
+  },
+
+  data() {
     return {
       page: {}
     }
   },
 
+
   computed: {
 
-    body () {
+    body() {
       let pt = ''
       if (this.page.body) {
         pt = this.page.body.default.value
@@ -32,7 +40,7 @@ export default {
       return marked(pt)
     },
 
-    intro () {
+    intro() {
       let pt = ''
       if (this.page.intro) {
         pt = this.page.intro.default.value
@@ -43,7 +51,7 @@ export default {
       return marked(pt)
     },
 
-    title () {
+    title() {
       let pt = ''
       const t = this.page.title
       const locale = this.$i18n.locale
@@ -58,13 +66,13 @@ export default {
 
   },
 
-  mounted () {
+  mounted() {
     this.getContent()
   },
 
   methods: {
 
-    async getContent () {
+    async getContent() {
       try {
         const resp = await this.$api.page.anon_slug_page({ slug: this.$route.query.slug })
         console.log('article', resp)
@@ -81,21 +89,27 @@ export default {
 </script>
 
 <style>
-h1:after
-{
-    content:' ';
-    display: block;
-    border:1px solid #aaa;
-    margin-bottom: 1em;
+h1:after {
+  content: ' ';
+  display: block;
+  border: 1px solid #aaa;
+  margin-bottom: 1em;
 }
-.nuxt-content td, .nuxt-content th {
+
+.nuxt-content td,
+.nuxt-content th {
   padding: 8px;
   border: 1px solid #ddd;
 }
+
 .nuxt-content table {
   border-collapse: collapse;
 }
-.nuxt-content ul , .nuxt-content ol, .nuxt-content h2, .nuxt-content h3 {
-    margin-bottom: 0.5em;
+
+.nuxt-content ul,
+.nuxt-content ol,
+.nuxt-content h2,
+.nuxt-content h3 {
+  margin-bottom: 0.5em;
 }
 </style>

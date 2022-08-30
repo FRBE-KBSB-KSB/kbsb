@@ -35,14 +35,44 @@ export default {
   },
 
   head: {
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [
+      {
+        rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'
+      },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css?family=Material+Icons'
+      },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css'
+      },
+    ],
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' }
     ],
-    titleTemplate: '%s - KBSB - FRBE - KSB',
-    title: 'KBSB'
+    titleTemplate: '%s | KBSB-FRBE-KSB',
+    script: [
+      {
+        src: 'https://apis.google.com/js/platform.js',
+        async: true,
+        defer: true
+      },
+      {
+        src: 'https://apis.google.com/js/api:client.js',
+        async: true,
+        defer: true
+      }
+    ],
+
   },
 
   i18n: {
@@ -86,6 +116,10 @@ export default {
       browserBaseURL: process.env.BROWSER_BASE_URL
     },
     VALIDATIION_FORM: process.env.VALIDATIION_FORM || true
+  },
+
+  render: {
+
   },
 
   target: 'static',

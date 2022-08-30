@@ -15,12 +15,18 @@ class InterclubPlayer(BaseModel):
     Player on player list of a club
     """
 
+    assignedrating: int
+    belrating: int
     first_name: str
     last_name: str
     idnumber: int
-    belrating: int
+    idclub: int
     fiderating: int
-    assignedrating: int
+
+
+class InterclubPlayerList(BaseModel):
+    idclub: int
+    playerlist: List[InterclubPlayer]
 
 
 class InterclubTeam(BaseModel):
@@ -133,5 +139,12 @@ class DbInterclubVenues(DbBase):
 class DbInterclubSeries(DbBase):
     COLLECTION = "interclubseries"
     DOCUMENTTYPE = "InterclubSeries"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbInterclubPlayer(DbBase):
+    COLLECTION = "interclubplayer"
+    DOCUMENTTYPE = "InterclubPlayer"
     VERSION = 1
     IDGENERATOR = "uuid"
