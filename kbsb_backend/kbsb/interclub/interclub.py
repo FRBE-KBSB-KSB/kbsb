@@ -13,7 +13,11 @@ from reddevil.common import (
 from reddevil.service.mail import sendEmail, MailParams
 from reddevil.common import get_settings
 
-from kbsb.interclub.md_interclub import DbInterclubSeries, InterclubVenue
+from kbsb.interclub.md_interclub import (
+    DbInterclubSeries,
+    InterclubTransfer,
+    InterclubVenue,
+)
 from kbsb.club import find_club, club_locale
 from . import (
     DbInterclubEnrollment,
@@ -353,3 +357,16 @@ async def add_team_to_series(team: InterclubTeam) -> None:
             t["effective"] = [pl.dict() for pl in team.effective]
             t["name"] = team.name
     await DbInterclubSeries.update(id, {"teams": series["teams"]})
+
+
+async def find_interclub_transfer(idnumber: int) -> Optional[InterclubTransfer]:
+    """
+    finds an intercub transfer based on idnumber
+    returns None if not found
+    """
+
+
+async def request_interclub_transfer(idnumber: int):
+    eit = await find_interclub_transfer({"idnumber": idnumber})
+    if eit:
+        raise RdBadRequest(detail="")

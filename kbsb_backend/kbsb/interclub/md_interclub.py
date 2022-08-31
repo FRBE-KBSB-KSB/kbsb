@@ -5,6 +5,7 @@
 # all models in the service level exposed to the API
 # we are using pydantic as tool
 
+from datetime import datetime
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 from reddevil.db.db_base import DbBase
@@ -27,6 +28,14 @@ class InterclubPlayer(BaseModel):
 class InterclubPlayerList(BaseModel):
     idclub: int
     playerlist: List[InterclubPlayer]
+
+
+class InterclubTransfer(BaseModel):
+    confirmed_date: Optional[datetime]
+    confirmed_id: Optional[int]
+    idmember: int
+    idclub: int
+    idvisitingclub: int
 
 
 class InterclubTeam(BaseModel):
@@ -146,5 +155,12 @@ class DbInterclubSeries(DbBase):
 class DbInterclubPlayer(DbBase):
     COLLECTION = "interclubplayer"
     DOCUMENTTYPE = "InterclubPlayer"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbInterclubTransfer(DbBase):
+    COLLECTION = "interclubtransfer"
+    DOCUMENTTYPE = "InterclubTransfer"
     VERSION = 1
     IDGENERATOR = "uuid"
