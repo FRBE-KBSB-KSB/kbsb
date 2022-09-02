@@ -8,7 +8,7 @@
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
-from reddevil.db.db_base import DbBase
+from reddevil.core import DbBase
 
 
 class InterclubPlayer(BaseModel):

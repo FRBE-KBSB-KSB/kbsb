@@ -4,7 +4,7 @@ from csv import writer
 from fastapi import FastAPI
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
-from reddevil.common import register_app, get_settings
+from reddevil.core import register_app, get_settings
 from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
 from kbsb.club import (
     ClubMember,

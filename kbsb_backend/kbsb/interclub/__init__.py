@@ -18,8 +18,10 @@ from .md_interclub import (
     InterclubVenuesList,
     DbInterclubEnrollment,
     DbInterclubPlayer,
+    DbInterclubPrevious,
     DbInterclubSeries,
     DbInterclubTransfer,
+    DbInterclubVenues,
 )
 
 from .interclub import (

@@ -1,4 +1,4 @@
-from reddevil.common import RdException
+from reddevil.core import RdException
 
 
 class RdForbidden(RdException):

@@ -7,12 +7,8 @@ log = logging.getLogger(__name__)
 
 from typing import cast, Optional, Union
 
-from reddevil.common import (
-    encode_model,
-    RdNotFound,
-)
-from reddevil.service.mail import sendEmail, MailParams
-from reddevil.common import get_settings
+from reddevil.core import encode_model, RdNotFound, get_settings
+from reddevil.mail import sendEmail, MailParams
 
 CLUB_EMAIL = "admin@frbe-kbsb-ksb.be"
 

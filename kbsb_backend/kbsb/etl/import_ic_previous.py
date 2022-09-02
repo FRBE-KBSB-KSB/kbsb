@@ -1,17 +1,17 @@
 import asyncio
 from csv import DictReader
 
-from reddevil.common import register_app, get_settings
+from reddevil.core import register_app, get_settings
 from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
 
-register_app(settingsmodule='kbsb.settings')
+register_app(settingsmodule="kbsb.settings")
 settings = get_settings()
 
 settings.SECRETS["mysql"] = {
     "name": "kbsb-mysql-infomaniak",
-    "manager": "filejson",    
+    "manager": "filejson",
 }
-settings.SECRETS["mongodb"] ={
+settings.SECRETS["mongodb"] = {
     "name": "kbsb-mongodb-staging",
     "manager": "filejson",
 }
@@ -23,7 +23,6 @@ from kbsb.interclub.interclub import create_interclubprevious
 
 
 class MongodbInterclubPreviousWriter:
-
     async def __aenter__(self):
         await connect_mongodb()
         return self
@@ -33,28 +32,27 @@ class MongodbInterclubPreviousWriter:
 
     async def write(self, r: dict):
         ip = InterclubPrevious(
-            idclub = int(r["club"]),
-            teams1 = int(r["teams1"]),
-            teams2 = int(r["teams2"]),
-            teams3 = int(r["teams3"]),
-            teams4 = int(r["teams4"]),
-            teams5 = int(r["teams5"]),
-            name_long = "",
-            name_short = "",
+            idclub=int(r["club"]),
+            teams1=int(r["teams1"]),
+            teams2=int(r["teams2"]),
+            teams3=int(r["teams3"]),
+            teams4=int(r["teams4"]),
+            teams5=int(r["teams5"]),
+            name_long="",
+            name_short="",
         )
         await create_interclubprevious(ip)
 
 
 class InterclubPreviousCsvReader:
-
-        
     def __enter__(self):
-        self.fd = open('../share/data/interclubprevious.csv', 'r')
+        self.fd = open("../share/data/interclubprevious.csv", "r")
         self.reader = DictReader(self.fd)
         return self.reader
 
     def __exit__(self, *args):
         self.fd.close()
+
 
 async def main():
     async with MongodbInterclubPreviousWriter() as writer:
@@ -65,6 +63,6 @@ async def main():
                 print(record)
                 await writer.write(record)
 
-        
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(main())

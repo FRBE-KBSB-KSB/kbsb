@@ -3,7 +3,7 @@
 
 import logging
 from fastapi import HTTPException, BackgroundTasks
-from reddevil.common import RdException
+from reddevil.core import RdException
 from kbsb.main import app
 from kbsb.core.site import fetchI18n
 

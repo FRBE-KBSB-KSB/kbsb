@@ -1,7 +1,7 @@
 import asyncio
 import pandas as pd
 from fastapi import FastAPI
-from reddevil.common import register_app, get_settings
+from reddevil.core import register_app, get_settings
 from reddevil.db import connect_mongodb, close_mongodb, get_mongodb
 
 from kbsb.interclub import (

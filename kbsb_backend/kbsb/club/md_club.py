@@ -9,7 +9,7 @@ from datetime import datetime, date
 from typing import Dict, Any, List, Optional, Type, Union, Set
 from pydantic import BaseModel
 from enum import Enum
-from reddevil.db.db_base import DbBase
+from reddevil.core import DbBase
 
 
 class Visibility(str, Enum):
@@ -161,9 +161,6 @@ class DbClub(DbBase):
     DOCUMENTTYPE = "Club"
     VERSION = 1
     IDGENERATOR = "uuid"
-
-
-from reddevil.db.db_base import DbBase
 
 
 class DbClub(DbBase):

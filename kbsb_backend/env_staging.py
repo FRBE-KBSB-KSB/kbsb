@@ -38,7 +38,7 @@ LOG_CONFIG = {
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
-            "()": "reddevil.common.colorlogfactory.c_factory",
+            "()": "reddevil.core.colorlogfactory.c_factory",
         },
     },
     "handlers": {

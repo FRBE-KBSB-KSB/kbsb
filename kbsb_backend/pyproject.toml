@@ -11,7 +11,7 @@ aiofiles = "^0.8.0"
 bcrypt = "^3.2.2"
 colorlog = "^6.6.0"
 dnspython = "^2.2.1"
-fastapi = "^0.76.0"
+fastapi = "^0.81.0"
 google = "^3.0.0"
 google-api-python-client = "^2.47.0"
 google-auth = "^2.6.6"
@@ -28,15 +28,15 @@ python-dateutil = "^2.8.2"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 PyYAML = "^6.0"
 requests = "^2.27.1"
-uvicorn = "^0.17.6"
+uvicorn = "^0.18.3"
 SQLAlchemy = "^1.4.36"
 PyMySQL = "^1.0.2"
 python-slugify = "^6.1.2"
 Jinja2 = "^3.1.2"
-weasyprint = "^55.0"
-reddevil = {path = "libs/reddevil-2.6.1-py3-none-any.whl"}
+weasyprint = "^56.1"
 pandas = "^1.4.3"
 openpyxl = "^3.0.10"
+reddevil = {path = "libs/reddevil-3.0.0-py3-none-any.whl"}
 
 [tool.poetry.dev-dependencies]
 asyncio = "^3.4.3"

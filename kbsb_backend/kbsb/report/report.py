@@ -15,20 +15,14 @@ from base64 import b64encode, b64decode
 from typing import cast, Any, IO
 from fastapi.responses import Response
 
-from reddevil.common import (
+from reddevil.core import (
     RdInternalServerError,
     RdNotFound,
     get_settings,
 )
 
-from . import (
-    FileIn,
-    FileOut,
-    FileUpdate,
-    FileListOut,
-    FileOptional,
-    DbFile
-)
+from . import FileIn, FileOut, FileUpdate, FileListOut, FileOptional, DbFile
+
 
 def encode_file(e: dict, _class=FileOptional) -> FileOptional:
     try:
@@ -137,6 +131,7 @@ async def updateFile(id: str, d: FileUpdate) -> FileOptional:
     if content:
         writeFilecontent(ufd["path"], fileobj)
     return encode_file(ufd)
+
 
 from google.cloud import storage
 from google.cloud.storage import Blob

@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from datetime import datetime, date
-from reddevil.service.secrets import get_secret
+from reddevil.core import get_secret
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 import pymysql, pymysql.cursors

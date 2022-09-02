@@ -5,13 +5,13 @@ import telnetlib
 from typing import cast, Any, Optional, List
 import io, csv
 
-from reddevil.common import (
+from reddevil.core import (
     RdBadRequest,
     RdNotFound,
     encode_model,
+    get_settings,
 )
-from reddevil.service.mail import sendEmail, MailParams
-from reddevil.common import get_settings
+from reddevil.mail import sendEmail, MailParams
 
 from kbsb.interclub.md_interclub import (
     DbInterclubSeries,

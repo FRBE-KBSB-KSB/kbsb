@@ -5,7 +5,7 @@ import logging, logging.config
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from reddevil.common import register_app, get_settings
+from reddevil.core import register_app, get_settings, connect_mongodb, close_mongodb
 from kbsb import version
 
 
@@ -26,20 +26,17 @@ from kbsb.settings import ls
 log.info(ls)
 
 # set up the database async handlers
-from reddevil.db import connect_mongodb, close_mongodb
-
 app.add_event_handler("startup", connect_mongodb)
 app.add_event_handler("shutdown", close_mongodb)
 
 # import different modules
 
-import reddevil.api.api_account
-import reddevil.api.api_page
+import reddevil.account
+import reddevil.page
 import kbsb.club
 import kbsb.report
 import kbsb.oldkbsb
 import kbsb.interclub
-import kbsb.util
 
 
 for route in app.routes:

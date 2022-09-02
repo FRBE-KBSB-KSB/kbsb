@@ -6,7 +6,7 @@
 import logging
 
 from fastapi import HTTPException
-from reddevil.common import RdException
+from reddevil.core import RdException
 from kbsb.main import app
 from typing import Dict
 from kbsb.oldkbsb import (
