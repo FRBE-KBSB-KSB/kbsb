@@ -31,11 +31,12 @@ class MongodbInterclubSeriesWriter:
     async def write(self, team):
         it = InterclubTeam(
             division=team.Afdeling,
-            effective=[],
+            titular=[],
             idclub=team.Clubnr,
             index="" if str(team.Reeks) == "nan" else team.Reeks,
             name=team.Ploegnaam,
             pairingnumber=team.Nr,
+            playersplayed=[],
         )
         print(it)
         await add_team_to_series(it)

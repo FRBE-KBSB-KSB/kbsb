@@ -4,6 +4,8 @@
 # these section contains the code to read/wrtie data from the old db
 
 from .md_interclub import (
+    InterclubClub,
+    InterclubClubList,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubEnrollmentList,
@@ -16,12 +18,12 @@ from .md_interclub import (
     InterclubVenuesIn,
     InterclubVenues,
     InterclubVenuesList,
+    DbInterclubClub,
     DbInterclubEnrollment,
-    DbInterclubPlayer,
     DbInterclubPrevious,
     DbInterclubSeries,
-    DbInterclubTransfer,
     DbInterclubVenues,
+    TransferRequestValidator,
 )
 
 from .interclub import (

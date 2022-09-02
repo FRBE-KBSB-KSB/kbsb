@@ -26,6 +26,11 @@ from kbsb.oldkbsb import (
     OldMember_sql,
     OldUser,
     OldUser_sql,
+    OldNatRating_sql,
+    OldNatRating,
+    OldFideRating_sql,
+    OldFideRating,
+    ActiveMember,
 )
 
 from kbsb.core.db import mysql_engine
@@ -126,3 +131,40 @@ def get_clubmembers(idclub: int, active: bool = True) -> OldMemberList:
     except Exception:
         logger.exception("it failed")
         raise RdInternalServerError
+
+
+def get_activemember(idbel: int) -> ActiveMember:
+    settings = get_settings()
+    session = sessionmaker(mysql_engine())()
+    member = (
+        session.query(OldMember_sql)
+        .filter_by(
+            idnumber=idbel,
+        )
+        .one_or_none()
+    )
+    if not member:
+        raise RdNotFound(description="MemberNotFound")
+    if member.deceased or member.licence_g or member.year_affiliation != 2023:
+        raise RdNotFound(description="MemberNotActive")
+    om = OldMember.from_orm(member)
+    onr = session.query(OldNatRating_sql).filter_by(idnumber=idbel).one_or_none()
+    natrating = 0
+    fiderating = 0
+    if onr:
+        natrating = onr.natrating
+        if onr.idfide and onr.idfide > 0:
+            ofr = (
+                session.query(OldFideRating_sql)
+                .filter_by(idfide=onr.idfide)
+                .one_or_none()
+            )
+            if ofr:
+                fiderating = ofr.fiderating
+    return ActiveMember(
+        idnumber=idbel,
+        first_name=om.first_name,
+        last_name=om.last_name,
+        natrating=natrating,
+        fiderating=fiderating,
+    )

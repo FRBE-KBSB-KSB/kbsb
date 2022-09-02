@@ -7,8 +7,21 @@
 
 from datetime import datetime
 from typing import Dict, Any, List, Optional
+from xml.dom.expatbuilder import DOCUMENT_NODE
 from pydantic import BaseModel
-from reddevil.core import DbBase
+from reddevil.core import DbBase, DocumentType, ListType
+
+# interclubclub
+
+
+class InterclubTeam(BaseModel):
+    division: int
+    titular: List[int]
+    idclub: int
+    index: str
+    name: str  # includes number like "KOSK 1"
+    pairingnumber: int
+    playersplayed: List[int]
 
 
 class InterclubPlayer(BaseModel):
@@ -25,29 +38,52 @@ class InterclubPlayer(BaseModel):
     fiderating: int
 
 
-class InterclubPlayerList(BaseModel):
-    idclub: int
-    playerlist: List[InterclubPlayer]
-
-
 class InterclubTransfer(BaseModel):
+    """
+    players which are playing for another club
+    """
+
     confirmed_date: Optional[datetime]
     confirmed_id: Optional[int]
-    idmember: int
+    idnumber: int
+    idoriginalclub: int
+    idvisitingclub: int
+    request_date: Optional[datetime]
+    request_id: Optional[int]
+
+
+class InterclubClub(DocumentType):
+    name: str
     idclub: int
+    teams: List[InterclubTeam]
+    players: List[InterclubPlayer]
+    transfersout: List[InterclubTransfer]
+
+
+class InterclubClubList(ListType):
+    clubs: List[InterclubClub]
+
+
+class DbInterclubClub(DbBase):
+    COLLECTION = "interclubclub"
+    DOCUMENTTYPE = "InterclubClub"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    DT = InterclubClub
+    LT = InterclubClubList
+    ItemField = "clubs"
+
+
+class TransferRequestValidator(BaseModel):
+    members: List[int]
+    idoriginalclub: int
     idvisitingclub: int
 
 
-class InterclubTeam(BaseModel):
-    division: int
-    effective: List[InterclubPlayer]
-    idclub: int
-    index: str
-    name: str
-    pairingnumber: int
+# series
 
 
-class InterclubSeries(BaseModel):
+class InterclubSeries(DocumentType):
     """
     representation of a single series
     """
@@ -55,6 +91,23 @@ class InterclubSeries(BaseModel):
     division: int
     index: str
     teams: List[InterclubTeam]
+
+
+class InterclubSeriesList(ListType):
+    allseries: List[InterclubSeries]
+
+
+class DbInterclubSeries(DbBase):
+    COLLECTION = "interclubseries"
+    DOCUMENTTYPE = "InterclubSeries"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    DT = InterclubSeries
+    LT = InterclubSeriesList
+    ItemField = "allseries"
+
+
+# enrollment
 
 
 class InterclubEnrollment(BaseModel):
@@ -77,6 +130,16 @@ class InterclubEnrollmentList(BaseModel):
     enrollments: List[Any]
 
 
+class DbInterclubEnrollment(DbBase):
+    COLLECTION = "interclubenrollment"
+    DOCUMENTTYPE = "InterclubEnrollment"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+# enrollment validators
+
+
 class InterclubEnrollmentIn(BaseModel):
     teams1: int
     teams2: int
@@ -86,18 +149,7 @@ class InterclubEnrollmentIn(BaseModel):
     wishes: dict
 
 
-class InterclubPrevious(BaseModel):
-    idclub: int
-    name_long: str
-    name_short: str
-    teams1: int
-    teams2: int
-    teams3: int
-    teams4: int
-    teams5: int
-    promotionFrom: Optional[List[int]] = None
-    degradationFrom: Optional[List[int]] = None
-    stopped: Optional[List[int]] = None
+# venues
 
 
 class InterclubVenue(BaseModel):
@@ -124,20 +176,6 @@ class InterclubVenuesList(BaseModel):
     clubvenues: List[Any]
 
 
-class DbInterclubPrevious(DbBase):
-    COLLECTION = "interclubprevious"
-    DOCUMENTTYPE = "InterclubPrevious"
-    VERSION = 1
-    IDGENERATOR = "uuid"
-
-
-class DbInterclubEnrollment(DbBase):
-    COLLECTION = "interclubenrollment"
-    DOCUMENTTYPE = "InterclubEnrollment"
-    VERSION = 1
-    IDGENERATOR = "uuid"
-
-
 class DbInterclubVenues(DbBase):
     COLLECTION = "interclubvenues"
     DOCUMENTTYPE = "InterclubVenues"
@@ -145,22 +183,23 @@ class DbInterclubVenues(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbInterclubSeries(DbBase):
-    COLLECTION = "interclubseries"
-    DOCUMENTTYPE = "InterclubSeries"
-    VERSION = 1
-    IDGENERATOR = "uuid"
+# previous
+class InterclubPrevious(BaseModel):
+    idclub: int
+    name_long: str
+    name_short: str
+    teams1: int
+    teams2: int
+    teams3: int
+    teams4: int
+    teams5: int
+    promotionFrom: Optional[List[int]] = None
+    degradationFrom: Optional[List[int]] = None
+    stopped: Optional[List[int]] = None
 
 
-class DbInterclubPlayer(DbBase):
-    COLLECTION = "interclubplayer"
-    DOCUMENTTYPE = "InterclubPlayer"
-    VERSION = 1
-    IDGENERATOR = "uuid"
-
-
-class DbInterclubTransfer(DbBase):
-    COLLECTION = "interclubtransfer"
-    DOCUMENTTYPE = "InterclubTransfer"
+class DbInterclubPrevious(DbBase):
+    COLLECTION = "interclubprevious"
+    DOCUMENTTYPE = "InterclubPrevious"
     VERSION = 1
     IDGENERATOR = "uuid"

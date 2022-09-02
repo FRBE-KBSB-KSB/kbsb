@@ -161,10 +161,3 @@ class DbClub(DbBase):
     DOCUMENTTYPE = "Club"
     VERSION = 1
     IDGENERATOR = "uuid"
-
-
-class DbClub(DbBase):
-    COLLECTION = "club"
-    DOCUMENTTYPE = "Club"
-    VERSION = 1
-    IDGENERATOR = "uuid"

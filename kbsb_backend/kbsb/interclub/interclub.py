@@ -3,6 +3,7 @@
 import logging
 import telnetlib
 from typing import cast, Any, Optional, List
+from datetime import datetime
 import io, csv
 
 from reddevil.core import (
@@ -14,11 +15,15 @@ from reddevil.core import (
 from reddevil.mail import sendEmail, MailParams
 
 from kbsb.interclub.md_interclub import (
+    DbInterclubClub,
     DbInterclubSeries,
+    InterclubPlayer,
     InterclubTransfer,
     InterclubVenue,
+    InterclubClub,
+    InterclubClubList,
 )
-from kbsb.club import find_club, club_locale
+from kbsb.club import find_club, club_locale, DbClub
 from . import (
     DbInterclubEnrollment,
     DbInterclubPrevious,
@@ -32,6 +37,7 @@ from . import (
     InterclubVenues,
     InterclubVenuesIn,
     InterclubVenuesList,
+    TransferRequestValidator,
 )
 
 
@@ -338,14 +344,15 @@ async def add_team_to_series(team: InterclubTeam) -> None:
                 "division": team.division,
                 "index": team.index,
                 "teams": [
-                    {
-                        "division": team.division,
-                        "effective": [],
-                        "idclub": 0,
-                        "index": team.index,
-                        "name": "",
-                        "pairingnumber": i + 1,
-                    }
+                    InterclubTeam(
+                        division=team.division,
+                        titular=[],
+                        idclub=0,
+                        index=team.index,
+                        name="",
+                        pairingnumber=i + 1,
+                        playersplayed=[],
+                    ).dict()
                     for i in range(12)
                 ],
             }
@@ -359,14 +366,93 @@ async def add_team_to_series(team: InterclubTeam) -> None:
     await DbInterclubSeries.update(id, {"teams": series["teams"]})
 
 
-async def find_interclub_transfer(idnumber: int) -> Optional[InterclubTransfer]:
+async def find_teamclubs_in_series(idclub: int) -> List[InterclubTeam]:
     """
-    finds an intercub transfer based on idnumber
-    returns None if not found
+    find all teams of a club
     """
+    allseries = (await DbInterclubSeries.p_find_multiple({})).allseries
+    allteams = []
+    for s in allseries:
+        for t in s.teams:
+            if t.idclub == idclub:
+                allteams.append(t)
+    return allteams
 
 
-async def request_interclub_transfer(idnumber: int):
-    eit = await find_interclub_transfer({"idnumber": idnumber})
-    if eit:
-        raise RdBadRequest(detail="")
+async def find_interclubclub(idclub: int) -> Optional[InterclubClub]:
+    """
+    find a club by idclub, returns None if nothing found
+    """
+    clubs = (await DbInterclubClub.p_find_multiple({"idclub": idclub})).clubs
+    return clubs[0] if clubs else None
+
+
+async def setup_interclubclub(idclub: int) -> InterclubClub:
+    """
+    finds an interclubclub, and set it up if it does not exist
+    clubs that don't partipate still get a record, but attribute teams is empty
+    """
+    icc = find_interclubclub(idclub)
+    if icc:
+        return icc
+    teams = await find_teamclubs_in_series(idclub)
+    if teams:
+        name = " ".join(teams[0].name.split()[:-1])
+        icc = InterclubClub(
+            name=name,
+            idclub=idclub,
+            teams=teams,
+            players=[],
+            transferout=[],
+        )
+    else:
+        name = (await find_club(idclub)).name_short
+        icc = InterclubClub(
+            name=name,
+            idclub=idclub,
+            teams=[],
+            players=[],
+            transferout=[],
+        )
+    return await DbInterclubClub.p_add(icc)
+
+
+async def transfer_players(requester: int, tr: TransferRequestValidator) -> None:
+    """
+    perform a transfer of a list of players
+    """
+    ict = InterclubTransfer(
+        idnumber=m,
+        idoriginalclub=tr.idoriginalclub,
+        idvisitingclub=tr.idvisitingclub,
+        request_date=datetime.utcnow(),
+        request_id=requester,
+    )
+    psig
+    origclub = await find_interclubclub(tr.idoriginalclub)
+    if not origclub:
+        raise RdNotFound(description="InterclubOrigClubNotFound")
+    visitclub = await find_interclubclub(tr.idvisitingclub)
+    if not visitclub:
+        raise RdNotFound(description="InterclubVisitClubNotFound")
+    if not visitclub.teams:
+        raise RdBadRequest(description="VisitingClubNotParticipating")
+    for m in tr.members:
+        # check if member is in orig playerlist and remove if necessary
+        for ix, p in enumerate(origclub.players):
+            if p.idnumber == m:
+                origclub.players.pop(ix)
+                break
+        # check if member is in orig transferout and remove if necessary
+        for ix, p in enumerate(origclub.transferout):
+            if p.idnumber == m:
+                origclub.transferout.pop(ix)
+                break
+        # fill in the transfer in origclub.transferout
+        origclub.transfersout.append(ict)
+        # add player to visitclub.playerlist
+        for ix, p in enumerate(visitclub.players):
+            if p.idnumber == m:
+                break
+        else:
+            visitclub.players.append(InterclubPlayer())

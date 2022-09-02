@@ -14,6 +14,8 @@ from kbsb.oldkbsb import (
     OldMemberList,
     old_login,
     get_clubmembers,
+    get_activemember,
+    ActiveMember,
 )
 from .md_old import OldMemberList
 
@@ -39,4 +41,15 @@ def api_get_clubmembers(idclub: int):
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         logger.exception("failed api call get_clubmembers")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.get("/api/v1/old/activemember/{idnumber}", response_model=ActiveMember)
+def api_get_activemember(idnumber: int):
+    try:
+        return get_activemember(idnumber)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        logger.exception("failed api call get_activemember")
         raise HTTPException(status_code=500, detail="Internal Server Error")
