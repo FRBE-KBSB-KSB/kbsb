@@ -30,12 +30,14 @@ class InterclubPlayer(BaseModel):
     """
 
     assignedrating: int
-    belrating: int
+    fiderating: int
     first_name: str
-    last_name: str
     idnumber: int
     idclub: int
-    fiderating: int
+    last_name: str
+    natrating: int
+    transfer_confirmed: Optional[bool] = None
+    transfer: bool = False
 
 
 class InterclubTransfer(BaseModel):
@@ -50,6 +52,14 @@ class InterclubTransfer(BaseModel):
     idvisitingclub: int
     request_date: Optional[datetime]
     request_id: Optional[int]
+
+
+class InterclubClubOptional(BaseModel):
+    name: Optional[str]
+    idclub: Optional[int]
+    teams: Optional[List[InterclubTeam]]
+    players: Optional[List[InterclubPlayer]]
+    transfersout: Optional[List[InterclubTransfer]]
 
 
 class InterclubClub(DocumentType):

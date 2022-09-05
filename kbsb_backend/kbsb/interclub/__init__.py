@@ -5,6 +5,7 @@
 
 from .md_interclub import (
     InterclubClub,
+    InterclubClubOptional,
     InterclubClubList,
     InterclubEnrollment,
     InterclubEnrollmentIn,
@@ -34,6 +35,7 @@ from .interclub import (
     set_interclubenrollment,
     set_interclubvenues,
     add_team_to_series,
+    setup_interclubclub,
 )
 
 import kbsb.interclub.api_interclub

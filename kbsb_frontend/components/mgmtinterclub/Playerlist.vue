@@ -15,7 +15,7 @@
           Define players
         </v-stepper-step>
         <v-stepper-content step="2">
-          <MgmtinterclubPlayerlistplayers />
+          <MgmtinterclubPlayerlistplayers :club="club" />
         </v-stepper-content>
 
         <v-stepper-step :complete="step > 3" step="3" color="deep-purple">
@@ -45,10 +45,12 @@
 </template>
 <script>
 import Vue from 'vue'
+import club from '../../api/club';
+import TheCarouselVue from '../TheCarousel.vue';
 
 export default {
 
-  name: 'Enrollment',
+  name: 'Playerlist',
 
   data() {
     return {
@@ -62,13 +64,64 @@ export default {
   computed: {
     step() {
       return this.$store.state.mgmtplayerlist.step
-    }
+    },
   },
 
   methods: {
 
     emitInterface() {
-      // this.$emit("interface", "find_interclubenrollment", this.find_interclubenrollment);
+      this.$emit("interface", "playerlist_init", this.playerlist_init);
+    },
+
+    playerlist_init() {
+      this.get_activemembers();
+      this.get_interclubclub();
+    },
+
+    async get_activemembers() {
+      console.log('get_activemembers called', this.club.idclub)
+      try {
+        const reply = await this.$api.old.get_clubmembers({
+          idclub: this.club.idclub,
+        })
+        this.$store.commit('mgmtplayerlist/updateActivemembers', reply.data.activemembers)
+      } catch (error) {
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting active members', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting active club members failed') })
+        }
+      }
+    },
+
+    async get_interclubclub() {
+      console.log('get_interclubclub called', this.club.idclub)
+      try {
+        const reply = await this.$api.interclub.get_interclubclub({
+          idclub: this.club.idclub,
+        })
+        this.$store.commit('mgmtplayerlist/updatePlayers', reply.data.players)
+        this.$store.commit('mgmtplayerlist/updateTeams', reply.data.teams)
+        this.$store.commit('mgmtplayerlist/updateTransferout', reply.data.transferout)
+      } catch (error) {
+        switch (reply.status) {
+          case 401:
+            this.gotoLogin()
+            break
+          case 403:
+            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
+            break
+          default:
+            console.error('Getting interclub clubdetails', reply.data.detail)
+            this.$root.$emit('snackbar', { text: this.$t('Getting interclub club details failed') })
+        }
+      }
     },
 
 
@@ -76,6 +129,9 @@ export default {
 
   mounted() {
     this.emitInterface();
+    this.$nextTick(() => {
+      this.playerlist_init()
+    })
   },
 
 }

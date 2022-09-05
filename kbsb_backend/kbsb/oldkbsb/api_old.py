@@ -14,8 +14,9 @@ from kbsb.oldkbsb import (
     OldMemberList,
     old_login,
     get_clubmembers,
-    get_activemember,
+    get_member,
     ActiveMember,
+    ActiveMemberList,
 )
 from .md_old import OldMemberList
 
@@ -33,7 +34,7 @@ def api_old_login(ol: OldLoginValidator) -> str:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.get("/api/v1/old/clubmembers/{idclub}", response_model=OldMemberList)
+@app.get("/api/v1/old/clubmembers/{idclub}", response_model=ActiveMemberList)
 def api_get_clubmembers(idclub: int):
     try:
         return get_clubmembers(idclub)
@@ -47,7 +48,7 @@ def api_get_clubmembers(idclub: int):
 @app.get("/api/v1/old/activemember/{idnumber}", response_model=ActiveMember)
 def api_get_activemember(idnumber: int):
     try:
-        return get_activemember(idnumber)
+        return get_member(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:

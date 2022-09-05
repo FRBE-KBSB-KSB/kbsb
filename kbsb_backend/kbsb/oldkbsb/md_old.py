@@ -175,8 +175,13 @@ class OldFideRating(BaseModel):
 
 
 class ActiveMember(BaseModel):
+    idclub: int
     idnumber: int
     first_name: str
     last_name: str
     natrating: int = 0
     fiderating: int = 0
+
+
+class ActiveMemberList(BaseModel):
+    activemembers: List[ActiveMember]

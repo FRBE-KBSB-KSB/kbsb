@@ -16,10 +16,12 @@ from . import (
     find_interclubvenues_club,
     set_interclubenrollment,
     set_interclubvenues,
+    setup_interclubclub,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubVenuesIn,
     InterclubVenues,
+    InterclubClub,
 )
 
 
@@ -139,4 +141,17 @@ async def api_set_interclubvenues(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call set_interclubvenues")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.get("/api/v1/a/interclub/club/{idclub}", response_model=InterclubClub)
+async def api_get_interclubclub(
+    idclub: int,
+):
+    try:
+        return await setup_interclubclub(idclub)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call get_interclubclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")

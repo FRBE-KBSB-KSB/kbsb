@@ -59,6 +59,7 @@ export default {
       childmethods: {
         find_interclubenrollment: noop,
         find_interclubvenues: noop,
+        playerlist_init: noop,
       },
       clubs: [],
       idclub: null,

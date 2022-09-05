@@ -21,9 +21,11 @@ from kbsb.interclub.md_interclub import (
     InterclubTransfer,
     InterclubVenue,
     InterclubClub,
+    InterclubClubOptional,
     InterclubClubList,
 )
 from kbsb.club import find_club, club_locale, DbClub
+from kbsb.oldkbsb import get_member
 from . import (
     DbInterclubEnrollment,
     DbInterclubPrevious,
@@ -361,16 +363,18 @@ async def add_team_to_series(team: InterclubTeam) -> None:
     for t in series["teams"]:
         if t["pairingnumber"] == team.pairingnumber:
             t["idclub"] = team.idclub
-            t["effective"] = [pl.dict() for pl in team.effective]
+            t["titular"] = [pl.dict() for pl in team.titular]
             t["name"] = team.name
     await DbInterclubSeries.update(id, {"teams": series["teams"]})
 
 
-async def find_teamclubs_in_series(idclub: int) -> List[InterclubTeam]:
+async def find_teamclubsseries(idclub: int) -> List[InterclubTeam]:
     """
-    find all teams of a club
+    find all teams of a club in the series
     """
+    log.debug(f"find_teamclubsseries {idclub}")
     allseries = (await DbInterclubSeries.p_find_multiple({})).allseries
+    log.debug(f"allseries {allseries}")
     allteams = []
     for s in allseries:
         for t in s.teams:
@@ -383,7 +387,9 @@ async def find_interclubclub(idclub: int) -> Optional[InterclubClub]:
     """
     find a club by idclub, returns None if nothing found
     """
+    log.debug(f"find_interclubclub {idclub}")
     clubs = (await DbInterclubClub.p_find_multiple({"idclub": idclub})).clubs
+    log.debug(f"clubs {clubs}")
     return clubs[0] if clubs else None
 
 
@@ -392,10 +398,13 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
     finds an interclubclub, and set it up if it does not exist
     clubs that don't partipate still get a record, but attribute teams is empty
     """
-    icc = find_interclubclub(idclub)
+    log.debug(f"setup_interclubclub {idclub}")
+    icc = await find_interclubclub(idclub)
     if icc:
         return icc
-    teams = await find_teamclubs_in_series(idclub)
+    log.debug(f"no icc for {idclub}")
+    teams = await find_teamclubsseries(idclub)
+    log.debug(f"teams {teams}")
     if teams:
         name = " ".join(teams[0].name.split()[:-1])
         icc = InterclubClub(
@@ -403,7 +412,7 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
             idclub=idclub,
             teams=teams,
             players=[],
-            transferout=[],
+            transfersout=[],
         )
     else:
         name = (await find_club(idclub)).name_short
@@ -412,7 +421,7 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
             idclub=idclub,
             teams=[],
             players=[],
-            transferout=[],
+            transfersout=[],
         )
     return await DbInterclubClub.p_add(icc)
 
@@ -421,14 +430,6 @@ async def transfer_players(requester: int, tr: TransferRequestValidator) -> None
     """
     perform a transfer of a list of players
     """
-    ict = InterclubTransfer(
-        idnumber=m,
-        idoriginalclub=tr.idoriginalclub,
-        idvisitingclub=tr.idvisitingclub,
-        request_date=datetime.utcnow(),
-        request_id=requester,
-    )
-    psig
     origclub = await find_interclubclub(tr.idoriginalclub)
     if not origclub:
         raise RdNotFound(description="InterclubOrigClubNotFound")
@@ -438,21 +439,86 @@ async def transfer_players(requester: int, tr: TransferRequestValidator) -> None
     if not visitclub.teams:
         raise RdBadRequest(description="VisitingClubNotParticipating")
     for m in tr.members:
+        am = get_member(m)
+        if not am:
+            log.info("cannot transfer player {m} because player is inactive")
+            continue
+        ict = InterclubTransfer(
+            idnumber=m,
+            idoriginalclub=tr.idoriginalclub,
+            idvisitingclub=tr.idvisitingclub,
+            request_date=datetime.utcnow(),
+            request_id=requester,
+        )
         # check if member is in orig playerlist and remove if necessary
         for ix, p in enumerate(origclub.players):
             if p.idnumber == m:
                 origclub.players.pop(ix)
                 break
-        # check if member is in orig transferout and remove if necessary
-        for ix, p in enumerate(origclub.transferout):
+        # check if member is in orig transfersout and remove if necessary
+        for ix, p in enumerate(origclub.transfersout):
             if p.idnumber == m:
-                origclub.transferout.pop(ix)
+                origclub.transfersout.pop(ix)
                 break
-        # fill in the transfer in origclub.transferout
+        # fill in the transfer in origclub.transfersout
         origclub.transfersout.append(ict)
         # add player to visitclub.playerlist
         for ix, p in enumerate(visitclub.players):
             if p.idnumber == m:
                 break
         else:
-            visitclub.players.append(InterclubPlayer())
+            visitclub.players.append(
+                InterclubPlayer(
+                    assignedrating=max(am.fiderating, am.natrating),
+                    fiderating=am.fiderating,
+                    first_name=am.first_name,
+                    idnumber=m,
+                    idclub=origclub.idclub,
+                    natrating=am.natrating,
+                    last_name=am.last_name,
+                    transfer=True,
+                )
+            )
+    DbInterclubClub.p_update(
+        origclub.id,
+        InterclubClubOptional(
+            players=origclub.players, transfersout=origclub.transfersout
+        ),
+    )
+    DbInterclubClub.p_update(
+        visitclub.id, InterclubClubOptional(players=visitclub.players)
+    )
+
+
+async def update_clublist(idclub: int, playerlist: List[int]) -> None:
+    """
+    update the clublist with a list of members, belonging to that club
+    """
+    icc = await find_interclubclub(idclub)
+    playerset = {p.idnumber for p in icc.players}
+    for p in playerlist:
+        am = get_member(p)
+        if not am:
+            log.info("cannot add player {m} to clublist: player is inactive")
+            continue
+        if am.idclub != idclub:
+            log.info(
+                "cannot add player {m} to clublist player is not member of {idclub}"
+            )
+            continue
+        if p in playerset:
+            continue
+        playerset.add(p)
+        icc.players.append(
+            InterclubPlayer(
+                assignedrating=max(am.fiderating, am.natrating),
+                fiderating=am.fiderating,
+                first_name=am.first_name,
+                idnumber=p,
+                idclub=icc.idclub,
+                natrating=am.natrating,
+                last_name=am.last_name,
+                transfer=False,
+            )
+        )
+    DbInterclubClub.p_update(icc.id, InterclubClubOptional(players=icc.players))

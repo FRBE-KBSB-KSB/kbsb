@@ -24,6 +24,7 @@ from kbsb.oldkbsb import (
     OldLoginValidator,
     OldMember,
     OldMember_sql,
+    OldMemberList,
     OldUser,
     OldUser_sql,
     OldNatRating_sql,
@@ -31,11 +32,10 @@ from kbsb.oldkbsb import (
     OldFideRating_sql,
     OldFideRating,
     ActiveMember,
+    ActiveMemberList,
 )
 
 from kbsb.core.db import mysql_engine
-from .md_old import OldMemberList, OldUser_sql
-
 
 logger = logging.getLogger(__name__)
 # we simplify the normal jwt libs by setting the SALT fixed
@@ -106,34 +106,50 @@ def get_member(idbel: Union[str, int]) -> OldMember:
     return OldMember.from_orm(member)
 
 
-def get_clubmembers(idclub: int, active: bool = True) -> OldMemberList:
+def get_clubmembers(idclub: int, active: bool = True) -> ActiveMemberList:
     """
     find in the signaletique all members of a club
     """
-    try:
-        settings = get_settings()
-        session = sessionmaker(mysql_engine())()
-        query = session.query(OldMember_sql).filter_by(idclub=idclub)
-        # from septemeber we need to be affilated for the next year
-        today = date.today()
-        yaff = [today.year + 1]
-        if today.month < 9:
-            yaff.append(today.year)
-        if active:
-            query = (
-                query.filter(OldMember_sql.year_affiliation.in_(yaff))
-                .filter_by(deceased=0)
-                .filter_by(locked=0)
+    session = sessionmaker(mysql_engine())()
+    members = session.query(OldMember_sql).filter_by(
+        idclub=idclub,
+    )
+    am = []
+    for m in members:
+        om = OldMember.from_orm(m)
+        if om.deceased or om.licence_g or om.year_affiliation != 2023:
+            continue
+        onr = (
+            session.query(OldNatRating_sql)
+            .filter_by(idnumber=om.idnumber)
+            .one_or_none()
+        )
+        natrating = 0
+        fiderating = 0
+        if onr:
+            natrating = onr.natrating
+            if onr.idfide and onr.idfide > 0:
+                ofr = (
+                    session.query(OldFideRating_sql)
+                    .filter_by(idfide=onr.idfide)
+                    .one_or_none()
+                )
+                if ofr:
+                    fiderating = ofr.fiderating
+        am.append(
+            ActiveMember(
+                idnumber=om.idnumber,
+                idclub=om.idclub,
+                first_name=om.first_name,
+                last_name=om.last_name,
+                natrating=natrating,
+                fiderating=fiderating,
             )
-        members = [OldMember.from_orm(u) for u in query.all()]
-        logger.info(f"found {len(members)} members for club {idclub}")
-        return OldMemberList(members=members)
-    except Exception:
-        logger.exception("it failed")
-        raise RdInternalServerError
+        )
+    return ActiveMemberList(activemembers=am)
 
 
-def get_activemember(idbel: int) -> ActiveMember:
+def get_member(idbel: int) -> ActiveMember:
     settings = get_settings()
     session = sessionmaker(mysql_engine())()
     member = (
@@ -146,7 +162,7 @@ def get_activemember(idbel: int) -> ActiveMember:
     if not member:
         raise RdNotFound(description="MemberNotFound")
     if member.deceased or member.licence_g or member.year_affiliation != 2023:
-        raise RdNotFound(description="MemberNotActive")
+        raise RdBadRequest(description="MemberNotActive")
     om = OldMember.from_orm(member)
     onr = session.query(OldNatRating_sql).filter_by(idnumber=idbel).one_or_none()
     natrating = 0
@@ -163,6 +179,7 @@ def get_activemember(idbel: int) -> ActiveMember:
                 fiderating = ofr.fiderating
     return ActiveMember(
         idnumber=idbel,
+        idclub=om.idclub,
         first_name=om.first_name,
         last_name=om.last_name,
         natrating=natrating,

@@ -60,4 +60,11 @@ export default context => ({
     })
     return resp
   },
+  async get_interclubclub(options) {
+    console.log('api get_interclubclub')
+    const { idclub } = options
+    const resp = await context.$axios.get(`/api/v1/a/interclub/club/${idclub}`)
+    return resp
+  },
+
 })

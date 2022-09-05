@@ -17,6 +17,7 @@ from .md_old import (
     OldFideRating_sql,
     OldFideRating,
     ActiveMember,
+    ActiveMemberList,
 )
 
 from .old import (
@@ -24,7 +25,7 @@ from .old import (
     validate_oldtoken,
     get_member,
     get_clubmembers,
-    get_activemember,
+    get_member,
 )
 
 import kbsb.oldkbsb.api_old
