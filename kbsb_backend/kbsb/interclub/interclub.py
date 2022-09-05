@@ -43,7 +43,7 @@ from . import (
 )
 
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 INTERCLUB_EMAIL = "interclubs@frbe-kbsb-ksb.be"
 
@@ -73,6 +73,7 @@ async def get_interclubenrollments(options: dict = {}) -> InterclubEnrollmentLis
     """
     get the interclub enrollment
     """
+    logger.debug(f"get_interclubenrollments {options}")
     _class = options.pop("_class", InterclubEnrollment)
     docs = await DbInterclubEnrollment.find_multiple(options)
     enrs = [encode_model(d, _class) for d in docs]
@@ -123,7 +124,7 @@ async def get_interclubvenues_clubs(options: dict = {}) -> InterclubVenuesList:
     """
     _class = options.pop("_class", InterclubVenues)
     docs = await DbInterclubVenues.find_multiple(options)
-    log.debug(f"ivsclubs docs: {docs}")
+    logger.debug(f"ivsclubs docs: {docs}")
     clubvenues = [encode_model(d, _class) for d in docs]
     return InterclubVenuesList(clubvenues=clubvenues)
 
@@ -147,6 +148,7 @@ async def find_interclubenrollment(idclub: str) -> Optional[InterclubEnrollment]
     """
     find an enrollment by idclub
     """
+    logger.debug(f"find_interclubenrollment {idclub}")
     enrs = (await get_interclubenrollments({"idclub": idclub})).enrollments
     return enrs[0] if enrs else None
 
@@ -194,7 +196,7 @@ async def set_interclubenrollment(
     receiver = [club.email_main, INTERCLUB_EMAIL]
     if club.email_interclub:
         receiver.append(club.email_interclub)
-    log.debug(f"EMAIL settings {settings.EMAIL}")
+    logger.debug(f"EMAIL settings {settings.EMAIL}")
     mp = MailParams(
         locale=locale,
         receiver=",".join(receiver),
@@ -253,11 +255,11 @@ async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
 
 async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubVenues:
     club = await find_club(idclub)
-    log.info(f"set_interclubvenues: {idclub} {ivi}")
+    logger.info(f"set_interclubvenues: {idclub} {ivi}")
     if not club:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
-    log.info(f"locale {locale}")
+    logger.info(f"locale {locale}")
     settings = get_settings()
     ivn = await find_interclubvenues_club(idclub)
     iv = InterclubVenues(
@@ -267,10 +269,10 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
         venues=ivi.venues,
     )
     if ivn:
-        log.info(f"update interclubvenues {ivn.id} {iv}")
+        logger.info(f"update interclubvenues {ivn.id} {iv}")
         niv = await update_interclubvenues(ivn.id, iv)
     else:
-        log.info(f"insert interclubvenues {iv}")
+        logger.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
     receiver = [club.email_main, INTERCLUB_EMAIL]
@@ -372,9 +374,9 @@ async def find_teamclubsseries(idclub: int) -> List[InterclubTeam]:
     """
     find all teams of a club in the series
     """
-    log.debug(f"find_teamclubsseries {idclub}")
+    logger.debug(f"find_teamclubsseries {idclub}")
     allseries = (await DbInterclubSeries.p_find_multiple({})).allseries
-    log.debug(f"allseries {allseries}")
+    logger.debug(f"allseries {allseries}")
     allteams = []
     for s in allseries:
         for t in s.teams:
@@ -387,9 +389,9 @@ async def find_interclubclub(idclub: int) -> Optional[InterclubClub]:
     """
     find a club by idclub, returns None if nothing found
     """
-    log.debug(f"find_interclubclub {idclub}")
+    logger.debug(f"find_interclubclub {idclub}")
     clubs = (await DbInterclubClub.p_find_multiple({"idclub": idclub})).clubs
-    log.debug(f"clubs {clubs}")
+    logger.debug(f"clubs {clubs}")
     return clubs[0] if clubs else None
 
 
@@ -398,13 +400,13 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
     finds an interclubclub, and set it up if it does not exist
     clubs that don't partipate still get a record, but attribute teams is empty
     """
-    log.debug(f"setup_interclubclub {idclub}")
+    logger.debug(f"setup_interclubclub {idclub}")
     icc = await find_interclubclub(idclub)
     if icc:
         return icc
-    log.debug(f"no icc for {idclub}")
+    logger.debug(f"no icc for {idclub}")
     teams = await find_teamclubsseries(idclub)
-    log.debug(f"teams {teams}")
+    logger.debug(f"teams {teams}")
     if teams:
         name = " ".join(teams[0].name.split()[:-1])
         icc = InterclubClub(
@@ -441,7 +443,7 @@ async def transfer_players(requester: int, tr: TransferRequestValidator) -> None
     for m in tr.members:
         am = get_member(m)
         if not am:
-            log.info("cannot transfer player {m} because player is inactive")
+            logger.info("cannot transfer player {m} because player is inactive")
             continue
         ict = InterclubTransfer(
             idnumber=m,
@@ -499,10 +501,10 @@ async def update_clublist(idclub: int, playerlist: List[int]) -> None:
     for p in playerlist:
         am = get_member(p)
         if not am:
-            log.info("cannot add player {m} to clublist: player is inactive")
+            logger.info("cannot add player {m} to clublist: player is inactive")
             continue
         if am.idclub != idclub:
-            log.info(
+            logger.info(
                 "cannot add player {m} to clublist player is not member of {idclub}"
             )
             continue

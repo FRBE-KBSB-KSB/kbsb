@@ -120,7 +120,7 @@ class DbInterclubSeries(DbBase):
 # enrollment
 
 
-class InterclubEnrollment(BaseModel):
+class InterclubEnrollment(DocumentType):
     id: Optional[str]
     idclub: Optional[int]
     idinvoice: Optional[str]
@@ -136,8 +136,8 @@ class InterclubEnrollment(BaseModel):
     wishes: Optional[Dict]
 
 
-class InterclubEnrollmentList(BaseModel):
-    enrollments: List[Any]
+class InterclubEnrollmentList(ListType):
+    enrollments: List[InterclubEnrollment]
 
 
 class DbInterclubEnrollment(DbBase):
@@ -145,6 +145,9 @@ class DbInterclubEnrollment(DbBase):
     DOCUMENTTYPE = "InterclubEnrollment"
     VERSION = 1
     IDGENERATOR = "uuid"
+    DT = InterclubEnrollment
+    LT = InterclubEnrollmentList
+    ItemField = "enrollments"
 
 
 # enrollment validators

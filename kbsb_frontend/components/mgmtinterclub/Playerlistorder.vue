@@ -3,11 +3,9 @@
     <h3>Order of players</h3>
     <div>Order the players by adjusting the assigned rating</div>
     <div>Players with the same assigned rating are not allowed.</div>
-    <v-data-table sort-by.sync="assignedrating" :sort-desc="true" :items="players"
-      :headers="arheaders" :must-sort="true">
+    <v-data-table :items="players" :headers="arheaders">
       <template v-slot:item.assignedrating="props">
-        <v-edit-dialog :return-value.sync="props.item.assignedrating" @save="save" @cancel="cancel"
-          @open="open" @close="close">
+        <v-edit-dialog :return-value.sync="props.item.assignedrating" @save="save(props.item)">
           {{ props.item.assignedrating }}
           <template v-slot:input>
             <v-text-field v-model="props.item.assignedrating" label="Edit" single-line>
@@ -16,8 +14,11 @@
         </v-edit-dialog>
       </template>
     </v-data-table>
+    <v-alert type="warning" v-show="samerating">
+      There are players with the same assigned rating
+    </v-alert>
     <div class="mt-2">
-      <v-btn color="deep-purple" class="white--text" @click="next">
+      <v-btn color="deep-purple" class="white--text" @click="next" :disabled="samerating">
         Continue
       </v-btn>
       <v-btn @click="prev">
@@ -29,6 +30,10 @@
 
 <script>
 
+function compareAssignedrating(a, b) {
+  return b.assignedrating - a.assignedrating
+}
+
 export default {
 
   data() {
@@ -39,12 +44,10 @@ export default {
         { text: "ID number", value: "idnumber", sortable: false },
         { text: "Nat. Elo", value: "natrating", sortable: false },
         { text: "Fide Elo", value: "fiderating", sortable: false },
-        { text: "Assigned Rating", value: "fiderating", sortable: true },
-        // { text: 'Actions', value: 'actions', sortable: false },
+        { text: "Min", value: "minrating", sortable: false },
+        { text: "Max", value: "maxrating", sortable: false },
+        { text: "Assigned Rating", value: "assignedrating", sortable: false },
       ],
-      snack: false,
-      snackColor: '',
-      snackText: '',
     }
   },
 
@@ -54,20 +57,47 @@ export default {
     },
     step() {
       return this.$store.state.mgmtplayerlist.step
+    },
+    samerating() {
+      let prev = 3000
+      return this.players.some((x) => {
+        if (x.assignedrating == prev) return true
+        prev = x.assignedrating
+      })
     }
   },
 
   methods: {
     initAdjustedRating() {
+      console.log('initAdjustRating')
       const players = [...this.players]
-      players.forEach(x => {
-        if (x.assignedrating == 0) {
-          x.assignedrating = Math.max(x.natrating, x.fiderating)
-        }
-        if (x.assignedrating == 0) {
-          x.assignededrating = 1000;
+      players.forEach((x) => {
+        if (x.assignedrating == null) {
+          let nr = x.natrating || 0
+          let fr = x.fiderating || 0
+          if (nr > 0 && fr > 0) {
+            x.assignedrating = Math.max(nr, fr)
+            x.maxrating = Math.max(nr, fr) + 100
+            x.minrating = Math.min(nr, fr) - 100
+          }
+          if (nr > 0 && fr == 0) {
+            x.assignedrating = nr
+            x.maxrating = nr + 100
+            x.minrating = nr - 100
+          }
+          if (nr == 0 && fr > 0) {
+            x.assignedrating = fr
+            x.maxrating = fr + 100
+            x.minrating = fr - 100
+          }
+          if (nr == 0 && fr == 0) {
+            x.assignedrating = 1150
+            x.maxrating = 1250
+            x.minrating = 1050
+          }
         }
       })
+      players.sort(compareAssignedrating)
       this.$store.commit('mgmtplayerlist/updatePlayers', players)
     },
 
@@ -77,22 +107,28 @@ export default {
     prev() {
       this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
     },
-    save() {
+    save(pl) {
       console.log('saving assigned rating')
+      if (pl.minrating <= pl.assignedrating && pl.assignedrating <= pl.maxrating) {
+        const players = [...this.players]
+        players.sort(compareAssignedrating)
+        this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      }
+      else {
+        this.$root.$emit('snackbar', { text: this.$t('Invalid value for assigned rating') })
+      }
     },
-    cancel() {
-      console.log('canceling assigned rating')
-    },
-    open() {
-      console.log('opening assigned rating')
-    },
-    close() {
-      console.log('closing assigned rating')
-    },
+
   },
-  mounted() {
-    this.initAdjustedRating();
+
+  watch: {
+    step: function (nv, ov) {
+      if (nv == 4) {
+        this.initAdjustedRating()
+      }
+    }
   }
+
 }
 </script>
 

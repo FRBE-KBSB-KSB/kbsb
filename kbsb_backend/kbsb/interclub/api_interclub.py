@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
 
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPAuthorizationCredentials
-from typing import List
+from typing import List, Optional
 from reddevil.core import RdException, bearer_schema, validate_token
 
 from kbsb.main import app
@@ -25,11 +25,15 @@ from . import (
 )
 
 
-@app.get("/api/v1/a/interclub/enrollment/{idclub}", response_model=InterclubEnrollment)
+@app.get(
+    "/api/v1/a/interclub/enrollment/{idclub}",
+    response_model=Optional[InterclubEnrollment],
+)
 async def api_find_interclubenrollment(idclub: int):
     """
     return an enrollment by idclub
     """
+    log.debug(f"api_find_interclubenrollment {idclub}")
     try:
         return await find_interclubenrollment(idclub)
     except RdException as e:
@@ -86,7 +90,9 @@ async def api_set_enrollment(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@app.get("/api/v1/a/interclub/venues/{idclub}", response_model=InterclubVenues)
+@app.get(
+    "/api/v1/a/interclub/venues/{idclub}", response_model=Optional[InterclubVenues]
+)
 async def api_find_interclubvenues(idclub: int):
     try:
         return await find_interclubvenues_club(idclub)

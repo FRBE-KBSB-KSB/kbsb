@@ -1,31 +1,21 @@
 <template>
   <div>
     <div class="mt-2">
-      <h4>Active players of club {{ club.idclub }} not on the playerlist </h4>
-      <div>These members can automatically be added to the playerlist.
-        <v-btn class="ml-2" @click="addAllMembers">Add all</v-btn>
+      <h4>Incoming transfers</h4>
+      <v-data-table :headers="trinheaders" :items="transfersin">
+      </v-data-table>
+      <div>
+        Creating a new transfer request:
+        <v-text-field v-model="transferin" label="ID number" />
+        <v-btn @click="addTransferIn">Add</v-btn>
       </div>
-      <v-data-table :headers="nmheaders" :items="newmembers" :loading="activenotloaded"
-        loading-text="Loading members ... PLease wait">
-        <template #:no-data>No new members found</template>
-        <template v-slot:item.actions="{ item }">
-          <v-tooltip bottom>
-            <template #activator="{ on }">
-              <v-icon small outline class="mr-2" v-on="on" @click="addMember(item)">
-                mdi-plus
-              </v-icon>
-            </template>
-            Add to playerlist
-          </v-tooltip>
-        </template>
-      </v-data-table>
-    </div>
-    <div class="mt-2" v-show="ownplayers.length">
-      <h4>Own players on the playerlist</h4>
-      <v-data-table :headers="plheaders" :items="ownplayers">
-      </v-data-table>
     </div>
     <div class="mt-2">
+      <h4>Outgoing transfers</h4>
+      <v-data-table :headers="troutheaders" :items="transfersout">
+      </v-data-table>
+    </div>
+    <div class="mt-2" v-if="teams.length">
       <v-btn color="deep-purple" class="white--text" @click="next">
         Continue
       </v-btn>
@@ -88,19 +78,11 @@ export default {
     step() {
       return this.$store.state.mgmtplayerlist.step
     },
-    activemembers() {
-      return this.$store.state.mgmtplayerlist.activemembers
-    },
-    newmembers() {
-      const pl = new Set()
-      this.players.forEach((x) => pl.add(x.idnumber))
-      return this.activemembers.filter(x => !pl.has(x.idnumber))
-    },
     players() {
       return this.$store.state.mgmtplayerlist.players
     },
-    ownplayers() {
-      return this.players.filter(x => !x.transfer)
+    teams() {
+      return this.$store.state.mgmtplayerlist.teams
     },
     transfersin() {
       return this.players.filter(x => x.transfer)
