@@ -1,22 +1,22 @@
-## Spelerslijst Interclub 2022-2023
+## Spielerliste Interclub 2022-2023
 
-Hierbij bevestigen wij de spelerslijst van {{ idclub }}: {{ name_short }}, {{ name_long }} voor het interclubseizoen 2022-2023
+Hiermit bestätigen wir die Spielerliste von {{ idclub }}: {{ name_short }}, {{ name_long }} für die Interclub-Saison 2022-2023
 
-### Spelers
+### Spieler
 
- Nr | Naam | Stamnummer | Club | Elo |
+ Nr | Name | ID-Nummer | Verein | Elo |
  -  | - | - | - | -
 {% for p in players %}
 {{ loop.index }} | {{ p.first_name}} {{ p.last_name}} |  {{ p.idnumber}} | {{ p.idclub }} | {{ p.assignedrating}}
 {% endfor %}
 
-### Ploegtitularissen
+### Teaminhaber
  
 {% for t in teams %}
  - {{ t.name}}: {{ t.titular|join(' ') }}
 {% endfor %}
 
-### Uitgaande transfers
+### Ausgehende Transfers
 
 {% for to in transfersout %}
  - {{ to.first_name}} {{ to.last_name}} ({{ to.idnumber }}) naar club {{id.visitingclub }}

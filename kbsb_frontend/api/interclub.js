@@ -72,4 +72,12 @@ export default context => ({
     )
     return resp
   },
+  async club_set_interclubclub(options) {
+    console.log('api mgmt_set_interclubclub', options)
+    const { token, idclub, ...icc } = options
+    const resp = await context.$axios.put(`/api/v1/c/interclub/club/${idclub}`,
+      icc, { headers: { Authorization: 'Bearer ' + token } }
+    )
+    return resp
+  },
 })

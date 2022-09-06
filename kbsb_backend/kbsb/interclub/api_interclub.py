@@ -177,5 +177,21 @@ async def api_mgmt_set_interclubclub(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_interclubclub")
+        log.exception("failed api call mgmt_set_interclubclub")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.put("/api/v1/c/interclub/club/{idclub}", response_model=InterclubClub)
+async def api_clb_set_interclubclub(
+    idclub: int,
+    icc: InterclubClubOptional,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    try:
+        validate_oldtoken(auth)
+        return await set_interclubclub(idclub, icc)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call clb_set_interclubclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
