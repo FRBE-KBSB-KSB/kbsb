@@ -3,7 +3,7 @@
     <p v-if="!club.idclub">Please select a club to edit the player list</p>
     <div v-if="club.idclub">
       <div v-if="teams.length">
-        <v-stepper v-model="step" vertical @change="changeStep">
+        <v-stepper v-model="step" vertical>
 
           <v-stepper-step :complete="step > 1" step="1" color="deep-purple">
             Intro
@@ -20,31 +20,31 @@
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 3" step="3" color="deep-purple">
-            Define players
+            Define transfers
           </v-stepper-step>
-          <v-stepper-content step="2">
-            <MgmtinterclubPlayerlisttransfer :club="club" />
+          <v-stepper-content step="3">
+            <MgmtinterclubPlayerlisttransfer :club="club" :activenotloaded="activenotloaded" />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 4" step="4" color="deep-purple">
             Define order
           </v-stepper-step>
-          <v-stepper-content step="3">
+          <v-stepper-content step="4">
             <MgmtinterclubPlayerlistorder />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 5" step="5" color="deep-purple">
             Define teams
           </v-stepper-step>
-          <v-stepper-content step="4">
-            <MgmtinterclubPlayerlistteams />
+          <v-stepper-content step="5">
+            <MgmtinterclubPlayerlistteams :club="club" />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 6" step="6" color="deep-purple">
             Confirm
           </v-stepper-step>
-          <v-stepper-content step="5">
-            <MgmtinterclubPlayerlistconfirm />
+          <v-stepper-content step="6">
+            <MgmtinterclubPlayerlistconfirm :club="club" />
           </v-stepper-content>
 
         </v-stepper>
@@ -88,7 +88,9 @@ export default {
     teams() {
       return this.$store.state.mgmtplayerlist.teams
     },
-
+    activemembers() {
+      return this.$store.state.mgmtplayerlist.activemembers
+    },
   },
 
   methods: {
@@ -103,7 +105,6 @@ export default {
     },
 
     async get_activemembers() {
-      console.log('get_activemembers called', this.club.idclub)
       try {
         const reply = await this.$api.old.get_clubmembers({
           idclub: this.club.idclub,
@@ -126,14 +127,15 @@ export default {
     },
 
     async get_interclubclub() {
-      console.log('get_interclubclub called', this.club.idclub)
       try {
         const reply = await this.$api.interclub.get_interclubclub({
           idclub: this.club.idclub,
         })
+        console.log('reply interclubclub', reply.data)
         this.$store.commit('mgmtplayerlist/updatePlayers', reply.data.players)
         this.$store.commit('mgmtplayerlist/updateTeams', reply.data.teams)
-        this.$store.commit('mgmtplayerlist/updateTransferout', reply.data.transferout)
+        this.$store.commit('mgmtplayerlist/updateTransfersout', reply.data.transfersout)
+        console.log('icc done', reply.data.players.length)
       } catch (error) {
         switch (reply.status) {
           case 401:

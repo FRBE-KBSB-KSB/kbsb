@@ -1,6 +1,5 @@
 export default context => ({
   async find_interclubenrollment(options) {
-    console.log('api anon_get_enrollment')
     const { idclub } = options
     const resp = await context.$axios.get(`/api/v1/a/interclub/enrollment/${idclub}`)
     return resp
@@ -61,10 +60,16 @@ export default context => ({
     return resp
   },
   async get_interclubclub(options) {
-    console.log('api get_interclubclub')
     const { idclub } = options
     const resp = await context.$axios.get(`/api/v1/a/interclub/club/${idclub}`)
     return resp
   },
-
+  async mgmt_set_interclubclub(options) {
+    console.log('api mgmt_set_interclubclub', options)
+    const { token, idclub, ...icc } = options
+    const resp = await context.$axios.put(`/api/v1/interclub/club/${idclub}`,
+      icc, { headers: { Authorization: 'Bearer ' + token } }
+    )
+    return resp
+  },
 })

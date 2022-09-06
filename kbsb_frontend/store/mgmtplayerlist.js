@@ -4,8 +4,7 @@ export const state = () => ({
     players: [],
     step: 1,
     teams: [],
-    transferout: [],
-    transferrequest: []
+    transfersout: [],
 })
 
 export const mutations = {
@@ -24,10 +23,7 @@ export const mutations = {
     updateTeams(state, value) {
         state.teams = value
     },
-    updateTransferout(state, value) {
-        state.transferout = value
+    updateTransfersout(state, value) {
+        state.transfersout = value
     },
-    updateTransferrequest(state, value) {
-        state.transferrequest = value
-    }
 }

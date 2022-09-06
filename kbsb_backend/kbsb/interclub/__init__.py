@@ -36,6 +36,7 @@ from .interclub import (
     set_interclubvenues,
     add_team_to_series,
     setup_interclubclub,
+    set_interclubclub,
 )
 
 import kbsb.interclub.api_interclub

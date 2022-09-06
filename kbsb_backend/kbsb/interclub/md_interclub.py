@@ -46,12 +46,12 @@ class InterclubTransfer(BaseModel):
     """
 
     confirmed_date: Optional[datetime]
-    confirmed_id: Optional[int]
+    first_name: str
     idnumber: int
     idoriginalclub: int
     idvisitingclub: int
+    last_name: str
     request_date: Optional[datetime]
-    request_id: Optional[int]
 
 
 class InterclubClubOptional(BaseModel):
@@ -64,6 +64,7 @@ class InterclubClubOptional(BaseModel):
 
 class InterclubClub(DocumentType):
     name: str
+    id: str
     idclub: int
     teams: List[InterclubTeam]
     players: List[InterclubPlayer]

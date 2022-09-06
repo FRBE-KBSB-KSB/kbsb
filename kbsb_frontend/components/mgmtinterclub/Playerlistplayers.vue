@@ -58,24 +58,6 @@ export default {
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
       ],
-      trinheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
-        { text: "From club", value: "idclub", sortable: false },
-        { text: "Nat. Elo", value: "natrating", sortable: true },
-        { text: "Fide Elo", value: "fiderating", sortable: true },
-        { text: "Confirmed", value: "transfer_confirmed", sortable: false },
-      ],
-      troutheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
-        { text: "To club", value: "idvisitingclub", sortable: false },
-        { text: "Confirmed", value: "confirmed_date", sortable: false },
-      ],
-      transferin: ""
-
     }
   },
 

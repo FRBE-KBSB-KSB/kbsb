@@ -255,7 +255,7 @@ async def find_interclubvenues_club(idclub: str) -> Optional[InterclubVenues]:
 
 async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubVenues:
     club = await find_club(idclub)
-    logger.info(f"set_interclubvenues: {idclub} {ivi}")
+    logger.debug(f"set_interclubvenues: {idclub} {ivi}")
     if not club:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
@@ -524,3 +524,31 @@ async def update_clublist(idclub: int, playerlist: List[int]) -> None:
             )
         )
     DbInterclubClub.p_update(icc.id, InterclubClubOptional(players=icc.players))
+
+
+async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> InterclubClub:
+    """
+    updates the interclubclub
+    """
+    club = await find_club(idclub)
+    if not club:
+        raise RdNotFound(description="ClubNotFound")
+    locale = club_locale(club)
+    ic = await find_interclubclub(idclub)
+    settings = get_settings()
+    icupdated = await DbInterclubClub.p_update(ic.id, icc)
+    receiver = [club.email_main, INTERCLUB_EMAIL]
+    if club.email_interclub:
+        receiver.append(club.email_interclub)
+    mp = MailParams(
+        locale=locale,
+        receiver=",".join(receiver),
+        sender="noreply@frbe-kbsb-ksb.be",
+        bcc=settings.EMAIL["blindcopy"],
+        subject="Interclub 2022-23",
+        template="interclub/club_{locale}.md",
+    )
+    icdict = icupdated.dict()
+    icdict["locale"] = locale
+    sendEmail(mp, icdict, "interclub playerlist")
+    return icupdated

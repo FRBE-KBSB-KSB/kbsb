@@ -5,7 +5,7 @@
     <div>Players with the same assigned rating are not allowed.</div>
     <v-data-table :items="players" :headers="arheaders">
       <template v-slot:item.assignedrating="props">
-        <v-edit-dialog :return-value.sync="props.item.assignedrating" @save="save(props.item)">
+        <v-edit-dialog :return-value="props.item.assignedrating" @save="save(props.item)">
           {{ props.item.assignedrating }}
           <template v-slot:input>
             <v-text-field v-model="props.item.assignedrating" label="Edit" single-line>

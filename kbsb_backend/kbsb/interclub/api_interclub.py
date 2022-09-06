@@ -17,11 +17,13 @@ from . import (
     set_interclubenrollment,
     set_interclubvenues,
     setup_interclubclub,
+    set_interclubclub,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubVenuesIn,
     InterclubVenues,
     InterclubClub,
+    InterclubClubOptional,
 )
 
 
@@ -156,6 +158,22 @@ async def api_get_interclubclub(
 ):
     try:
         return await setup_interclubclub(idclub)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call get_interclubclub")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.put("/api/v1/interclub/club/{idclub}", response_model=InterclubClub)
+async def api_mgmt_set_interclubclub(
+    idclub: int,
+    icc: InterclubClubOptional,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    try:
+        await validate_token(auth)
+        return await set_interclubclub(idclub, icc)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
