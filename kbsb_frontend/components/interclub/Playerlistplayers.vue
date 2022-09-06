@@ -26,7 +26,7 @@
       </v-data-table>
     </div>
     <div class="mt-2">
-      <v-btn color="deep-purple" class="white--text" @click="next">
+      <v-btn color="green" class="white--text" @click="next">
         Continue
       </v-btn>
       <v-btn @click="prev">
@@ -68,10 +68,10 @@ export default {
 
   computed: {
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     activemembers() {
-      return this.$store.state.mgmtplayerlist.activemembers
+      return this.$store.state.playerlist.activemembers
     },
     newmembers() {
       const pl = new Set()
@@ -79,7 +79,7 @@ export default {
       return this.activemembers.filter(x => !pl.has(x.idnumber))
     },
     players() {
-      return this.$store.state.mgmtplayerlist.players
+      return this.$store.state.playerlist.players
     },
     ownplayers() {
       return this.players.filter(x => !x.transfer)
@@ -88,7 +88,7 @@ export default {
       return this.players.filter(x => x.transfer)
     },
     transfersout() {
-      return this.$store.state.mgmtplayerlist.transfersout
+      return this.$store.state.playerlist.transfersout
     },
   },
 
@@ -105,7 +105,7 @@ export default {
         natrating: x.natrating,
         transfer: false
       })
-      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      this.$store.commit('playerlist/updatePlayers', players)
     },
 
     addAllMembers() {
@@ -119,7 +119,7 @@ export default {
         natrating: x.natrating,
         transfer: false
       }))
-      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      this.$store.commit('playerlist/updatePlayers', players)
     },
 
     async addTransferIn() {
@@ -155,11 +155,11 @@ export default {
     },
 
     next() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
+      this.$store.commit('playerlist/updateStep', this.step + 1)
     },
 
     prev() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
+      this.$store.commit('playerlist/updateStep', this.step - 1)
     }
   }
 }

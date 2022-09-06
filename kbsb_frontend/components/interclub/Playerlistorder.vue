@@ -18,7 +18,7 @@
       There are players with the same assigned rating
     </v-alert>
     <div class="mt-2">
-      <v-btn color="deep-purple" class="white--text" @click="next" :disabled="samerating">
+      <v-btn color="green" class="white--text" @click="next" :disabled="samerating">
         Continue
       </v-btn>
       <v-btn @click="prev">
@@ -53,10 +53,10 @@ export default {
 
   computed: {
     players() {
-      return this.$store.state.mgmtplayerlist.players
+      return this.$store.state.playerlist.players
     },
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     samerating() {
       let prev = 3000
@@ -98,21 +98,21 @@ export default {
         }
       })
       players.sort(compareAssignedrating)
-      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      this.$store.commit('playerlist/updatePlayers', players)
     },
 
     next() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
+      this.$store.commit('playerlist/updateStep', this.step + 1)
     },
     prev() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
+      this.$store.commit('playerlist/updateStep', this.step - 1)
     },
     save(pl) {
       console.log('saving assigned rating')
       if (pl.minrating <= pl.assignedrating && pl.assignedrating <= pl.maxrating) {
         const players = [...this.players]
         players.sort(compareAssignedrating)
-        this.$store.commit('mgmtplayerlist/updatePlayers', players)
+        this.$store.commit('playerlist/updatePlayers', players)
       }
       else {
         this.$root.$emit('snackbar', { text: this.$t('Invalid value for assigned rating') })

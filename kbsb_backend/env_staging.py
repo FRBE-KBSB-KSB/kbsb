@@ -3,7 +3,7 @@ EMAIL = {
     "host": "maildev.decrop.net",
     "port": "1025",
     "sender": "noreply@frbe-kbsb-ksb.be",
-    "blindcopy": "ruben.kbsb@gnail.com",
+    "blindcopy": "ruben.kbsb@gmail.com",
 }
 
 FILESTORE = {

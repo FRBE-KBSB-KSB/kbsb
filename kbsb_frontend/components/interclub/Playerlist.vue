@@ -5,46 +5,46 @@
       <div v-if="teams.length">
         <v-stepper v-model="step" vertical>
 
-          <v-stepper-step :complete="step > 1" step="1" color="deep-purple">
+          <v-stepper-step :complete="step > 1" step="1" color="green">
             Intro
           </v-stepper-step>
           <v-stepper-content step="1">
-            <MgmtinterclubPlayerlistintro />
+            <InterclubPlayerlistintro />
           </v-stepper-content>
 
-          <v-stepper-step :complete="step > 2" step="2" color="deep-purple">
+          <v-stepper-step :complete="step > 2" step="2" color="green">
             Define players
           </v-stepper-step>
           <v-stepper-content step="2">
-            <MgmtinterclubPlayerlistplayers :club="club" :activenotloaded="activenotloaded" />
+            <InterclubPlayerlistplayers :club="club" :activenotloaded="activenotloaded" />
           </v-stepper-content>
 
-          <v-stepper-step :complete="step > 3" step="3" color="deep-purple">
+          <v-stepper-step :complete="step > 3" step="3" color="green">
             Define transfers
           </v-stepper-step>
           <v-stepper-content step="3">
-            <MgmtinterclubPlayerlisttransfer :club="club" :activenotloaded="activenotloaded" />
+            <InterclubPlayerlisttransfer :club="club" :activenotloaded="activenotloaded" />
           </v-stepper-content>
 
-          <v-stepper-step :complete="step > 4" step="4" color="deep-purple">
+          <v-stepper-step :complete="step > 4" step="4" color="green">
             Define order
           </v-stepper-step>
           <v-stepper-content step="4">
-            <MgmtinterclubPlayerlistorder />
+            <InterclubPlayerlistorder />
           </v-stepper-content>
 
-          <v-stepper-step :complete="step > 5" step="5" color="deep-purple">
+          <v-stepper-step :complete="step > 5" step="5" color="green">
             Define teams
           </v-stepper-step>
           <v-stepper-content step="5">
-            <MgmtinterclubPlayerlistteams :club="club" />
+            <InterclubPlayerlistteams :club="club" />
           </v-stepper-content>
 
-          <v-stepper-step :complete="step > 6" step="6" color="deep-purple">
+          <v-stepper-step :complete="step > 6" step="6" color="green">
             Confirm
           </v-stepper-step>
           <v-stepper-content step="6">
-            <MgmtinterclubPlayerlistconfirm :club="club" />
+            <InterclubPlayerlistconfirm :club="club" />
           </v-stepper-content>
 
         </v-stepper>
@@ -64,8 +64,6 @@
 </template>
 <script>
 import Vue from 'vue'
-import club from '../../api/club';
-import TheCarouselVue from '../TheCarousel.vue';
 
 export default {
 
@@ -83,13 +81,13 @@ export default {
 
   computed: {
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     teams() {
-      return this.$store.state.mgmtplayerlist.teams
+      return this.$store.state.playerlist.teams
     },
     activemembers() {
-      return this.$store.state.mgmtplayerlist.activemembers
+      return this.$store.state.playerlist.activemembers
     },
   },
 
@@ -110,7 +108,7 @@ export default {
           idclub: this.club.idclub,
         })
         this.activenotloaded = false;
-        this.$store.commit('mgmtplayerlist/updateActivemembers', reply.data.activemembers)
+        this.$store.commit('playerlist/updateActivemembers', reply.data.activemembers)
       } catch (error) {
         switch (reply.status) {
           case 401:
@@ -132,9 +130,9 @@ export default {
           idclub: this.club.idclub,
         })
         console.log('reply interclubclub', reply.data)
-        this.$store.commit('mgmtplayerlist/updatePlayers', reply.data.players)
-        this.$store.commit('mgmtplayerlist/updateTeams', reply.data.teams)
-        this.$store.commit('mgmtplayerlist/updateTransfersout', reply.data.transfersout)
+        this.$store.commit('playerlist/updatePlayers', reply.data.players)
+        this.$store.commit('playerlist/updateTeams', reply.data.teams)
+        this.$store.commit('playerlist/updateTransfersout', reply.data.transfersout)
         console.log('icc done', reply.data.players.length)
       } catch (error) {
         switch (reply.status) {

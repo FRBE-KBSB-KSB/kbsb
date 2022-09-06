@@ -44,7 +44,7 @@
             Confirm
           </v-stepper-step>
           <v-stepper-content step="6">
-            <MgmtinterclubPlayerlistconfirm :club="club" />
+            <MgmtinterclubPlayerlistconfirm />
           </v-stepper-content>
 
         </v-stepper>

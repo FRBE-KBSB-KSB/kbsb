@@ -25,7 +25,7 @@
               <v-text-field v-model="plin" label="ID number" />
             </v-col>
             <v-col col="2" sm="1">
-              <v-btn fab outlined color="deep-purple" @click="trin_one">
+              <v-btn fab outlined color="green" @click="trin_one">
                 <v-icon>mdi-transfer-right</v-icon>
               </v-btn>
             </v-col>
@@ -50,7 +50,7 @@
             <v-text-field label="Number club" v-model="tr_cluball" />
           </v-col>
           <v-col col="2" sm="1">
-            <v-btn fab outlined color="deep-purple" @click="trout_all">
+            <v-btn fab outlined color="green" @click="trout_all">
               <v-icon>mdi-transfer-right</v-icon>
             </v-btn>
           </v-col>
@@ -72,7 +72,7 @@
             <v-text-field label="Number club" v-model="tr_clubone" />
           </v-col>
           <v-col col="2" sm="1">
-            <v-btn fab outlined color="deep-purple" @click="trout_one">
+            <v-btn fab outlined color="green" @click="trout_one">
               <v-icon>mdi-transfer-right</v-icon>
             </v-btn>
           </v-col>
@@ -81,7 +81,7 @@
     </v-card>
 
     <div class="my-3" v-if="teams.length">
-      <v-btn color="deep-purple" class="white--text" @click="next">
+      <v-btn color="green" class="white--text" @click="next">
         Continue
       </v-btn>
       <v-btn @click="prev">
@@ -135,19 +135,19 @@ export default {
 
   computed: {
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     players() {
-      return this.$store.state.mgmtplayerlist.players
+      return this.$store.state.playerlist.players
     },
     teams() {
-      return this.$store.state.mgmtplayerlist.teams
+      return this.$store.state.playerlist.teams
     },
     activemembers() {
-      return this.$store.state.mgmtplayerlist.activemembers
+      return this.$store.state.playerlist.activemembers
     },
     transfersout() {
-      return this.$store.state.mgmtplayerlist.transfersout
+      return this.$store.state.playerlist.transfersout
     },
     transfersin() {
       return this.players.filter(x => x.transfer)
@@ -167,7 +167,7 @@ export default {
         natrating: x.natrating,
         transfer: false
       })
-      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      this.$store.commit('playerlist/updatePlayers', players)
     },
 
     trout_all() {
@@ -184,7 +184,7 @@ export default {
           request_date: now,
         })
       })
-      this.$store.commit('mgmtplayerlist/updateTransfersout', transfersout)
+      this.$store.commit('playerlist/updateTransfersout', transfersout)
       this.tr_cluball = ''
     },
 
@@ -205,7 +205,7 @@ export default {
         confirmed_date: now,
         request_date: now,
       })
-      this.$store.commit('mgmtplayerlist/updateTransfersout', transfersout)
+      this.$store.commit('playerlist/updateTransfersout', transfersout)
       this.plout = ''
       this.tr_clubone = ''
     },
@@ -228,7 +228,7 @@ export default {
           natrating: pl.natrating,
           transfer: true
         })
-        this.$store.commit('mgmtplayerlist/updatePlayers', players)
+        this.$store.commit('playerlist/updatePlayers', players)
       } catch (error) {
         switch (reply.status) {
           case 400:
@@ -245,11 +245,11 @@ export default {
     },
 
     next() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
+      this.$store.commit('playerlist/updateStep', this.step + 1)
     },
 
     prev() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
+      this.$store.commit('playerlist/updateStep', this.step - 1)
     }
   }
 }

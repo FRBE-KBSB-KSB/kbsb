@@ -77,8 +77,10 @@ def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     """
     settings = get_settings()
     token = auth.credentials if auth else None
+    logger.info(f"oldtoken {token}")
     if not token:
         raise RdNotAuthorized(description="MissingToken")
+    unverpayload = jwt_getunverifiedpayload(token)
     try:
         payload = jwt_verify(token, settings.JWT_SECRET + SALT)
     except ExpiredSignatureError:
@@ -89,8 +91,9 @@ def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
         raise RdNotAuthorized(description="BadToken")
     except:
         logger.exception("General JWT Error")
+        raise RdNotAuthorized(description="JWTError")
     logger.debug(f"payload: {payload}")
-    return payload.get("sub")
+    return unverpayload.get("sub")
 
 
 def get_member(idbel: Union[str, int]) -> OldMember:

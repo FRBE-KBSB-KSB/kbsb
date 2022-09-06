@@ -31,7 +31,7 @@
       </v-card>
     </div>
     <div class="mt-2">
-      <v-btn color="deep-purple" class="white--text" @click="next">
+      <v-btn color="green" class="white--text" @click="next">
         Continue
       </v-btn>
       <v-btn @click="prev">
@@ -62,13 +62,13 @@ export default {
 
   computed: {
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     players() {
-      return this.$store.state.mgmtplayerlist.players
+      return this.$store.state.playerlist.players
     },
     teams() {
-      return this.$store.state.mgmtplayerlist.teams
+      return this.$store.state.playerlist.teams
     },
     tt() {
       const tt = [
@@ -106,6 +106,7 @@ export default {
       let error = false
       teams.forEach((tm) => {
         let t = this.tt[tm.division - 1]
+        let teamnr = tm.name.split(" ").pop()
         console.log(tm.name, t)
         if (t.nteams == 1) {
           tm.titular = t.range.map(x => this.players[x].idnumber)
@@ -113,19 +114,20 @@ export default {
         if (t.nteams > 1) {
           tm.titular = []
           t.range.forEach(x => {
-            if (this.selmodel[x] == tm.name) {
+            if (this.selmodel[x].split(" ").pop() == teamnr) {
               tm.titular.push(this.players[x].idnumber)
             }
           })
         }
         if (tm.titular.length != t.nplayers) {
           this.$root.$emit('snackbar', { text: this.$t('Invalid number of players in team') })
+          console.log('invalid tm', tm, t, this.selmodel)
           error = true
           return
         }
       })
       if (error) return false
-      this.$store.commit('mgmtplayerlist/updateTeams', teams)
+      this.$store.commit('playerlist/updateTeams', teams)
       return true
     },
 
@@ -135,12 +137,12 @@ export default {
 
     next() {
       if (this.fillTitular()) {
-        this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
+        this.$store.commit('playerlist/updateStep', this.step + 1)
       }
     },
 
     prev() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
+      this.$store.commit('playerlist/updateStep', this.step - 1)
     },
 
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h4>Save changes</h4>
-    <v-btn color="deep-purple" class="white--text" @click="save">
+    <v-btn color="green" class="white--text" @click="save">
       Save
     </v-btn>
     <v-btn @click="prev">
@@ -16,18 +16,18 @@
 export default {
 
   computed: {
-    logintoken() { return this.$store.state.newlogin.value },
+    logintoken() { return this.$store.state.oldlogin.value },
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     },
     players() {
-      return this.$store.state.mgmtplayerlist.players
+      return this.$store.state.playerlist.players
     },
     teams() {
-      return this.$store.state.mgmtplayerlist.teams
+      return this.$store.state.playerlist.teams
     },
     transfersout() {
-      return this.$store.state.mgmtplayerlist.transfersout
+      return this.$store.state.playerlist.transfersout
     },
 
   },
@@ -42,7 +42,7 @@ export default {
     async save() {
       try {
         console.log('saving')
-        const reply = await this.$api.interclub.mgmt_set_interclubclub({
+        const reply = await this.$api.interclub.clb_set_interclubclub({
           token: this.logintoken,
           idclub: this.club.idclub,
           players: this.players,
@@ -67,7 +67,7 @@ export default {
     },
 
     prev() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
+      this.$store.commit('playerlist/updateStep', this.step - 1)
     },
 
   }

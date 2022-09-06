@@ -10,7 +10,7 @@
       <li>Define the titulars per team</li>
     </ul>
     <div class="mt-2">
-      <v-btn color="deep-purple" class="white--text" @click="next">
+      <v-btn color="green" class="white--text" @click="next">
         {{ $t('Continue') }}
       </v-btn>
     </div>
@@ -23,13 +23,13 @@ export default {
 
   computed: {
     step() {
-      return this.$store.state.mgmtplayerlist.step
+      return this.$store.state.playerlist.step
     }
   },
 
   methods: {
     next() {
-      this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
+      this.$store.commit('playerlist/updateStep', this.step + 1)
     }
   }
 }
