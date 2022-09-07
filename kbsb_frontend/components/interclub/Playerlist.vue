@@ -1,47 +1,47 @@
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to edit the player list</p>
+    <p v-if="!club.idclub">{{ $t('Please select a club to edit the player list') }}</p>
     <div v-if="club.idclub">
       <div v-if="teams.length">
         <v-stepper v-model="step" vertical>
 
           <v-stepper-step :complete="step > 1" step="1" color="green">
-            Intro
+            {{ $t('Intro') }}
           </v-stepper-step>
           <v-stepper-content step="1">
             <InterclubPlayerlistintro />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 2" step="2" color="green">
-            Define players
+            {{ $t('Define players') }}
           </v-stepper-step>
           <v-stepper-content step="2">
             <InterclubPlayerlistplayers :club="club" :activenotloaded="activenotloaded" />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 3" step="3" color="green">
-            Define transfers
+            {{ $t('Define transfers') }}
           </v-stepper-step>
           <v-stepper-content step="3">
             <InterclubPlayerlisttransfer :club="club" :activenotloaded="activenotloaded" />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 4" step="4" color="green">
-            Define order
+            {{ $t('Define order') }}
           </v-stepper-step>
           <v-stepper-content step="4">
             <InterclubPlayerlistorder />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 5" step="5" color="green">
-            Define teams
+            {{ $t('Define teams') }}
           </v-stepper-step>
           <v-stepper-content step="5">
             <InterclubPlayerlistteams :club="club" />
           </v-stepper-content>
 
           <v-stepper-step :complete="step > 6" step="6" color="green">
-            Confirm
+            {{ $t('Confirmation') }}
           </v-stepper-step>
           <v-stepper-content step="6">
             <InterclubPlayerlistconfirm :club="club" />
@@ -52,8 +52,8 @@
       </div>
       <div v-if="!teams.length">
         <p>
-          This club is not enrolled in the interclubs.
-          As such, for this interclub season, it can transfer it members to other clubs
+          {{ $t('This club is not enrolled in the interclubs.') }}
+          {{ $t('As such, for this interclub season, it can transfer it members to other clubs.') }}
         </p>
         <MgmtinterclubPlayerlisttransfer :club="club" />
         <MgmtinterclubPlayerlistconfirm />

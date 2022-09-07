@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="mt-2">
-      <h4>Active players of club {{ club.idclub }} not on the playerlist </h4>
-      <div>These members can automatically be added to the playerlist.
+      <h4>{{ $t('Active players of club') }} {{ club.idclub }}, {{ $t('not on the playerlist.') }} </h4>
+      <div>{{ $t('These members can automatically be added to the playerlist.') }}
         <v-btn class="ml-2" @click="addAllMembers">Add all</v-btn>
       </div>
       <v-data-table :headers="nmheaders" :items="newmembers" :loading="activenotloaded"
-        loading-text="Loading members ... PLease wait">
-        <template #:no-data>No new members found</template>
+        :loading-text="$t('Loading members ... Please wait')">
+        <template #:no-data>{{ $t('No new members found') }}</template>
         <template v-slot:item.actions="{ item }">
           <v-tooltip bottom>
             <template #activator="{ on }">
@@ -15,22 +15,22 @@
                 mdi-plus
               </v-icon>
             </template>
-            Add to playerlist
+            {{ $t('Add to playerlist') }}
           </v-tooltip>
         </template>
       </v-data-table>
     </div>
     <div class="mt-2" v-show="ownplayers.length">
-      <h4>Own players on the playerlist</h4>
+      <h4>{{ $t('Own players on the playerlist') }}</h4>
       <v-data-table :headers="plheaders" :items="ownplayers">
       </v-data-table>
     </div>
     <div class="mt-2">
       <v-btn color="green" class="white--text" @click="next">
-        Continue
+        {{ $t('Continue') }}
       </v-btn>
       <v-btn @click="prev">
-        Back
+        {{ $t('Back') }}
       </v-btn>
     </div>
   </div>

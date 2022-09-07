@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h3>Titulars for the teams</h3>
+    <h3>{{ $t('Titulars for the teams') }}</h3>
     <div v-for="(t,ix) in tt" :key="ix" class="my-3">
       <v-card v-if="t.nteams > 0" color="#f4f4f4">
         <v-card-title>
-          Teams in division {{ ix + 1 }}
+          {{ $t('Teams in division') }} {{ ix + 1 }}
         </v-card-title>
         <v-divider />
         <v-card-text>
           <div v-if="t.nteams == 1">
-            Titulars for {{ t.names[0]}}
+            {{ $t('Titulars for') }} {{ t.names[0]}}
             <ol>
               <li v-for="(pix, jx) in t.range" :key="jx">
                 {{ first_name(pix) }} {{ last_name(pix) }}
@@ -32,10 +32,10 @@
     </div>
     <div class="mt-2">
       <v-btn color="green" class="white--text" @click="next">
-        Continue
+        {{ $t('Continue') }}
       </v-btn>
       <v-btn @click="prev">
-        Back
+        {{ $t('Back') }}
       </v-btn>
     </div>
   </div>

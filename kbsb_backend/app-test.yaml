@@ -5,7 +5,8 @@ env_variables:
   FILESTORE_BUCKET: website-kbsb-test.appspot.com
   GOOGLE_PROJECT_ID: website-kbsb-test
   GOOGLE_CLIENT_ID: "635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com"
-
+  BOARDROLES: "./boardroles.yaml"
+  
 handlers:
   - url: /api.*
     script: auto

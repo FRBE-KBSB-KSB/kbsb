@@ -2,7 +2,7 @@
   <div>
 
     <div v-if="!teams.length">
-      <h3 class="my-2">Active players of club {{ club.idclub }}</h3>
+      <h3 class="my-2">Active players of club') }} {{ club.idclub }}</h3>
       <v-data-table :headers="amheaders" :items="activemembers" :loading="activenotloaded"
         loading-text="Loading members ... Please wait">
         <template #:no-data>No new members found</template>
@@ -10,13 +10,13 @@
     </div>
 
     <div v-if="teams.length">
-      <h4 class="my-2">Incoming transfers</h4>
+      <h4 class="my-2">Incoming transfers') }}</h4>
       <v-data-table :headers="trinheaders" :items="transfersin">
-        <template #no-data>No incoming transfers</template>
+        <template #no-data>{{ $t('No incoming transfers') }}</template>
       </v-data-table>
       <v-card color="#f4f4f4">
         <v-card-title>
-          Add a transfer from a club:
+          {{ $t('Add a transfer from a club') }}
         </v-card-title>
         <v-divider />
         <v-card-text>
@@ -34,14 +34,14 @@
       </v-card>
     </div>
 
-    <h3 class="my-2">Outgoing transfers</h3>
+    <h3 class="my-2">{{ $t('Outgoing transfers') }}</h3>
     <v-data-table :headers="troutheaders" :items="transfersout">
-      <template #no-data>No outgoing transfers</template>
+      <template #no-data>{{ $t('No outgoing transfers') }}</template>
     </v-data-table>
 
     <v-card v-if="!teams.length" color="#f4f4f4">
       <v-card-title>
-        Transfer of all members to a single club at once
+        {{ $t('Transfer of all members to a single club at once.') }}
       </v-card-title>
       <v-divider />
       <v-card-text>
@@ -60,7 +60,7 @@
 
     <v-card color="#f4f4f4">
       <v-card-title>
-        Add transfer to a club
+        {{ $t('Add transfer to a club') }}
       </v-card-title>
       <v-divider />
       <v-card-text>
@@ -82,10 +82,10 @@
 
     <div class="my-3" v-if="teams.length">
       <v-btn color="green" class="white--text" @click="next">
-        Continue
+        {{ $t('Continue') }}
       </v-btn>
       <v-btn @click="prev">
-        Back
+        {{ $t('Back') }}
       </v-btn>
     </div>
 

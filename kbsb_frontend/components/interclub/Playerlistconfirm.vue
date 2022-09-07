@@ -1,11 +1,11 @@
 <template>
   <div>
-    <h4>Save changes</h4>
+    <h4>{{ $t('Save changes') }}</h4>
     <v-btn color="green" class="white--text" @click="save">
-      Save
+      {{ $t('Save') }}
     </v-btn>
     <v-btn @click="prev">
-      Back
+      {{ $t('Back') }}
     </v-btn>
   </div>
   </div>

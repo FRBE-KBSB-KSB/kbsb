@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h3>Order of players</h3>
-    <div>Order the players by adjusting the assigned rating</div>
-    <div>Players with the same assigned rating are not allowed.</div>
+    <h3>{{ $t('Order of players') }}</h3>
+    <div>{{ $t('Order the players by adjusting the assigned rating.') }}</div>
+    <div>{{ $t('Players with the same assigned rating are not allowed.') }}</div>
     <v-data-table :items="players" :headers="arheaders">
       <template v-slot:item.assignedrating="props">
         <v-edit-dialog :return-value="props.item.assignedrating" @save="save(props.item)">
@@ -15,14 +15,14 @@
       </template>
     </v-data-table>
     <v-alert type="warning" v-show="samerating">
-      There are players with the same assigned rating
+      {{ $t('There are players with the same assigned rating.') }}
     </v-alert>
     <div class="mt-2">
       <v-btn color="green" class="white--text" @click="next" :disabled="samerating">
-        Continue
+        {{ $t('Continue') }}
       </v-btn>
       <v-btn @click="prev">
-        Back
+        {{ $t('Back') }}
       </v-btn>
     </div>
   </div>

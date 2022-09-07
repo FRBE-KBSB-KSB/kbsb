@@ -7,8 +7,9 @@
 .mypy_cache
 
 local_settings.py
-app.yaml
-Pipfile
-Pipfile.lock
-requirements-dev.txt
-.venv
+launch
+__pycache__/
+create_env
+env_local.py
+env_staging.py
+env_prod.py
