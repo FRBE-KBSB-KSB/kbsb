@@ -64,7 +64,7 @@ class InterclubClubOptional(BaseModel):
 
 class InterclubClub(DocumentType):
     name: str
-    id: str
+    id: Optional[str]
     idclub: int
     teams: List[InterclubTeam]
     players: List[InterclubPlayer]
