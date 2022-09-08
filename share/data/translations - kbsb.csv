@@ -14,13 +14,18 @@ automatiquement </p>","<p> Die verbundenen Spieler möchten das Buch 100 Jahre B
 1 group,1 group,1 groep,1 groupe,1 Gruppe
 2 opposite groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
 Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
+Active players of club,Active players of club,Actieve clubspelers,Joueurs actifs du club,Aktive Spieler des Vereins
+Add a transfer from a club,Add a transfer from a club,Een transfer vanaf een club toevoegen,Ajouter un transfert depuis un club,Fügen Sie einen Transfer hinzu
 Add enrollment,Add enrollment,Inschrijving toevoegen,Ajouter une inscription,Anmeldung hinzufügen
+Add transfer to a club,Add transfer to a club,Trnasfer naar een club toevoegen,Ajouter un transfert à un club,Transfer zu einem Verein hinzufügen
 Address,Address,Adres,Adresse,Adresse
 Administration,Administration,Beheer,Administration,Administration
 Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
 Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
 All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
+"As such, for this interclub season, it can transfer it members to other clubs.","As such, for this interclub season, it can transfer it members to other clubs.",Als zodanig kan het voor dit interclubseizoen zijn leden overdragen aan andere clubs.,"A ce titre, pour cette saison interclubs, il peut transférer ses membres vers d'autres clubs.",Als solcher kann er für diese Interclub-Saison seine Mitglieder zu anderen Clubs transferieren.
 Availability,Availability,Beschikbaarheid,Disponibilité,Verfügbarkeit
+Back,Back,Terug,Retour,Zurück
 Bank account BIC,Bank account BIC,Bankrekening BIC,BIC du compte bancaire,Bankkonto-BIC
 Bank account IBAN,Bank account IBAN,Bankrekening IBAN,IBAN du compte bancaire,Bankkonto-IBAN
 Bank account name,Bank account name,Naam bankrekening,nom du compte bancaire,Bankkontoname
@@ -48,11 +53,21 @@ Committees,Committees,Commissies,Commissions,Ausschüsse
 Communication manager,Communication manager,Communicatiemanager,Responsable de la communication,Kommunikationsmanager
 Competitions,Competitions,Competities,Compétitions,Wettbewerbe
 Confirm,Confirm,Bevestigen,Confirmer,Bestätigen
+Confirmation,Confirmation,Bevestiging,Confirmation,Bestätigung
 Consulting access rights,Consulting access rights,Toegangsrechten raadplegen,Consulter les droits d'accès,Zugriffsrechte abfragen
 Consulting club details,Consulting club details,Clubdetails raadplegen,Consulter les details du cercle,Vereinsdetails abfragen
 Contact,Contact,Contact,Contact,Kontakt
 Contact details,Contact details,Contactdetails,Détails de contact,Kontaktdetails
+Continue,Continue,Verder,Continuer,Weiter
 Cost,Cost,Kost,Coût,Kosten
+Define order,Define order,Bepaal volgorde,Définir l'ordre,Reihenfolge definieren
+Define players,Define players,Definieer spelers,Définir les joueurs,Spieler definieren
+Define teams,Define teams,Bepaal teams,Définir les équipes,Teams definieren
+Define the incoming and outgoing transfers.,Define the incoming and outgoing transfers.,Bepaal de inkomende en uitgaande transfers.,Définir les transferts entrants et sortants.,Definieren Sie die eingehenden und ausgehenden Transfers.
+Define the order of the players in the list.,Define the order of the players in the list.,Bepaal de volgorde van de spelers in de lijst.,Définir l'ordre des joueurs dans la liste.,Definieren Sie die Reihenfolge der Spieler in der Liste.
+Define the titulars per team,Define the titulars per team,BEpaal titularissen per ploeg,Définir les titulaires par équipe,Definieren Inhaber  für Teams
+Define transfers,Define transfers,Definieer transfers,Définir les transferts,Transfers definieren
+Define who are the players on the list.,Define who are the players on the list.,Bepaal wie de spelers op de lijst zijn.,Définir qui sont les joueurs sur la liste.,"Definieren Sie, wer die Spieler auf der Liste sind."
 Delivery,Delivery,Levering,Livraison,Lieferung
 Details,Details,Details,Détails,Details
 Distribution of teams in same division,Distribution of teams in same division,Verdeling van teams in dezelfde afdeling,Répartition des équipes dans la même division,Verteilung der Teams in derselben Division
@@ -85,6 +100,7 @@ ID number,ID number,Stamnummer,Matricule,ID-Nummer
 Identity,Identity,Identiteit,Identité,Identität
 In 1 series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 In multiple series,In multiple series,In meerdere reeksen,En plusieurs séries,In mehrere Serien
+Incoming transfers,Incoming transfers,Inkomende transfers,Transfrets entrants,Eingehende Trnasfers
 Interclub Administrators,Interclub Administrators,Interclubbeheerders,Administrateurs interclubs,Interclub-Administratoren
 Interclub Captains,Interclub Captains,Interclubkapiteinen,Capitaines interclubs,Interclub-Kapitäne
 Interclub enrollment,Interclub enrollment,Inschrijving Interclub,Enregistrement Interclubs,Interclub-Anmeldung
@@ -92,7 +108,10 @@ Interclub venues,Interclub venues,Speellokalen Interclub,Salles de jeux Interclu
 Internal rules,Internal rules,Intern reglement,Règlement interne,interne Regulierung
 International,International,Internationaal,International,International
 International competitions,International competitions,Internationale competities,Compétitions internationales,Internationale Wettbewerbe
+Intro,Intro,Intro,Intro,Intro
+Intro Player List,Intro Player List,Intro Spelerslijst,Intro liste de force,Intro-Spielerliste
 Last name,Last name,Familienaam,Nom,Nachname
+Loading members ... Please wait,Loading members ... Please wait,Leden aan het laden ... Even geduld aub,Chargement des membres... Veuillez patienter,Mitglieder werden geladen ... Bitte warten
 Long name,Long name,Lange naam,Nom long,Langer Name
 Main email address,Main email address,Hoofd e-mailadres,Adresse e-mail principale,Haupt-E-Mail-Adresse
 Manager international selections,Manager international selections,Manager internationale selecties,Responsable sélections internationales,Manager internationale Auswahlen
@@ -105,18 +124,27 @@ Modify enrollment,Modify enrollment,Inschrijving wijzigen,Modifier l'inscription
 Modify venues,Modify venues,Lokalen wijzigen,Modifier salles de jeux,Orte ändern
 More,More,Meer,Plus,Mehr
 New enrollment,New enrollment,Nieuwe inschrijving,Nouvelle inscription,Neuanmeldung
+No incoming transfers,No incoming transfers,No incoming transfers,Aucun transfert entrant,Keine eingehenden Überweisungen
 No interclub venue is defined yet,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
+No outgoing transfers,No outgoing transfers,Geen uitgaande transfers,Pas de transferts sortants,Keine ausgehenden Transfers
 No preference,No preference,Geen voorkeur,Pas de préférence,keine Präferenz
 Not available,Not available,Niet beschikbaar,Indisponible,Nicht verfügbar
 Not available yet,Not available yet,Nog niet beschikbaar,Pas encore disponible,Zurzeit nicht verfügbar
+not on the playerlist.,not on the playerlist.,niet op de spelerslijst.,pas sur la liste de force.,nicht auf der Spielerliste.
 Ombudsman,Ombudsman,Ombudsman,Médiateur,Ombudsmann
 Order created successfully,Order created successfully,Bestelling succesvol aangemaakt,Commande créée avec succès,Bestellung erfolgreich erstellt
+Order of players,Order of players,Volgorde van spelers,Ordre des joueurs,Reihenfolge der Spieler
+Order the players by adjusting the assigned rating.,Order the players by adjusting the assigned rating.,Rangschik de spelers door de toegekende rating aan te passen.,Triez les joueurs en ajustant la note attribuée.,"Ordnen Sie die Spieler, indem Sie den zugewiesene Elo anpassen."
 Ordering form,Ordering form,Bestelformulier,Formulaire de commande,Bestellformular
 Ordering the book 100 years of Belgian chess history,Ordering the book 100 years of Belgian chess history,Bestellen boek 100 jaar Belgische schaakgeschiedenis,Commander le livre 100 ans d'histoire des échecs en Belgique,Bestellung des Buches 100 Jahre Belgische Schachgeschichte
+Outgoing transfers,Outgoing transfers,Uitgaande transfers,Transferts sortants,Ausgehende Transfers
+Own players on the playerlist,Own players on the playerlist,Eigen spelers op de spelerslijst,Propres joueurs sur la liste de force,Eigene Spieler auf der Spielerliste
 Password,Password,Wachtwoord,Mot de passe,Passwort
 Permission denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
 Planning,Planning,Planning,Planning,Planung
 Player list,Player list,Spelerslijst,Liste de force,Spielerliste
+Playerlist saved,Playerlist saved,Spelerslijst opgeslaan,Liste de joueurs enregistrée,Spielerliste gespeichert
+Players with the same assigned rating are not allowed.,Players with the same assigned rating are not allowed.,Spelers met dezelfde toegewezen Elo zijn niet toegelaten,Les joueurs avec le même Elo attribué ne sont pas autorisés.,Spieler mit dem gleichen zugewiesenen Elo sind nicht erlaubt.
 Please select a club to view the enrollment,Please select a club to view the enrollment,Selecteer een club om de inschrijving te bekijken,Veuillez sélectionner un club pour voir l'inscription,"Bitte wählen Sie einen Club aus, um die Anmeldung anzuzeigen"
 Please select a club to view the interclub venues,Please select a club to view the interclub venues,Selecteer een club om de speellokalen te bekijken,Veuillez sélectionner un club pour voir les salles de jeux \interclubs,"Bitte wählen Sie einen Club aus, um die Interclub-Spielorte anzuzeigen"
 Postal address,Postal address,Postadres,Adresse postale,Postanschrift
@@ -141,7 +169,9 @@ Results,Results,Resultaten,Résultats,Ergebnisse
 Results SWAR,Results SWAR,Resulaten SWAR,Résultats SWAR,Ergebnisse SWAR
 Round,Round,Ronde,Ronde,Runde
 Royal Belgian Chess Federation npo,Royal Belgian Chess Federation npo,Koninklijke Belgische Schaakbond vzw.,Fédération Royale Belge des Echecs asbl.,Königlicher Schachbund Belgien VoE
+Save,Save,Opslaan,Sauvegarder,Speichern
 Save access rights,Save access rights,Toegangsrechten bewaren,Enregistrer les droits d'accès,Zugriffsrechte speichern
+Save changes,Save changes,Wijzigingen opslaan,Sauvegarder les modifications,Änderungen speichern
 Save club,Save club,Club bewaren,Enregistrer le club,Verein speichern
 Save enrollment,Save enrollment,Inschrijving opslaan,Enregistrer l'inscription,Anmeldung speichern
 Save Venues,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
@@ -163,14 +193,23 @@ Teams,Teams,Teams,Equipes,Mannschaften
 Teams grouped by pairing number,Teams grouped by pairing number,Teams gegroepeerd per paringsnummer,Equipes regroupées par numéro d'appariement,Teams gruppiert nach Paarung-Nummer
 Teams in division,Teams in division,Teams in divisie,Equipes en division,Mannschaften in der Division
 Telephone number,Telephone number,Telefoonnummer,Numéro de téléphone,Telefonnummer
-The club administrators have write access to the Club Manager,The club administrators have write access to the Club Manager,De clubbeheerders hebben schrijftoegang tot de Clubmanager,Les administrateurs du club ont un accès en écriture au Club Manager,Die Clubadministratoren haben Schreibzugriff auf den Clubmanager
+The club administrators have write access to the Club Manager,This club is not enrolled in the interclubs.,De clubbeheerders hebben schrijftoegang tot de Clubmanager,Les administrateurs du club ont un accès en écriture au Club Manager,Die Clubadministratoren haben Schreibzugriff auf den Clubmanager
 The club is not enrolled yet,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
+This club is not enrolled in the interclubs.,This club is not enrolled in the interclubs.,De club is  voor de Interclubs niet ingeschreven,Le cercle n'est pas iinscrit pour les interclub,Der Verein ist nicht für Interclubs registriert
 The interclub administrators have write access to the Interclub Manager,The interclub administrators have write access to the Interclub Manager,De interclubbeheerders hebben schrijftoegang tot de Interclub Manager,Les administrateurs interclubs ont accès en écriture au Interclub Manager,Die Interclub-Administratoren haben Schreibzugriff auf den Interclub Manager
 The interclub captains have write access to the planning and results of the Interclub.,The interclub captains have write access to the planning and results of the Interclub.,De interclubcaptains hebben schrijftoegang tot de planning en resultaten van de Interclub.,Les capitaines interclubs ont accès en écriture au planning et aux résultats de l'interclub.,Die Interclub-Captains haben schriftlichen Zugriff auf die Planungen und Ergebnisse des Interclubs.
+The player list of a club is established in 4 steps,The player list of a club is established in 4 steps,De spelerslijst van een club komt tot stand in 4 stappen,La liste de force d'un club est établie en 4 étapes,Die Spielerliste eines Vereins wird in 4 Schritten erstellt
 The venue is not available on following rounds,The venue is not available on following rounds,Het lokaal is niet beschikbaar in de volgende ronden,La salle n'est pas disponible pour les rondes suivantes,Der Ort ist in den folgenden Runden nicht verfügbar
+There are players with the same assigned rating.,There are players with the same assigned rating.,Er zijn spelers met dezelfde Elo,Il y a des joueurs avec le même Elo attribué.,Es gibt Spieler mit dem gleichen zugewiesenen Elo.
+These members can automatically be added to the playerlist.,These members can automatically be added to the playerlist.,Deze leden kunnen automatisch aan de spelerslijst worden toegevoegd.,Ces membres peuvent être automatiquement ajoutés à la liste de force.,Diese Mitglieder können automatisch zur Spielerliste hinzugefügt werden.
+This club is not enrolled in the interclubs,This club is not enrolled in the interclubs,Deze club is niet ingeschreven in de interclubs,Ce club n'est pas inscrit aux interclubs,Dieser Club ist nicht in den Interclubs eingeschrieben
+This is done by adapting the rating of the players.,This is done by adapting the rating of the players.,Dit gebeurt door de rating van de spelers aan te passen.,Cela se fait en adaptant l'Elo des joueurs.,Dies geschieht durch die Anpassung des Elos der Spieler.
+Titulars for,Titulars for,Titularissen voor ,Titulaires pour,Inhaber für 
+Titulars for the teams,Titulars for the teams,Titularissen voor de teams,Titulaires pour les équipes,Inhaber für Teams
 Tools,Tools,Tools,Outils,Werkzeuge
 Tournament director,Tournament director,Toernooidirecteur,Directeur de tournoi,Turnierleiter
 Tournament rules,Tournament rules,Wedstrijdreglement,Règlement des tournois,Turnierregeln
+Transfer of all members to a single club at once.,Transfer of all members to a single club at once.,Transfer van alle leden in één keer naar één club.,Transfert de tous les membres vers un seul club à la fois.,Transfer aller Mitglieder auf einen einzigen Club auf einmal.
 Treasurer,Treasurer,Penningmeester,Trésorier,Schatzmeister
 Useful information,Useful information,Nuttige informatie,Information utile,Nützliche Informationen
 Venue,Venue,Speelzaal,Salle de jeux,Spielort

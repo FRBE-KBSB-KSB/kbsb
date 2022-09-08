@@ -402,6 +402,7 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
     """
     logger.debug(f"setup_interclubclub {idclub}")
     icc = await find_interclubclub(idclub)
+    logger.info(f"icc {icc}")
     if icc:
         return icc
     logger.debug(f"no icc for {idclub}")
@@ -425,6 +426,7 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
             players=[],
             transfersout=[],
         )
+    logger.info(f"creating icc for club {idclub}")
     return await DbInterclubClub.p_add(icc)
 
 

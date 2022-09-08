@@ -1864,7 +1864,7 @@ pyyaml = [
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
 reddevil = [
-    {file = "reddevil-3.0.0-py3-none-any.whl", hash = "sha256:99992db9b705320694513f1fc75a4d478c4c8ac6871fc6e44edce3d7b2dd1038"},
+    {file = "reddevil-3.0.0-py3-none-any.whl", hash = "sha256:3c54d9f103d46b33faa239cafebd0a0434200917b02aba9e4821c294fd4ef927"},
 ]
 requests = []
 requests-oauthlib = [

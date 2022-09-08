@@ -89,7 +89,7 @@ export default {
     defaultLocale: 'nl',
     vueI18n: {
       silentTranslationWarn: false,
-      silentFallbackWarn: true
+      silentFallbackWarn: false
     }
   },
 
