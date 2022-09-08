@@ -6,6 +6,7 @@ env_variables:
   GOOGLE_PROJECT_ID: website-kbsb-test
   GOOGLE_CLIENT_ID: "635054257042-co4g7bdaqmgt6bh9pjqo7efr7uon3bnf.apps.googleusercontent.com"
   BOARDROLES: "./boardroles.yaml"
+  DEBUG_KBSB: 1
   
 handlers:
   - url: /api.*

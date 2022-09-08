@@ -13,3 +13,4 @@ create_env
 env_local.py
 env_staging.py
 env_prod.py
+tests/

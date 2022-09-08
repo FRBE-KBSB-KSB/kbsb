@@ -2,7 +2,7 @@
   <div>
 
     <div v-if="!teams.length">
-      <h3 class="my-2">Active players of club') }} {{ club.idclub }}</h3>
+      <h3 class="my-2">{{ $t('Active players of club') }} {{ club.idclub }}</h3>
       <v-data-table :headers="amheaders" :items="activemembers" :loading="activenotloaded"
         loading-text="Loading members ... Please wait">
         <template #:no-data>No new members found</template>
@@ -10,7 +10,7 @@
     </div>
 
     <div v-if="teams.length">
-      <h4 class="my-2">Incoming transfers') }}</h4>
+      <h4 class="my-2">{{ $t('Incoming transfers') }}</h4>
       <v-data-table :headers="trinheaders" :items="transfersin">
         <template #no-data>{{ $t('No incoming transfers') }}</template>
       </v-data-table>

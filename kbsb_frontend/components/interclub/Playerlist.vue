@@ -39,7 +39,7 @@
           <v-stepper-content step="5">
             <InterclubPlayerlistteams :club="club" />
           </v-stepper-content>
-
+          
           <v-stepper-step :complete="step > 6" step="6" color="green">
             {{ $t('Confirmation') }}
           </v-stepper-step>
@@ -55,8 +55,8 @@
           {{ $t('This club is not enrolled in the interclubs.') }}
           {{ $t('As such, for this interclub season, it can transfer it members to other clubs.') }}
         </p>
-        <MgmtinterclubPlayerlisttransfer :club="club" />
-        <MgmtinterclubPlayerlistconfirm />
+        <InterclubPlayerlisttransfer :club="club" />
+        <InterclubPlayerlistconfirm />
 
       </div>
     </div>
