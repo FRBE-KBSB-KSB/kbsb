@@ -2,16 +2,16 @@
   <div>
     <h4>{{ $t('Save changes') }}</h4>
     <div v-if="!confirmed" class="mt-2">
-      <v-btn color="green" class="white--text" @click="save">
-        {{ $t('Save') }}
+      <v-btn color="deep-purple" class="white--text" @click="save">
+        Save
       </v-btn>
       <v-btn @click="prev">
-        {{ $t('Back') }}
+        Back
       </v-btn>
     </div>
     <div v-if="confirmed" class="mt-2">
       <p>{{ $t('Playerlist confirmed') }}</p>
-      <v-btn color="green" class="white--text" @click="reset">
+      <v-btn color="deep-purple" class="white--text" @click="reset">
         {{ $t('Reset') }}
       </v-btn>
     </div>
@@ -55,8 +55,13 @@ export default {
   methods: {
 
     async save() {
+      console.log('saving')
+      console.log(this.logintoken)
+      console.log(this.club.idclub)
+      console.log(this.players)
+      console.log(this.teams)
+      console.log(this.transfersout)
       try {
-        console.log('saving')
         const reply = await this.$api.interclub.mgmt_set_interclubclub({
           token: this.logintoken,
           idclub: this.club.idclub,
@@ -87,7 +92,7 @@ export default {
     },
 
     reset() {
-      this.$store.commit('playerlist/updateStep', 1)
+      this.$store.commit('mgmtplayerlist/updateStep', 1)
     },
 
   }

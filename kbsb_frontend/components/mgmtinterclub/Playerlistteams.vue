@@ -62,13 +62,13 @@
   
     computed: {
       step() {
-        return this.$store.state.playerlist.step
+        return this.$store.state.mgmtplayerlist.step
       },
       players() {
-        return this.$store.state.playerlist.players
+        return this.$store.state.mgmtplayerlist.players
       },
       teams() {
-        return this.$store.state.playerlist.teams
+        return this.$store.state.mgmtplayerlist.teams
       },
       tt() {
         const tt = [
@@ -136,7 +136,7 @@
           }
         })
         if (error) return false
-        this.$store.commit('playerlist/updateTeams', teams)
+        this.$store.commit('mgmtplayerlist/updateTeams', teams)
         return true
       },
   
@@ -146,12 +146,12 @@
   
       next() {
         if (this.verifytitulars()) {
-          this.$store.commit('playerlist/updateStep', this.step + 1)
+          this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
         }
       },
   
       prev() {
-        this.$store.commit('playerlist/updateStep', this.step - 1)
+        this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
       },
   
     },

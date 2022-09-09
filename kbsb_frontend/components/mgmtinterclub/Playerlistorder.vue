@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h3>{{ $t('Order of players') }}</h3>
-    <div>{{ $t('Order the players by adjusting the assigned rating.') }}</div>
-    <div>{{ $t('Players with the same assigned rating are not allowed.') }}</div>
-    <p>{{ $t('Click on the value of assigned rating to change it')}}</p>
+    <h3>Order of players</h3>
+    <div>Order the players by adjusting the assigned rating.</div>
+    <div>Players with the same assigned rating are not allowed.</div>
+    <p>Click on the value of assigned rating to change it</p>
     <v-data-table :items="plyrs" :headers="arheaders">
       <template v-slot:item.assignedrating="props">
         <v-edit-dialog :return-value="props.item.assignedrating" large :save-text="$t('Save')"
@@ -17,10 +17,10 @@
       </template>
     </v-data-table>
     <v-alert type="warning" v-show="samerating">
-      {{ $t('There are players with the same assigned rating.') }}
+      There are players with the same assigned rating.
     </v-alert>
     <div class="mt-2">
-      <v-btn color="green" class="white--text" @click="next" :disabled="samerating">
+      <v-btn color="deep-purple" class="white--text" @click="next" :disabled="samerating">
         {{ $t('Continue') }}
       </v-btn>
       <v-btn @click="prev">
@@ -31,7 +31,6 @@
 </template>
 
 <script>
-
 function compareAssignedrating(a, b) {
   return b.assignedrating - a.assignedrating
 }
@@ -50,6 +49,7 @@ export default {
         { text: "Max", value: "maxrating", sortable: false },
         { text: "Assigned Rating", value: "assignedrating", sortable: false },
       ],
+      plyrs: []
     }
   },
 
@@ -68,7 +68,7 @@ export default {
       })
     }
   },
-  
+
   methods: {
     buildplayers() {
       console.log('buildplayers')
@@ -102,15 +102,15 @@ export default {
     },
 
     next() {
-      this.$store.commit('playerlist/updateStep', this.step + 1)
+      this.$store.commit('mgmtplayerlist/updateStep', this.step + 1)
     },
     prev() {
-      this.$store.commit('playerlist/updateStep', this.step - 1)
+      this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
     },
     save(pl) {
       if (pl.minrating <= pl.assignedrating && pl.assignedrating <= pl.maxrating) {
         this.plyrs.sort(compareAssignedrating)
-        this.$store.commit('playerlist/updatePlayers', this.plyrs)
+        this.$store.commit('mgmtplayerlist/updatePlayers', this.plyrs)
         this.$forceUpdate()
       }
       else {

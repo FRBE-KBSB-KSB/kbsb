@@ -56,7 +56,7 @@
           {{ $t('As such, for this interclub season, it can transfer it members to other clubs.') }}
         </p>
         <InterclubPlayerlisttransfer :club="club" />
-        <InterclubPlayerlistconfirm />
+        <InterclubPlayerlistconfirm  :club="club"/>
 
       </div>
     </div>

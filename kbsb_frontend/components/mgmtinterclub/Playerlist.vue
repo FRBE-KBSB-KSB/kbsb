@@ -44,7 +44,7 @@
             Confirm
           </v-stepper-step>
           <v-stepper-content step="6">
-            <MgmtinterclubPlayerlistconfirm />
+            <MgmtinterclubPlayerlistconfirm :club="club" />
           </v-stepper-content>
 
         </v-stepper>
@@ -56,7 +56,7 @@
           As such, for this interclub season, it can transfer it members to other clubs
         </p>
         <MgmtinterclubPlayerlisttransfer :club="club" />
-        <MgmtinterclubPlayerlistconfirm />
+        <MgmtinterclubPlayerlistconfirm :club="club"/>
 
       </div>
     </div>
