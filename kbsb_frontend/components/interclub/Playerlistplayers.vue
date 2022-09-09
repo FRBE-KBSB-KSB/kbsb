@@ -42,18 +42,18 @@ export default {
   data() {
     return {
       nmheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
+        { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: this.$t("Last name"), value: "last_name", sortable: true },
+        { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Club ID", value: "idclub", sortable: true },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       plheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
+      { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: this.$t("Last name"), value: "last_name", sortable: true },
+        { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Club ID", value: "idclub", sortable: true },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },

@@ -374,9 +374,7 @@ async def find_teamclubsseries(idclub: int) -> List[InterclubTeam]:
     """
     find all teams of a club in the series
     """
-    logger.debug(f"find_teamclubsseries {idclub}")
     allseries = (await DbInterclubSeries.p_find_multiple({})).allseries
-    logger.debug(f"allseries {allseries}")
     allteams = []
     for s in allseries:
         for t in s.teams:
@@ -402,12 +400,10 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
     """
     logger.debug(f"setup_interclubclub {idclub}")
     icc = await find_interclubclub(idclub)
-    logger.info(f"icc {icc}")
     if icc:
         return icc
     logger.debug(f"no icc for {idclub}")
     teams = await find_teamclubsseries(idclub)
-    logger.debug(f"teams {teams}")
     if teams:
         name = " ".join(teams[0].name.split()[:-1])
         icc = InterclubClub(
@@ -427,7 +423,17 @@ async def setup_interclubclub(idclub: int) -> InterclubClub:
             transfersout=[],
         )
     logger.info(f"creating icc for club {idclub}")
-    return await DbInterclubClub.p_add(icc)
+    id = await DbInterclubClub.add(
+        {
+            "name": icc.name,
+            "idclub": icc.idclub,
+            "teams": [t.dict() for t in icc.teams],
+            "players": [],
+            "transfersout": [],
+        }
+    )
+    logger.info(f"icc id {id}")
+    # return await DbInterclubClub.p_find_single({"id", id})
 
 
 async def transfer_players(requester: int, tr: TransferRequestValidator) -> None:

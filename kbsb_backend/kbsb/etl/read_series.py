@@ -64,7 +64,7 @@ class ExcelSeries:
 async def main():
     async with MongodbInterclubSeriesWriter() as writer:
         db = await get_mongodb()
-        # await db.club.drop()
+        await db.interclubseries.drop()
         for team in ExcelSeries():
             await writer.write(team)
 

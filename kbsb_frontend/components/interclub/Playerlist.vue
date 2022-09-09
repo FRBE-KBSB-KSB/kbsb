@@ -39,7 +39,7 @@
           <v-stepper-content step="5">
             <InterclubPlayerlistteams :club="club" />
           </v-stepper-content>
-          
+
           <v-stepper-step :complete="step > 6" step="6" color="green">
             {{ $t('Confirmation') }}
           </v-stepper-step>
@@ -158,6 +158,19 @@ export default {
       this.playerlist_init()
     })
   },
+
+  watch: {
+    step: function (nv, ov) {
+      console.log('step', nv)
+      if (nv == 4) {
+        this.$root.$emit('buildplayers')
+      }
+      if (nv == 5) {
+        this.$root.$emit('buildtitulars')
+      }
+    }
+  },
+
 
 }
 </script>

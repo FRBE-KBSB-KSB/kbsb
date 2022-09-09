@@ -1,19 +1,32 @@
 <template>
   <div>
     <h4>{{ $t('Save changes') }}</h4>
-    <v-btn color="green" class="white--text" @click="save">
-      {{ $t('Save') }}
-    </v-btn>
-    <v-btn @click="prev">
-      {{ $t('Back') }}
-    </v-btn>
-  </div>
+    <div v-if="!confirmed" class="mt-2">
+      <v-btn color="green" class="white--text" @click="save">
+        {{ $t('Save') }}
+      </v-btn>
+      <v-btn @click="prev">
+        {{ $t('Back') }}
+      </v-btn>
+    </div>
+    <div v-if="confirmed" class="mt-2">
+      <p>{{ $t('Playerlist confirmed') }}</p>
+      <v-btn color="green" class="white--text" @click="reset">
+        {{ $t('Reset') }}
+      </v-btn>
+    </div>
+
   </div>
 </template>
 
 <script>
 
 export default {
+
+
+  data (){return {
+    confirmed: false
+  }},
 
   computed: {
     logintoken() { return this.$store.state.oldlogin.value },
@@ -49,6 +62,7 @@ export default {
           teams: this.teams,
           transfersout: this.transfersout
         })
+        this.confirmed = true
         this.$root.$emit('snackbar', { text: this.$t('Playerlist saved') })
       } catch (error) {
         const reply = error.response
@@ -69,6 +83,10 @@ export default {
     prev() {
       this.$store.commit('playerlist/updateStep', this.step - 1)
     },
+
+    reset() {
+      this.$store.commit('playerlist/updateStep', 1)
+    }
 
   }
 }

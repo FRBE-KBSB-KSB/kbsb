@@ -24,6 +24,7 @@ Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
 Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
 All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
 "As such, for this interclub season, it can transfer it members to other clubs.","As such, for this interclub season, it can transfer it members to other clubs.",Als zodanig kan het voor dit interclubseizoen zijn leden overdragen aan andere clubs.,"A ce titre, pour cette saison interclubs, il peut transférer ses membres vers d'autres clubs.",Als solcher kann er für diese Interclub-Saison seine Mitglieder zu anderen Clubs transferieren.
+Assigned Rating,Assigned Elo,Toegewezen Elo,Elo attribué,Zugewiesenes Elo
 Availability,Availability,Beschikbaarheid,Disponibilité,Verfügbarkeit
 Back,Back,Terug,Retour,Zurück
 Bank account BIC,Bank account BIC,Bankrekening BIC,BIC du compte bancaire,Bankkonto-BIC
@@ -42,6 +43,7 @@ Calendar,Calender,Kalender,Calendrier,Kalender
 Cancel,Cancel,Annuleren,Annuler,Absagen
 Capacity (boards),Capacity (boards),Capaciteit (borden),Capacité (échiquiers),Kapazität (Schachbretter)
 Chess equiment,Chess equiment,Schaakmateriaal,Equipement d'échecs,Schachausrüstung
+Click on the value of assigned rating to change it,Click on the value of assigned rating to change it,Klik op de waarde van de toegewezen Elo om deze te wijzigen,Cliquez sur la valeur de l'ELO attribué pour la modifier,"Klicken Sie auf den Wert der zugewiesenen Elo, um ihn zu ändern"
 Club,Club,Club,Cercle,Verein
 CLUB,Club,Club,Cercle,Verein
 Club administrators,Club administrators,Clubbeheerders,Administrateurs du cercle,Vereinsadministratoren
@@ -54,6 +56,7 @@ Communication manager,Communication manager,Communicatiemanager,Responsable de l
 Competitions,Competitions,Competities,Compétitions,Wettbewerbe
 Confirm,Confirm,Bevestigen,Confirmer,Bestätigen
 Confirmation,Confirmation,Bevestiging,Confirmation,Bestätigung
+Confirmed,Confirmed,Bevestigd,Confirmé,Bestätigt
 Consulting access rights,Consulting access rights,Toegangsrechten raadplegen,Consulter les droits d'accès,Zugriffsrechte abfragen
 Consulting club details,Consulting club details,Clubdetails raadplegen,Consulter les details du cercle,Vereinsdetails abfragen
 Contact,Contact,Contact,Contact,Kontakt
@@ -86,6 +89,7 @@ Existing enrollment,Existing enrollment,Bestaande inschrijving,Inscription exist
 Federation,Federation,Federatie,Fédération,Föderation
 First name,First name,Voornaam,Prénom,Vorname
 French,French,Frans,Français,Französisch
+From club,From club,Van club,Du club,Vom Verein
 G License,G License,G Licentie,Licence G,G Lizenz
 GDPR,GDPR,GDPR,RGPD,GDPR
 German,German,Duits,Allemand,Deutsch

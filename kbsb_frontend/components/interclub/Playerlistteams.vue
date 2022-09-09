@@ -2,7 +2,7 @@
   <div>
     <h3>{{ $t('Titulars for the teams') }}</h3>
     <div v-for="(t,ix) in tt" :key="ix" class="my-3">
-      <v-card v-if="t.nteams > 0" color="#f4f4f4">
+      <v-card v-if="t.nteams > 0" color="#f8f8f8">
         <v-card-title>
           {{ $t('Teams in division') }} {{ ix + 1 }}
         </v-card-title>
@@ -86,7 +86,7 @@ export default {
       let nt = 1
       tt.forEach((x) => {
         x.range = range(x.nteams * x.nplayers, x.start)
-        x.names = range(x.nteams, nt).map(y => `${this.club.name_short} ${y}`)
+        x.names = range(x.nteams, nt).map(y => this.teams[y-1].name)
         nt += x.nteams
       })
       return tt
@@ -100,8 +100,17 @@ export default {
       return pix < this.players.length ? this.players[pix].first_name : ""
     },
 
-    fillTitular() {
-      console.log('fill titular')
+    buildtitulars() {
+      this.teams.forEach((t, ix) => {
+        t.titular.forEach((id) => {
+          let pix = this.players.findIndex(x => x.idnumber == id)
+          this.selmodel[pix] = t.name
+        })
+      })
+      this.$forceUpdate()
+    },
+
+    verifytitulars() {
       const teams = JSON.parse(JSON.stringify(this.teams))
       let error = false
       teams.forEach((tm) => {
@@ -136,7 +145,7 @@ export default {
     },
 
     next() {
-      if (this.fillTitular()) {
+      if (this.verifytitulars()) {
         this.$store.commit('playerlist/updateStep', this.step + 1)
       }
     },
@@ -145,10 +154,14 @@ export default {
       this.$store.commit('playerlist/updateStep', this.step - 1)
     },
 
+  },
 
+  mounted() {
+    this.$root.$on('buildtitulars', (ev) => {
+      this.buildtitulars()
+    })
+  },
 
-
-  }
 }
 </script>
 

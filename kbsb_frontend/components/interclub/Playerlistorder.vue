@@ -3,9 +3,11 @@
     <h3>{{ $t('Order of players') }}</h3>
     <div>{{ $t('Order the players by adjusting the assigned rating.') }}</div>
     <div>{{ $t('Players with the same assigned rating are not allowed.') }}</div>
-    <v-data-table :items="players" :headers="arheaders">
+    <p>{{ $t('Click on the value of assigned rating to change it')}}</p>
+    <v-data-table :items="plyrs" :headers="arheaders">
       <template v-slot:item.assignedrating="props">
-        <v-edit-dialog :return-value="props.item.assignedrating" @save="save(props.item)">
+        <v-edit-dialog :return-value="props.item.assignedrating" large :save-text="$t('Save')"
+          :cancel-text="$t('Cancel')" @save="save(props.item)">
           {{ props.item.assignedrating }}
           <template v-slot:input>
             <v-text-field v-model="props.item.assignedrating" label="Edit" single-line>
@@ -39,15 +41,16 @@ export default {
   data() {
     return {
       arheaders: [
-        { text: "First name", value: "first_name", sortable: false },
-        { text: "Last name", value: "last_name", sortable: false },
-        { text: "ID number", value: "idnumber", sortable: false },
+        { text: this.$t("First name"), value: "first_name", sortable: false },
+        { text: this.$t("Last name"), value: "last_name", sortable: false },
+        { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Nat. Elo", value: "natrating", sortable: false },
         { text: "Fide Elo", value: "fiderating", sortable: false },
         { text: "Min", value: "minrating", sortable: false },
         { text: "Max", value: "maxrating", sortable: false },
-        { text: "Assigned Rating", value: "assignedrating", sortable: false },
+        { text: this.$t("Assigned Rating"), value: "assignedrating", sortable: false },
       ],
+      plyrs: []
     }
   },
 
@@ -68,37 +71,35 @@ export default {
   },
 
   methods: {
-    initAdjustedRating() {
-      console.log('initAdjustRating')
-      const players = [...this.players]
+    buildplayers() {
+      console.log('buildplayers')
+      const players = JSON.parse(JSON.stringify(this.players))
       players.forEach((x) => {
-        if (x.assignedrating == null) {
-          let nr = x.natrating || 0
-          let fr = x.fiderating || 0
-          if (nr > 0 && fr > 0) {
-            x.assignedrating = Math.max(nr, fr)
-            x.maxrating = Math.max(nr, fr) + 100
-            x.minrating = Math.min(nr, fr) - 100
-          }
-          if (nr > 0 && fr == 0) {
-            x.assignedrating = nr
-            x.maxrating = nr + 100
-            x.minrating = nr - 100
-          }
-          if (nr == 0 && fr > 0) {
-            x.assignedrating = fr
-            x.maxrating = fr + 100
-            x.minrating = fr - 100
-          }
-          if (nr == 0 && fr == 0) {
-            x.assignedrating = 1150
-            x.maxrating = 1250
-            x.minrating = 1050
-          }
+        let nr = x.natrating || 0
+        let fr = x.fiderating || 0
+        if (nr > 0 && fr > 0) {
+          if (x.assignedrating == null) x.assignedrating = nr
+          x.maxrating = Math.max(nr, fr) + 100
+          x.minrating = Math.min(nr, fr) - 100
+        }
+        if (nr > 0 && fr == 0) {
+          if (x.assignedrating == null) x.assignedrating = nr
+          x.maxrating = nr + 100
+          x.minrating = nr - 100
+        }
+        if (nr == 0 && fr > 0) {
+          if (x.assignedrating == null) x.assignedrating = fr
+          x.maxrating = fr + 100
+          x.minrating = fr - 100
+        }
+        if (nr == 0 && fr == 0) {
+          if (x.assignedrating == null) x.assignedrating = 1150
+          x.maxrating = 1250
+          x.minrating = 1050
         }
       })
       players.sort(compareAssignedrating)
-      this.$store.commit('playerlist/updatePlayers', players)
+      this.plyrs = players
     },
 
     next() {
@@ -108,11 +109,10 @@ export default {
       this.$store.commit('playerlist/updateStep', this.step - 1)
     },
     save(pl) {
-      console.log('saving assigned rating')
       if (pl.minrating <= pl.assignedrating && pl.assignedrating <= pl.maxrating) {
-        const players = [...this.players]
-        players.sort(compareAssignedrating)
-        this.$store.commit('playerlist/updatePlayers', players)
+        this.plyrs.sort(compareAssignedrating)
+        this.$store.commit('playerlist/updatePlayers', this.plyrs)
+        this.$forceUpdate()
       }
       else {
         this.$root.$emit('snackbar', { text: this.$t('Invalid value for assigned rating') })
@@ -121,13 +121,13 @@ export default {
 
   },
 
-  watch: {
-    step: function (nv, ov) {
-      if (nv == 4) {
-        this.initAdjustedRating()
-      }
-    }
-  }
+  mounted() {
+    this.$root.$on('buildplayers', (ev) => {
+      console.log('')
+      this.buildplayers()
+    })
+  },
+
 
 }
 </script>

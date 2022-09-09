@@ -98,22 +98,22 @@ export default {
   data() {
     return {
       amheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
+        { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: this.$t("Last name"), value: "last_name", sortable: true },
+        { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
       ],
       plout: "",
       plin: "",
       trinheaders: [
-        { text: "First name", value: "first_name", sortable: true },
-        { text: "Last name", value: "last_name", sortable: true },
-        { text: "ID number", value: "idnumber", sortable: false },
-        { text: "From club", value: "idclub", sortable: false },
+        { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: this.$t("Last name"), value: "last_name", sortable: true },
+        { text: this.$t("ID number"), value: "idnumber", sortable: false },
+        { text: this.$t("From club"), value: "idclub", sortable: false },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
-        { text: "Confirmed", value: "transfer_confirmed", sortable: false },
+        { text: this.$t("Confirmed"), value: "transfer_confirmed", sortable: false },
       ],
       troutheaders: [
         { text: "First name", value: "first_name", sortable: true },
