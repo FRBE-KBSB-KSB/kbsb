@@ -151,7 +151,6 @@ export default {
       }
     },
 
-
   },
 
   mounted() {
@@ -159,6 +158,18 @@ export default {
     this.$nextTick(() => {
       this.playerlist_init()
     })
+  },
+
+  watch: {
+    step: function (nv, ov) {
+      console.log('step', nv)
+      if (nv == 4) {
+        this.$root.$emit('buildplayers')
+      }
+      if (nv == 5) {
+        this.$root.$emit('buildtitulars')
+      }
+    }
   },
 
 }
