@@ -4,14 +4,14 @@
     <div v-if="!teams.length">
       <h3 class="my-2">{{ $t('Active players of club') }} {{ club.idclub }}</h3>
       <v-data-table :headers="amheaders" :items="activemembers" :loading="activenotloaded"
-        loading-text="Loading members ... Please wait">
+        loading-text="Loading members ... Please wait" :footer-props="footerProps">
         <template #:no-data>No new members found</template>
       </v-data-table>
     </div>
 
     <div v-if="teams.length">
       <h4 class="my-2">{{ $t('Incoming transfers') }}</h4>
-      <v-data-table :headers="trinheaders" :items="transfersin">
+      <v-data-table :headers="trinheaders" :items="transfersin" :footer-props="footerProps">
         <template #no-data>{{ $t('No incoming transfers') }}</template>
       </v-data-table>
       <v-card color="#f4f4f4">
@@ -114,6 +114,8 @@ export default {
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
         { text: this.$t("Confirmed"), value: "transfer_confirmed", sortable: false },
+        { text: this.$t("Actions"), value: "actions", sortable: false },
+        
       ],
       troutheaders: [
         { text: "First name", value: "first_name", sortable: true },
@@ -124,7 +126,10 @@ export default {
       ],
       tr_cluball: "",
       tr_clubone: "",
-
+      footerProps: {
+        itemsPerPageOptions: [30, 60, -1],
+        itemsPerPage: 30
+      }
     }
   },
 
@@ -155,6 +160,37 @@ export default {
   },
 
   methods: {
+
+    removeDoublesIn() {
+      const pls = []
+      const ids = new Set()
+      this.players.forEach((p) => {
+        if (this.club.idclub == p.idclub){
+          pls.push(p)
+        }
+        if (ids.has(p.idnumber)) {
+          return
+        }
+        else {
+          ids.add(p.idnumber)
+          pls.push(p)
+        }
+      })
+      this.$store.commit('playerlist/updatePlayers', pls)
+    },
+
+    removeTransfersoutFromplayerslist() {
+      const pls = []
+      const ids = new Set()
+      this.transferout.forEach(x = ids.add(x.idnumber))
+      this.players.forEach((p) => {
+        if (ids.has(p.idnumber)){
+          return
+        }
+        pls.push(p)
+      })
+      this.$store.commit('playerlist/updatePlayers', pls)
+    },
 
     addMember(x) {
       const players = [...this.players]

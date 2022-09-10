@@ -4,14 +4,14 @@
     <div v-if="!teams.length">
       <h3 class="my-2">Active players of club {{ club.idclub }}</h3>
       <v-data-table :headers="amheaders" :items="activemembers" :loading="activenotloaded"
-        loading-text="Loading members ... Please wait">
+        loading-text="Loading members ... Please wait" :footer-props="footerProps">
         <template #:no-data>No new members found</template>
       </v-data-table>
     </div>
 
     <div v-if="teams.length">
       <h4 class="my-2">Incoming transfers</h4>
-      <v-data-table :headers="trinheaders" :items="transfersin">
+      <v-data-table :headers="trinheaders" :items="transfersin" :footer-props="footerProps">
         <template #no-data>No incoming transfers</template>
       </v-data-table>
       <v-card color="#f4f4f4">
@@ -124,7 +124,10 @@ export default {
       ],
       tr_cluball: "",
       tr_clubone: "",
-
+      footerProps: {
+        itemsPerPageOptions: [30, 60, -1],
+        itemsPerPage: 30
+      },
     }
   },
 

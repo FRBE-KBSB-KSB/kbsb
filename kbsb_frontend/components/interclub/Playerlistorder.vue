@@ -4,7 +4,7 @@
     <div>{{ $t('Order the players by adjusting the assigned rating.') }}</div>
     <div>{{ $t('Players with the same assigned rating are not allowed.') }}</div>
     <p>{{ $t('Click on the value of assigned rating to change it')}}</p>
-    <v-data-table :items="plyrs" :headers="arheaders">
+    <v-data-table :items="plyrs" :headers="arheaders" :footer-props="footerProps">
       <template v-slot:item.assignedrating="props">
         <v-edit-dialog :return-value="props.item.assignedrating" large :save-text="$t('Save')"
           :cancel-text="$t('Cancel')" @save="save(props.item)">
@@ -50,6 +50,10 @@ export default {
         { text: "Max", value: "maxrating", sortable: false },
         { text: this.$t("Assigned Rating"), value: "assignedrating", sortable: false },
       ],
+      footerProps: {
+        itemsPerPageOptions: [30, 60, -1],
+        itemsPerPage: 30
+      },
       plyrs: []
     }
   },
