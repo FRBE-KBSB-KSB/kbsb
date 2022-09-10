@@ -21,7 +21,7 @@
               <v-col cols="3">
                 {{ first_name(pix)}} {{ last_name(pix)}}
               </v-col>
-              <v-col cols="3">
+              <v-col cols="5">
                 <v-select dense v-model="selmodel[pix]" label="Team" :items="t.names"
                   :hide-details="true" />
               </v-col>

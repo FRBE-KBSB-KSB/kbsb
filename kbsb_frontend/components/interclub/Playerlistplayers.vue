@@ -98,18 +98,8 @@ export default {
 
   methods: {
 
-    addMember(x) {
-      const players = [...this.players]
-      players.push({
-        fiderating: x.fiderating,
-        first_name: x.first_name,
-        idnumber: x.idnumber,
-        idclub: x.idclub,
-        last_name: x.last_name,
-        natrating: x.natrating,
-        transfer: false
-      })
-      this.$store.commit('playerlist/updatePlayers', players)
+    addMember(p) {
+      this.$emit('addmember', p)
     },
 
     addAllMembers() {

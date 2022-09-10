@@ -31,6 +31,7 @@
 </template>
 
 <script>
+
 function compareAssignedrating(a, b) {
   return b.assignedrating - a.assignedrating
 }
@@ -124,13 +125,11 @@ export default {
 
   },
 
-  mounted() {
-    this.$root.$on('buildplayers', (ev) => {
-      console.log('')
-      this.buildplayers()
-    })
-  },
-
+  watch: {
+    players: function(nv, ov) {
+      this.plyrs = [...nv]
+    }
+  }
 
 }
 </script>

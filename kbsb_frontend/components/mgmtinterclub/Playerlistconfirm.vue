@@ -12,7 +12,7 @@
     <div v-if="confirmed" class="mt-2">
       <p>{{ $t('Playerlist confirmed') }}</p>
       <v-btn color="deep-purple" class="white--text" @click="reset">
-        {{ $t('Reset') }}
+        Modify playerlist again
       </v-btn>
     </div>
 
@@ -55,12 +55,6 @@ export default {
   methods: {
 
     async save() {
-      console.log('saving')
-      console.log(this.logintoken)
-      console.log(this.club.idclub)
-      console.log(this.players)
-      console.log(this.teams)
-      console.log(this.transfersout)
       try {
         const reply = await this.$api.interclub.mgmt_set_interclubclub({
           token: this.logintoken,
@@ -92,7 +86,7 @@ export default {
     },
 
     reset() {
-      this.$store.commit('mgmtplayerlist/updateStep', 1)
+      this.$store.commit('mgmtplayerlist/updateStep', 2)
     },
 
   }

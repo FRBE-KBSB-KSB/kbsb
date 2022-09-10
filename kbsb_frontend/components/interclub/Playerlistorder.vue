@@ -75,36 +75,6 @@ export default {
   },
 
   methods: {
-    buildplayers() {
-      console.log('buildplayers')
-      const players = JSON.parse(JSON.stringify(this.players))
-      players.forEach((x) => {
-        let nr = x.natrating || 0
-        let fr = x.fiderating || 0
-        if (nr > 0 && fr > 0) {
-          if (x.assignedrating == null) x.assignedrating = nr
-          x.maxrating = Math.max(nr, fr) + 100
-          x.minrating = Math.min(nr, fr) - 100
-        }
-        if (nr > 0 && fr == 0) {
-          if (x.assignedrating == null) x.assignedrating = nr
-          x.maxrating = nr + 100
-          x.minrating = nr - 100
-        }
-        if (nr == 0 && fr > 0) {
-          if (x.assignedrating == null) x.assignedrating = fr
-          x.maxrating = fr + 100
-          x.minrating = fr - 100
-        }
-        if (nr == 0 && fr == 0) {
-          if (x.assignedrating == null) x.assignedrating = 1150
-          x.maxrating = 1250
-          x.minrating = 1050
-        }
-      })
-      players.sort(compareAssignedrating)
-      this.plyrs = players
-    },
 
     next() {
       this.$store.commit('playerlist/updateStep', this.step + 1)
@@ -125,13 +95,11 @@ export default {
 
   },
 
-  mounted() {
-    this.$root.$on('buildplayers', (ev) => {
-      console.log('')
-      this.buildplayers()
-    })
-  },
-
+  watch: {
+    players: function(nv, ov) {
+      this.plyrs = [...nv]
+    }
+  }
 
 }
 </script>

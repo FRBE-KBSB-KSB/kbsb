@@ -21,7 +21,7 @@
               <v-col cols="3">
                 {{ first_name(pix)}} {{ last_name(pix)}}
               </v-col>
-              <v-col cols="3">
+              <v-col cols="5">
                 <v-select dense v-model="selmodel[pix]" label="Team" :items="t.names"
                   :hide-details="true" />
               </v-col>
@@ -86,7 +86,7 @@ export default {
       let nt = 1
       tt.forEach((x) => {
         x.range = range(x.nteams * x.nplayers, x.start)
-        x.names = range(x.nteams, nt).map(y => this.teams[y-1].name)
+        x.names = range(x.nteams, nt).map(y => this.teams[y - 1].name)
         nt += x.nteams
       })
       return tt

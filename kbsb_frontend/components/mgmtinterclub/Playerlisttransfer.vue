@@ -10,13 +10,23 @@
     </div>
 
     <div v-if="teams.length">
-      <h4 class="my-2">Incoming transfers</h4>
+      <h4 class="my-2">{{ $t('Incoming transfers') }}</h4>
       <v-data-table :headers="trinheaders" :items="transfersin" :footer-props="footerProps">
-        <template #no-data>No incoming transfers</template>
+        <template #no-data>{{ $t('No incoming transfers') }}</template>
+        <template #item.action="{ item }">
+          <v-tooltip bottom>
+            <template #activator="{ on }">
+              <v-icon small outline class="mr-2" v-on="on" @click="rmTransferin(item)">
+                mdi-minus
+              </v-icon>
+            </template>
+            {{ $t('Remove transfer') }}
+          </v-tooltip>
+        </template>
       </v-data-table>
       <v-card color="#f4f4f4">
         <v-card-title>
-          Add a transfer from a club:
+          {{ $t('Add a transfer from a club') }}
         </v-card-title>
         <v-divider />
         <v-card-text>
@@ -25,7 +35,7 @@
               <v-text-field v-model="plin" label="ID number" />
             </v-col>
             <v-col col="2" sm="1">
-              <v-btn fab outlined color="deep-purple" @click="trin_one">
+              <v-btn fab outlined color="green" @click="trin_one">
                 <v-icon>mdi-transfer-right</v-icon>
               </v-btn>
             </v-col>
@@ -34,12 +44,22 @@
       </v-card>
     </div>
 
-    <h3 class="my-2">Outgoing transfers</h3>
+    <h4 class="my-2">{{ $t('Outgoing transfers') }}</h4>
     <v-data-table :headers="troutheaders" :items="transfersout">
-      <template #no-data>No outgoing transfers</template>
+      <template #no-data>{{ $t('No outgoing transfers') }}</template>
+      <template #item.action="{ item }">
+        <v-tooltip bottom>
+          <template #activator="{ on }">
+            <v-icon small outline class="mr-2" v-on="on" @click="rmTransferout(item)">
+              mdi-minus
+            </v-icon>
+          </template>
+          {{ $t('Remove transfer') }}
+        </v-tooltip>
+      </template>
     </v-data-table>
 
-    <v-card v-if="!teams.length" color="#f4f4f4">
+    <v-card v-if="!teams.length" color="#f8f8f8">
       <v-card-title>
         Transfer of all members to a single club at once
       </v-card-title>
@@ -58,7 +78,7 @@
       </v-card-text>
     </v-card>
 
-    <v-card color="#f4f4f4">
+    <v-card color="#f8f8f8">
       <v-card-title>
         Add transfer to a club
       </v-card-title>
@@ -114,6 +134,7 @@ export default {
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
         { text: "Confirmed", value: "transfer_confirmed", sortable: false },
+        { text: "Actions", value: "action", sortable: false },
       ],
       troutheaders: [
         { text: "First name", value: "first_name", sortable: true },
@@ -121,6 +142,7 @@ export default {
         { text: "ID number", value: "idnumber", sortable: false },
         { text: "To club", value: "idvisitingclub", sortable: false },
         { text: "Confirmed", value: "confirmed_date", sortable: false },
+        { text: "Actions", value: "action", sortable: false },
       ],
       tr_cluball: "",
       tr_clubone: "",
@@ -159,20 +181,66 @@ export default {
 
   methods: {
 
-    addMember(x) {
-      const players = [...this.players]
-      players.push({
-        fiderating: x.fiderating,
-        first_name: x.first_name,
-        idnumber: x.idnumber,
-        idclub: x.idclub,
-        last_name: x.last_name,
-        natrating: x.natrating,
-        transfer: false
+    rmTransferin(it) {
+      console.log('remove', it)
+      const pls = [...this.players]
+      pls.some((x, ix) => {
+        if (x.idnumber == it.idnumber) {
+          console.log('found player', x.idnumber)
+          pls.splice(ix, 1)
+          return true
+        }
       })
-      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+      this.$store.commit('mgmtplayerlist/updatePlayers', pls)
     },
 
+
+    rmTransferout(it) {
+      const trout = [...this.transfersout]
+      trout.some((x, ix) => {
+        console.log("x", x.idnumber)
+        if (x.idnumber == it.idnumber) {
+          trout.splice(ix, 1)
+          return true
+        }
+      })
+      this.$store.commit('mgmtplayerlist/updateTransfersout', trout)
+      const pl = this.activemembers.find(x => x.idnumber == it.idnumber)
+      if (!pl) {
+        console.log('it is not an active member, so not added to playerlist')
+        return
+      }
+      console.log('pl', pl.idnumber, pl.assignedrating)
+      this.$root.$emit('addmember', pl)
+      console.log('last player', this.players[this.players.length-1])
+      this.$root.$emit('buildplayers')
+    },
+
+    rmDoubles() {
+      const plys = []
+      const ids = new Set()
+      this.players.forEach((x) => {
+        if (ids.has(x.idnumber)) {
+          return
+        }
+        plys.push(x)
+      })
+      this.$store.commit('mgmtplayerlist/updatePlayers', plys)
+    },
+
+    rmTransfersoutFromPlayerslist() {
+      const pls = []
+      const ids = new Set()
+      this.transfersout.forEach((x) => ids.add(x.idnumber))
+      this.players.forEach((p, ix) => {
+        if (ids.has(p.idnumber)) {
+          return
+        }
+        pls.push(p)
+      })
+      this.$store.commit('mgmtplayerlist/updatePlayers', pls)
+    },
+    
     trout_all() {
       const transfersout = [...this.transfersout]
       const now = new Date()
@@ -192,23 +260,37 @@ export default {
     },
 
     trout_one() {
+      let plid, clid
+      try {
+        plid = parseInt(this.plout)
+      } catch (error) {
+        this.$root.$emit('snackbar', { text: this.$t('Invalid ID number') })
+        return
+      }
+      try {
+        clid = parseInt(this.tr_clubone)
+      } catch (error) {
+        this.$root.$emit('snackbar', { text: this.$t('Invalid club number') })
+        return
+      }
       const transfersout = [...this.transfersout]
       const now = new Date()
-      const pl = this.activemembers.find(x => x.idnumber == this.plout)
+      const pl = this.activemembers.find(x => x.idnumber == plid)
       if (!pl) {
         this.$root.$emit('snackbar', { text: this.$t('Cannot add: not a member of the club') })
         return
       }
       transfersout.push({
         first_name: pl.first_name,
-        idnumber: this.plout,
+        idnumber: plid,
         idoriginalclub: this.club.idclub,
-        idvisitingclub: this.tr_clubone,
+        idvisitingclub: clid,
         last_name: pl.last_name,
         confirmed_date: now,
         request_date: now,
       })
       this.$store.commit('mgmtplayerlist/updateTransfersout', transfersout)
+      this.rmTransfersoutFromPlayerslist()
       this.plout = ''
       this.tr_clubone = ''
     },

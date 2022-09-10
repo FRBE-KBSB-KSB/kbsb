@@ -56,7 +56,7 @@
           {{ $t('As such, for this interclub season, it can transfer it members to other clubs.') }}
         </p>
         <InterclubPlayerlisttransfer :club="club" />
-        <InterclubPlayerlistconfirm  :club="club"/>
+        <InterclubPlayerlistconfirm :club="club" />
 
       </div>
     </div>
@@ -64,6 +64,10 @@
 </template>
 <script>
 import Vue from 'vue'
+
+function compareAssignedrating(a, b) {
+  return b.assignedrating - a.assignedrating
+}
 
 export default {
 
@@ -80,18 +84,66 @@ export default {
   },
 
   computed: {
+    activemembers() {
+      return this.$store.state.playerlist.activemembers
+    },
+    players() {
+      return this.$store.state.playerlist.players
+    },
     step() {
       return this.$store.state.playerlist.step
     },
     teams() {
       return this.$store.state.playerlist.teams
     },
-    activemembers() {
-      return this.$store.state.playerlist.activemembers
-    },
   },
 
   methods: {
+
+    addmember(x) {
+      const players = [...this.players]
+      players.push({
+        fiderating: x.fiderating,
+        first_name: x.first_name,
+        idnumber: x.idnumber,
+        idclub: x.idclub,
+        last_name: x.last_name,
+        natrating: x.natrating,
+        transfer: false
+      })
+      this.$store.commit('playerlist/updatePlayers', players)
+    },
+
+    buildplayers() {
+      console.log('building players')
+      const players = [...this.players]
+      players.forEach((x) => {
+        let nr = x.natrating || 0
+        let fr = x.fiderating || 0
+        if (nr > 0 && fr > 0) {
+          if (x.assignedrating == null) x.assignedrating = nr
+          x.maxrating = Math.max(nr, fr) + 100
+          x.minrating = Math.min(nr, fr) - 100
+        }
+        if (nr > 0 && fr == 0) {
+          if (x.assignedrating == null) x.assignedrating = nr
+          x.maxrating = nr + 100
+          x.minrating = nr - 100
+        }
+        if (nr == 0 && fr > 0) {
+          if (x.assignedrating == null) x.assignedrating = fr
+          x.maxrating = fr + 100
+          x.minrating = fr - 100
+        }
+        if (nr == 0 && fr == 0) {
+          if (x.assignedrating == null) x.assignedrating = 1150
+          x.maxrating = 1600
+          x.minrating = 1000
+        }
+      })
+      players.sort(compareAssignedrating)
+      this.$store.commit('playerlist/updatePlayers', players)
+    },
 
     emitInterface() {
       this.$emit("interface", "playerlist_init", this.playerlist_init);
@@ -149,11 +201,16 @@ export default {
       }
     },
 
-
   },
 
   mounted() {
-    this.emitInterface();
+    this.$root.$on('addmember', ((pl) => {
+      this.addmember(pl)
+    }))
+    this.$root.$on('buildplayers', (() => {
+      this.buildplayers()
+    }))
+    this.emitInterface()
     this.$nextTick(() => {
       this.playerlist_init()
     })
@@ -163,7 +220,7 @@ export default {
     step: function (nv, ov) {
       console.log('step', nv)
       if (nv == 4) {
-        this.$root.$emit('buildplayers')
+        this.buildplayers()
       }
       if (nv == 5) {
         this.$root.$emit('buildtitulars')

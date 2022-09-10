@@ -10,9 +10,9 @@
       </v-btn>
     </div>
     <div v-if="confirmed" class="mt-2">
-      <p>{{ $t('Playerlist confirmed') }}</p>
+      <p>{{ $t('Playerlist saved') }}</p>
       <v-btn color="green" class="white--text" @click="reset">
-        {{ $t('Reset') }}
+        {{ $t('Modify playerlist again') }}
       </v-btn>
     </div>
 
@@ -24,9 +24,11 @@
 export default {
 
 
-  data (){return {
-    confirmed: false
-  }},
+  data() {
+    return {
+      confirmed: false
+    }
+  },
 
   computed: {
     logintoken() { return this.$store.state.oldlogin.value },
@@ -54,7 +56,6 @@ export default {
 
     async save() {
       try {
-        console.log('saving')
         const reply = await this.$api.interclub.clb_set_interclubclub({
           token: this.logintoken,
           idclub: this.club.idclub,
@@ -85,7 +86,7 @@ export default {
     },
 
     reset() {
-      this.$store.commit('playerlist/updateStep', 1)
+      this.$store.commit('playerlist/updateStep', 2)
     }
 
   }

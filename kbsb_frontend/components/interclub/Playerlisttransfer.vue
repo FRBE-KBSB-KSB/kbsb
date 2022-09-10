@@ -13,6 +13,16 @@
       <h4 class="my-2">{{ $t('Incoming transfers') }}</h4>
       <v-data-table :headers="trinheaders" :items="transfersin" :footer-props="footerProps">
         <template #no-data>{{ $t('No incoming transfers') }}</template>
+        <template #item.action="{ item }">
+          <v-tooltip bottom>
+            <template #activator="{ on }">
+              <v-icon small outline class="mr-2" v-on="on" @click="rmTransferin(item)">
+                mdi-minus
+              </v-icon>
+            </template>
+            {{ $t('Remove transfer') }}
+          </v-tooltip>
+        </template>
       </v-data-table>
       <v-card color="#f4f4f4">
         <v-card-title>
@@ -34,12 +44,22 @@
       </v-card>
     </div>
 
-    <h3 class="my-2">{{ $t('Outgoing transfers') }}</h3>
+    <h4 class="my-2">{{ $t('Outgoing transfers') }}</h4>
     <v-data-table :headers="troutheaders" :items="transfersout">
       <template #no-data>{{ $t('No outgoing transfers') }}</template>
+      <template #item.action="{ item }">
+        <v-tooltip bottom>
+          <template #activator="{ on }">
+            <v-icon small outline class="mr-2" v-on="on" @click="rmTransferout(item)">
+              mdi-minus
+            </v-icon>
+          </template>
+          {{ $t('Remove transfer') }}
+        </v-tooltip>
+      </template>
     </v-data-table>
 
-    <v-card v-if="!teams.length" color="#f4f4f4">
+    <v-card v-if="!teams.length" color="#f8f8f8">
       <v-card-title>
         {{ $t('Transfer of all members to a single club at once.') }}
       </v-card-title>
@@ -58,7 +78,7 @@
       </v-card-text>
     </v-card>
 
-    <v-card color="#f4f4f4">
+    <v-card color="#f8f8f8">
       <v-card-title>
         {{ $t('Add transfer to a club') }}
       </v-card-title>
@@ -114,8 +134,8 @@ export default {
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
         { text: this.$t("Confirmed"), value: "transfer_confirmed", sortable: false },
-        { text: this.$t("Actions"), value: "actions", sortable: false },
-        
+        { text: this.$t("Actions"), value: "action", sortable: false },
+
       ],
       troutheaders: [
         { text: "First name", value: "first_name", sortable: true },
@@ -123,6 +143,7 @@ export default {
         { text: "ID number", value: "idnumber", sortable: false },
         { text: "To club", value: "idvisitingclub", sortable: false },
         { text: "Confirmed", value: "confirmed_date", sortable: false },
+        { text: this.$t("Actions"), value: "action", sortable: false },
       ],
       tr_cluball: "",
       tr_clubone: "",
@@ -161,30 +182,59 @@ export default {
 
   methods: {
 
-    removeDoublesIn() {
-      const pls = []
-      const ids = new Set()
-      this.players.forEach((p) => {
-        if (this.club.idclub == p.idclub){
-          pls.push(p)
-        }
-        if (ids.has(p.idnumber)) {
-          return
-        }
-        else {
-          ids.add(p.idnumber)
-          pls.push(p)
+    rmTransferin(it) {
+      console.log('remove', it)
+      const pls = [...this.players]
+      pls.some((x, ix) => {
+        if (x.idnumber == it.idnumber) {
+          console.log('found player', x.idnumber)
+          pls.splice(ix, 1)
+          return true
         }
       })
       this.$store.commit('playerlist/updatePlayers', pls)
     },
 
-    removeTransfersoutFromplayerslist() {
+
+    rmTransferout(it) {
+      const trout = [...this.transfersout]
+      trout.some((x, ix) => {
+        console.log("x", x.idnumber)
+        if (x.idnumber == it.idnumber) {
+          trout.splice(ix, 1)
+          return true
+        }
+      })
+      this.$store.commit('playerlist/updateTransfersout', trout)
+      const pl = this.activemembers.find(x => x.idnumber == it.idnumber)
+      if (!pl) {
+        console.log('it is not an active member, so not added to playerlist')
+        return
+      }
+      console.log('pl', pl.idnumber, pl.assignedrating)
+      this.$root.$emit('addmember', pl)
+      console.log('last player', this.players[this.players.length-1])
+      this.$root.$emit('buildplayers')
+    },
+
+    rmDoubles() {
+      const plys = []
+      const ids = new Set()
+      this.players.forEach((x) => {
+        if (ids.has(x.idnumber)) {
+          return
+        }
+        plys.push(x)
+      })
+      this.$store.commit('playerlist/updatePlayers', plys)
+    },
+
+    rmTransfersoutFromPlayerslist() {
       const pls = []
       const ids = new Set()
-      this.transferout.forEach(x = ids.add(x.idnumber))
-      this.players.forEach((p) => {
-        if (ids.has(p.idnumber)){
+      this.transfersout.forEach((x) => ids.add(x.idnumber))
+      this.players.forEach((p, ix) => {
+        if (ids.has(p.idnumber)) {
           return
         }
         pls.push(p)
@@ -192,19 +242,6 @@ export default {
       this.$store.commit('playerlist/updatePlayers', pls)
     },
 
-    addMember(x) {
-      const players = [...this.players]
-      players.push({
-        fiderating: x.fiderating,
-        first_name: x.first_name,
-        idnumber: x.idnumber,
-        idclub: x.idclub,
-        last_name: x.last_name,
-        natrating: x.natrating,
-        transfer: false
-      })
-      this.$store.commit('playerlist/updatePlayers', players)
-    },
 
     trout_all() {
       const transfersout = [...this.transfersout]
@@ -221,63 +258,76 @@ export default {
         })
       })
       this.$store.commit('playerlist/updateTransfersout', transfersout)
+      this.rmTransfersoutFromPlayerslist()
       this.tr_cluball = ''
     },
 
     trout_one() {
+      let plid, clid
+      try {
+        plid = parseInt(this.plout)
+      } catch (error) {
+        this.$root.$emit('snackbar', { text: this.$t('Invalid ID number') })
+        return
+      }
+      try {
+        clid = parseInt(this.tr_clubone)
+      } catch (error) {
+        this.$root.$emit('snackbar', { text: this.$t('Invalid club number') })
+        return
+      }
       const transfersout = [...this.transfersout]
       const now = new Date()
-      const pl = this.activemembers.find(x => x.idnumber == this.plout)
+      const pl = this.activemembers.find(x => x.idnumber == plid)
       if (!pl) {
         this.$root.$emit('snackbar', { text: this.$t('Cannot add: not a member of the club') })
         return
       }
       transfersout.push({
         first_name: pl.first_name,
-        idnumber: this.plout,
+        idnumber: plid,
         idoriginalclub: this.club.idclub,
-        idvisitingclub: this.tr_clubone,
+        idvisitingclub: clid,
         last_name: pl.last_name,
         confirmed_date: now,
         request_date: now,
       })
       this.$store.commit('playerlist/updateTransfersout', transfersout)
+      this.rmTransfersoutFromPlayerslist()
       this.plout = ''
       this.tr_clubone = ''
     },
 
     async trin_one() {
+      let pl;
+      const pids = new Set()
+      this.players.forEach(x => pids.add(x.idnumber))
+      if (pids.has(this.plin)) {
+        this.$root.$emit('snackbar', { text: this.$t('Player already in playerlist') })
+        return
+      }
       try {
         const reply = await this.$api.old.get_member({
           idnumber: this.plin,
         })
-        this.trin = ""
-        const pl = reply.data
-        console.log('pl', pl)
-        const players = [...this.players]
-        players.push({
-          fiderating: pl.fiderating,
-          first_name: pl.first_name,
-          idnumber: pl.idnumber,
-          idclub: pl.idclub,
-          last_name: pl.last_name,
-          natrating: pl.natrating,
-          transfer: true
-        })
-        this.$store.commit('playerlist/updatePlayers', players)
+        console.log('reply', reply)
+        pl = reply.data
       } catch (error) {
-        switch (reply.status) {
-          case 400:
-            this.$root.$emit('snackbar', { text: this.$t('Invalid id') })
-            break
-          case 404:
-            this.$root.$emit('snackbar', { text: this.$t('Player not found') })
-            break
-          default:
-            console.error('Getting member failed', reply.data.detail)
-            this.$root.$emit('snackbar', { text: this.$t('Getting member failed') })
-        }
+        this.$root.$emit('snackbar', { text: this.$t('Unknonw player') })
+        return
       }
+      this.plin = ""
+      const players = [...this.players]
+      players.push({
+        fiderating: pl.fiderating,
+        first_name: pl.first_name,
+        idnumber: pl.idnumber,
+        idclub: pl.idclub,
+        last_name: pl.last_name,
+        natrating: pl.natrating,
+        transfer: true
+      })
+      this.$store.commit('playerlist/updatePlayers', players)
     },
 
     next() {
