@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="mt-2">
-      <h4>{{ $t('Active players of club') }} {{ club.idclub }}, {{ $t('not on the playerlist.') }} </h4>
+      <h4>{{ $t('Active players of club') }} {{ club.idclub }}, {{ $t('not on the playerlist.') }}
+      </h4>
       <div>{{ $t('These members can automatically be added to the playerlist.') }}
         <v-btn class="ml-2" @click="addAllMembers">Add all</v-btn>
       </div>
@@ -51,7 +52,7 @@ export default {
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       plheaders: [
-      { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: this.$t("First name"), value: "first_name", sortable: true },
         { text: this.$t("Last name"), value: "last_name", sortable: true },
         { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Club ID", value: "idclub", sortable: true },
@@ -61,7 +62,7 @@ export default {
       footerProps: {
         itemsPerPageOptions: [30, 60, -1],
         itemsPerPage: 30
-      }      
+      }
     }
   },
 
@@ -99,7 +100,7 @@ export default {
   methods: {
 
     addMember(p) {
-      this.$emit('addmember', p)
+      this.$root.$emit('addmember', p)
     },
 
     addAllMembers() {

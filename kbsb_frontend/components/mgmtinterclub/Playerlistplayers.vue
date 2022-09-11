@@ -99,7 +99,7 @@ export default {
   methods: {
 
     addMember(p) {
-      this.$emit('addmember', p)
+      this.$root.$emit('addmember', p)
     },
 
     addAllMembers() {
