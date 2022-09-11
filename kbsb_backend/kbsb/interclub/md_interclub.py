@@ -6,6 +6,7 @@
 # we are using pydantic as tool
 
 from datetime import datetime
+from enum import Enum
 from typing import Dict, Any, List, Optional
 from xml.dom.expatbuilder import DOCUMENT_NODE
 from pydantic import BaseModel
@@ -52,7 +53,6 @@ class InterclubTransfer(BaseModel):
     idvisitingclub: int
     last_name: str
     request_date: Optional[datetime]
-
 
 class InterclubClubOptional(BaseModel):
     name: Optional[str]
@@ -117,6 +117,49 @@ class DbInterclubSeries(DbBase):
     LT = InterclubSeriesList
     ItemField = "allseries"
 
+
+
+# games
+
+class GameResult(str, Enum):
+    homewins = "1-0"
+    draw = "½-½"
+    visitwins = "0-1"
+    FF1_0 = "1-0 FF"
+    FF0_1 = "0-1 FF"
+    FF0_0 = "0-0 FF"
+
+
+class InterclubBoard(BaseModel):
+    number: int
+    home_id: int
+    home_fn: str
+    home_ln: str
+    visit_id: int
+    visit_fn: str
+    visit_ls: str
+    result: GameResult
+
+class InterclubGame(DocumentType):
+    division: int
+    index: str
+    round: int
+    home_clb: int
+    visit_clb: int
+    boards: List[InterclubBoard]
+
+class InterclubGameList(ListType):
+    games: List[InterclubGame]    
+
+
+class DbInterclubGame(DbBase):
+    COLLECTION = "interclubgame"
+    DOCUMENTTYPE = "InterclubGame"
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    DT = InterclubGame
+    LT = InterclubGameList
+    ItemField = "clubs"
 
 # enrollment
 
