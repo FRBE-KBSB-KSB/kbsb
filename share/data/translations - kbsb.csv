@@ -14,9 +14,11 @@ automatiquement </p>","<p> Die verbundenen Spieler möchten das Buch 100 Jahre B
 1 group,1 group,1 groep,1 groupe,1 Gruppe
 2 opposite groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
 Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
+Actions,Actions,Acties,Actions,Aktionen
 Active players of club,Active players of club,Actieve clubspelers,Joueurs actifs du club,Aktive Spieler des Vereins
 Add a transfer from a club,Add a transfer from a club,Een transfer vanaf een club toevoegen,Ajouter un transfert depuis un club,Fügen Sie einen Transfer hinzu
 Add enrollment,Add enrollment,Inschrijving toevoegen,Ajouter une inscription,Anmeldung hinzufügen
+Add to playerlist,Add to playerlist,Toevegen aan spelerslijst,Ajouter à la liste de force,Zur Spielerliste hinzufügen
 Add transfer to a club,Add transfer to a club,Trnasfer naar een club toevoegen,Ajouter un transfert à un club,Transfer zu einem Verein hinzufügen
 Address,Address,Adres,Adresse,Adresse
 Administration,Administration,Beheer,Administration,Administration
@@ -125,6 +127,7 @@ Mobile phone,Mobile phone,GSM,GSM,Handy
 Modify access rights,Modify access rights,Toegangsrechten wijzigen,Modifier les droits d'accès,Zugriffsrechte ändern
 Modify club,Modify club,Club wijzigen,Modifier cercle,Verein ändern
 Modify enrollment,Modify enrollment,Inschrijving wijzigen,Modifier l'inscription,Anmeldung ändern
+Modify playerlist again,Modify playerlist again,Spelerlijst opnieuw wijzigen,Modifier à nouveau la liste de force,Ändern Sie die Spielerliste erneut
 Modify venues,Modify venues,Lokalen wijzigen,Modifier salles de jeux,Orte ändern
 More,More,Meer,Plus,Mehr
 New enrollment,New enrollment,Nieuwe inschrijving,Nouvelle inscription,Neuanmeldung
@@ -164,6 +167,7 @@ Regional,Regional,Regionaal,Régional,Regional
 Regional preferences,Regional preferences,Regionale voorkeuren,Préférences régionales,Regionale Präferenzen
 Registered office,Registered office,Maatschappelijke zetel,Siège social,Sitz der Gesellschaft
 Remarks,Remarks,Opmerkingen,Remarques,Bemerkungen
+Remove transfer,Remove transfer,Transfer verwijderen,Supprimer le transfert,Transfer entfernen
 Reports,Reports,Verslagen,Procès verbaux,Berichte
 Representative BOIC,Representative BOIC,BOIC afgevaardigde,Délegué COIB,Stellvertreter BOIC
 Representative female players,Representative female players,Vertegenwoordiger speelsters,Représentant joueuses,Vertreter für Spielerinnen
@@ -199,7 +203,6 @@ Teams in division,Teams in division,Teams in divisie,Equipes en division,Mannsch
 Telephone number,Telephone number,Telefoonnummer,Numéro de téléphone,Telefonnummer
 The club administrators have write access to the Club Manager,This club is not enrolled in the interclubs.,De clubbeheerders hebben schrijftoegang tot de Clubmanager,Les administrateurs du club ont un accès en écriture au Club Manager,Die Clubadministratoren haben Schreibzugriff auf den Clubmanager
 The club is not enrolled yet,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
-This club is not enrolled in the interclubs.,This club is not enrolled in the interclubs.,De club is  voor de Interclubs niet ingeschreven,Le cercle n'est pas iinscrit pour les interclub,Der Verein ist nicht für Interclubs registriert
 The interclub administrators have write access to the Interclub Manager,The interclub administrators have write access to the Interclub Manager,De interclubbeheerders hebben schrijftoegang tot de Interclub Manager,Les administrateurs interclubs ont accès en écriture au Interclub Manager,Die Interclub-Administratoren haben Schreibzugriff auf den Interclub Manager
 The interclub captains have write access to the planning and results of the Interclub.,The interclub captains have write access to the planning and results of the Interclub.,De interclubcaptains hebben schrijftoegang tot de planning en resultaten van de Interclub.,Les capitaines interclubs ont accès en écriture au planning et aux résultats de l'interclub.,Die Interclub-Captains haben schriftlichen Zugriff auf die Planungen und Ergebnisse des Interclubs.
 The player list of a club is established in 4 steps,The player list of a club is established in 4 steps,De spelerslijst van een club komt tot stand in 4 stappen,La liste de force d'un club est établie en 4 étapes,Die Spielerliste eines Vereins wird in 4 Schritten erstellt
@@ -207,6 +210,7 @@ The venue is not available on following rounds,The venue is not available on fol
 There are players with the same assigned rating.,There are players with the same assigned rating.,Er zijn spelers met dezelfde Elo,Il y a des joueurs avec le même Elo attribué.,Es gibt Spieler mit dem gleichen zugewiesenen Elo.
 These members can automatically be added to the playerlist.,These members can automatically be added to the playerlist.,Deze leden kunnen automatisch aan de spelerslijst worden toegevoegd.,Ces membres peuvent être automatiquement ajoutés à la liste de force.,Diese Mitglieder können automatisch zur Spielerliste hinzugefügt werden.
 This club is not enrolled in the interclubs,This club is not enrolled in the interclubs,Deze club is niet ingeschreven in de interclubs,Ce club n'est pas inscrit aux interclubs,Dieser Club ist nicht in den Interclubs eingeschrieben
+This club is not enrolled in the interclubs.,This club is not enrolled in the interclubs.,De club is  voor de Interclubs niet ingeschreven,Le cercle n'est pas iinscrit pour les interclub,Der Verein ist nicht für Interclubs registriert
 This is done by adapting the rating of the players.,This is done by adapting the rating of the players.,Dit gebeurt door de rating van de spelers aan te passen.,Cela se fait en adaptant l'Elo des joueurs.,Dies geschieht durch die Anpassung des Elos der Spieler.
 Titulars for,Titulars for,Titularissen voor ,Titulaires pour,Inhaber für 
 Titulars for the teams,Titulars for the teams,Titularissen voor de teams,Titulaires pour les équipes,Inhaber für Teams
