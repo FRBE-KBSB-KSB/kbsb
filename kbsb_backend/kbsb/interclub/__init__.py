@@ -19,11 +19,16 @@ from .md_interclub import (
     InterclubVenuesIn,
     InterclubVenues,
     InterclubVenuesList,
+    InterclubGame,
+    InterclubGameList,
+    InterclubBoard,
+    GameResult,
     DbInterclubClub,
     DbInterclubEnrollment,
     DbInterclubPrevious,
     DbInterclubSeries,
     DbInterclubVenues,
+    DbInterclubGame,
     TransferRequestValidator,
 )
 
@@ -37,6 +42,7 @@ from .interclub import (
     add_team_to_series,
     setup_interclubclub,
     set_interclubclub,
+    create_interclub_games,
 )
 
 import kbsb.interclub.api_interclub
