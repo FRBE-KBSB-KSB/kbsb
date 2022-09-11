@@ -11,6 +11,7 @@ vetur.config.js
 # backend
 kbsb_backend/public
 kbsb_backend/reddevil
+kbsb_backend/local_settings.py
 .mypy_cache
 __pycache__/
 *.pyc
