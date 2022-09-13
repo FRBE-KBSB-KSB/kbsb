@@ -41,7 +41,7 @@ from . import (
     InterclubVenuesList,
     TransferRequestValidator,
 )
-
+from reddevil.page.page import PageList, DbPage, isactive
 
 logger = logging.getLogger(__name__)
 
@@ -560,3 +560,31 @@ async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> Interclu
     icdict["locale"] = locale
     sendEmail(mp, icdict, "interclub playerlist")
     return icupdated
+
+async def get_announcements() -> PageList:
+    """
+    get all the pages
+    """
+    dl = await DbPage.find_multiple(
+        {
+            "doctype": "interclub",
+            "enabled": True,
+            "_fieldlist": [
+                "creationtime",
+                "enabled",
+                "expirationdate",
+                "name",
+                "modificationtime",
+                "publicationdate",
+                "slug",
+                "id",
+                "body",
+                "intro",
+                "title",
+            ],
+            "publicationdate": {"$ne": ""},
+        }
+    )
+    ap = [x for x in dl if isactive(x)]
+    ap = sorted(ap, key=lambda x: x["publicationdate"], reverse=True)
+    return PageList(items=ap)

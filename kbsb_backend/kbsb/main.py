@@ -38,9 +38,13 @@ import kbsb.report
 import kbsb.oldkbsb
 import kbsb.interclub
 
+@app.get("/api")
+async def api_helloworlds():
+    return "Hello world"
 
 for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
 log.info("initialisation done")
+

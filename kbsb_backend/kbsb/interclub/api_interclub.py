@@ -18,12 +18,14 @@ from . import (
     set_interclubvenues,
     setup_interclubclub,
     set_interclubclub,
+    get_announcements,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubVenuesIn,
     InterclubVenues,
     InterclubClub,
     InterclubClubOptional,
+    PageList,
 )
 
 
@@ -194,4 +196,15 @@ async def api_clb_set_interclubclub(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         log.exception("failed api call clb_set_interclubclub")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.get("/api/v1/a/interclub/announcements", response_model=PageList)
+async def api_anon_get_announcements(
+):
+    try:
+        return await get_announcements()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        log.exception("failed api call anon_get_announcements")
         raise HTTPException(status_code=500, detail="Internal Server Error")

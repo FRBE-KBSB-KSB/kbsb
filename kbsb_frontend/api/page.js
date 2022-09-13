@@ -53,5 +53,8 @@ export default context => ({
     const resp = await context.$axios.get('/api/v1/a/articles')
     return resp
   },
-
+  async get_ic_announcements (options) {
+    const resp = await context.$axios.get('/api/v1/a/ic_announcements')
+    return resp
+  },
 })

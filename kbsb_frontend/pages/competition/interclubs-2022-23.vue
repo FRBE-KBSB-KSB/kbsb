@@ -1,7 +1,32 @@
 <template>
   <v-container>
-    <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    <h1>Interclubs 2022-23</h1>
+    <v-tabs v-model="tab" color="green">
+      <v-tabs-slider color="green"></v-tabs-slider>
+      <v-tab>{{ $t('Announcements') }}</v-tab>
+      <v-tab>{{ $t('Dates') }}</v-tab>
+      <v-tab>{{ $t('Player list') }}</v-tab>
+      <v-tab>{{ $t('Planning') }}</v-tab>
+      <v-tab>{{ $t('Results') }}</v-tab>
+      <v-tab>{{ $t('Standings') }}</v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tab">
+      <v-tab-item>
+        <InterclubAnnouncement />
+      </v-tab-item>
+      <v-tab-item>
+        <InterclubDates />
+      </v-tab-item>
+      <v-tab-item>
+        TO DO
+      </v-tab-item>
+      <v-tab-item>
+        TO DO
+      </v-tab-item>
+      <v-tab-item>
+        TO DO
+      </v-tab-item>
+    </v-tabs-items>
   </v-container>
 </template>
 
@@ -11,25 +36,15 @@ export default {
 
   layout: 'default',
 
-  data () {
+  data() {
     return {
-      page__nl: {},
-      page__fr: {},
-      page__de: {},
-      page__en: {},
       tab: 0
     }
   },
 
-  async fetch () {
-    this.page__nl = await this.$content('pages', 'competition', 'interclubs-2022-23_nl').fetch()
-    this.page__fr = await this.$content('pages', 'competition', 'interclubs-2022-23_fr').fetch()
-    this.page__de = await this.$content('pages', 'competition', 'interclubs-2022-23_de').fetch()
-    this.page__en = await this.$content('pages', 'competition', 'interclubs-2022-23_en').fetch()
-  },
 
   head: {
-    title: 'Interclubs 2021-22',
+    title: 'Interclubs 2022-23',
     link: [
       {
         rel: 'stylesheet',
@@ -60,9 +75,6 @@ export default {
       }
     ]
   },
-  computed: {
-    page () { return this['page__' + this.$i18n.locale] }
-  }
 
 }
 </script>

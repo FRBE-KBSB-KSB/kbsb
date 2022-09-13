@@ -37,6 +37,9 @@ from .interclub import (
     add_team_to_series,
     setup_interclubclub,
     set_interclubclub,
+    get_announcements,
 )
+
+from reddevil.page.page import PageList
 
 import kbsb.interclub.api_interclub

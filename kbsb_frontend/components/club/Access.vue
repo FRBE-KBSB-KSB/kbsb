@@ -23,7 +23,7 @@
           <v-col cols="12" sm="6" md="4">
             <h4>{{ $t('Interclub Captains') }}</h4>
             {{ $t('The interclub captains have write access to the planning and ' +
-                'results of the Interclub.')
+            'results of the Interclub.')
             }}
             <p>{{ $t('Not available yet') }}</p>
           </v-col>
@@ -182,7 +182,7 @@ export default {
         const reply = await this.$api.old.get_clubmembers({
           idclub: this.club.idclub,
         })
-        const members = reply.data.members
+        const members = reply.data.activemembers
         members.forEach(p => {
           p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
         })

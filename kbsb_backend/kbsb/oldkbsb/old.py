@@ -80,7 +80,7 @@ def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     if not token:
         raise RdNotAuthorized(description="MissingToken")
     if settings.TOKEN.get("nocheck"):
-        return "anonymous"
+        return 0
     try:
         payload = jwt_getunverifiedpayload(token)
     except JWTError:
@@ -89,10 +89,10 @@ def validate_oldtoken(auth: HTTPAuthorizationCredentials) -> int:
     try:
         jwt_verify(token, settings.JWT_SECRET + SALT)
     except ExpiredSignatureError as e:
-        logger.debug(f'expired {e}')
+        logger.debug(f"expired {e}")
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError as e:
-        logger.debug(f'jwt error {e}')
+        logger.debug(f"jwt error {e}")
         raise RdNotAuthorized(description="BadToken")
     return username
 
