@@ -7,7 +7,10 @@
         <v-btn class="ml-2" @click="addAllMembers">Add all</v-btn>
       </div>
       <v-data-table :headers="nmheaders" :items="newmembers" :loading="activenotloaded"
-        :loading-text="$t('Loading members ... Please wait')" :footer-props="footerProps">
+          :loading-text="$t('Loading members ... Please wait')" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ newmembers.indexOf(item) + 1 }} 
+        </template>
         <template #:no-data>{{ $t('No new members found') }}</template>
         <template v-slot:item.actions="{ item }">
           <v-tooltip bottom>
@@ -24,6 +27,9 @@
     <div class="mt-2" v-show="ownplayers.length">
       <h4>{{ $t('Own players on the playerlist') }}</h4>
       <v-data-table :headers="plheaders" :items="ownplayers" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ ownplayers.indexOf(item) + 1 }} 
+        </template>
       </v-data-table>
     </div>
     <div class="mt-2">
@@ -43,6 +49,7 @@ export default {
   data() {
     return {
       nmheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: this.$t("First name"), value: "first_name", sortable: true },
         { text: this.$t("Last name"), value: "last_name", sortable: true },
         { text: this.$t("ID number"), value: "idnumber", sortable: false },
@@ -52,6 +59,7 @@ export default {
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       plheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: this.$t("First name"), value: "first_name", sortable: true },
         { text: this.$t("Last name"), value: "last_name", sortable: true },
         { text: this.$t("ID number"), value: "idnumber", sortable: false },
