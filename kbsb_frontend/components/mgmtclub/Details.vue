@@ -263,7 +263,7 @@ export default {
         }
         else {
           console.error('Saving enrollment', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Saving enrollment' })
+          this.$root.$emit('snackbar', { text: this.$t('Saving club details') })
         }
       }
     },

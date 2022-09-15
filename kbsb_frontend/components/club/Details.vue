@@ -308,7 +308,7 @@ export default {
             break
           default:
             console.error('Getting clubs failed', reply.data.detail)
-            this.$root.$emit('snackbar', { text: this.$t('Saving enrollment') })
+            this.$root.$emit('snackbar', { text: this.$t('Saving club details') })
         }
       }
     },

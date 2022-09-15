@@ -193,7 +193,7 @@ async def set_interclubenrollment(
             )
         )
         nenr = await get_interclubenrollment(id)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     logger.debug(f"EMAIL settings {settings.EMAIL}")
@@ -275,7 +275,7 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
         logger.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     mp = MailParams(
@@ -545,7 +545,7 @@ async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> Interclu
     ic = await find_interclubclub(idclub)
     settings = get_settings()
     icupdated = await DbInterclubClub.p_update(ic.id, icc)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     mp = MailParams(

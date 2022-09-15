@@ -189,4 +189,6 @@ async def set_club(id: str, c: Club) -> Club:
                 }
                 for p in members
             ]
-    sendEmail(mp, ctx, "interclub enrollment")
+    sendEmail(mp, ctx, "club details")
+    logger.debug(f'returning {clb}')
+    return clb

@@ -3,6 +3,7 @@ EMAIL = {
     "serviceaccountfile": "kbsb-gmail.json",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
     "account": "ruben.decrop@frbe-kbsb-ksb.be",
+    "blindcopy": "",
 }
 
 FILESTORE = {
@@ -26,6 +27,10 @@ SECRETS = {
     },
     "gdrive": {
         "name": "kbsb-gdrive-prod",
+        "manager": "filejson",
+    },
+    "gmail": {
+        "name": "kbsb-gmail",
         "manager": "filejson",
     },
 }
