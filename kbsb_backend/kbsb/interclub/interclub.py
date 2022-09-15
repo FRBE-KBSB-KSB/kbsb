@@ -561,6 +561,7 @@ async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> Interclu
     sendEmail(mp, icdict, "interclub playerlist")
     return icupdated
 
+
 async def get_announcements() -> PageList:
     """
     get all the pages

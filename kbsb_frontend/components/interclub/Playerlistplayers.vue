@@ -27,6 +27,16 @@
     <div class="mt-2" v-show="ownplayers.length">
       <h4>{{ $t('Own players on the playerlist') }}</h4>
       <v-data-table :headers="plheaders" :items="ownplayers" :footer-props="footerProps">
+        <template v-slot:item.actions="{ item }">
+          <v-tooltip bottom>
+            <template #activator="{ on }">
+              <v-icon small outline class="mr-2" v-on="on" @click="removeMember(item)">
+                mdi-minus
+              </v-icon>
+            </template>
+            {{ $t('Remove from playerlist') }}
+          </v-tooltip>
+        </template>
         <template v-slot:item.ix="{ item }">
           {{ ownplayers.indexOf(item) + 1 }} 
         </template>
@@ -66,6 +76,7 @@ export default {
         { text: "Club ID", value: "idclub", sortable: true },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       footerProps: {
         itemsPerPageOptions: [30, 60, -1],
@@ -163,7 +174,15 @@ export default {
 
     prev() {
       this.$store.commit('playerlist/updateStep', this.step - 1)
-    }
+    },
+
+    removeMember(p) {
+      const players = [... this.players]
+      const ix = players.indexOf(p)
+      players.splice(ix, 1)
+      this.$store.commit('playerlist/updatePlayers', players)
+    },
+
   }
 }
 </script>
