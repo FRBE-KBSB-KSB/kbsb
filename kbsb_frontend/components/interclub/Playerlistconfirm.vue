@@ -86,6 +86,7 @@ export default {
     },
 
     reset() {
+      this.confirmed = false
       this.$store.commit('playerlist/updateStep', 2)
     }
 

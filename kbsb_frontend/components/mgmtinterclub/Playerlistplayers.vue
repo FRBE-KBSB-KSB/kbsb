@@ -7,6 +7,9 @@
       </div>
       <v-data-table :headers="nmheaders" :items="newmembers" :loading="activenotloaded"
         loading-text="Loading members ... PLease wait" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ newmembers.indexOf(item) + 1 }}
+        </template>
         <template #:no-data>No new members found</template>
         <template v-slot:item.actions="{ item }">
           <v-tooltip bottom>
@@ -23,6 +26,19 @@
     <div class="mt-2" v-show="ownplayers.length">
       <h4>Own players on the playerlist</h4>
       <v-data-table :headers="plheaders" :items="ownplayers" :footer-props="footerProps">
+        <template v-slot:item.actions="{ item }">
+          <v-tooltip bottom>
+            <template #activator="{ on }">
+              <v-icon small outline class="mr-2" v-on="on" @click="removeMember(item)">
+                mdi-minus
+              </v-icon>
+            </template>
+            {{ $t('Remove from playerlist') }}
+          </v-tooltip>
+        </template>
+        <template v-slot:item.ix="{ item }">
+          {{ ownplayers.indexOf(item) + 1 }}
+        </template>
       </v-data-table>
     </div>
     <div class="mt-2">
@@ -42,6 +58,7 @@ export default {
   data() {
     return {
       nmheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: true },
         { text: "Last name", value: "last_name", sortable: true },
         { text: "ID number", value: "idnumber", sortable: false },
@@ -51,12 +68,14 @@ export default {
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       plheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: true },
         { text: "Last name", value: "last_name", sortable: true },
         { text: "ID number", value: "idnumber", sortable: false },
         { text: "Club ID", value: "idclub", sortable: true },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       footerProps: {
         itemsPerPageOptions: [30, 60, -1],
@@ -99,7 +118,7 @@ export default {
   methods: {
 
     addMember(p) {
-      this.$emit('addmember', p)
+      this.$root.$emit('addmember', p)
     },
 
     addAllMembers() {
@@ -154,7 +173,15 @@ export default {
 
     prev() {
       this.$store.commit('mgmtplayerlist/updateStep', this.step - 1)
-    }
+    },
+
+    removeMember(p) {
+      const players = [... this.players]
+      const ix = players.indexOf(p)
+      players.splice(ix, 1)
+      this.$store.commit('mgmtplayerlist/updatePlayers', players)
+    },
+
   }
 }
 </script>

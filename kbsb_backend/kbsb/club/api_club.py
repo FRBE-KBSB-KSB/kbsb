@@ -27,21 +27,21 @@ from kbsb.club import (
 )
 from kbsb.oldkbsb.old import validate_oldtoken
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @app.get("/api/v1/clubs", response_model=ClubList)
 async def api_get_clubs(
     reports: int = 0, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
-    log.debug("api_get_clubs called")
+    logger.debug("api_get_clubs called")
     try:
         await validate_token(auth)
         return await get_clubs()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_clubs")
+        logger.exception("failed api call get_clubs")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -49,14 +49,14 @@ async def api_get_clubs(
 async def api_clb_get_clubs(
     reports: int = 0, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
-    log.debug("api_get_clubs called")
+    logger.debug("api_get_clubs called")
     try:
         validate_oldtoken(auth)
         return await get_clubs()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_clubs")
+        logger.exception("failed api call get_clubs")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -67,7 +67,7 @@ async def api_anon_get_clubs(reports: int = 0):
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_clubs")
+        logger.exception("failed api call get_clubs")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -81,7 +81,7 @@ async def api_create_club(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call create_club")
+        logger.exception("failed api call create_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -95,7 +95,7 @@ async def api_get_club(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_club")
+        logger.exception("failed api call get_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -110,7 +110,7 @@ async def api_clb_get_club(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call get_c_club")
+        logger.exception("failed api call get_c_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -124,7 +124,7 @@ async def api_delete_club(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call delete_club")
+        logger.exception("failed api call delete_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -134,11 +134,11 @@ async def api_update_club(
 ):
     try:
         await validate_token(auth)
-        await set_club(id, p)
+        return await set_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call update_club")
+        logger.exception("failed api call update_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -149,11 +149,11 @@ async def api_clb_update_club(
     try:
         idnumber = validate_oldtoken(auth)
         verify_club_access(id, idnumber, ClubRoleNature.ClubAdmin)
-        await set_club(id, p)
+        return await set_club(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call update_club")
+        logger.exception("failed api call update_club")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -172,5 +172,5 @@ async def api_verify_club_access(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call verify_club_access")
+        logger.exception("failed api call verify_club_access")
         raise HTTPException(status_code=500, detail="Internal Server Error")

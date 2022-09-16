@@ -1,12 +1,16 @@
 <template>
   <div>
     <div class="mt-2">
-      <h4>{{ $t('Active players of club') }} {{ club.idclub }}, {{ $t('not on the playerlist.') }} </h4>
+      <h4>{{ $t('Active players of club') }} {{ club.idclub }}, {{ $t('not on the playerlist.') }}
+      </h4>
       <div>{{ $t('These members can automatically be added to the playerlist.') }}
         <v-btn class="ml-2" @click="addAllMembers">Add all</v-btn>
       </div>
       <v-data-table :headers="nmheaders" :items="newmembers" :loading="activenotloaded"
-        :loading-text="$t('Loading members ... Please wait')" :footer-props="footerProps">
+          :loading-text="$t('Loading members ... Please wait')" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ newmembers.indexOf(item) + 1 }} 
+        </template>
         <template #:no-data>{{ $t('No new members found') }}</template>
         <template v-slot:item.actions="{ item }">
           <v-tooltip bottom>
@@ -23,6 +27,19 @@
     <div class="mt-2" v-show="ownplayers.length">
       <h4>{{ $t('Own players on the playerlist') }}</h4>
       <v-data-table :headers="plheaders" :items="ownplayers" :footer-props="footerProps">
+        <template v-slot:item.actions="{ item }">
+          <v-tooltip bottom>
+            <template #activator="{ on }">
+              <v-icon small outline class="mr-2" v-on="on" @click="removeMember(item)">
+                mdi-minus
+              </v-icon>
+            </template>
+            {{ $t('Remove from playerlist') }}
+          </v-tooltip>
+        </template>
+        <template v-slot:item.ix="{ item }">
+          {{ ownplayers.indexOf(item) + 1 }} 
+        </template>
       </v-data-table>
     </div>
     <div class="mt-2">
@@ -42,6 +59,7 @@ export default {
   data() {
     return {
       nmheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: this.$t("First name"), value: "first_name", sortable: true },
         { text: this.$t("Last name"), value: "last_name", sortable: true },
         { text: this.$t("ID number"), value: "idnumber", sortable: false },
@@ -51,17 +69,19 @@ export default {
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       plheaders: [
-      { text: this.$t("First name"), value: "first_name", sortable: true },
+        { text: '#', value: 'ix', sortable: false },
+        { text: this.$t("First name"), value: "first_name", sortable: true },
         { text: this.$t("Last name"), value: "last_name", sortable: true },
         { text: this.$t("ID number"), value: "idnumber", sortable: false },
         { text: "Club ID", value: "idclub", sortable: true },
         { text: "Nat. Elo", value: "natrating", sortable: true },
         { text: "Fide Elo", value: "fiderating", sortable: true },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       footerProps: {
         itemsPerPageOptions: [30, 60, -1],
         itemsPerPage: 30
-      }      
+      }
     }
   },
 
@@ -99,7 +119,7 @@ export default {
   methods: {
 
     addMember(p) {
-      this.$emit('addmember', p)
+      this.$root.$emit('addmember', p)
     },
 
     addAllMembers() {
@@ -154,7 +174,15 @@ export default {
 
     prev() {
       this.$store.commit('playerlist/updateStep', this.step - 1)
-    }
+    },
+
+    removeMember(p) {
+      const players = [... this.players]
+      const ix = players.indexOf(p)
+      players.splice(ix, 1)
+      this.$store.commit('playerlist/updatePlayers', players)
+    },
+
   }
 }
 </script>

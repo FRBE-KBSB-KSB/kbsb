@@ -80,4 +80,9 @@ export default context => ({
     )
     return resp
   },
+  async get_announcements() {
+    console.log('api annoucements')
+    const resp = await context.$axios.get('/api/v1/a/interclub/announcements')
+    return resp
+  },
 })

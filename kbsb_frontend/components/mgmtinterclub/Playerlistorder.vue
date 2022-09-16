@@ -5,6 +5,9 @@
     <div>Players with the same assigned rating are not allowed.</div>
     <p>Click on the value of assigned rating to change it</p>
     <v-data-table :items="plyrs" :headers="arheaders" :footer-props="footerProps">
+      <template v-slot:item.ix="{ item }">
+         {{ plyrs.indexOf(item) + 1 }} 
+      </template>
       <template v-slot:item.assignedrating="props">
         <v-edit-dialog :return-value="props.item.assignedrating" large :save-text="$t('Save')"
           :cancel-text="$t('Cancel')" @save="save(props.item)">
@@ -41,6 +44,7 @@ export default {
   data() {
     return {
       arheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: false },
         { text: "Last name", value: "last_name", sortable: false },
         { text: "ID number", value: "idnumber", sortable: false },

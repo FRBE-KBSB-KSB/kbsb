@@ -174,8 +174,8 @@ export default {
       console.log('fetching articles', this.$api)
       this.$api.page.get_anon_articles().then(
         (resp) => {
-          console.log('got articles', resp.data.pages)
-          this.readArticles(resp.data.pages)
+          console.log('got articles', resp.data.items)
+          this.readArticles(resp.data.items)
         },
         resp => (console.error('could not fetch articles', resp))
       )

@@ -1081,7 +1081,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "reddevil"
-version = "3.0.0"
+version = "3.0.1"
 description = "Reddevil python library"
 category = "main"
 optional = false
@@ -1110,7 +1110,7 @@ weasyprint = ">=56.1,<57.0"
 
 [package.source]
 type = "file"
-url = "libs/reddevil-3.0.0-py3-none-any.whl"
+url = "libs/reddevil-3.0.1-py3-none-any.whl"
 
 [[package]]
 name = "requests"
@@ -1359,7 +1359,7 @@ test = ["pytest"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "e0aa270cac81e9b28fd13f735969bfc9fefc6aa6be9c58daed1216b382092d1e"
+content-hash = "5deaf53e637861fb78f29eb50c9f1cff04723ac5e8a99396695857572a6bfd5e"
 
 [metadata.files]
 aiofiles = [
@@ -1864,7 +1864,7 @@ pyyaml = [
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
 reddevil = [
-    {file = "reddevil-3.0.0-py3-none-any.whl", hash = "sha256:3c54d9f103d46b33faa239cafebd0a0434200917b02aba9e4821c294fd4ef927"},
+    {file = "reddevil-3.0.1-py3-none-any.whl", hash = "sha256:ad6231ee39c3809dec6f880cf28e2c3230f5000eb6fa9898502d068e66bc8958"},
 ]
 requests = []
 requests-oauthlib = [

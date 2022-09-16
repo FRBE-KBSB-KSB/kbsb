@@ -180,7 +180,7 @@ export default {
         const reply = await this.$api.old.get_clubmembers({
           idclub: this.club.idclub,
         })
-        const members = reply.data.members
+        const members = reply.data.activemembers
         members.forEach(p => {
           p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
         })

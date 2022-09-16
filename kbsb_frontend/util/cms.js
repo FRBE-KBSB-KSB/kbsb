@@ -1,6 +1,6 @@
 
 export const doctypes = [
-  'normal-page', 'article'
+  'article', 'interclub'
 ]
 
 export const pagecomponents = [
@@ -76,7 +76,7 @@ export const reportlisting = {
   en: ['Name', 'Topic', 'Date', 'Link']
 }
 
-export function goto (section, slug, locale) {
+export function goto(section, slug, locale) {
   if (section != window.base.section) {
     window.location.href = '/' + section + '/' + slug + '/' + locale
   }

@@ -27,10 +27,10 @@
             <div><span class="fieldname">Main email address</span>: {{ clubdetails.email_main }}
             </div>
             <div><span class="fieldname">Email address Interclub</span>: {{
-                clubdetails.email_intercLub
+            clubdetails.email_intercLub
             }}</div>
             <div><span class="fieldname">Email address administration</span>: {{
-                clubdetails.email_admin
+            clubdetails.email_admin
             }}</div>
             <div><span class="fieldname">Email address finance</span>: {{ clubdetails.email_finance
             }}
@@ -188,7 +188,7 @@ export default {
         const reply = await this.$api.old.get_clubmembers({
           idclub: this.club.idclub,
         })
-        const activemembers = reply.data.members
+        const activemembers = reply.data.activemembers
         activemembers.forEach(p => {
           p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
         })
@@ -263,7 +263,7 @@ export default {
         }
         else {
           console.error('Saving enrollment', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Saving enrollment' })
+          this.$root.$emit('snackbar', { text: this.$t('Saving club details') })
         }
       }
     },

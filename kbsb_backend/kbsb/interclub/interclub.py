@@ -41,7 +41,7 @@ from . import (
     InterclubVenuesList,
     TransferRequestValidator,
 )
-
+from reddevil.page.page import PageList, DbPage, isactive
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +193,7 @@ async def set_interclubenrollment(
             )
         )
         nenr = await get_interclubenrollment(id)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     logger.debug(f"EMAIL settings {settings.EMAIL}")
@@ -275,7 +275,7 @@ async def set_interclubvenues(idclub: str, ivi: InterclubVenuesIn) -> InterclubV
         logger.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     mp = MailParams(
@@ -545,7 +545,7 @@ async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> Interclu
     ic = await find_interclubclub(idclub)
     settings = get_settings()
     icupdated = await DbInterclubClub.p_update(ic.id, icc)
-    receiver = [club.email_main, INTERCLUB_EMAIL]
+    receiver = [club.email_main, INTERCLUB_EMAIL] if club.email_main else [INTERCLUB_EMAIL]        
     if club.email_interclub:
         receiver.append(club.email_interclub)
     mp = MailParams(
@@ -594,3 +594,31 @@ async def create_interclub_games(s: InterclubSeries):
                 boards=[],
             ))
     
+
+async def get_announcements() -> PageList:
+    """
+    get all the pages
+    """
+    dl = await DbPage.find_multiple(
+        {
+            "doctype": "interclub",
+            "enabled": True,
+            "_fieldlist": [
+                "creationtime",
+                "enabled",
+                "expirationdate",
+                "name",
+                "modificationtime",
+                "publicationdate",
+                "slug",
+                "id",
+                "body",
+                "intro",
+                "title",
+            ],
+            "publicationdate": {"$ne": ""},
+        }
+    )
+    ap = [x for x in dl if isactive(x)]
+    ap = sorted(ap, key=lambda x: x["publicationdate"], reverse=True)
+    return PageList(items=ap)

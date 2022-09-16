@@ -3,7 +3,7 @@
 
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from typing import cast, Optional, Union
 
@@ -64,10 +64,10 @@ async def update_club(id: str, c: Club, options: dict = {}) -> Club:
     """
     update a club
     """
-    log.info(f"id {id} c {c}, dict {c.dict(exclude_unset=True)}")
+    logger.info(f"id {id} c {c}, dict {c.dict(exclude_unset=True)}")
     validator = options.pop("_class", Club)
     cdict = await DbClub.update(id, c.dict(exclude_unset=True), options)
-    log.debug(f"updated cdict {cdict}")
+    logger.debug(f"updated cdict {cdict}")
     return cast(Club, encode_model(cdict, validator))
 
 
@@ -90,7 +90,7 @@ async def verify_club_access(
     if check fails
     """
     idnumber = int(idnumber)
-    log.debug(f"verify {id_or_idclub} {idnumber} {role}")
+    logger.debug(f"verify {id_or_idclub} {idnumber} {role}")
     if isinstance(id_or_idclub, str):
         try:
             club = await get_club(id_or_idclub)
@@ -98,15 +98,15 @@ async def verify_club_access(
             club = None
     else:
         club = await find_club(id_or_idclub)
-    log.debug(f"club in verify {club.idclub}")
+    logger.debug(f"club in verify {club.idclub}")
     if club and club.clubroles:
         for r in club.clubroles:
-            log.debug(f"r: {r.nature} {r.memberlist}")
+            logger.debug(f"r: {r.nature} {r.memberlist}")
             if role == r.nature:
                 if idnumber in r.memberlist:
                     return True
                 else:
-                    log.debug(f"member not in list {r.nature}")
+                    logger.debug(f"member not in list {r.nature}")
     raise RdForbidden
 
 
@@ -137,7 +137,7 @@ async def set_club(id: str, c: Club) -> Club:
     locale = club_locale(clb)
     if clb.email_interclub:
         receiver.append(clb.email_administration)
-    log.debug(f"EMAIL settings {settings.EMAIL}")
+    logger.debug(f"EMAIL settings {settings.EMAIL}")
     mp = MailParams(
         locale=locale,
         receiver=",".join(receiver),
@@ -146,7 +146,7 @@ async def set_club(id: str, c: Club) -> Club:
         subject="Club Details",
         template="club/clubdetails_{locale}.md",
     )
-    log.debug(f"receiver {mp.receiver}")
+    logger.debug(f"receiver {mp.receiver}")
     ctx = clb.dict()
     ctx["locale"] = locale
     ctx["email_main"] = ctx["email_main"] or ""
@@ -189,4 +189,6 @@ async def set_club(id: str, c: Club) -> Club:
                 }
                 for p in members
             ]
-    sendEmail(mp, ctx, "interclub enrollment")
+    sendEmail(mp, ctx, "club details")
+    logger.debug(f'returning {clb}')
+    return clb

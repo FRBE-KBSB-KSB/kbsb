@@ -42,6 +42,10 @@
                   <v-text-field v-model="p.name" label="Name" />
                   <v-text-field v-model="p.created_by" label="Owner" />
                   <v-text-field v-model="p.slug" label="Slug" />
+                  <v-radio-group v-model="p.doctype">
+                    <v-radio label="News article" value="article" />
+                    <v-radio label="Interclub announcement" value="interclub" />
+                  </v-radio-group>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-checkbox v-model="p.enabled" label="Enabled" />
@@ -101,7 +105,7 @@ export default {
       idpage: this.$route.query.id,
       menu_published: false,
       menu_expired: false,
-      p: {},
+      p: {doctype: "article"},
       intros: { en: '', nl: '', fr: '', de: '' },
       titles: { en: '', nl: '', fr: '', de: '', default: '' },
       bodys: { en: '', nl: '', fr: '', de: '' }

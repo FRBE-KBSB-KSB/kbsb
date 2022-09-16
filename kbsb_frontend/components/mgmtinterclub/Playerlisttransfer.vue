@@ -5,6 +5,9 @@
       <h3 class="my-2">Active players of club {{ club.idclub }}</h3>
       <v-data-table :headers="amheaders" :items="activemembers" :loading="activenotloaded"
         loading-text="Loading members ... Please wait" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ activemembers.indexOf(item) + 1 }}
+        </template>
         <template #:no-data>No new members found</template>
       </v-data-table>
     </div>
@@ -12,6 +15,9 @@
     <div v-if="teams.length">
       <h4 class="my-2">{{ $t('Incoming transfers') }}</h4>
       <v-data-table :headers="trinheaders" :items="transfersin" :footer-props="footerProps">
+        <template v-slot:item.ix="{ item }">
+          {{ transfersin.indexOf(item) + 1 }}
+        </template>
         <template #no-data>{{ $t('No incoming transfers') }}</template>
         <template #item.action="{ item }">
           <v-tooltip bottom>
@@ -46,6 +52,9 @@
 
     <h4 class="my-2">{{ $t('Outgoing transfers') }}</h4>
     <v-data-table :headers="troutheaders" :items="transfersout">
+      <template v-slot:item.ix="{ item }">
+        {{ transfersout.indexOf(item) + 1 }}
+      </template>
       <template #no-data>{{ $t('No outgoing transfers') }}</template>
       <template #item.action="{ item }">
         <v-tooltip bottom>
@@ -118,6 +127,7 @@ export default {
   data() {
     return {
       amheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: true },
         { text: "Last name", value: "last_name", sortable: true },
         { text: "ID number", value: "idnumber", sortable: false },
@@ -127,6 +137,7 @@ export default {
       plout: "",
       plin: "",
       trinheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: true },
         { text: "Last name", value: "last_name", sortable: true },
         { text: "ID number", value: "idnumber", sortable: false },
@@ -137,6 +148,7 @@ export default {
         { text: "Actions", value: "action", sortable: false },
       ],
       troutheaders: [
+        { text: '#', value: 'ix', sortable: false },
         { text: "First name", value: "first_name", sortable: true },
         { text: "Last name", value: "last_name", sortable: true },
         { text: "ID number", value: "idnumber", sortable: false },
@@ -212,7 +224,7 @@ export default {
       }
       console.log('pl', pl.idnumber, pl.assignedrating)
       this.$root.$emit('addmember', pl)
-      console.log('last player', this.players[this.players.length-1])
+      console.log('last player', this.players[this.players.length - 1])
       this.$root.$emit('buildplayers')
     },
 
@@ -240,7 +252,7 @@ export default {
       })
       this.$store.commit('mgmtplayerlist/updatePlayers', pls)
     },
-    
+
     trout_all() {
       const transfersout = [...this.transfersout]
       const now = new Date()

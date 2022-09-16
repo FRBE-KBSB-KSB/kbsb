@@ -2,7 +2,7 @@
   <v-container>
     <h1>Management News Articles</h1>
     <v-data-table :headers="headers" :items="filteredpages" :footer-props="footerProps"
-      class="elevation-1" :sort-by="['name', 'modified']">
+      class="elevation-1" :sort-by="['publicationdate', 'name']">
       <template #top>
         <v-card color="grey lighten-4">
           <v-card-title>
@@ -63,6 +63,9 @@ export default {
       headers: [
         {
           text: 'Name', value: 'name'
+        },
+        {
+          text: 'Publication Date', value: 'publicationdate'
         },
         {
           text: 'Doctype', value: 'doctype'
@@ -126,7 +129,7 @@ export default {
         const resp = await this.$api.page.get_pages({
           token: this.token
         })
-        this.pages = resp.data.pages
+        this.pages = resp.data.items
       } catch (error) {
         const resp = error.response
         console.error('getting getPages', resp)
