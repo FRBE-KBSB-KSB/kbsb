@@ -8,7 +8,8 @@ from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, date
 from sqlalchemy.orm import sessionmaker
-from typing import cast, Any, IO, Union
+from sqlmodel import Session, select
+from typing import cast, Any, IO, Union, List
 
 from reddevil.core import (
     RdNotAuthorized,
@@ -33,9 +34,10 @@ from kbsb.oldkbsb import (
     OldFideRating,
     ActiveMember,
     ActiveMemberList,
+    OldInterclubPlayer,
 )
 
-from kbsb.core.db import mysql_engine
+from kbsb.core.db import mysql_engine, mysql_sm_engine
 
 logger = logging.getLogger(__name__)
 # we simplify the normal jwt libs by setting the SALT fixed
@@ -153,6 +155,31 @@ def get_clubmembers(idclub: int, active: bool = True) -> ActiveMemberList:
     return ActiveMemberList(activemembers=am)
 
 
+def get_activemembers() -> ActiveMemberList:
+    """
+    find all active members (without elo)
+    """
+    session = sessionmaker(mysql_engine())()
+    members = (
+        session.query(OldMember_sql)
+        .filter(OldMember_sql.deceased != 1)
+        .filter(OldMember_sql.licence_g != 1)
+        .filter(OldMember_sql.year_affiliation == 2023)
+    )
+    am = [
+        ActiveMember(
+            idnumber=om.idnumber,
+            idclub=om.idclub,
+            first_name=om.first_name,
+            last_name=om.last_name,
+            natrating=-1,
+            fiderating=-1,
+        )
+        for om in members
+    ]
+    return ActiveMemberList(activemembers=am)
+
+
 def get_member(idbel: int) -> ActiveMember:
     settings = get_settings()
     session = sessionmaker(mysql_engine())()
@@ -189,3 +216,11 @@ def get_member(idbel: int) -> ActiveMember:
         natrating=natrating,
         fiderating=fiderating,
     )
+
+
+def get_interclubplayers() -> List[OldInterclubPlayer]:
+    settings = get_settings()
+    engine = mysql_sm_engine()
+    with Session(engine) as session:
+        stmt = select(OldInterclubPlayer)
+        return session.exec(stmt).all()

@@ -26,7 +26,7 @@ register_app(app=app, settingsmodule="kbsb.settings")
 settings = get_settings()
 
 
-class MongodbInterclubGameWriter:
+class MongodbInterclubMatchWriter:
     async def __aenter__(self):
         await connect_mongodb()
         return self
@@ -40,9 +40,9 @@ class MongodbInterclubGameWriter:
 
 
 async def main():
-    async with MongodbInterclubGameWriter() as writer:
+    async with MongodbInterclubMatchWriter() as writer:
         db = await get_mongodb()
-        await db.interclubgame.drop()
+        await db.interclubmatch.drop()
         series = (await DbInterclubSeries.p_find_multiple()).allseries
         for s in series:
             await writer.write(s)

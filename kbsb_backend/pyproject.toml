@@ -37,6 +37,7 @@ weasyprint = "^56.1"
 pandas = "^1.4.3"
 openpyxl = "^3.0.10"
 reddevil = {path = "libs/reddevil-3.0.1-py3-none-any.whl"}
+sqlmodel = "^0.0.8"
 
 [tool.poetry.dev-dependencies]
 asyncio = "^3.4.3"

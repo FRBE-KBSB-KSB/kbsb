@@ -18,14 +18,17 @@ from .md_old import (
     OldFideRating,
     ActiveMember,
     ActiveMemberList,
+    OldInterclubPlayer,
 )
 
 from .old import (
     old_login,
     validate_oldtoken,
+    get_activemembers,
     get_member,
     get_clubmembers,
     get_member,
+    get_interclubplayers,
 )
 
 import kbsb.oldkbsb.api_old
