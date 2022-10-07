@@ -14,22 +14,23 @@ from . import InterclubClub, InterclubClubOptional, InterclubPlayer, DbInterclub
 logger = logging.getLogger(__name__)
 
 
-async def import_oldinterclubplayer(p: OldInterclubPlayer, am_cache: dict[int, ActiveMember]):
+async def import_oldinterclubplayer(
+    p: OldInterclubPlayer, am_cache: dict[int, ActiveMember]
+):
     """
     import an oldincterclubplayer and store it in the playerlist
     uses active member cache to speed up
     """
     from .interclub_club import setup_interclubclub
 
-    logger.info(f"procssing {p.idnumber} {p.idclub_interclub} {p.idclub_player}")
     icc = await setup_interclubclub(p.idclub_interclub)
     if not icc:
         logger.error(f"no interclubclub for {p.idclub_interclub}")
         return
     member = am_cache.get(p.idnumber, None)
-    if not member: 
+    if not member:
         logger.error(f"member  {p.idnumber} not active")
-        return        
+        return
     ipl = InterclubPlayer(
         assignedrating=p.assignedrating,
         fiderating=p.fiderating or 0,
@@ -45,8 +46,7 @@ async def import_oldinterclubplayer(p: OldInterclubPlayer, am_cache: dict[int, A
         players[ix] = ipl
     else:
         players.append(ipl)
-    sortedplayers = sorted(players, key=lambda x: x.assignedrating, reverse=True)
-    await DbInterclubClub.p_update(icc.id, InterclubClubOptional(players=sortedplayers))
+    await DbInterclubClub.p_update(icc.id, InterclubClubOptional(players=players))
     logger.debug(
         f"player {member.first_name} {member.last_name} {p.idclub_player} added to  {p.idclub_interclub}"
     )

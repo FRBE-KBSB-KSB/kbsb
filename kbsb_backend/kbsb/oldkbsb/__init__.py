@@ -28,7 +28,7 @@ from .old import (
     get_member,
     get_clubmembers,
     get_member,
-    get_interclubplayers,
+    get_oldinterclubplayers,
 )
 
 import kbsb.oldkbsb.api_old

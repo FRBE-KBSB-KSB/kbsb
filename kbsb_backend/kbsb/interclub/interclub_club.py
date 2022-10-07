@@ -211,6 +211,35 @@ async def set_interclubclub(idclub: int, icc: InterclubClubOptional) -> Interclu
     return icupdated
 
 
+async def clear_interclubclubs():
+    """
+    clear all players from a interclubclubs
+    empty teams
+    """
+    icl = await DbInterclubClub.p_find_multiple()
+    for icc in icl.clubs:
+        teams = [t for t in icc.teams]
+        for t in teams:
+            t.titular = []
+            t.playersplayed = []
+        update = InterclubClubOptional(players=[], teams=teams)
+        await DbInterclubClub.p_update(icc.id, update)
+
+
+async def sortplayers_interclubclubs():
+    """
+    sort the players in on the playerslist
+    """
+    icl = await DbInterclubClub.p_find_multiple()
+    for icc in icl.clubs:
+        sortedplayers = sorted(
+            icc.players, key=lambda x: x.assignedrating, reverse=True
+        )
+        await DbInterclubClub.p_update(
+            icc.id, InterclubClubOptional(players=sortedplayers)
+        )
+
+
 # games
 
 rounds = {

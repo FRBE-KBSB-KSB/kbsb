@@ -43,6 +43,8 @@ from .interclub import (
 from .interclub_club import (
     setup_interclubclub,
     set_interclubclub,
+    clear_interclubclubs,
+    sortplayers_interclubclubs,
 )
 from .interclub_old import import_oldinterclubplayer
 

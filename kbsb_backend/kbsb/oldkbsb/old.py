@@ -162,9 +162,11 @@ def get_activemembers() -> ActiveMemberList:
     session = sessionmaker(mysql_engine())()
     members = (
         session.query(OldMember_sql)
-        .filter(OldMember_sql.deceased != 1)
-        .filter(OldMember_sql.licence_g != 1)
-        .filter(OldMember_sql.year_affiliation == 2023)
+        # player can be deceased after the creationg of playerlist
+        # .filter(OldMember_sql.deceased != 1)
+        .filter(OldMember_sql.licence_g != 1).filter(
+            OldMember_sql.year_affiliation == 2023
+        )
     )
     am = [
         ActiveMember(
@@ -218,7 +220,7 @@ def get_member(idbel: int) -> ActiveMember:
     )
 
 
-def get_interclubplayers() -> List[OldInterclubPlayer]:
+def get_oldinterclubplayers() -> List[OldInterclubPlayer]:
     settings = get_settings()
     engine = mysql_sm_engine()
     with Session(engine) as session:
