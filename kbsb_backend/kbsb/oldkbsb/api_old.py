@@ -8,7 +8,7 @@ import logging
 from fastapi import HTTPException
 from reddevil.core import RdException
 from kbsb.main import app
-from typing import Dict
+from typing import Dict, Optional
 from kbsb.oldkbsb import (
     OldLoginValidator,
     OldMemberList,
@@ -17,7 +17,9 @@ from kbsb.oldkbsb import (
     get_member,
     ActiveMember,
     ActiveMemberList,
+    OldInterclubGamesList,
 )
+from kbsb.oldkbsb.old import get_oldinterclubgames
 from .md_old import OldMemberList
 
 logger = logging.getLogger(__name__)
@@ -53,4 +55,15 @@ def api_get_activemember(idnumber: int):
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
         logger.exception("failed api call get_activemember")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.get("/api/v1/old/interclubgames", response_model=OldInterclubGamesList)
+def api_get_oldinterclubgames(idclub: Optional[int] = None, round: Optional[int] = None):
+    try:
+        return get_oldinterclubgames(idclub=idclub, round=round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:
+        logger.exception("failed api call get_oldinterlubgames")
         raise HTTPException(status_code=500, detail="Internal Server Error")

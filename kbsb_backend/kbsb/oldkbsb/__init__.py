@@ -19,6 +19,8 @@ from .md_old import (
     ActiveMember,
     ActiveMemberList,
     OldInterclubPlayer,
+    OldInterclubGames,
+    OldInterclubGamesList,
 )
 
 from .old import (
@@ -29,6 +31,7 @@ from .old import (
     get_clubmembers,
     get_member,
     get_oldinterclubplayers,
+    get_oldinterclubgames,
 )
 
 import kbsb.oldkbsb.api_old

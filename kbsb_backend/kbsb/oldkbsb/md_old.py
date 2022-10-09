@@ -16,5 +16,5 @@ Base = declarative_base()
 from .md_oldmember import *
 from .md_oldclub import *
 from .md_oldrating import *
-from .md_oldinterclubplayer import *
+from .md_oldinterclub import *
 from .md_olduser import *

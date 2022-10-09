@@ -4,12 +4,13 @@
 import logging
 import hashlib
 import asyncio
+from operator import or_
 from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, date
 from sqlalchemy.orm import sessionmaker
-from sqlmodel import Session, select
-from typing import cast, Any, IO, Union, List
+from sqlmodel import Session, select, or_
+from typing import cast, Optional, Any, IO, Union, List
 
 from reddevil.core import (
     RdNotAuthorized,
@@ -35,9 +36,12 @@ from kbsb.oldkbsb import (
     ActiveMember,
     ActiveMemberList,
     OldInterclubPlayer,
+    OldInterclubGames,
+    OldInterclubGamesList,
 )
 
 from kbsb.core.db import mysql_engine, mysql_sm_engine
+from kbsb.oldkbsb.md_oldinterclub import OldInterclubGames
 
 logger = logging.getLogger(__name__)
 # we simplify the normal jwt libs by setting the SALT fixed
@@ -226,3 +230,23 @@ def get_oldinterclubplayers() -> List[OldInterclubPlayer]:
     with Session(engine) as session:
         stmt = select(OldInterclubPlayer)
         return session.exec(stmt).all()
+
+
+def get_oldinterclubgames(
+    idclub: Optional[int] = None, round: Optional[int] = None
+) -> OldInterclubGamesList:
+    settings = get_settings()
+    engine = mysql_sm_engine()
+    with Session(engine) as session:
+        stmt = select(OldInterclubPlayer)
+        if idclub is not None:
+            stmt = stmt.where(
+                or_(
+                    OldInterclubGames.club_home == idclub,
+                    OldInterclubGames.club_visit == idclub,
+                )
+            )
+        if round is not None:
+            stmt = stmt.where(OldInterclubGames.round_nr == round)
+        games = session.exec(stmt).all()
+        return OldInterclubGamesList(games=games)
