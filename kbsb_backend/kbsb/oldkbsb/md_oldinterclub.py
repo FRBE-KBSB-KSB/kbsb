@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 from sqlalchemy import Column, Integer, String, Date
 from datetime import date
-from typing import List
+from typing import List, Optional
 
 
 class OldInterclubPlayer(SQLModel, table=True):
@@ -23,23 +23,24 @@ class OldInterclubPlayer(SQLModel, table=True):
 class OldInterclubGames(SQLModel, table=True):
     __tablename__ = "i_parties"
 
-    id: int = Field(sa_column=Column("Id", Integer, primary_key=True))
-    round_nr: int = Field(sa_column=Column("Num_Rnd", Integer))
-    round_date: date = Field(sa_column=Column("Date_Rnd", Date))
-    division: int = Field(sa_column=Column("Division", Integer))
-    series: str = Field(sa_column=Column("Serie", String))
-    board: int = Field(sa_column=Column("Tableau", Integer))
-    club_home: int = Field(sa_column=Column("Num_Club1", Integer))
-    idnumnber_home: int = Field(sa_column=Column("Matricule1", Integer))
-    playername_home: str = Field(sa_column=Column("Nom_Joueur1", String))
-    playerrating_home: int = Field(sa_column=Column("Elo_Icn1", Integer))
-    team_home: int = Field(sa_column=Column("id_Equ1", Integer))
-    club_visit: int = Field(sa_column=Column("Num_Club2", Integer))
-    idnumnber_visit: int = Field(sa_column=Column("Matricule2", Integer))
-    playername_visit: str = Field(sa_column=Column("Nom_Joueur2", String))
-    playerrating_visit: int = Field(sa_column=Column("Elo_Icn2", Integer))
-    team_visit: int = Field(sa_column=Column("id_Equ2", Integer))
-    score: str = Field(sa_column=Column("Score", String))
+    id: Optional[int] = Field(sa_column=Column("Id", Integer, primary_key=True))
+    round: Optional[int] = Field(sa_column=Column("Num_Rnd", Integer))
+    round_date: Optional[date] = Field(sa_column=Column("Date_Rnd", Date))
+    division: Optional[int] = Field(sa_column=Column("Division", Integer))
+    series: Optional[str] = Field(sa_column=Column("Serie", String))
+    pairing: Optional[int] = Field(sa_column=Column("Num_App", Integer)) 
+    boardnumber: Optional[int] = Field(sa_column=Column("Tableau", Integer))
+    club_home: Optional[int] = Field(sa_column=Column("Num_Club1", Integer))
+    idnumber_home: Optional[int] = Field(sa_column=Column("Matricule1", Integer))
+    playername_home: Optional[str] = Field(sa_column=Column("Nom_Joueur1", String))
+    playerrating_home: Optional[int] = Field(sa_column=Column("Elo_Icn1", Integer))
+    team_home: Optional[int] = Field(sa_column=Column("id_Equ1", Integer))
+    club_visit: Optional[int] = Field(sa_column=Column("Num_Club2", Integer))
+    idnumber_visit: Optional[int] = Field(sa_column=Column("Matricule2", Integer))
+    playername_visit: Optional[str] = Field(sa_column=Column("Nom_Joueur2", String))
+    playerrating_visit: Optional[int] = Field(sa_column=Column("Elo_Icn2", Integer))
+    team_visit: Optional[int] = Field(sa_column=Column("id_Equ2", Integer))
+    score: Optional[str] = Field(sa_column=Column("Score", String))
 
 
 class OldInterclubGamesList(SQLModel):

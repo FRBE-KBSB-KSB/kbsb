@@ -59,7 +59,9 @@ def api_get_activemember(idnumber: int):
 
 
 @app.get("/api/v1/old/interclubgames", response_model=OldInterclubGamesList)
-def api_get_oldinterclubgames(idclub: Optional[int] = None, round: Optional[int] = None):
+def api_get_oldinterclubgames(
+    idclub: Optional[int] = None, round: Optional[int] = None
+):
     try:
         return get_oldinterclubgames(idclub=idclub, round=round)
     except RdException as e:

@@ -237,8 +237,9 @@ def get_oldinterclubgames(
 ) -> OldInterclubGamesList:
     settings = get_settings()
     engine = mysql_sm_engine()
+    logger.info(f"get games {idclub} {round}")
     with Session(engine) as session:
-        stmt = select(OldInterclubPlayer)
+        stmt = select(OldInterclubGames)
         if idclub is not None:
             stmt = stmt.where(
                 or_(
@@ -247,6 +248,7 @@ def get_oldinterclubgames(
                 )
             )
         if round is not None:
-            stmt = stmt.where(OldInterclubGames.round_nr == round)
+            stmt = stmt.where(OldInterclubGames.round == round)
         games = session.exec(stmt).all()
-        return OldInterclubGamesList(games=games)
+    return OldInterclubGamesList(games=games)
+

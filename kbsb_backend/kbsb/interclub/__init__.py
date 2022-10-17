@@ -26,6 +26,7 @@ from .md_interclub import (
     DbInterclubVenues,
     TransferRequestValidator,
     InterclubMatch,
+    InterclubMatchOptional,
     DbInterclubMatch,
 )
 
@@ -47,5 +48,6 @@ from .interclub_club import (
     sortplayers_interclubclubs,
 )
 from .interclub_old import import_oldinterclubplayer
+from .interclub_match import create_oldinterclubmatch
 
 import kbsb.interclub.api_interclub
