@@ -19,7 +19,12 @@ from kbsb.club import find_club, club_locale, DbClub
 from kbsb.interclub.md_interclubmatch import GameResult
 from kbsb.oldkbsb import get_member
 from kbsb.oldkbsb.md_oldinterclub import OldInterclubGames
-from . import DbInterclubMatch, InterclubMatch, InterclubMatchOptional, InterclubBoard
+from . import (
+    DbInterclubMatch,
+    InterclubMatchList,
+    InterclubMatchOptional,
+    InterclubBoard,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -47,6 +52,21 @@ score_2_result = {
     "1F-0F": GameResult.FF1_0,
     "0F-1F": GameResult.FF0_1,
 }
+
+
+async def get_interclubmatches(
+    round: Optional[int] = None, idclub: Optional[int] = None
+) -> InterclubMatchList:
+    """
+    get interclubmatches
+    """
+    options = {}
+    if round is not None:
+        options['round'] = round
+    if idclub is not None:
+        options['$or'] = [{'club_home': idclub}, {'club_visit': idclub}]
+    resp = await DbInterclubMatch.p_find_multiple(options)
+    return resp
 
 
 async def create_oldinterclubmatch(oic: OldInterclubGames) -> None:
@@ -91,7 +111,7 @@ async def create_oldinterclubmatch(oic: OldInterclubGames) -> None:
             b.result = score_2_result[oic.score] if oic.score else GameResult.empty
             break
     else:
-        try: 
+        try:
             ib = InterclubBoard(
                 boardnumber=oic.boardnumber,
                 idnumber_home=oic.idnumber_home,
@@ -104,7 +124,7 @@ async def create_oldinterclubmatch(oic: OldInterclubGames) -> None:
             )
             boards.append(ib)
         except ValidationError:
-            logger.info(f'Cannot create InterclubBoard from invalid oic: {oic}')
+            logger.info(f"Cannot create InterclubBoard from invalid oic: {oic}")
             return
     await DbInterclubMatch.p_update(icm.id, InterclubMatchOptional(boards=boards))
 
