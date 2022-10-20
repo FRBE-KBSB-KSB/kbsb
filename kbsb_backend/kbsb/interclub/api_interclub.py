@@ -203,10 +203,10 @@ async def api_clb_set_interclubclub(
 
 @app.get("/api/v1/a/interclub/matches", response_model=InterclubMatchList)
 async def api_get_interclubmatches(
-    round: Optional[int] = None, idclub: Optional[int] = None
+    round: Optional[int] = None, idclub: Optional[int] = None, divseries: Optional[str] = None
 ):
     try:
-        return await get_interclubmatches(round, idclub)
+        return await get_interclubmatches(round, idclub, divseries)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:

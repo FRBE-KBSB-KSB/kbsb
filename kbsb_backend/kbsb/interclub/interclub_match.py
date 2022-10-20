@@ -55,7 +55,7 @@ score_2_result = {
 
 
 async def get_interclubmatches(
-    round: Optional[int] = None, idclub: Optional[int] = None
+    round: Optional[int] = None, idclub: Optional[int] = None, divseries: Optional[str] = None
 ) -> InterclubMatchList:
     """
     get interclubmatches
@@ -65,6 +65,16 @@ async def get_interclubmatches(
         options['round'] = round
     if idclub is not None:
         options['$or'] = [{'club_home': idclub}, {'club_visit': idclub}]
+    if divseries is not None:
+        try:
+            division = int(divseries[0:1])
+        except ValueError:
+            pass
+        series = divseries[1:2]
+        if division:
+            options['division'] = division
+        if series:
+            options['series'] = series
     resp = await DbInterclubMatch.p_find_multiple(options)
     return resp
 

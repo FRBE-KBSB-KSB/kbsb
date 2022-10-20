@@ -86,8 +86,12 @@ export default context => ({
   },
   async get_interclubmatches(options) {
     console.log('api annoucements')
-    const {round, idclub}
-    const resp = await context.$axios.get('/api/v1/a/interclub/matches')
+    const { round, idclub, divseries } = options
+    const resp = await context.$axios.get('/api/v1/a/interclub/matches', {
+      params: {
+        round, idclub, divseries
+      }
+    })
     return resp
   },
 })
