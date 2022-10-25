@@ -7,7 +7,7 @@ import logging
 API_BASE_URL = "/api"
 
 BOOKS_CC = "ruben@kosk.be"
-BOARDROLES_PATH = os.environ.get("BOARDROLES", "../boardroles.yaml")
+BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", False)
 
