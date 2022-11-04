@@ -3,6 +3,7 @@
     Management FRBE KBSB KSB
     <ul>
       <li><a href='/mgmt/pagelist'>News articles</a></li>
+      <li><a href='/mgmt/filelist'>Files (Reports)</a></li>
       <li><a href='/mgmt/interclub'>Interclub Manager</a></li>
       <li><a href='/mgmt/club'>Club Manager</a></li>
     </ul>

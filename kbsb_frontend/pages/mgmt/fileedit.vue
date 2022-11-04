@@ -35,7 +35,7 @@
             <v-col cols="12" sm="6">
               <v-text-field v-model="f.name" label="Name" />
               <v-text-field v-model="f.created_by" label="Owner" />
-              <div>Topic: {{ f.topic }}</div>
+              <v-select label="Topic" v-model="f.topic" :items="topictypes" />
             </v-col>
             <v-col cols="12" sm="6">
               <p>URL: <a :href="'/api/v1/filecontent/' + f.url">/api/v1/filecontent/{{ f.url }}</a>
@@ -73,7 +73,7 @@ export default {
       name: '',
       photosrc: null,
       savefile: false,
-      topictypes,
+      topictypes: topictypes,
       yesno: [
         { value: true, text: 'Yes' },
         { value: false, text: 'No' }

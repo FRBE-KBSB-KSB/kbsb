@@ -97,7 +97,7 @@ async def api_updateFile(
 ):
     try:
         await validate_token(auth)
-        await updateFile(id, p)
+        return await updateFile(id, p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:

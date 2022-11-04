@@ -26,12 +26,12 @@
           </v-list-item-icon>
           <v-list-item-content>News Articles</v-list-item-content>
         </v-list-item>
-        <!-- <v-list-item to="/mgmt/filelist">
+        <v-list-item to="/mgmt/filelist">
           <v-list-item-icon>
             <v-icon>mdi-file-document</v-icon>
           </v-list-item-icon>
-          <v-list-item-content>Files</v-list-item-content>
-        </v-list-item> -->
+          <v-list-item-content>Files (Reports)</v-list-item-content>
+        </v-list-item>
         <v-list-item to="/mgmt/interclub">
           <v-list-item-icon>
             <v-icon>mdi-arrow-left-right</v-icon>

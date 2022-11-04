@@ -84,6 +84,10 @@ export default {
       this.$router.push('/mgmt/fileadd')
     },
 
+    gotoLogin() {
+      this.$router.push('/mgmt/login?url=__mgmt__filelist')
+    },
+
     editFile(item) {
       this.$router.push('/mgmt/fileedit/?id=' + item.id)
     },
@@ -98,7 +102,7 @@ export default {
         const resp = error.response
         console.error('getting getFiles', resp)
         if (resp.status === 401) {
-          this.$router.push('/mgmt/login')
+          this.gotoLogin()
         } else {
           this.$root.$emit('snackbar', { text: 'Getting files failed', reason: resp.data.detail })
         }
