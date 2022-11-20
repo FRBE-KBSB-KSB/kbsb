@@ -19,7 +19,7 @@ from email.mime.image import MIMEImage
 from email import encoders
 from kbsb import settings
 from kbsb.models.md_book100 import Book100Optional
-# from bycco.i18n import locale_msg
+
 from .mailbackend import backends
 
 log = logging.getLogger(__name__)

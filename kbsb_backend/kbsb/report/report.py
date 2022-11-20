@@ -118,18 +118,23 @@ async def updateFile(id: str, d: FileUpdate) -> FileOptional:
     """
     update a file
     """
+    oldfiledict = await DbFile.find_single({"id": id})
     fd = d.dict(exclude_unset=True)
-    content = None
+    try:
+        content = readFilecontent(fd["path"])
+    except:
+        content = None
     if "name" in fd:
         name = f'{fd["name"]}__{randrange(1000000):06d}'
         fd["mimetype"] = guess_type(fd["name"])[0]
     if "content" in fd:
         content = b64decode(fd.pop("content"))
         fd["filelength"] = len(content)
-        fileobj = BytesIO(content)
+    fd_content = BytesIO(content)
+    fd["path"] = f'{path_prefix(oldfiledict)}/{oldfiledict["url"]}'
+    log.info(f"file update {fd}")
     ufd = await DbFile.update(id, fd)
-    if content:
-        writeFilecontent(ufd["path"], fileobj)
+    writeFilecontent(fd["path"], fd_content)
     return encode_file(ufd)
 
 
@@ -174,10 +179,12 @@ def writeFilecontent(path: str, fileobj: IO) -> None:
     """
     wrtite a file like object to the filestore
     """
+    log.info("writing file content")
     settings = get_settings()
     if settings.FILESTORE["manager"] == "google":
         client = storage_client()
         bucket = client.bucket(settings.FILESTORE["bucket"])
+        log.info(f'Blob write: {path}')
         blob = Blob(path, bucket)
         blob.upload_from_file(fileobj)
     if settings.FILESTORE["manager"] == "local":

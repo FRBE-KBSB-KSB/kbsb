@@ -1,0 +1,3 @@
+#!/bin/bash
+gcloud config configurations activate kbsbgcloud app logs tail -s defaultgcloud app logs tail -s defaultgcloud app logs tail -s defaultprod
+gcloud app deploy --quiet app-prod.yaml
