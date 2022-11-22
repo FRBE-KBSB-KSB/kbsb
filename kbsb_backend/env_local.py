@@ -10,11 +10,13 @@ FILESTORE = {
     "basedir": "/home/ruben/develop/filestore",
 }
 
-GOOGLE_CLIENT_ID = "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = (
+    "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
+)
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-local",
+        "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
     "mysql": {
