@@ -18,6 +18,7 @@ from fastapi.responses import Response
 from reddevil.core import (
     RdInternalServerError,
     RdNotFound,
+    RdBadRequest,
     get_settings,
 )
 
@@ -59,9 +60,9 @@ async def createFile(d: FileIn) -> str:
     fileobj = BytesIO(content)
     dd["filelength"] = len(content)
     dd["topicdate"] = ""
+    dd["path"] = f'{path_prefix(dd)}/{dd["url"]}'
     rf = await DbFile.add(dd)
-    path = f'{path_prefix(dd)}/{dd["url"]}'
-    writeFilecontent(path, fileobj)
+    writeFilecontent(dd["path"], fileobj)
     return rf
 
 
@@ -121,17 +122,17 @@ async def updateFile(id: str, d: FileUpdate) -> FileOptional:
     oldfiledict = await DbFile.find_single({"id": id})
     fd = d.dict(exclude_unset=True)
     try:
-        content = readFilecontent(fd["path"])
-    except:
-        content = None
+        content = readFilecontent(oldfiledict["path"])
+    except Exception as e:
+        log.warning(
+            f'updateFile: existing file content is empty at {oldfiledict["url"]}'
+        )
+        content = b""
     if "name" in fd:
         name = f'{fd["name"]}__{randrange(1000000):06d}'
         fd["mimetype"] = guess_type(fd["name"])[0]
-    if "content" in fd:
-        content = b64decode(fd.pop("content"))
-        fd["filelength"] = len(content)
     fd_content = BytesIO(content)
-    fd["path"] = f'{path_prefix(oldfiledict)}/{oldfiledict["url"]}'
+    fd["path"] = f'{path_prefix(fd)}/{oldfiledict["url"]}'
     log.info(f"file update {fd}")
     ufd = await DbFile.update(id, fd)
     writeFilecontent(fd["path"], fd_content)
@@ -184,7 +185,7 @@ def writeFilecontent(path: str, fileobj: IO) -> None:
     if settings.FILESTORE["manager"] == "google":
         client = storage_client()
         bucket = client.bucket(settings.FILESTORE["bucket"])
-        log.info(f'Blob write: {path}')
+        log.info(f"Blob write: {path}")
         blob = Blob(path, bucket)
         blob.upload_from_file(fileobj)
     if settings.FILESTORE["manager"] == "local":

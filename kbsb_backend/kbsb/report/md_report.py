@@ -57,6 +57,7 @@ class FileIn(BaseModel):
     """
     content: bytes           # base64 encoded content of file
     name: str
+    topic: str
 
 class FileOut(BaseModel):
     """

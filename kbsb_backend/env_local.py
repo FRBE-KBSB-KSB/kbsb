@@ -7,11 +7,12 @@ EMAIL = {
 
 FILESTORE = {
     "manager": "local",
-    "basedir": "/home/ruben/develop/filestore",
+    "basedir": "../filestore",
 }
 
 GOOGLE_CLIENT_ID = (
-    "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
+    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
+    # "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
 )
 
 SECRETS = {
