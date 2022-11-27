@@ -7,14 +7,17 @@ EMAIL = {
 
 FILESTORE = {
     "manager": "local",
-    "basedir": "/home/ruben/develop/filestore",
+    "basedir": "../filestore",
 }
 
-GOOGLE_CLIENT_ID = "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = (
+    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
+    # "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
+)
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-local",
+        "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
     "mysql": {
@@ -37,7 +40,7 @@ LOG_CONFIG = {
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
-            "()": "kbsb.util.colorlogfactory.cf",
+            "()": "reddevil.core.colorlogfactory.c_factory",
         },
     },
     "handlers": {

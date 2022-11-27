@@ -1,29 +1,54 @@
 import asyncio
+from fastapi import FastAPI
+from reddevil.core import (
+    register_app,
+    connect_mongodb,
+    close_mongodb,
+)
 
-from datetime import date, datetime, timedelta, timezone
-from kbsb.crud import get_db
-from kbsb import settings
-from reddevil.service.sv_account import createAccount
-from reddevil.models.md_account import AccountIn, LoginType
+app = FastAPI(
+    title="FRBE-KBSB-KSB",
+    description="Website Belgian Chess federation FRBE KBSB KSB",
+    version="0",
+)
+register_app(app=app, settingsmodule="kbsb.settings")
+
+from reddevil.account import (
+    add_account,
+    AccountInValidator,
+    LoginType,
+    update_password,
+    AccountPasswordUpdateValidator,
+)
+
 
 async def main():
     """
     create a superaccount
     """
-
+    await connect_mongodb()
 
     # create account
-    await createAccount(AccountIn(
-        email='',
-        enabled=True,
-        first_name='',
-        id='eddy',
-        last_name='',
-        locale='',
-        logintype=LoginType.email,
-        password='kannibaal',
-    ))
+    await add_account(
+        AccountInValidator(
+            email="",
+            enabled=True,
+            first_name="",
+            id="eddy",
+            last_name="",
+            locale="",
+            logintype=LoginType.email,
+            password="",
+        )
+    )
+    await update_password(
+        AccountPasswordUpdateValidator(
+            username="eddy", newpassword="kannibaal", oldpassword=""
+        ),
+        checkold=False,
+    )
+    await close_mongodb()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())
