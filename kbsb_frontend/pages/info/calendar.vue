@@ -2,7 +2,7 @@
   <v-container>
     <h1>{{ $t('Calendar') }}</h1>
     <ul>
-      <li v-for="c,ix in future_ci" :key="ix" class="calenderitem">
+      <li v-for="c, ix in future_ci" :key="ix" class="calenderitem">
         {{ calenderItem(c) }}
         <div v-if="!!c.text">
           {{ calendarText(c) }}
@@ -17,18 +17,18 @@
 
 <script>
 
-function compareDates (a, b) {
+function compareDates(a, b) {
   return a.date - b.date
 }
 export default {
 
-  data () {
+  data() {
     return {
       calitems: []
     }
   },
 
-  async fetch () {
+  async fetch() {
     const reply = await this.$content('calendar').fetch()
     this.calitems = []
     this.parseCalendarItems(reply)
@@ -36,7 +36,7 @@ export default {
   },
 
   computed: {
-    future_ci () {
+    future_ci() {
       const yesterday = new Date() - 86400000
       return this.calitems.filter(ci => ci.date > yesterday)
     }
@@ -44,7 +44,7 @@ export default {
 
   methods: {
 
-    calenderItem (c) {
+    calenderItem(c) {
       const output = []
       output.push(c.date.toLocaleDateString(this.$i18n.locale, { dateStyle: 'medium' }) + ':')
       output.push(c.title)
@@ -57,14 +57,16 @@ export default {
       }
       return output.join(' ')
     },
-    calenderText (c) {
+    calenderText(c) {
       return ''
     },
-    parseCalendarItems (listci) {
+    parseCalendarItems(listci) {
       listci.forEach((ci) => {
         if (ci.multiple) {
           this.parseCalendarItems(ci.multiple)
+          return
         }
+        // console.log('ci', ci.title)
         if (ci.date) {
           const item = { ...ci, date: new Date(ci.date) }
           this.calitems.push(item)
@@ -87,9 +89,11 @@ export default {
 .disabled {
   color: #bbb
 }
+
 .postponed {
   color: #bbb
 }
+
 .calenderitem {
   margin: 8px 0;
 }

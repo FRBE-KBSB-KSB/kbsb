@@ -13,15 +13,13 @@
 
 - 
   category: board
-  email: laurent.wery
-  first_name: Laurent
-  last_name: Wery
-  mobile: "+32491736871"
+  email: pierre.gonzalez
+  first_name: Pierre
+  last_name: Gonzalez Garcia
   roles: 
     - "Vice president"
-    - "Secretary general"
     - Treasurer
-  slug: laurent
+  slug: pierre
 
 - 
   category: board
@@ -31,6 +29,7 @@
   mobile: "+32471983387"
   roles: 
     - "Secretary"
+    - "Secretary general"
   slug: bernard
 
 - 
@@ -40,7 +39,7 @@
   last_name: Decrop
   mobile: "+32477571313"
   roles: 
-    - Webmaster
+    - "IT manager"
   slug: ruben
 
 - 
@@ -52,18 +51,8 @@
   roles: 
     - "Representative for FIDE & ECU"
     - "Tournament director"
+    - "Rating manager FIDE"
   slug: luc
-
-- 
-  category: board
-  email: arben.dardha
-  first_name: Arben
-  last_name: Dardha
-  roles: 
-    - "Manager international selections"
-    - "Representative titled players"
-    - "Representative female players"
-  slug: arben
 
 - 
   category: board
@@ -77,21 +66,45 @@
   slug: philippe
 
 - 
-  category: honorary
-  first_name: Daniel
-  last_name: Oger
-  slug: hm_oger
+  category: board
+  email: arben.dardha
+  first_name: Arben
+  last_name: Dardha
+  roles: 
+    - "Manager international selections"
+    - "Representative titled players"
+  slug: arben
+
+- 
+  category: board
+  email: wiebke.barbier
+  first_name: Wiebke
+  last_name: Barbier
+  roles: 
+    - "Communication manager"
+    - "Representative female players"
+  slug: wiebke
 
 
 - 
-  category: collaborator
-  email: daniel.halleux
-  first_name: Daniel 
-  last_name: Halleux
+  category: board
+  email: safet.capkunaj
+  first_name: Safet
+  last_name: Capkunaj
+  mobile: "+32472383016"
   roles: 
-    - Rating manager
-    - Affiliations manager
-  slug: daniel
+    - "Affiliations manager"
+  slug: safet
+
+- 
+  category: collaborator
+  email: steven.bellens
+  first_name: Steven
+  last_name: Bellens
+  roles: 
+    - "Rating manager Belg."
+  slug: steven
+
 
 - 
   category: ombudsman
@@ -99,9 +112,21 @@
   first_name: Daniel
   last_name: Oger
   roles: 
-    - "Ombudsman"
+    - Ombudsman
   slug: daniel
 
+
+- 
+  category: honorary
+  first_name: Daniel
+  last_name: Oger
+  slug: hm_oger
+
+- 
+  category: honorary
+  first_name: Daniel 
+  last_name: Halleux
+  slug: hm_daniel
 
 - 
   category: honorary
@@ -119,4 +144,5 @@
   category: honorpres
   first_name: Günter
   last_name: Delhaes
-  slug: hm_delhaes_
+  slug: hm_delhaes
+
