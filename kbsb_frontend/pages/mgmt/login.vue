@@ -13,8 +13,11 @@
           <v-card-text>
             <v-col cols="12">
               <div>Login with your @frbe-kbsb-ksb.be account</div>
-              <g-signin-button :params="googleSignInParams" @success="onSignInSuccess"
-                @error="onSignInError" />
+              <g-signin-button
+                :params="googleSignInParams"
+                @success="onSignInSuccess"
+                @error="onSignInError"
+              />
             </v-col>
           </v-card-text>
         </v-card>
@@ -31,7 +34,7 @@ Vue.use(GSignInButton)
 export default {
   layout: 'mgmt',
 
-  data() {
+  data () {
     return {
       login: {},
       googleSignInParams: {
@@ -42,12 +45,12 @@ export default {
   },
 
   head: {
-    title: 'Login',
+    title: 'Login'
   },
 
   methods: {
 
-    onSignInSuccess(googleUser) {
+    onSignInSuccess (googleUser) {
       const idToken = googleUser.getAuthResponse().id_token
       this.$api.root.login({
         logintype: 'google',
@@ -55,7 +58,7 @@ export default {
       }).then(
         (resp) => {
           this.$store.commit('newlogin/update', resp.data)
-          const returnUrl = this.url ? this.url.replaceAll("__", "/") : '/mgmt'
+          const returnUrl = this.url ? this.url.replaceAll('__', '/') : '/mgmt'
           this.$router.push(returnUrl)
         },
         (error) => {
@@ -65,11 +68,11 @@ export default {
       )
     },
 
-    onSignInError(error) {
+    onSignInError (error) {
       console.log('Google login failed', error)
     },
 
-    dologin() {
+    dologin () {
       this.$api.root.login({
         logintype: 'email',
         username: this.login.username,

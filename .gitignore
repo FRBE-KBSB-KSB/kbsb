@@ -6,7 +6,8 @@
 .idea
 .vscode
 *.code-workspace
-vetur.config.js
+vetur.config.js\
+.DS_Store
 
 # backend
 kbsb_backend/public

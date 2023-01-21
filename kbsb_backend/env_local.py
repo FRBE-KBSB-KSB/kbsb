@@ -30,8 +30,6 @@ SECRETS = {
     },
 }
 
-SECRETS_PATH = "/home/ruben/develop/secrets/kbsb"
-
 LOG_CONFIG = {
     "version": 1,
     "formatters": {
