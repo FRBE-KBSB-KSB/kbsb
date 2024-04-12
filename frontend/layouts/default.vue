@@ -1,61 +1,34 @@
+<script setup>
+import { ref } from 'vue'
+import TheSidebar from '@/components/TheSidebar.vue'
+import TheCarousel from '@/components/TheCarousel.vue'
+import TheFooter from '@/components/TheFooter.vue'
+import { VApp, VAppBar, VAppBarTitle, VNavigationDrawer, 
+  VAppBarNavIcon, VMain } from 'vuetify/components'
+
+const drawer = ref(false)
+</script>
+
 <template>
-  <v-app>
-
-    <v-navigation-drawer v-cloak v-model="drawer" app class="green darken-1" clipped height="100%">
-
-      <TheSidebar />
-
-    </v-navigation-drawer>
-
-    <TheTopbar :drawer="drawer" @updateDrawer="updateDrawer" />
-
-    <v-main>
-      <nuxt />
-      <TheCarousel />
-      <hr />
-      <TheFooter />
-    </v-main>
-
-    <TheCredentials />
-
-    <v-snackbar v-model="snackbar" top>
-      {{ snacktext }}
-      <template #action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-
-  </v-app>
+  <div>
+    <VApp>
+      <v-navigation-drawer v-model="drawer" 
+        class="bg-green-darken-1 text-white">
+        <TheSidebar />
+      </v-navigation-drawer>
+      <v-app-bar color="green-darken-2">
+        <v-app-bar-nav-icon @click="drawer = !drawer" />
+        <v-app-bar-title>
+          FRBE- KBSB-KSB
+        </v-app-bar-title>
+      </v-app-bar>
+      <VMain>
+        <slot />
+        <TheCarousel /> 
+        <hr />                 
+      </VMain>
+      <TheFooter />    
+    </VApp>
+  </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      drawer: null,
-      snackbar: false,
-      snacktext: ""
-    };
-  },
-
-  mounted() {
-    this.$root.$on('snackbar', (ev) => {
-      console.log('received snackbar event', ev.text)
-      if (ev.text) {
-        this.snacktext = ev.text
-        this.reason = ev.reason
-        this.snackbar = true
-      }
-    })
-  },
-
-  methods: {
-    updateDrawer(value) {
-      this.drawer = value;
-    }
-  },
-
-}
-</script>

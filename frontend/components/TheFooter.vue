@@ -1,5 +1,8 @@
+<script setup>
+import { VContainer, VRow, VCol } from 'vuetify/components';
+</script>
 <template>
-  <v-container fluid>
+  <v-container fluid class="bg-green-darken-2 text-white">
     <v-row class="py-3 px-2">
       <v-col cols="12" sm="4" class="mt-2">
         <h4>{{ $t('Address') }}</h4>
@@ -25,16 +28,3 @@
     </v-row>
   </v-container>
 </template>
-
-<script>
-
-export default {
-
-  name: 'KbsbFooter'
-
-}
-
-</script>
-
-<style scoped>
-</style>

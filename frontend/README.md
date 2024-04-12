@@ -1,35 +1,30 @@
-# kbsb
+# Content v2 Minimal Starter
 
-This template should help get you started developing with Vue 3 in Vite.
+Look at the [Content documentation](https://content-v2.nuxtjs.org/) to learn more.
 
-## Recommended IDE Setup
+## Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+Make sure to install the dependencies:
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-yarn
+```bash
+# yarn
+yarn install
 ```
 
-### Compile and Hot-Reload for Development
+## Development Server
 
-```sh
+Start the development server on http://localhost:3000
+
+```bash
 yarn dev
 ```
 
-### Compile and Minify for Production
+## Production
 
-```sh
-yarn build
+Build the application for production:
+
+```bash
+API_URL=https://www.frbe-kbsb-ksb.be/ yarn generate
+gcloud app deploy
 ```
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-yarn lint
-```

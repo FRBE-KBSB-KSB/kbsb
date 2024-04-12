@@ -1,67 +1,23 @@
+<script setup>
+import showdown from 'showdown'
+import { VContainer } from 'vuetify/lib/components/index.mjs';
+
+const { locale } = useI18n()
+const ttitle = `title_${locale.value}`
+const tcontent = `content_${locale.value}`
+const { data } = await useAsyncData('/pages/championships-adult', () => queryContent('/pages/championships-adult').findOne())
+
+const mdConverter = new showdown.Converter()
+
+function md(s) { return mdConverter.makeHtml(s) }
+</script>
+
 <template>
   <v-container>
-    <h1>{{ page.title }}</h1>
-    <nuxt-content :document="page" />
+    <ContentRenderer :value="data">
+      <h1 v-html="data[ttitle] ? data[ttitle] : data.title" />
+      <div v-html="md(data[tcontent])" class="markdowncontent" />
+    </ContentRenderer>
   </v-container>
 </template>
 
-<script>
-export default {
-
-  layout: 'default',
-
-  data () {
-    return {
-      page__nl: {},
-      page__fr: {},
-      page__de: {},
-      page__en: {},
-      tab: 0
-    }
-  },
-
-  async fetch () {
-    this.page__nl = await this.$content('pages', 'competition', 'championships-adult_nl').fetch()
-    this.page__fr = await this.$content('pages', 'competition', 'championships-adult_fr').fetch()
-    this.page__de = await this.$content('pages', 'competition', 'championships-adult_de').fetch()
-    this.page__en = await this.$content('pages', 'competition', 'championships-adult_en').fetch()
-  },
-
-  head: {
-    title: 'Belgisch kampioenschap | Championnat de Belgique',
-    link: [
-      {
-        rel: 'stylesheet',
-        href:
-          'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Material+Icons'
-      },
-      {
-        rel: 'stylesheet',
-        href:
-          'https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css'
-      },
-      { rel: 'favicon', href: 'favicon.ico' }
-    ],
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'home', name: 'description', content: 'Meta description' }
-    ],
-    script: [
-      {
-        src: 'https://apis.google.com/js/platform.js',
-        async: true,
-        defer: true
-      }
-    ]
-  },
-
-  computed: {
-    page () { return this['page__' + this.$i18n.locale] }
-  }
-}
-</script>

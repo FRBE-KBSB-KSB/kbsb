@@ -1,52 +1,87 @@
-<template>
-  <v-container>
-    Management FRBE KBSB KSB
-    <ul>
-      <li><a href="/mgmt/pagelist">News articles</a></li>
-      <li><a href="/mgmt/filelist">Files (Reports)</a></li>
-      <li><a href="/mgmt/interclub">Interclub Manager</a></li>
-      <li><a href="/mgmt/club">Club Manager</a></li>
-    </ul>
-    <div class="mt-2">
-      <v-btn @click="logout">
-        Logout
-      </v-btn>
-    </div>
-  </v-container>
-</template>
+<script setup>
+import { ref, onMounted } from 'vue'
+import { VContainer } from 'vuetify/components'
+import * as jose from 'jose'
+import { usePersonStore } from "@/store/person"
+import { storeToRefs } from 'pinia'
 
-<script>
-export default {
-  layout: 'mgmt',
+const personstore = usePersonStore();
+const { person } = storeToRefs(personstore)
+const wrong_domain = ref(false)
 
-  head: {
-    title: 'Management'
-  },
 
-  computed: {
-    logintoken () { return this.$store.state.newlogin.value }
-  },
-
-  mounted () {
-    this.$store.commit('newlogin/startup')
-    console.log('logintoken length', this.logintoken.length)
-    if (!this.logintoken.length) {
-      this.gotoLogin()
+function checkAuth () {
+  console.log('checking if auth is present so we can go to overview')
+  if (person.value.credentials.length > 0) {
+    if (person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
+      navigateTo('/mgmt/overview')
+    } 
+    else {
+      wrong_domain.value = true
     }
-  },
-
-  methods: {
-
-    gotoLogin () {
-      this.$router.push('/mgmt/login?url=__mgmt')
-    },
-
-    logout () {
-      this.$store.commit('newlogin/update', '')
-      this.gotoLogin()
-    }
-
   }
-
 }
+
+function handleGoogle (resp) {
+  console.log('handling google')
+  wrong_domain.value = false
+  const payload = jose.decodeJwt(resp.credential)
+  console.log('decoded', payload)
+  personstore.updatePerson( {
+    credentials: resp.credential,
+    user: payload.given_name,
+    email: payload.email
+  })
+  checkAuth()
+}
+
+function setupGoogle () {
+  console.log('Setup google sign in')
+  const reply = google.accounts.id.initialize({
+    client_id: '658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com',
+    callback: handleGoogle,
+    prompt_parent_id: 'parent_id'
+  })
+  console.log("initialize:", reply)
+  const prompt = google.accounts.id.prompt((notif) =>{
+    console.log('notif', notif)
+    if (notif.isNotDisplayed() || notif.isSkippedMoment()) {
+        document.cookie =  `g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        google.accounts.id.prompt()
+    }
+  })
+  console.log("prompt", prompt)
+  console.log('Setup google sign in completed')
+}
+
+useHead({
+  script: [
+    { src: 'https://accounts.google.com/gsi/client', defer: true }
+  ],
+  title: 'Management Login',    
+})
+
+definePageMeta({
+  layout: 'mgmt',
+})
+
+onMounted (() => {
+  checkAuth()
+  setupGoogle()
+})
+
 </script>
+
+<template>
+  <VContainer>
+    <p>Management FRBE KBSB KSB</p>
+    <p>
+      This part of the site is only accessible for people with a valid
+      @frbe-kbsb-ksb.be email address
+    </p>
+    <div id="parent_id" />
+  </VContainer>
+</template>
+  
+
+  

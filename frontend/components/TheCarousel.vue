@@ -1,3 +1,26 @@
+<script setup>
+import {ref} from 'vue'
+import { VCarousel, VCarouselItem } from 'vuetify/lib/components/index.mjs';
+
+const current = ref(0)
+const interval = ref(6)
+const items = ref([
+  { src: '/img/frame_talistro.png', name: 'talistro' },
+  { src: '/img/frame_ecu.png', name: 'ecu' },
+  { src: '/img/frame_arena.png', name: 'arena' },
+  { src: '/img/frame_boic.png', name: 'boic' },
+  { src: '/img/frame_iheb.png', name: 'iheb' },
+  { src: '/img/frame_fide.png', name: 'fide' }
+])
+
+onMounted(()=> {
+  const secCarousel = Math.floor((new Date() / 1000) % (interval.vlue * items.value.length))
+  current.value = Math.floor(secCarousel / items.value.length)
+  if (current.value === items.value.length) {current.value = 0 }
+
+})
+</script>
+
 <template>
   <v-carousel
     :show-arrows="false"
@@ -13,29 +36,7 @@
   </v-carousel>
 </template>
 
-<script>
-export default {
-  data () {
-    return {
-      current: 0,
-      interval: 6, // number of seconds before switching
-      items: [
-        { src: '/img/frame_talistro.png', name: 'talistro' },
-        { src: '/img/frame_ecu.png', name: 'ecu' },
-        { src: '/img/frame_arena.png', name: 'arena' },
-        { src: '/img/frame_boic.png', name: 'boic' },
-        { src: '/img/frame_iheb.png', name: 'iheb' },
-        { src: '/img/frame_fide.png', name: 'fide' }
-      ]
-    }
-  },
-  mounted () {
-    const secCarousel = Math.floor((new Date() / 1000) % (this.interval * this.items.length))
-    this.current = Math.floor(secCarousel / this.items.length)
-    if (this.current === this.items.length) { this.current = 0 }
-  }
-}
-</script>
+
 
 <style scoped>
 .adcarousel.v-carousel {

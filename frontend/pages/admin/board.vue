@@ -1,3 +1,20 @@
+<script setup>
+import { VContainer, VBtn, VRow, VCol, VIcon } from 'vuetify/lib/components/index.mjs';
+
+
+const { data: board } = await useAsyncData('board', () => 
+  queryContent('/app/board').where({ category: "board"}).sort({order: 1}).find())
+const { data: collaborator } = await useAsyncData('collaborator', () => 
+  queryContent('/app/board').where({ category: "collaborator"}).find())
+const { data: ombudsman } = await useAsyncData('ombudsman', () => 
+  queryContent('/app/board').where({ category: "ombudsman"}).find())
+const { data: honorary } = await useAsyncData('honorary', () => 
+  queryContent('/app/board').where({ category: "honorary"}).find())
+const { data: honorpres } = await useAsyncData('honorpres', () => 
+  queryContent('/app/board').where({ category: "honorpres"}).find())
+
+</script>
+
 <template>
   <v-container class="mt-1">
     <h1>{{ $t('Board') }}</h1>
@@ -10,7 +27,7 @@
             <img :src="'/board/' + bm.email + '.jpg'" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
-            <div class="green lighten-3 pa-3">
+            <div class="bg-green-lighten-3 pa-3">
               {{ bm.first_name }} {{ bm.last_name }}
             </div>
             <div class="pa-3">
@@ -23,17 +40,17 @@
               <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
+              <v-btn v-show="bm.mobile" icon class="bg-green-darken-2 mx-2" :href="'tel:' + bm.mobile">
                 <v-icon color="white">
                   mdi-phone
                 </v-icon>
               </v-btn>
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'sms:' + bm.mobile">
+              <v-btn v-show="bm.mobile" icon class="bg-green-darken-2 mx-2" :href="'sms:' + bm.mobile">
                 <v-icon color="white">
                   mdi-message-processing
                 </v-icon>
               </v-btn>
-              <v-btn text icon class="green darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
+              <v-btn icon class="bg-green-darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
                 <v-icon color="white">
                   mdi-email
                 </v-icon>
@@ -54,7 +71,7 @@
             <img :src="'/board/' + bm.email + '.jpg'" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
-            <div class="green lighten-3 pa-3">
+            <div class="bg-green-lighten-3 pa-3">
               {{ bm.first_name }} {{ bm.last_name }}
             </div>
             <div class="pa-3">
@@ -67,17 +84,17 @@
               <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
+              <v-btn v-show="bm.mobile" icon class="bg-green-darken-2 mx-2" :href="'tel:' + bm.mobile">
                 <v-icon color="white">
                   mdi-phone
                 </v-icon>
               </v-btn>
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'sms:' + bm.mobile">
+              <v-btn v-show="bm.mobile" icon class="bg-green-darken-2 mx-2" :href="'sms:' + bm.mobile">
                 <v-icon color="white">
                   mdi-message-processing
                 </v-icon>
               </v-btn>
-              <v-btn text icon class="green darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
+              <v-btn text icon class="bg-green-darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
                 <v-icon color="white">
                   mdi-email
                 </v-icon>
@@ -98,7 +115,7 @@
             <img :src="'/board/' + bm.email + '.jpg'" class="person-photo-sm d-lg-none ">
           </div>
           <div class="d-flex flex-column flex-grow-1 ml-1">
-            <div class="green lighten-3 pa-3">
+            <div class="bg-green-lighten-3 pa-3">
               {{ bm.first_name }} {{ bm.last_name }}
             </div>
             <div class="pa-3">
@@ -111,17 +128,17 @@
               <div>e-mail: {{ bm.email }}@frbe-kbsb-ksb.be</div>
             </div>
             <div class="pa-3 d-flex">
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'tel:' + bm.mobile">
+              <v-btn v-show="bm.mobile" text icon class="bg-green-darken-2 mx-2" :href="'tel:' + bm.mobile">
                 <v-icon color="white">
                   mdi-phone
                 </v-icon>
               </v-btn>
-              <v-btn v-show="bm.mobile" text icon class="green darken-2 mx-2" :href="'sms:' + bm.mobile">
+              <v-btn v-show="bm.mobile" text icon class="bg-green-darken-2 mx-2" :href="'sms:' + bm.mobile">
                 <v-icon color="white">
                   mdi-message-processing
                 </v-icon>
               </v-btn>
-              <v-btn text icon class="green darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
+              <v-btn text icon class="bg-green-darken-2 mx-2" :href="'mailto:' + bm.email + '@frbe-kbsb-ksb.be'">
                 <v-icon color="white">
                   mdi-email
                 </v-icon>
@@ -131,54 +148,30 @@
         </div>
       </v-col>
     </v-row>
-    <h2 class="mt-3">
-      {{ $t("Honorary members") }}
-    </h2>
-    <ul>
-      <li v-for="bm in honorary" :key="bm.last_name">
-        {{ bm.first_name }} {{ bm.last_name }}
-      </li>
-    </ul>
-    <h2 class="mt-3">
-      {{ $t("Honorary president") }}
-    </h2>
-    <ul>
-      <li
-        v-for="bm in honorpres"
-        :key="bm.last_name"
-      >
-        {{ bm.first_name }} {{ bm.last_name }}
-      </li>
-    </ul>
+    <div class="markdowncontent">
+      <h2 class="mt-3">
+        {{ $t("Honorary members") }}
+      </h2>
+      <ul>
+        <li v-for="bm in honorary" :key="bm.last_name">
+          {{ bm.first_name }} {{ bm.last_name }}
+        </li>
+      </ul>
+      <h2 class="mt-3">
+        {{ $t("Honorary president") }}
+      </h2>
+      <ul>
+        <li
+          v-for="bm in honorpres"
+          :key="bm.last_name"
+        >
+          {{ bm.first_name }} {{ bm.last_name }}
+        </li>
+      </ul>
+    </div>
+
   </v-container>
 </template>
-
-<script>
-
-export default {
-
-  data () {
-    return {
-      board: [],
-      collaborator: [],
-      ombudsman: [],
-      honorary: [],
-      honorpres: []
-    }
-  },
-
-  async fetch () {
-    const members = await this.$content('app', 'board').fetch()
-    this.board = members.filter(m => m.category === 'board')
-    this.collaborator = members.filter(m => m.category === 'collaborator')
-    this.ombudsman = members.filter(m => m.category === 'ombudsman')
-    this.honorary = members.filter(m => m.category === 'honorary')
-    this.honorpres = members.filter(m => m.category === 'honorpres')
-  },
-
-  fetchKey: 'board'
-}
-</script>
 
 <style scoped>
 

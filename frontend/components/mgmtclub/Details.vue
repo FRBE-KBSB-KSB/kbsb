@@ -1,309 +1,274 @@
+<script setup>
+import { ref, computed } from 'vue'
+import { VContainer, VBtn, VCard, VCardTitle, VCardText, VRow, VCol, 
+  VDialog, VDivider, VTextField, VTextarea,  } from 'vuetify/components';
+import { CLUB_STATUS, EMPTY_CLUB } from '@/util/club'
+import showdown from 'showdown'
+
+// stores
+import { useMgmtTokenStore } from "@/store/mgmttoken"
+import { storeToRefs } from 'pinia'
+const mgmtstore = useMgmtTokenStore()
+const { token: mgmttoken } = storeToRefs(mgmtstore) 
+
+// communication
+const emit = defineEmits(['updateClub'])
+defineExpose({ setup })
+const { $backend } = useNuxtApp()
+
+//  snackbar and loading widgets
+import ProgressLoading from '@/components/ProgressLoading.vue'
+import SnackbarMessage from '@/components/SnackbarMessage.vue'
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
+
+// datamodel
+const clubdetails = ref(EMPTY_CLUB)
+const helpdialog = ref(false)
+const statuscm = ref(CLUB_STATUS.CONSULTING)
+const { data: help }  = await useAsyncData('help-login', () => queryContent('/pages/help-club-contact').findOne())
+const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
+const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
+const mdConverter = new showdown.Converter()
+const ttitle = `title_en`
+const tcontent = `content_en`
+let copyclubdetails = null
+
+function md(s) { 
+  return  mdConverter.makeHtml(s)
+}
+
+function cancelClub() {
+  statuscm.value = CLUB_STATUS.CONSULTING
+}
+
+
+async function modifyClub() {
+  statuscm.value = CLUB_STATUS.MODIFYING
+}
+
+function readClubDetails(club) {
+  console.log('readClubDetails in details')  
+  clubdetails.value = { ...EMPTY_CLUB, ...club }
+  copyclubdetails = JSON.parse(JSON.stringify(club))
+}
+
+async function saveClub() {
+  // build a a diff between clubdetails and its cooy
+  console.log('saveClub')
+  let update = {}
+  for (const [key, value] of Object.entries(clubdetails.value)) {
+    if (value != copyclubdetails[key]) {
+      update[key] = value
+    }
+  }
+  showLoading(true)
+  try {
+    const reply = await $backend("club", "mgmt_update_club",{
+      ...update,
+      idclub: clubdetails.value.idclub,
+      token: mgmttoken.value,
+    })
+    statuscm.value = CLUB_STATUS.CONSULTING
+    showSnackbar('Club saved')
+    emit('updateClub')
+  } catch (error) {
+    if (error.code == 401) gotoLogin()
+    showSnackbar(error.message)
+    return
+  }
+  finally {
+    showLoading(false)
+  }
+}
+
+function setup(club){
+  console.log('setupDetails', club)
+  readClubDetails(club)
+}
+
+onMounted( () => {
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+})
+</script>
+
+
 <template>
   <v-container>
-    <p v-if="!club.idclub">Please select a club to view the club details</p>
-    <div v-if="club.idclub">
-      <h3 v-show="status_consulting">Consulting club details</h3>
-      <h3 v-show="status_modifying">Modify club details</h3>
-      <v-container>
-        <v-row v-show="status_consulting">
-          <v-col cols="12" md="6">
-            <h4>Club details</h4>
-            <div><span class="fieldname">Long name</span>: {{ clubdetails.name_long }}</div>
-            <div><span class="fieldname">Short name</span>: {{ clubdetails.name_short }}</div>
-            <div><span class="fieldname">Federation</span>: {{ clubdetails.federation }}</div>
-            <div><span class="fieldname">Club Venue</span>:<br />
-              <span v-html='clubdetails.venue.replace("\n", "<br />")'></span>
-            </div>
-            <div><span class="fieldname">Website</span>: {{ clubdetails.website }}</div>
-            <div><span class="fieldname">Bank account name</span>: {{ clubdetails.bankaccount_name
-            }}
-            </div>
-            <div><span class="fieldname">Bank account IBAN</span>: {{ clubdetails.bankaccount_iban
-            }}
-            </div>
-            <div><span class="fieldname">Bank account BIC</span>: {{ clubdetails.bankaccount_bic }}
-            </div>
-            <h4 class="mt-2">Contact</h4>
-            <div><span class="fieldname">Main email address</span>: {{ clubdetails.email_main }}
-            </div>
-            <div><span class="fieldname">Email address Interclub</span>: {{
-            clubdetails.email_intercLub
-            }}</div>
-            <div><span class="fieldname">Email address administration</span>: {{
-            clubdetails.email_admin
-            }}</div>
-            <div><span class="fieldname">Email address finance</span>: {{ clubdetails.email_finance
-            }}
-            </div>
-            <div><span class="fieldname">Postal address</span>:<br />
-              <span v-html='clubdetails.address.replace("\n", "<br />")'></span>
-            </div>
+    <SnackbarMessage ref="refsnackbar" />
+    <ProgressLoading ref="refloading"/>    
+    <p v-if="!clubdetails.idclub">Select a club to view the club details</p>
+    <div v-if="clubdetails.idclub">
+      <v-container v-show="status_consulting">
+        <h2>Consulting club details</h2>
+        <v-row>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>            
+              <v-card-title>
+                Club details
+              </v-card-title>
+              <v-card-text>
+                <div><span class="fieldname">Long name</span>: {{ clubdetails.name_long }}
+                </div>
+                <div><span class="fieldname">Short name</span>: {{ clubdetails.name_short }}
+                </div>
+                <div><span class="fieldname">Federation</span>: {{ clubdetails.federation }}
+                </div>
+                <div><span class="fieldname">Website</span>: {{ clubdetails.website }}</div>              
+              </v-card-text>
+            </v-card>
           </v-col>
-          <v-col cols="12" md="6">
-            <h4>Board Members</h4>
-            <ul>
-              <li v-for="(bm, f) in clubdetails.boardmembers" :key="f">
-                <span class="fieldname">{{ boardroles[f][$i18n.locale] }}</span>:
-                {{ bm.first_name }} {{ bm.last_name }}<br />
-                email: {{ bm.email }}<br />
-                gsm: {{ bm.mobile }}
-              </li>
-            </ul>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>Bank details</v-card-title>
+              <v-card-text>
+                <div><span class="fieldname">Bank account name</span>: {{
+                  clubdetails.bankaccount_name
+                }}
+                </div>
+                <div><span class="fieldname">Bank account IBAN</span>: {{
+                  clubdetails.bankaccount_iban
+                }}
+                </div>
+                <div><span class="fieldname">Bank account BIC</span>: {{
+                  clubdetails.bankaccount_bic
+                }}
+                </div>              
+              </v-card-text>
+            </v-card>
+          </v-col>                      
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title class="mt-2">
+                <v-btn icon="mdi-help" color="purple" size="small" class="float-right" @click="helpdialog = true"/>                
+                <h4>{{ $t('Contact') }}</h4>
+              </v-card-title>
+              <v-card-text>
+                <div><span class="fieldname">Main email address</span>: {{
+                  clubdetails.email_main
+                }}
+                </div>
+                <div><span class="fieldname">Email address Interclub</span>: {{
+                  clubdetails.email_interclub
+                }}</div>
+                <div><span class="fieldname">Email address administration</span>: {{
+                  clubdetails.email_admin
+                }}</div>
+                <div><span class="fieldname">Email address finance</span>: {{
+                  clubdetails.email_finance
+                }}
+                </div>
+                <div><span class="fieldname">Postal address</span>:<br />
+                  <span v-html='clubdetails.address.replaceAll("\n", "<br />")'></span>
+                </div>
+              </v-card-text>
+            </v-card>
           </v-col>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>
+                Playing details
+              </v-card-title>
+              <v-card-text>
+                <div><span class="fieldname">Club venue</span>:<br />
+                  <span v-html='clubdetails.venue.replaceAll("\n", "<br />")'></span>
+                </div>
+                <h4>Playing hours</h4>
+                <div v-for="(h,d) in clubdetails.openinghours" :key="d">
+                  <div v-show="h.length">
+                    <span class="fieldname">d</span>: {{ h }}
+                  </div>
+                </div>                
+              </v-card-text>
+            </v-card>
+          </v-col> 
         </v-row>
-        <v-row v-show="status_consulting">
-          <v-btn @click="modifyClub">Modify club</v-btn>
+        <v-row class="mt-2">
+          <v-btn @click="modifyClub">Modify</v-btn>
         </v-row>
-        <v-row v-show="status_modifying">
-          <v-col cols="12" md="6">
-            <h4>Club details</h4>
-            <v-text-field v-model="clubdetails.name_long" label="Long name" />
-            <v-text-field v-model="clubdetails.name_short" label="Short name" />
-            <v-text-field v-model="clubdetails.federation" label="Federation (V/F/D)" />
-            <v-textarea v-model="clubdetails.venue" label="Venue" />
-            <v-text-field v-model="clubdetails.website" label="Website" />
+      </v-container>
+      <v-container v-show="status_modifying">
+        <h2>Modify club details</h2>
+        <v-row>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card class="elevation-5">
+              <v-card-title>
+                Club details
+              </v-card-title>
+              <v-card-text>
+                <v-text-field v-model="clubdetails.name_long" label="Long name" />
+                <v-text-field v-model="clubdetails.name_short" label="Short name" />
+                <p>Federation: {{ clubdetails.federation }}</p>
+                <v-text-field v-model="clubdetails.website" label="Website" />
+              </v-card-text>
+            </v-card>
           </v-col>
-          <v-col cols="12" md="6">
-            <h4>Contact</h4>
-            <v-text-field v-model="clubdetails.email_main" label="Main E-mail address" />
-            <v-text-field v-model="clubdetails.email_intercub" label="E-mail Interclub" />
-            <v-text-field v-model="clubdetails.email_admin" label="E-mail administration" />
-            <v-text-field v-model="clubdetails.email_finance" label="E-mail finance" />
-            <v-textarea v-model="clubdetails.address" label="Postal address" />
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card class="elevation-5">
+              <v-card-title>
+                Contact
+              </v-card-title>
+              <v-card-text>
+                <v-text-field v-model="clubdetails.email_main" label="Main email address" />
+                <v-text-field v-model="clubdetails.email_interclub" label="Email address Interclub" />
+                <v-text-field v-model="clubdetails.email_admin" label="Email address administration" />
+                <v-text-field v-model="clubdetails.email_finance" label="Email address finance" />
+                <v-textarea rows="3" v-model="clubdetails.address" label="Postal address" />
+              </v-card-text>
+            </v-card>
           </v-col>
-
-          <v-col cols="12" md="6">
-            <h4>Bank details</h4>Pressesprecher
-            <v-text-field v-model="clubdetails.bankacount_name" label="Name bank account" />
-            <v-text-field v-model="clubdetails.bankaccount_iban" label="IBAN bank account" />
-            <v-text-field v-model="clubdetails.bankaccount_bic" label="BIC bank account" />
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card class="elevation-5">
+              <v-card-title>
+                {{ $t('Bank details') }}
+              </v-card-title>
+              <v-card-text>
+                <v-text-field v-model="clubdetails.bankacount_name" label="Bank account name" />
+                <v-text-field v-model="clubdetails.bankaccount_iban" label="Bank account IBAN" />
+                <v-text-field v-model="clubdetails.bankaccount_bic" label="Bank account BIC" />
+              </v-card-text>
+            </v-card>
           </v-col>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>
+                {{ $t('Playing details') }}
+              </v-card-title>
+              <v-card-text>
+                <v-textarea rows="3" v-model="clubdetails.venue" label="Club venue" />
+                <h4>{{ $t('Playing hours') }}</h4>
+                <v-text-field v-model="clubdetails.openinghours.Monday" label="Monday" />                
+                <v-text-field v-model="clubdetails.openinghours.Tuesday" label="Tuesday" />                
+                <v-text-field v-model="clubdetails.openinghours.Wednesday" label="Wednesday" />                
+                <v-text-field v-model="clubdetails.openinghours.Thursday" label="Thursday" />                
+                <v-text-field v-model="clubdetails.openinghours.Friday" label="Friday" />                
+                <v-text-field v-model="clubdetails.openinghours.Saturday" label="Saturday" />                
+                <v-text-field v-model="clubdetails.openinghours.Sunday" label="Sunday" />                
+              </v-card-text>
+            </v-card>
+          </v-col>                    
         </v-row>
-        <div v-show="status_modifying">
-          <h4>Board Members</h4>
-          <v-row v-for="(bm, f) in boardroles" :key="f">
-            <!-- <span class="fieldname">{{ boardroles[f][$i18n.locale] }}</span>: -->
-            <v-col cols="12" sm="6" lg="4">
-              <v-autocomplete v-model="boardmembers[f].idnumber" :items="mbr_items"
-                :label="boardroles[f][$i18n.locale]" item-text="merged" item-value="idnumber"
-                color="deep-purple" clearable @change="updateboard(f)">
-                <template v-slot:item="data">
-                  {{ data.item.merged }}
-                </template>
-              </v-autocomplete>
-            </v-col>
-            <!-- <v-col cols="12" sm="6" lg="4">
-              {{ bm.email }}
-              <v-select v-model="boardmembers[f].email_visibility" :items="visibility_items"
-                color="deep-purple" @change="updateboard(f)" label="Email visibility" />
-            </v-col>
-            <v-col cols="12" sm="6" lg="4">
-              {{ bm.mobile }}
-              <v-select v-model="boardmembers[f].mobile_visibility" :items="visibility_items"
-                color="deep-purple" @change="updateboard(f)" label="Mobile visibility" />
-            </v-col> -->
-          </v-row>
-        </div>
-        <v-row v-show="status_modifying">
-          <v-btn @click="saveClub">Save club</v-btn>
+        <v-row class="ma-2">
+          <v-btn @click="saveClub">Save</v-btn>
           <v-btn @click="cancelClub">Cancel</v-btn>
         </v-row>
       </v-container>
     </div>
+    <v-dialog v-model="helpdialog" width="20em">
+      <ContentRenderer :value="help">
+        <v-card>
+          <v-card-title v-html="help[ttitle] ? help[ttitle] : help.title" />
+          <v-divider></v-divider>
+          <v-card-text class="pa-3 ma-1 markdowncontent" v-html="md(help[tcontent])"> 
+          </v-card-text>
+        </v-card>
+      </ContentRenderer>
+    </v-dialog> 
   </v-container>
 </template>
-<script>
-
-const CLUB_STATUS = {
-  CONSULTING: 0,
-  MODIFYING: 1,
-}
-const EMPTY_CLUBDETAILS = {
-  venue: "",
-  address: "",
-}
-
-const EMPTY_BOARD = {
-  president: { idnumber: 0 },
-  vice_president: { idnumber: 0 },
-  secretary: { idnumber: 0 },
-  treasurer: { idnumber: 0 },
-  tournament_director: { idnumber: 0 },
-  youth_director: { idnumber: 0 },
-  interclub_director: { idnumber: 0 },
-  webmaster: { idnumber: 0 },
-  bar_manager: { idnumber: 0 },
-  press_officer: { idnumber: 0 },
-}
-
-const VISIBILITY = {
-  hidden: "HIDDEN",
-  club: "CLUB",
-  public: "PUBLIC",
-}
-
-export default {
-
-  name: 'Details',
-
-  data() {
-    return {
-      boardroles: [],
-      boardmembers: EMPTY_BOARD,
-      clubmembers: {},
-      clubdetails: {},
-      mbr_items: [],
-      status: CLUB_STATUS.CONSULTING,
-      visibility_items: Object.values(VISIBILITY).map(x => this.$t(x)),
-    }
-  },
-
-  props: {
-    club: Object
-  },
-
-  computed: {
-    logintoken() { return this.$store.state.newlogin.value },
-    status_consulting() { return this.status == CLUB_STATUS.CONSULTING },
-    status_modifying() { return this.status == CLUB_STATUS.MODIFYING },
-  },
-
-  methods: {
-
-    cancelClub() {
-      this.status = CLUB_STATUS.CONSULTING
-      this.get_clubdetails(this.club)
-    },
-
-    emitInterface() {
-      this.$emit("interface", "get_clubdetails", this.get_clubdetails);
-    },
-
-    async fetch() {
-      this.boardroles = (await this.$content('boardroles').fetch()).boardroles
-    },
-
-    async get_clubmembers() {
-      try {
-        const reply = await this.$api.old.get_clubmembers({
-          idclub: this.club.idclub,
-        })
-        const activemembers = reply.data.activemembers
-        activemembers.forEach(p => {
-          p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
-        })
-        this.mbr_items = Object.values(activemembers.sort((a, b) =>
-          (a.last_name > b.last_name ? 1 : -1)))
-        this.clubmembers = Object.fromEntries(this.mbr_items.map(x => [x.idnumber, x]))
-      } catch (error) {
-        const reply = error.reply
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club members failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club members failed' })
-        }
-      }
-    },
-
-    async get_clubdetails() {
-      if (!this.club.id) {
-        this.clubdetails = EMPTY_CLUBDETAILS
-        return
-      }
-      try {
-        const reply = await this.$api.club.mgmt_get_club({
-          id: this.club.id,
-          token: this.logintoken
-        })
-        this.readClubdetails(reply.data)
-      } catch (error) {
-        const reply = error.reply
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club details failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: 'Getting club details failed' })
-        }
-      }
-    },
-
-    gotoLogin() {
-      this.$router.push('/mgmt/login?url=__mgmt__club')
-    },
-
-    modifyClub() {
-      this.status = CLUB_STATUS.MODIFYING
-      this.get_clubmembers();
-
-    },
-
-    readClubdetails(details) {
-      this.clubdetails = { ...details }
-      if (!this.clubdetails.address) this.clubdetails.address = ""
-      if (!this.clubdetails.venue) this.clubdetails.venue = ""
-      this.boardmembers = { ...EMPTY_BOARD, ...details.boardmembers }
-    },
-
-    async saveClub() {
-      console.log('saving', this.clubdetails)
-      try {
-        const reply = await this.$api.club.mgmt_update_club({
-          ...this.clubdetails,
-          token: this.logintoken,
-        })
-        this.status = CLUB_STATUS.CONSULTING
-        this.$root.$emit('snackbar', { text: 'Club saved' })
-      } catch (error) {
-        const reply = error.response
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Saving enrollment', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Saving club details') })
-        }
-      }
-    },
-
-    updateboard(f) {
-      const bm = this.boardmembers[f]
-      if (bm.idnumber) {
-        let cm = this.clubmembers[bm.idnumber]
-        bm.first_name = cm.first_name
-        bm.last_name = cm.last_name
-        bm.email = cm.email
-        bm.mobile = cm.mobile
-        if (!bm.email_visibility) bm.email_visibility = "CLUB"
-        if (!bm.mobile_visibility) bm.mobile_visibility = "CLUB"
-        this.clubdetails.boardmembers[f] = bm
-      }
-      else {
-        bm.first_name = null
-        bm.last_name = null
-        bm.email = null
-        bm.mobile = null
-        bm.email_visibility = null
-        bm.mobile_visibility = null
-        delete this.clubdetails.boardmembers[f]
-      }
-
-    },
-
-  },
-
-  mounted() {
-    this.emitInterface();
-    this.fetch();
-    this.$nextTick(() => {
-      this.get_clubdetails();
-    })
-  },
-
-}
-</script>
 
 <style scoped>
 .fieldname {

@@ -1,329 +1,264 @@
+<script setup>
+import {ref, computed, nextTick} from 'vue'
+import { VContainer, VBtn, VCard, VCardTitle, VCardText, VAutocomplete,VIcon, 
+  VRow, VCol } from 'vuetify/lib/components/index.mjs';
+import { visibility_items, CLUB_STATUS, EMPTY_CLUB } from '@/util/club'
+import { useIdtokenStore}  from '@/store/idtoken'
+import { storeToRefs } from 'pinia'
+
+const { localePath } = useLocalePath()
+const { locale, t } = useI18n()
+const { $backend } = useNuxtApp()
+const props = defineProps(["club","clubmembers"])
+const idstore = useIdtokenStore()
+const { token: idtoken } = storeToRefs(idstore)
+const clubdetails = ref(EMPTY_CLUB)
+const clubadmin = ref ({})
+let copyclubdetails = null
+const interclubadmin = ref ({})
+const interclubcaptain = ref({})
+const newclubadmin = ref (null)
+const newinterclubadmin = ref (null)
+const newinterclubcaptain= ref( null)
+const statuscm = ref(CLUB_STATUS.CONSULTING)
+const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
+const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
+const t_vis_items = computed(()=>  visibility_items.map((x) =>({
+  title: t(x.title),
+  value: x.value
+})))
+let clubadminl, interclubadminl, interclubcaptainl;
+const emit = defineEmits(['displaySnackbar', 'updateClub'])
+
+function addClubAdmin() {
+  const cm = props.clubmembers.find(m => m.idnumber == newclubadmin.value)
+  clubadmin.value[newclubadmin.value] = cm.merged
+  nextTick(() => newclubadmin.value = null);
+}
+
+function addInterclubAdmin() {
+  interclubadmin.value[newinterclubadmin.value] = props.clubmembers.find(
+    m => m.idnumber == newinterclubadmin.value).merged
+  nextTick(() => newinterclubadmin.value = 0);
+}
+
+function addInterclubCaptain() {
+  interclubcaptain.value[newinterclubcaptain.value] = props.clubmembers.find(
+    m => m.idnumber == newinterclubcaptain.value).merged
+  nextTick(() => newinterclubcaptain.value = 0);
+}
+
+function cancelAccess() {
+  statuscm.value = CLUB_STATUS.CONSULTING
+  emit('updateClub')
+}
+
+function deleteClubAdmin(m) {
+  // don't delete last member
+  if (Object.keys(clubadmin.value).length == 1) return
+  delete clubadmin.value[m]
+}
+
+function deleteInterclubAdmin(m) {
+  // don't delete last member
+  if (Object.keys(interclubadmin).length == 1) return
+  delete interclubadmin.value[m]
+}
+
+function deleteInterclubCaptain(m) {
+  delete interclubcaptains.value[m]
+}
+
+function gotoLogin() {
+  navigateTo(localePath('/tools/oldlogin?url=__club__manager'))
+}
+
+async function modifyAccess() {
+  statuscm.value = CLUB_STATUS.MODIFYING
+}
+
+function readClubDetails() {
+  console.log('reading club rights') 
+  clubdetails.value = { ...EMPTY_CLUB, ...props.club }
+  copyclubdetails = JSON.parse(JSON.stringify(props.club))  
+  clubdetails.value.clubroles.forEach((c) => {
+    console.log('loop c', c.nature, c.memberlist)
+    if (c.nature == "ClubAdmin") clubadminl = c.memberlist
+    if (c.nature == "InterclubAdmin") interclubadminl = c.memberlist
+    if (c.nature == "InterclubCaptain") interclubcaptainl = c.memberlist
+  })  
+  console.log('clubadmin', clubadmin.value)  
+}
+
+function readClubMembers(){
+  console.log('reading club members', clubadminl )
+  clubadmin.value = Object.fromEntries(clubadminl.map(
+    (x) => {
+      const cm = props.clubmembers.find(m => m.idnumber == x)
+      if (!cm) {
+        console.log('Did not find', x)
+        return []
+      }
+      else {
+        cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
+        return [x, cm.merged]      
+      }
+    }
+  ))
+  interclubadmin.value = Object.fromEntries(interclubadminl.map(
+    (x) => {
+      const cm = props.clubmembers.find(m => m.idnumber == x)
+      if (!cm) {
+        console.log('Did not find', x)
+        return []
+      }
+      else {
+        cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
+        return [x, cm.merged]      
+      }      
+    }
+  )) 
+  interclubcaptain.value = Object.fromEntries(interclubcaptainl.map(
+    (x) => {
+      const cm = props.clubmembers.find(m => m.idnumber == x)
+      if (!cm) {
+        console.log('Did not find', x)
+        return []
+      }
+      else {
+        cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
+        return [x, cm.merged]      
+      }
+    }
+  ))
+}
+
+async function saveAccess() {
+  // build a a diff between clubdetails and its cooy
+  console.log('saving')
+  clubdetails.value.clubroles.forEach((c) =>{
+    if (c.nature == "ClubAdmin") c.memberlist = Object.keys(clubadmin.value)
+    if (c.nature == "InterclubAdmin") c.memberlist = Object.keys(interclubadmin.value)
+    if (c.nature == "InterclubCaptain") c.memberlist = Object.keys(clubadmin.value)
+  })
+  try {
+    const reply = await $backend("club", "clb_update_club",{
+      clubroles: clubdetails.value.clubroles,
+      idclub: props.club.idclub,
+      token: idtoken.value,
+    })
+    statuscm.value = CLUB_STATUS.CONSULTING
+    emit('displaySnackbar', t('Club saved'))
+    emit('updateClub')
+  } catch (error) {
+    if (error.code == 401) gotoLogin()
+    emit('displaySnackbar', t(error.message))
+    return
+  }
+}
+
+
+defineExpose({readClubDetails, readClubMembers})
+</script>
+
+
 <template>
   <v-container>
     <p v-if="!club.idclub">{{ $t('Select a club to view the access rights') }}</p>
-    <div v-if="club.idclub">
-      <h3 v-show="status_consulting">{{ $t('Consulting access rights') }}</h3>
-      <h3 v-show="status_modifying">{{ $t('Modify access rights') }}</h3>
-      <v-container>
-        <v-row v-show="status_consulting">
-          <v-col cols="12" sm="6" md="4">
-            <h4>{{ $t('Club administrators') }}</h4>
-            {{ $t('The club administrators have write access to the Club Manager') }}
-            <ul>
-              <li v-for="(m, ix) in clubadmin" :key="ix">{{ m }}</li>
-            </ul>
+    <div v-if="club.idclub" class="markdowncontent">
+      <v-container v-show="status_consulting">
+        <h2>{{ $t('Consulting access rights') }}</h2>
+        <v-row>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>{{ $t('Club administrators') }}</v-card-title>
+              <v-card-text>
+                {{ $t('The club administrators have write access to the Club Manager') }}
+                <ul>
+                  <li v-for="(m, ix) in clubadmin" :key="ix">{{ m }}</li>
+                </ul>
+              </v-card-text>
+            </v-card>
           </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <h4>{{ $t('Interclub Administrators') }}</h4>
-            {{ $t('The interclub administrators have write access to the Interclub Manager') }}
-            <ul>
-              <li v-for="(m, ix) in interclubadmin" :key="ix">{{ m }}</li>
-            </ul>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>{{ $t('Interclub Administrators') }}</v-card-title>
+              <v-card-text>
+                {{ $t('The interclub administrators have write access to the Interclub Manager') }}
+                <ul>
+                  <li v-for="(m, ix) in interclubadmin" :key="ix">{{ m }}</li>
+                </ul>
+              </v-card-text>
+            </v-card>
           </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <h4>{{ $t('Interclub Captains') }}</h4>
-            {{ $t('The interclub captains have write access to the planning and ' +
-            'results of the Interclub.')
-            }}
-            <p>{{ $t('Not available yet') }}</p>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>
+                {{ $t('Interclub Captains') }}
+              </v-card-title>
+              <v-card-text>
+                {{ $t('The interclub captains have write access to the planning and ' +
+                      'results of the Interclub.')
+                }}
+                <p>{{ $t('Not available yet') }}</p>
+              </v-card-text>
+            </v-card>
           </v-col>
         </v-row>
-        <v-row v-show="status_consulting">
-          <v-btn @click="modifyAccess">{{ $t('Modify access rights') }}</v-btn>
+        <v-row class="ma-2">
+          <v-btn @click="modifyAccess">{{ $t('Modify') }}</v-btn>
         </v-row>
-        <div v-show="status_modifying">
-          <h4>{{ $t('Club administrators') }}</h4>
-          <ul>
-            <li v-for="(m, ix) in clubadmin" :key="m">
-              {{ m }} &nbsp; <v-icon @click="deleteClubAdmin(ix)">mdi-delete</v-icon>
-            </li>
-          </ul>
-          <v-autocomplete v-model="newclubadmin" :items="clubmemberitems" @change="addClubAdmin"
-            label="Add Member" class="memberselect">
-            <template v-slot:item="data">
-              {{ data.item.text }}
-            </template>
-          </v-autocomplete>
-          <h4 class="mt-2">{{ $t('Interclub Administrators') }}</h4>
-          <ul>
-            <li v-for="(m, ix) in interclubadmin" :key="m">
-              {{ m }} &nbsp; <v-icon @click="deleteInterclubAdmin(ix)">mdi-delete</v-icon>
-            </li>
-          </ul>
-          <v-autocomplete v-model="newinterclubadmin" :items="clubmemberitems"
-            @change="addInterclubAdmin" label="Add Member" class="memberselect">
-            <template v-slot:item="data">
-              {{ data.item.text }}
-            </template>
-          </v-autocomplete>
-          <h4 class="mt-2">{{ $t('Interclub Captains') }}</h4>
-          {{ $t('Not available yet') }}
-        </div>
-        <div v-show="status_modifying">
-          <v-btn @click="saveAccess">{{ $t('Save access rights') }}</v-btn>
+      </v-container>
+    
+      <v-container  v-show="status_modifying">
+        <h2 >{{ $t('Modify access rights') }}</h2>
+        <v-row>
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>{{ $t('Club administrators') }}</v-card-title>
+              <v-card-text>
+                <ul>
+                  <li v-for="(m, ix) in clubadmin" :key="m">
+                    {{ m }} &nbsp; <v-icon @click="deleteClubAdmin(ix)">mdi-delete</v-icon>
+                  </li>
+                </ul>
+                <v-autocomplete v-model="newclubadmin" :items="props.clubmembers || []" @update:model-value="addClubAdmin"
+                  label="Add Member" class="memberselect" item-title="merged" item-value="idnumber">
+                </v-autocomplete>              
+              </v-card-text>
+            </v-card>
+          </v-col>        
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>{{ $t('Interclub Administrators') }}</v-card-title>
+              <v-card-text>
+                <ul>
+                  <li v-for="(m, ix) in interclubadmin" :key="m">
+                    {{ m }} &nbsp; <v-icon @click="deleteInterclubAdmin(ix)">mdi-delete</v-icon>
+                  </li>
+                </ul>
+                <v-autocomplete v-model="newinterclubadmin" :items="props.clubmembers || []"
+                  @update:model-value="addInterclubAdmin" label="Add Member" class="memberselect"  item-title="merged" item-value="idnumber">
+                </v-autocomplete>              
+              </v-card-text>
+            </v-card>
+          </v-col>        
+          <v-col cols="12" sm="6" md="4" xl="3">
+            <v-card>
+              <v-card-title>{{ $t('Club administrators') }}</v-card-title>
+              <v-card-text>{{ $t('Not available yet')}}</v-card-text>
+            </v-card>
+          </v-col>        
+        </v-row>
+        <v-row class="ma-2">
+          <v-btn @click="saveAccess">{{ $t('Save') }}</v-btn>
           <v-btn @click="cancelAccess">{{ $t('Cancel') }}</v-btn>
-        </div>
+        </v-row>
       </v-container>
     </div>
 
   </v-container>
 </template>
-<script>
-import Vue from 'vue'
-
-const ACCESS_STATUS = {
-  CONSULTING: 0,
-  MODIFYING: 1,
-}
-
-const ROLES = ["ClubAdmin", "InterclubAdmin"]
-
-const VISIBILITY = {
-  hidden: "HIDDEN",
-  club: "CLUB",
-  public: "PUBLIC",
-}
-
-
-export default {
-
-  name: 'Access',
-
-  data() {
-    return {
-      clubmembers: {},
-      clubrights: {},
-      clubadmin: {},
-      interclubadmin: {},
-      interclubcaptain: {},
-      newclubadmin: null,
-      newinterclubadmin: null,
-      newinterclubcaptain: null,
-      roles: ROLES,
-      status: ACCESS_STATUS.CONSULTING,
-      visibility_items: Object.values(VISIBILITY).map(x => this.$t(x)),
-    }
-  },
-
-  props: {
-    club: Object
-  },
-
-  computed: {
-    clubmemberitems() {
-      return Object.entries(this.clubmembers).map(x => {
-        return {
-          value: x[0],
-          text: x[1].merged,
-        }
-      })
-    },
-    logintoken() { return this.$store.state.oldlogin.value },
-    status_consulting() { return this.status == ACCESS_STATUS.CONSULTING },
-    status_modifying() { return this.status == ACCESS_STATUS.MODIFYING },
-  },
-
-  methods: {
-
-
-    addClubAdmin() {
-      this.clubadmin[this.newclubadmin] = this.clubmembers[this.newclubadmin].merged
-      this.$nextTick(() => {
-        this.newclubadmin = null
-      });
-    },
-
-    addInterclubAdmin() {
-      this.interclubadmin[this.newinterclubadmin] = this.clubmembers[this.newinterclubadmin].merged
-      this.$nextTick(() => {
-        this.newinterclubadmin = null
-      });
-    },
-
-    addInterclubCaptain() {
-      this.interclubcaptain[this.newinterclubcaptain] = this.clubmembers[this.newinterclubcaptain].merged
-      this.$nextTick(() => {
-        this.newinterclubcaptain = null
-      });
-    },
-
-    cancelAccess() {
-      this.status = ACCESS_STATUS.CONSULTING
-      this.get_clubrights(this.club)
-    },
-
-    deleteClubAdmin(m) {
-      // don't delete last member
-      if (Object.keys(this.clubadmin).length == 1) return
-      Vue.delete(this.clubadmin, m)
-    },
-
-    deleteInterclubAdmin(m) {
-      // don't delete last member
-      if (Object.keys(this.interclubadmin).length == 1) return
-      Vue.delete(this.interclubadmin, m)
-    },
-
-    deleteInterclubCaptain(m) {
-      Vue.delete(this.interclubcaptain, m)
-    },
-
-    emitInterface() {
-      this.$emit("interface", "get_clubrights", this.get_clubrights);
-    },
-
-    async get_clubmembers() {
-      console.log('get_clubmembers', this.club.id)
-      if (!this.club.id) {
-        this.clubmembers = {}
-        return
-      }
-      try {
-        const reply = await this.$api.old.get_clubmembers({
-          idclub: this.club.idclub,
-        })
-        const members = reply.data.activemembers
-        members.forEach(p => {
-          p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
-        })
-        const mbrsorted = members.sort((a, b) =>
-          (a.last_name > b.last_name ? 1 : -1))
-        this.clubmembers = Object.fromEntries(mbrsorted.map(x => [x.idnumber, x]))
-      } catch (error) {
-        console.log('error get_clubmembers api', error)
-        const reply = error.reply
-        if (reply.status == 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club members failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Getting club members failed') })
-        }
-      }
-    },
-
-    async get_clubrights() {
-      await this.get_clubmembers()
-      if (!this.club.id) {
-        this.clubrights = {}
-        return
-      }
-      try {
-        const reply = await this.$api.club.clb_get_club({
-          id: this.club.id,
-          token: this.logintoken
-        })
-        this.readClubrights(reply.data)
-      } catch (error) {
-        const reply = error.reply
-        if (reply.status == 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Getting club details failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Getting club details failed') })
-        }
-      }
-    },
-
-    gotoLogin() {
-      this.$router.push('/mgmt/login?url=__tools__club')
-    },
-
-    async modifyAccess() {
-      try {
-        const reply = await this.$api.club.verify_club_access({
-          idclub: this.club.idclub,
-          role: "ClubAdmin",
-          token: this.logintoken,
-        })
-        this.status = ACCESS_STATUS.MODIFYING
-        await this.get_clubmembers()
-      } catch (error) {
-        const reply = error.response
-        switch (reply.status) {
-          case 401:
-            this.gotoLogin()
-            break
-          default:
-            console.error('Getting clubs failed', reply.data.detail)
-            this.$root.$emit('snackbar', { text: this.$t('Permission denied') })
-        }
-      }
-    },
-
-    readClubrights(details) {
-      details.clubroles.forEach((cr) => {
-        console.log('cr', cr)
-        this.clubrights[cr.nature] = cr.memberlist
-      })
-      this.clubadmin = Object.fromEntries(this.clubrights["ClubAdmin"].map(
-        (x) => {
-          let cm = this.clubmembers[x] ? this.clubmembers[x] : {}
-          return [x, cm.merged]
-        }
-      ))
-      this.interclubadmin = Object.fromEntries(this.clubrights["InterclubAdmin"].map(
-        (x) => {
-          let cm = this.clubmembers[x] ? this.clubmembers[x] : {}
-          return [x, cm.merged]
-        }
-      ))
-      this.interclubcaptain = Object.fromEntries(this.clubrights["InterclubCaptain"].map(
-        (x) => {
-          let cm = this.clubmembers[x] ? this.clubmembers[x] : {}
-          return [x, cm.merged]
-        }
-      ))
-
-    },
-
-    async saveAccess() {
-      try {
-        const reply = await this.$api.club.clb_update_club({
-          id: this.club.id,
-          clubroles: [
-            {
-              nature: "ClubAdmin",
-              memberlist: Object.keys(this.clubadmin)
-            },
-            {
-              nature: "InterclubAdmin",
-              memberlist: Object.keys(this.interclubadmin)
-            },
-            {
-              nature: "InterclubCaptain",
-              memberlist: Object.keys(this.interclubcaptain)
-            },
-          ],
-          token: this.logintoken,
-        })
-        this.status = ACCESS_STATUS.CONSULTING
-        this.$root.$emit('snackbar', { text: 'Club saved' })
-        this.get_clubrights()
-      } catch (error) {
-        const reply = error.response
-        if (reply.status === 401) {
-          this.gotoLogin()
-        }
-        else {
-          console.error('Saving access rights failed', reply.data.detail)
-          this.$root.$emit('snackbar', { text: this.$t('Saving access rights failed') })
-        }
-      }
-    },
-
-  },
-
-  mounted() {
-    this.emitInterface();
-    this.$nextTick(() => {
-      this.get_clubrights();
-    })
-  },
-
-}
-</script>
 
 <style scoped>
 .memberselect {

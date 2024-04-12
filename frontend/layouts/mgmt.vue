@@ -1,93 +1,44 @@
-<template>
-  <v-app>
-    <v-app-bar v-cloak dark app class="deep-purple darken-2">
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-items>
-        <v-btn text large href="/">
-          Management
-        </v-btn>
-      </v-toolbar-items>
-      <v-spacer />
-      <v-toolbar-title>Admin Interface</v-toolbar-title>
-    </v-app-bar>
-    <v-navigation-drawer v-cloak v-model="drawer" app class="deep-purple darken-2">
-      <v-list dark>
-        <v-list-item>
-          <v-list-item-title class="title">
-            Menu
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-      </v-toolbar>
-      <v-list dark dense class="deep-purple">
-        <v-list-item to="/mgmt/pagelist">
-          <v-list-item-icon>
-            <v-icon>mdi-file</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>News Articles</v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/mgmt/filelist">
-          <v-list-item-icon>
-            <v-icon>mdi-file-document</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Files (Reports)</v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/mgmt/interclub">
-          <v-list-item-icon>
-            <v-icon>mdi-arrow-left-right</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Interclub</v-list-item-content>
-        </v-list-item>
-        <v-list-item to="/mgmt/club">
-          <v-list-item-icon>
-            <v-icon>mdi-account-group</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>Clubs</v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+<script setup>
+import { ref } from "vue";
+import {
+  VApp, VAppBar, VAppBarTitle, VNavigationDrawer,
+  VAppBarNavIcon, VMain, VList, VListItem, VToolbar, VToolbarTitle
+} from 'vuetify/components'
 
-    <v-main>
-      <nuxt />
-    </v-main>
+const drawer = ref(false);
 
-    <v-snackbar v-model="snackbar" bottom>
-      {{ snacktext }}
-      <template #action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="snackbar = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-      </template>
-    </v-snackbar>
-    </v-navigation-drawer>
-  </v-app>
-</template>
-<script>
-export default {
-  data() {
-    return {
-      drawer: false,
-      snackbar: false,
-      snacktext: ''
-    }
-  },
+// we need ot because nuxt i18n is buggy
+const localePath = useLocalePath()
 
-  mounted() {
-    this.$root.$on('snackbar', (ev) => {
-      console.log('received snackbar event', ev.text)
-      if (ev.text) {
-        this.snacktext = ev.text
-        this.reason = ev.reason
-        this.snackbar = true
-      }
-    })
-  },
-
-  methods: {
-    updateDrawer(value) {
-      this.drawer = value
-    }
-  }
-
+async function goto(section) {
+  const url = `/mgmt/${section}`
+  console.log('going to', url)
+  navigateTo(localePath(url))
 }
 </script>
+
+<template>
+  <VApp>
+    <VNavigationDrawer v-model="drawer" class="bg-deep-purple-darken-1 text-white">
+      <VToolbar class="bg-deep-purple-lighten-1 text-white">
+        <VToolbarTitle>Menu</VToolbarTitle>
+      </VToolbar>
+      <VList class="bg-deep-purple-lighten-1 text-white">
+        <VListItem @click="goto('overview')" title="Overview" />
+        <VListItem @click="goto('content')" title="Site Content" />
+        <VListItem @click="goto('clubs')" title="Clubs" />
+        <VListItem @click="goto('filelist')" title="Files (Reports)" />
+        <VListItem @click="goto('interclubs')" title="Interclubs" />
+        <VListItem @click="goto('mailing')" title="Mailing" />
+        <VListItem @click="goto('logout')" title="Logout" />
+      </VList>
+    </VNavigationDrawer>
+    <VAppBar class="bg-deep-purple-darken-1 text-white">
+      <VAppBarNavIcon @click="drawer = !drawer" />
+      <VAppBarTitle> Management FRBE- KBSB-KSB </VAppBarTitle>
+    </VAppBar>
+    <VMain>
+      <slot />
+    </VMain>
+  </VApp>
+</template>

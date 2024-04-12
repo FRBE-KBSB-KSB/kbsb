@@ -1,44 +1,39 @@
+<script setup>
+import showdown from 'showdown'
+import { computed, ref } from 'vue'
+
+const props = defineProps({
+  file: String
+})
+const { locale } = useI18n()
+const ttitle = `title_${locale.value}`
+const tcontent = `content_${locale.value}`
+const helptopic = `help-${props.file}`
+console.log('helptopic', helptopic)
+const { data }  = await useAsyncData(helptopic, () => queryContent(`/pages/${help-topic.value}`).findOne())
+const dialog = ref(false)
+const mdConverter = new showdown.Converter()
+
+function md(s) { return  mdConverter.makeHtml(s)}
+
+</script>
+
 <template>
   <v-dialog v-model="dialog" width="20em">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="green" fab outlined x-small v-bind="attrs" v-on="on">
-        <v-icon>mdi-help</v-icon>
+      <v-btn icon="mdi-help" color="green" size="x-small" v-bind="attrs" v-on="on">
       </v-btn>
     </template>
 
-    <v-card>
-      <v-card-title>
-        {{ content.title }}
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text class="pt-3" v-html="content.body">
-      </v-card-text>
-    </v-card>
+    <ContentRenderer :value="data">
+      <v-card>
+        <v-card-title v-html="data[ttitle] ? data[ttitle] : data.title" />
+        <v-divider></v-divider>
+        <v-card-text class="pt-3 markdowncontent" v-html="md(data[tcontent])"> 
+        </v-card-text>
+      </v-card>
+    </ContentRenderer>
+
   </v-dialog>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      dialog: false,
-      content: {},
-    }
-  },
-
-  props: {
-    file: String
-  },
-
-  methods: {
-    async fetch() {
-      this.content = (await this.$content('help', this.file).fetch())[this.$i18n.locale]
-    },
-
-  },
-
-  mounted() {
-    this.fetch()
-  },
-}
-</script>

@@ -1,3 +1,9 @@
+# settings to run everything on the deployment machine
+#   - we need to have maildev running locally in docker
+#   - we are still reading from the Google Cloud Bucket for the common files
+#   - mongodb is running in local odcker container
+#   - mysql is reffring to the Infomaniak server
+
 EMAIL = {
     "backend": "SMTP",
     "host": "localhost",
@@ -6,26 +12,25 @@ EMAIL = {
 }
 
 FILESTORE = {
-    "manager": "local",
-    "basedir": "../filestore",
+    "manager": "google",
+    "bucket": "website-kbsb-prod.appspot.com",
 }
 
 GOOGLE_CLIENT_ID = (
     "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
-    # "1027257161616-9n0mh0sl9jifkrkbqb1cqiu8554rgtrb.apps.googleusercontent.com"
 )
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-prod",
+        "name": "kbsb-mongodb-local",
         "manager": "filejson",
     },
     "mysql": {
-        "name": "kbsb-mysql-local",
+        "name": "kbsb-mysql-infomaniak",
         "manager": "filejson",
     },
     "gdrive": {
-        "name": "kbsb-gdrive-test",
+        "name": "kbsb-gdrive-staging",
         "manager": "filejson",
     },
 }
@@ -73,4 +78,9 @@ LOG_CONFIG = {
     },
 }
 
-MODE = "local"
+TOKEN = {
+    "timeout": 180,  # timeout in minutes
+    "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",
+    "algorithm": "HS256",
+    "nocheck": False,
+}

@@ -1,0 +1,90 @@
+runtime: python310
+
+env_variables:
+  API_URL: https://website-kbsb-test.ew.r.appspot.com/
+
+handlers:
+
+# root 
+- url: /
+  static_files: .output/public/index.html
+  upload: .output/public/index.html
+
+
+# # url  /capi
+# - url: /capi
+#   static_dir: .output/public/capi
+
+# url ending with /
+- url: /(.+)/
+  static_files: .output/public/\1/index.html
+  upload: .output/public/(.+)/index.html
+
+
+# url with no dot
+- url: /([^.]*)$
+  static_files: .output/public/\1/index.html
+  upload: .output/public/[^.]*/index.html
+
+# the rest
+- url: /(.*)
+  static_files: .output/public/\1
+  upload: .output/public/(.*)
+
+
+
+  # standard file types
+  # - url: /(.*\.html)
+  #   mime_type: text/html
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.html)
+
+  # - url: /(.*\.js)
+  #   mime_type: text/javascript
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.js)
+
+  # - url: /(.*\.css)
+  #   mime_type: text/css
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.css)
+  
+  # - url: /(.*\.txt)
+  #   mime_type: text/plain
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.txt)
+
+  # # json files
+  # - url: /(.*\.json)
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.json)
+
+  # # font files
+  # - url: /(.*\.(ttf|woff|eot|woff2))
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.(ttf|woff|eot|woff2))
+
+  # # image files
+  # - url: /(.*\.(bmp|gif|ico|jpeg|jpg|png|svg))
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.(bmp|gif|ico|jpeg|jpg|png|svg))
+
+  # # pdf files
+  # - url: /(.*\.pdf)
+  #   static_files: .output/public/\1
+  #   upload: .output/public/(.*\.pdf)
+
+  # # home 
+  # - url: /
+  #   secure: always
+  #   static_files: .output/public/index.html
+  #   upload: .output/public/index.html
+
+  # index files
+
+
+  # # redirect to 'url + /' url.
+  # - url: /(.+)
+  #   static_files: .output/public/redirector.html
+  #   upload: .output/public/redirector.html
+

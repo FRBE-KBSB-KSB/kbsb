@@ -1,84 +1,35 @@
+<script setup>
+import showdown from 'showdown'
+import { ref } from 'vue'
+import { VContainer, VTabs, VTab,VWindow, VWindowItem} from 'vuetify/lib/components/index.mjs';
+
+const { locale } = useI18n()
+const ttitle = `title_${locale.value}`
+const { data }  = await useAsyncData('internal-rules', () => queryContent('/pages/internal-rules').findOne())
+const tab = ref(null)
+const mdConverter = new showdown.Converter()
+function md(s) { return  mdConverter.makeHtml(s)}
+</script>
+
 <template>
   <v-container>
-    <h1>{{ page.title }}</h1>
-    <v-container class="mt-1 markedcontent elevation-2">
-      <v-tabs v-model="tab" light slider-color="deep-purple">
-        <v-tab class="mx-2">
-          NL
-        </v-tab>
-        <v-tab class="mx-2">
-          FR
-        </v-tab>
-      </v-tabs>
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <nuxt-content :document="page__nl" class="mt-3" />
-        </v-tab-item>
-        <v-tab-item>
-          <nuxt-content :document="page__fr" class="mt-3" />
-        </v-tab-item>
-      </v-tabs-items>
-    </v-container>
+    <ContentRenderer :value="data">
+      <h1 v-html="data[ttitle] ? data[ttitle] : data.title" />
+      <v-container class="mt-1 elevation-2">
+        <v-tabs v-model="tab" light slider-color="deep-purple">
+          <v-tab class="mx-2"> NL </v-tab>
+          <v-tab class="mx-2"> FR </v-tab>
+        </v-tabs>
+        <v-window v-model="tab">
+          <v-window-item>
+            <div class="mt-2 markdowncontent" v-html="md(data.content_nl)" />
+          </v-window-item>
+          <v-window-item>
+            <div class="mt-2 markdowncontent" v-html="md(data.content_fr)" />
+          </v-window-item>
+        </v-window>
+      </v-container>
+    </ContentRenderer>
   </v-container>
 </template>
 
-<script>
-export default {
-
-  layout: 'default',
-
-  data () {
-    return {
-      tab: 0,
-      page__nl: {},
-      page__fr: {},
-      page__de: {},
-      page__en: {}
-    }
-  },
-
-  async fetch () {
-    this.page__nl = await this.$content('pages', 'admin', 'internalrules_nl').fetch()
-    this.page__fr = await this.$content('pages', 'admin', 'internalrules_fr').fetch()
-    this.page__de = await this.$content('pages', 'admin', 'internalrules_de').fetch()
-    this.page__en = await this.$content('pages', 'admin', 'internalrules_en').fetch()
-  },
-
-  head: {
-    title: 'Intern reglement KBSB - Règlement interne FRBE',
-    link: [
-      {
-        rel: 'stylesheet',
-        href:
-          'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900'
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css?family=Material+Icons'
-      },
-      {
-        rel: 'stylesheet',
-        href:
-          'https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css'
-      },
-      { rel: 'favicon', href: 'favicon.ico' }
-    ],
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'home', name: 'description', content: 'Meta description' }
-    ],
-    script: [
-      {
-        src: 'https://apis.google.com/js/platform.js',
-        async: true,
-        defer: true
-      }
-    ]
-  },
-
-  computed: {
-    page () { return this['page__' + this.$i18n.locale] }
-  }
-}
-</script>
