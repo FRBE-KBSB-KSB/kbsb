@@ -6,9 +6,7 @@
   last_name: Bailleul
   mobile: "+32478233183"
   roles: 
-    - President
     - "President CIS"
-    - "Representative BOIC"
   slug: geert
 
 - 
@@ -30,7 +28,7 @@
   last_name: Malfliet
   mobile: "+32471983387"
   roles: 
-    - "Secretary"
+    - "Secretary general"
   slug: bernard
 
 - 
@@ -51,7 +49,6 @@
   mobile: "+32474995274"
   roles: 
     - "Representative for FIDE & ECU"
-    - "Tournament director"
   slug: luc
 
 - 
@@ -73,7 +70,7 @@
   mobile: "+32497166318"
   roles: 
     - "Youth director"
-    - "Communication manager"
+    - "Secretary"
   slug: philippe
 
 - 
