@@ -10,16 +10,16 @@ vetur.config.js\
 .DS_Store
 
 # backend
-kbsb_backend/public
-kbsb_backend/reddevil
-kbsb_backend/local_settings.py
+backend/public
+backend/reddevil
+backend/local_settings.py
 .mypy_cache
 __pycache__/
 *.pyc
 
 # vue frontend
-kbsb_frontend/node_modules
-kbsb_frontend/.nuxt
+frontend/node_modules
+frontend/.nuxt
 
 # data
 share/mysql/*.sql
