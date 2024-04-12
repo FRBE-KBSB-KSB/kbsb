@@ -8,6 +8,7 @@ from datetime import datetime, date
 from reddevil.core import get_secret
 from fastapi import HTTPException
 from sqlalchemy import create_engine
+from sqlmodel import create_engine as sm_create_engine
 import pymysql, pymysql.cursors
 
 
@@ -78,7 +79,23 @@ def mysql_engine():
                 "ssl_disabled": True,
             },
         )
+        mysql_engine.sm_engine = sm_create_engine(
+            url,
+            pool_recycle=300,
+            pool_pre_ping=True,
+            connect_args={
+                "ssl_disabled": True,
+            },
+        )
     return mysql_engine.engine
+
+def mysql_sm_engine():
+    """
+    a singleton function returning a sqlalchemy engine for the mysql database
+    """
+    if not hasattr(mysql_engine, "sm_engine"):
+        mysql_engine()
+    return mysql_engine.sm_engine
 
 
 # import all database classes

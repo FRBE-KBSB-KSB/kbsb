@@ -11,7 +11,6 @@ from .md_interclub import (
     InterclubEnrollmentIn,
     InterclubEnrollmentList,
     InterclubPlayer,
-    InterclubPrevious,
     InterclubSeries,
     InterclubTransfer,
     InterclubTeam,
@@ -19,12 +18,17 @@ from .md_interclub import (
     InterclubVenuesIn,
     InterclubVenues,
     InterclubVenuesList,
+    InterclubBoard,
+    GameResult,
     DbInterclubClub,
     DbInterclubEnrollment,
-    DbInterclubPrevious,
     DbInterclubSeries,
     DbInterclubVenues,
     TransferRequestValidator,
+    InterclubMatch,
+    InterclubMatchOptional,
+    InterclubMatchList,
+    DbInterclubMatch,
 )
 
 from .interclub import (
@@ -32,14 +36,19 @@ from .interclub import (
     csv_interclubvenues,
     find_interclubenrollment,
     find_interclubvenues_club,
+    find_teamclubsseries,
     set_interclubenrollment,
     set_interclubvenues,
     add_team_to_series,
-    setup_interclubclub,
-    set_interclubclub,
     get_announcements,
 )
-
-from reddevil.page.page import PageList
+from .interclub_club import (
+    setup_interclubclub,
+    set_interclubclub,
+    clear_interclubclubs,
+    sortplayers_interclubclubs,
+)
+from .interclub_old import import_oldinterclubplayer
+from .interclub_match import create_oldinterclubmatch, get_interclubmatches
 
 import kbsb.interclub.api_interclub

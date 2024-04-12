@@ -1,5 +1,7 @@
 import logging
 
+from kbsb.interclub.md_interclubmatch import InterclubMatchList
+
 log = logging.getLogger(__name__)
 
 from fastapi import HTTPException, Depends
@@ -19,13 +21,13 @@ from . import (
     setup_interclubclub,
     set_interclubclub,
     get_announcements,
+    get_interclubmatches,
     InterclubEnrollment,
     InterclubEnrollmentIn,
     InterclubVenuesIn,
     InterclubVenues,
     InterclubClub,
     InterclubClubOptional,
-    PageList,
 )
 
 
@@ -198,13 +200,29 @@ async def api_clb_set_interclubclub(
         log.exception("failed api call clb_set_interclubclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.get("/api/v1/a/interclub/announcements", response_model=PageList)
-async def api_anon_get_announcements(
+
+@app.get("/api/v1/a/interclub/matches", response_model=InterclubMatchList)
+async def api_get_interclubmatches(
+    round: Optional[int] = None, idclub: Optional[int] = None, divseries: Optional[str] = None
 ):
     try:
-        return await get_announcements()
+        return await get_interclubmatches(round, idclub, divseries)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:
-        log.exception("failed api call anon_get_announcements")
+        log.exception("failed api call get_interclubmatches")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+
+
+# @app.get("/api/v1/a/interclub/announcements", response_model=PageList)
+# async def api_anon_get_announcements(
+# ):
+#     try:
+#         return await get_announcements()
+#     except RdException as e:
+#         raise HTTPException(status_code=e.status_code, detail=e.description)
+#     except:
+#         log.exception("failed api call anon_get_announcements")
+#         raise HTTPException(status_code=500, detail="Internal Server Error")

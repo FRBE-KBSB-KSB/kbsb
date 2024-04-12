@@ -1,148 +1,123 @@
---- 
-- 
-  category: board
+---
+- category: board
   email: geert.bailleul
   first_name: Geert
   last_name: Bailleul
   mobile: "+32478233183"
-  roles: 
-    - President
+  roles:
     - "President CIS"
-    - "Representative BOIC"
   slug: geert
 
-- 
-  category: board
+- category: board
   email: pierre.gonzalez
   first_name: Pierre
   last_name: Gonzalez Garcia
-  roles: 
+  roles:
     - "Vice president"
     - Treasurer
   slug: pierre
 
-- 
-  category: board
+- category: board
   email: bernard.malfliet
   first_name: Bernard
   last_name: Malfliet
   mobile: "+32471983387"
-  roles: 
-    - "Secretary"
+  roles:
     - "Secretary general"
   slug: bernard
 
-- 
-  category: board
+- category: board
   email: ruben.decrop
   first_name: Ruben
   last_name: Decrop
   mobile: "+32477571313"
-  roles: 
+  roles:
     - "IT manager"
   slug: ruben
 
-- 
-  category: board
+- category: board
   email: luc.cornet
   first_name: Luc
   last_name: Cornet
   mobile: "+32474995274"
-  roles: 
+  roles:
     - "Representative for FIDE & ECU"
-    - "Tournament director"
-    - "Rating manager FIDE"
   slug: luc
 
-- 
-  category: board
+- category: board
   email: philippe.vukojevic
   first_name: Philippe
   last_name: Vukojevic
   mobile: "+32497166318"
-  roles: 
+  roles:
     - "Youth director"
-    - "Communication manager"
+    - "Secretary"
   slug: philippe
 
-- 
-  category: board
+- category: board
   email: arben.dardha
   first_name: Arben
   last_name: Dardha
-  roles: 
+  roles:
     - "Manager international selections"
     - "Representative titled players"
   slug: arben
 
-- 
-  category: board
+- category: board
   email: wiebke.barbier
   first_name: Wiebke
   last_name: Barbier
-  roles: 
+  roles:
     - "Communication manager"
     - "Representative female players"
   slug: wiebke
 
-
-- 
-  category: board
+- category: board
   email: safet.capkunaj
   first_name: Safet
   last_name: Capkunaj
   mobile: "+32472383016"
-  roles: 
+  roles:
     - "Affiliations manager"
   slug: safet
 
-- 
-  category: collaborator
+- category: collaborator
   email: steven.bellens
   first_name: Steven
   last_name: Bellens
-  roles: 
+  roles:
     - "Rating manager Belg."
   slug: steven
 
-
-- 
-  category: ombudsman
+- category: ombudsman
   email: daniel.oger
   first_name: Daniel
   last_name: Oger
-  roles: 
+  roles:
     - Ombudsman
   slug: daniel
 
-
-- 
-  category: honorary
+- category: honorary
   first_name: Daniel
   last_name: Oger
   slug: hm_oger
 
-- 
-  category: honorary
-  first_name: Daniel 
+- category: honorary
+  first_name: Daniel
   last_name: Halleux
   slug: hm_daniel
 
-- 
-  category: honorary
+- category: honorary
   first_name: Chris
   last_name: Ghysels
   slug: hm_ghysels
 
-- 
-  category: honorary
+- category: honorary
   first_name: André
   last_name: Breda
   slug: hm_breda
 
-- 
-  category: honorpres
+- category: honorpres
   first_name: Günter
   last_name: Delhaes
   slug: hm_delhaes
-

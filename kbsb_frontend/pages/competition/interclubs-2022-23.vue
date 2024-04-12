@@ -6,7 +6,6 @@
       <v-tab>{{ $t('Announcements') }}</v-tab>
       <v-tab>{{ $t('Dates') }}</v-tab>
       <v-tab>{{ $t('Player list') }}</v-tab>
-      <v-tab>{{ $t('Planning') }}</v-tab>
       <v-tab>{{ $t('Results') }}</v-tab>
       <v-tab>{{ $t('Standings') }}</v-tab>
     </v-tabs>
@@ -21,7 +20,7 @@
         TO DO
       </v-tab-item>
       <v-tab-item>
-        TO DO
+        <InterclubResult />  
       </v-tab-item>
       <v-tab-item>
         TO DO

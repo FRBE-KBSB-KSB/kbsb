@@ -1,3 +1,5 @@
+BOARDROLES_PATH = "boardroles.yaml"
+
 EMAIL = {
     "backend": "SMTP",
     "host": "maildev.decrop.net",
