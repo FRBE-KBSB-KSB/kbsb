@@ -2,14 +2,11 @@
 from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from datetime import datetime, date
-from reddevil.core import get_secret
-from fastapi import HTTPException
-from sqlalchemy import create_engine
-from sqlmodel import create_engine as sm_create_engine
-import pymysql, pymysql.cursors
+from reddevil.core import get_secret, RdInternalServerError
+import mysql.connector
 
 
 def date2datetime(d: dict, f: str):
@@ -24,78 +21,27 @@ def date2datetime(d: dict, f: str):
         d[f] = datetime.combine(d[f], t)
 
 
-def get_mongodb():
-    """
-    a singleton function to get the mongodb database asynchronously
-    """
-    from motor.motor_asyncio import AsyncIOMotorClient
-    from asyncio import get_event_loop
-
-    if not hasattr(get_mongodb, "database"):
-        mongoparams = get_secret("mongodb")
-        loop = get_event_loop()
-        client = AsyncIOMotorClient(mongoparams["url"], io_loop=loop)
-        get_mongodb.database = client[mongoparams["db"]]
-    return get_mongodb.database
-
-
 def get_mysql():
-    """
-    a singleton function to get the mysql database
-    """
-    if not hasattr(get_mysql, "conn"):
-        mysqlparams = get_secret("mysql")
-        try:
-            conn = pymysql.connect(
-                host=mysqlparams["dbhost"],
-                user=mysqlparams["dbuser"],
-                password=mysqlparams["dbpassword"],
-                database=mysqlparams["dbname"],
-                ssl_disabled=True,
-            )
-            setattr(get_mysql, "conn", conn)
-        except pymysql.Error as e:
-            log.error(f"Failed to set up Mysql connection: {e}")
-            raise HTTPException(status_code=503, detail="CannotConnectMysql")
-    return getattr(get_mysql, "conn")
-
-
-def mysql_engine():
-    """
-    a singleton function returning a sqlalchemy engine for the mysql database
-    """
-    if not hasattr(mysql_engine, "engine"):
-        mysqlparams = get_secret("mysql")
-        host = mysqlparams["dbhost"]
-        user = mysqlparams["dbuser"]
-        password = mysqlparams["dbpassword"]
-        dbname = mysqlparams["dbname"]
-        url = f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
-        mysql_engine.engine = create_engine(
-            url,
-            pool_recycle=300,
-            pool_pre_ping=True,
-            connect_args={
-                "ssl_disabled": True,
-            },
+    if not hasattr(get_mysql, "params"):
+        setattr(get_mysql, "params", get_secret("mysql"))
+    try:
+        cnx = mysql.connector.connect(
+            pool_name="kbsbpool",
+            pool_size=5,
+            user=get_mysql.params["dbuser"],
+            password=get_mysql.params["dbpassword"],
+            host=get_mysql.params["dbhost"],
+            database=get_mysql.params["dbname"],
+            ssl_disabled=True,
         )
-        mysql_engine.sm_engine = sm_create_engine(
-            url,
-            pool_recycle=300,
-            pool_pre_ping=True,
-            connect_args={
-                "ssl_disabled": True,
-            },
-        )
-    return mysql_engine.engine
-
-def mysql_sm_engine():
-    """
-    a singleton function returning a sqlalchemy engine for the mysql database
-    """
-    if not hasattr(mysql_engine, "sm_engine"):
-        mysql_engine()
-    return mysql_engine.sm_engine
-
-
-# import all database classes
+    except mysql.connector.Error as err:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+            logger.exception("Something is wrong with your user name or password")
+            raise RdInternalServerError(description="Invalid DB credentials")
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            logger.exception("Database does not exist")
+            raise RdInternalServerError(description="Invalid DB")
+        else:
+            logger.exception(err)
+            raise RdInternalServerError(description="Unknown DB error")
+    return cnx
