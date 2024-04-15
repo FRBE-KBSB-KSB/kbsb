@@ -12,19 +12,19 @@ useHead({
 
 <template>
   <v-app>
-    <v-navigation-drawer v-cloak v-model="drawer" app class="bg-blue-grey-darken-1 text white">
+    <v-navigation-drawer v-cloak v-model="drawer" app class="bg-green-darken-1 text-white">
       <TheSidebar />
     </v-navigation-drawer>
-    <v-app-bar color="blue-grey-darken-1">
+    <v-app-bar color="green-darken-2">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-app-bar-title>
-        Bycco
+        FRBE - KBSB - KSB
       </v-app-bar-title>
     </v-app-bar>
     <v-main>
       <slot />
       <hr />
-      <AdCarousel />
+      <TheCarousel />
     </v-main>
 
     <TheFooter />

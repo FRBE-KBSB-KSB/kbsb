@@ -6,7 +6,7 @@ export default defineNuxtConfig({
       link: [
         {
           rel: 'stylesheet',
-          href: '/css/bycco.css',
+          href: '/css/kbsb.css',
         },
       ],
     },
