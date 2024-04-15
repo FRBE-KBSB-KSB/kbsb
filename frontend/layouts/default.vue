@@ -1,34 +1,60 @@
 <script setup>
 import { ref } from 'vue'
-import TheSidebar from '@/components/TheSidebar.vue'
-import TheCarousel from '@/components/TheCarousel.vue'
-import TheFooter from '@/components/TheFooter.vue'
-import { VApp, VAppBar, VAppBarTitle, VNavigationDrawer, 
-  VAppBarNavIcon, VMain } from 'vuetify/components'
-
 const drawer = ref(false)
+
+useHead({
+  script: [
+    { src: "/js/redirect.js" }
+  ]
+})
 </script>
 
+
 <template>
-  <div>
-    <VApp>
-      <v-navigation-drawer v-model="drawer" 
-        class="bg-green-darken-1 text-white">
-        <TheSidebar />
-      </v-navigation-drawer>
-      <v-app-bar color="green-darken-2">
-        <v-app-bar-nav-icon @click="drawer = !drawer" />
-        <v-app-bar-title>
-          FRBE- KBSB-KSB
-        </v-app-bar-title>
-      </v-app-bar>
-      <VMain>
-        <slot />
-        <TheCarousel /> 
-        <hr />                 
-      </VMain>
-      <TheFooter />    
-    </VApp>
-  </div>
+  <v-app>
+    <v-navigation-drawer v-cloak v-model="drawer" app class="bg-blue-grey-darken-1 text white">
+      <TheSidebar />
+    </v-navigation-drawer>
+    <v-app-bar color="blue-grey-darken-1">
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-app-bar-title>
+        Bycco
+      </v-app-bar-title>
+    </v-app-bar>
+    <v-main>
+      <slot />
+      <hr />
+      <AdCarousel />
+    </v-main>
+
+    <TheFooter />
+  </v-app>
 </template>
 
+<style scoped>
+a {
+  text-decoration: none;
+  color: black;
+}
+
+a.copyright {
+  color: white;
+}
+
+a:link,
+a:hover {
+  text-decoration: none;
+}
+
+a:hover {
+  font-weight: 700;
+}
+
+footer div {
+  margin: auto;
+}
+
+.footer2 {
+  margin-bottom: 50px;
+}
+</style>

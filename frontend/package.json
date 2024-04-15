@@ -1,30 +1,33 @@
 {
+  "name": "bycco",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "@nuxt/content": "^2.7.2",
-    "@nuxtjs/i18n": "^8.0.0-rc.3",
-    "@types/node": "^18.17.3",
-    "nuxt": "^3.10.3",
-    "prettier": "^3.0.3",
-    "vite": "^5.1.4",
+    "@intlify/unplugin-vue-i18n": "^2.0.0",
+    "@nuxt/devtools": "^1.0.6",
+    "nuxt": "~3.8.0",
+    "sass": "^1.69.6",
     "vite-plugin-vuetify": "^2.0.1",
-    "vue": "^3.4.19",
+    "vue": "^3.4.0",
+    "vue-i18n": "9",
+    "vue-router": "^4.2.5",
     "vuetify": "^3.4.9"
   },
   "dependencies": {
-    "@mdi/font": "^7.2.96",
-    "@pinia/nuxt": "^0.4.11",
-    "axios": "^1.4.0",
+    "@mdi/font": "^7.3.67",
+    "@pinia/nuxt": "^0.5.1",
+    "axios": "^1.6.2",
     "front-matter": "^4.0.2",
-    "jose": "^4.14.4",
-    "pinia": "^2.1.6",
-    "sass": "^1.66.1",
-    "showdown": "^2.1.0"
+    "jose": "^5.2.0",
+    "pinia": "^2.1.7",
+    "showdown": "^2.1.0",
+    "yaml": "^2.3.4"
   }
 }

@@ -1,41 +1,57 @@
 <script setup>
-import { ref } from "vue";
-import {
-  VApp, VAppBar, VAppBarTitle, VNavigationDrawer,
-  VAppBarNavIcon, VMain, VList, VListItem, VToolbar, VToolbarTitle
-} from 'vuetify/components'
+import { ref } from "vue"
 
+const router = useRouter()
 const drawer = ref(false);
-
-// we need ot because nuxt i18n is buggy
-const localePath = useLocalePath()
 
 async function goto(section) {
   const url = `/mgmt/${section}`
-  console.log('going to', url)
-  navigateTo(localePath(url))
+  router.push(url)
 }
-</script>
 
+useHead({
+  script: [
+    { src: 'https://accounts.google.com/gsi/client', defer: true }
+  ],
+})
+
+
+</script>
+<script>
+</script>
 <template>
   <VApp>
-    <VNavigationDrawer v-model="drawer" class="bg-deep-purple-darken-1 text-white">
-      <VToolbar class="bg-deep-purple-lighten-1 text-white">
-        <VToolbarTitle>Menu</VToolbarTitle>
-      </VToolbar>
-      <VList class="bg-deep-purple-lighten-1 text-white">
-        <VListItem @click="goto('overview')" title="Overview" />
-        <VListItem @click="goto('content')" title="Site Content" />
-        <VListItem @click="goto('clubs')" title="Clubs" />
-        <VListItem @click="goto('filelist')" title="Files (Reports)" />
-        <VListItem @click="goto('interclubs')" title="Interclubs" />
-        <VListItem @click="goto('mailing')" title="Mailing" />
-        <VListItem @click="goto('logout')" title="Logout" />
-      </VList>
+    <VNavigationDrawer v-model="drawer" color="deep-purple darken-1" dark>
+      <VToolbar title="BYCCO Mgmt" color="deep-purple darken-3" dark />
+      <v-list>
+        <v-list-item @click="goto('overview')" title="Overview" />
+        <v-list-item @click="goto('pages')" title="Pages" />
+        <v-list-item @click="goto('reservations')" title="Reservations" />
+        <v-list-item @click="goto('paymentrequests')" title="Payment Requests" />
+        <v-list-group no-action>
+          <template #activator="{ props }">
+            <v-list-item v-bind="props" title="VK 2024" />
+          </template>
+          <v-list-item @click="goto('enrollments_vk')" title="Enrollments" />
+          <v-list-item @click="goto('participants_vk')" title="Participants" />
+          <v-list-item @click="goto('tournament_vk')" title="Tournaments" />
+          <v-list-item @click="goto('attendee_vk')" title="Attendees" />
+        </v-list-group>
+        <v-list-group no-action>
+          <template #activator="{ props }">
+            <v-list-item v-bind="props" title="BJK 2024" />
+          </template>
+          <v-list-item @click="goto('enrollments_bjk')" title="Enrollments" />
+          <v-list-item @click="goto('participants_bjk')" title="Participants" />
+          <v-list-item @click="goto('tournament_bjk')" title="Tournaments" />
+          <v-list-item @click="goto('attendee_bjk')" title="Attendees" />
+        </v-list-group>
+        <v-list-item @click="goto('logout')" title="Logout" />
+      </v-list>
     </VNavigationDrawer>
-    <VAppBar class="bg-deep-purple-darken-1 text-white">
+    <VAppBar color="deep-purple darken-1" dark>
       <VAppBarNavIcon @click="drawer = !drawer" />
-      <VAppBarTitle> Management FRBE- KBSB-KSB </VAppBarTitle>
+      <VAppBarTitle>Management Bycco </VAppBarTitle>
     </VAppBar>
     <VMain>
       <slot />

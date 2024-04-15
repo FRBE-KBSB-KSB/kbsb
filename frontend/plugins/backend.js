@@ -1,25 +1,27 @@
-import axios from "axios"
-import accounts from "@/api/accounts"
-import club from "@/api/club"
-import content from "@/api/content"
-import file from "@/api/file"
-import interclub from "@/api/interclub"
-import member from "@/api/member"
+import axios from 'axios'
+import accounts from '@/api/accounts'
+import attendee from '@/api/attendee'
+import filestore from '@/api/filestore'
+import lodging from '@/api/lodging'
+import enrollment from '@/api/enrollment'
+import page from '@/api/page'
+import participant from '@/api/participant'
+import payment from '@/api/payment'
+import tournament from '@/api/tournament'
 
 axios.defaults.withCredentials = true
 
 const error_messages = {
-  401: "Authentication required",
-  403: "Permission denied",
-  404: "Not found",
-  422: "Request validation error",
-  500: "General server error",
-  503: "Could not connect to database server",
-  600: "Connectiom issue: server unreachable",
-  700: "You triggered a bug.  Please inform the webmaster.",
-  Forbidden: "Permission denied",
+  401: 'Authentication required',
+  403: 'Permission denied',
+  404: 'Not found',
+  500: 'General server error',
+  503: 'Could not connect to database server',
+  600: 'Connection issue: server unreachable',
+  700: 'You triggered a bug.  Please inform the webmaster.',
+  Forbidden: 'Permission denied',
   WrongUsernamePasswordCombination:
-    "Wrong combination of username and password",
+    'Wrong combination of username and password',
 }
 
 axios.interceptors.response.use(
@@ -31,56 +33,54 @@ axios.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      const errdata = error.response.data
-      const detail = errdata?.detail
-      console.error("backend error", error.response.status, detail)
-      const message = error_messages[detail] ? error_messages[detail] : error_messages[error.response.status]
-      console.error('message', message)
+      const detail = error.response.data.detail
+      console.info('backend Axios', error.response.status, detail, error.request)
       return Promise.reject({
         code: error.response.status,
         headers: error.response.headers,
-        message: message,
-      });
-
+        message: detail
+          ? error_messages[detail]
+          : error_messages[error.response.status],
+      })
     }
     if (error.request) {
-      console.warn("Axios", "No response received", error.request)
+      console.warn('Axios', 'No response received', error.request)
       return Promise.reject({
         code: 600,
         message: error_messages[600],
       })
     }
-    console.warn("Axios", "No request sent", error.message)
+    console.warn('Axios', 'No request sent', error.message)
     return Promise.reject({
       code: 700,
       message: error_messages[700],
     })
-  }
+  },
 )
 
 const factories = {
   accounts,
-  club,
-  content,
-  file,
-  interclub,
-  member,
+  attendee,
+  enrollment,
+  filestore,
+  lodging,
+  page,
+  participant,
+  payment,
+  tournament,
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig()
-  axios.defaults.baseURL = runtimeConfig.public.apiurl
+  axios.defaults.baseURL = runtimeConfig.public.apiUrl
   return {
     provide: {
       backend: async function (fact, method, options) {
         const f = factories[fact][method]
         if (!f) {
-          console.log("method not existing", fact, method)
+          console.log('$backend method not existing', fact, method)
         }
-        let now = new Date()
-        let reply = await f(options);
-        console.warn("backend call", method, "replied in ms:", new Date() - now)
-        return reply
+        return await f(options)
       },
     },
   }
