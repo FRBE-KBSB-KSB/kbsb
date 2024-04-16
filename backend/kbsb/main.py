@@ -42,7 +42,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # import api endpoints
 logger.info("loading api_account")
 from reddevil.account import api_account

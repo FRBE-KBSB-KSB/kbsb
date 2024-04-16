@@ -26,6 +26,15 @@ FILESTORE = {
     "bucket": os.environ.get("FILESTORE_BUCKET", "webite-kbsb-prod.appspot.com"),
 }
 
+# login details
+GOOGLE_CLIENT_ID = os.environ.get(
+    "GOOGLE_CLIENT_ID",
+    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
+)
+GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
+GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")
+GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
+
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = "levedetorrevanostende"
 
@@ -33,7 +42,7 @@ LOG_CONFIG = {
     "version": 1,
     "formatters": {
         "simple": {
-            "formaCOMMONt": "%(levelname)s: %(name)s - %(message)s",
+            "format": "%(levelname)s: %(name)s - %(message)s",
         },
         "color": {
             "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
@@ -67,17 +76,6 @@ LOG_CONFIG = {
         },
     },
 }
-
-
-# login details
-GOOGLE_CLIENT_ID = os.environ.get(
-    "GOOGLE_CLIENT_ID",
-    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
-)
-GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
-GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "")
-GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
-
 
 MODE = "production"
 
