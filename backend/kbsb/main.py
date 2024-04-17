@@ -1,6 +1,6 @@
-# copyright Ruben Decrop 2015-22
+# copyright Ruben Decrop 2015 - 2024
+# copyright Chessdevil Consulting 2015 - 2024
 
-import os.path
 import logging, logging.config
 
 from fastapi import FastAPI
@@ -10,8 +10,6 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from reddevil.core import register_app, get_settings, connect_mongodb, close_mongodb
-from kbsb import version
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,12 +24,13 @@ app = FastAPI(
     title="FRBE-KBSB-KSB",
     description="Website Belgian Chess federation FRBE KBSB KSB",
     version=version,
+    lifespan=lifespan,
 )
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
 settings = get_settings()
 logger = logging.getLogger(__name__)
-logger.info(f"Starting KBSB {version}")
+logger.info(f"Starting website KBSB {version}")
 
 # add CORS middleware for dev only
 app.add_middleware(

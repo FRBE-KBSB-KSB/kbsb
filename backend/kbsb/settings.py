@@ -2,6 +2,7 @@
 
 import os
 import yaml
+from pathlib import Path
 import logging
 
 API_BASE_URL = "/api"
@@ -23,7 +24,7 @@ EXTRASALT = "Zugzwang"
 
 FILESTORE = {
     "manager": "google",
-    "bucket": os.environ.get("FILESTORE_BUCKET", "webite-kbsb-prod.appspot.com"),
+    "bucket": os.environ.get("FILESTORE_BUCKET", "website-kbsb-prod.appspot.com"),
 }
 
 # login details
@@ -63,7 +64,11 @@ LOG_CONFIG = {
             "level": "INFO",
             "propagate": False,
         },
-        "reddevil": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "reddevil": {
+            "handlers": ["console"], 
+            "level": "INFO", 
+            "propagate": False
+        },
         "fastapi": {
             "handlers": ["console"],
             "level": "INFO",
@@ -77,9 +82,8 @@ LOG_CONFIG = {
     },
 }
 
-MODE = "production"
+KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-#
 SECRETS = {
     "mongodb": {
         "name": "kbsb-mongodb",
@@ -94,9 +98,12 @@ SECRETS = {
         "manager": "googlejson",
     },
 }
-SECRETS_PATH = ""
 
-# relatively to backend path
+SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
+
+SHARED_PATH = Path(os.environ.get("SHARED_PATH", "../share"))
+
+
 TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
 
 TOKEN = {
@@ -106,20 +113,25 @@ TOKEN = {
     "nocheck": False,
 }
 
-try:
-    from local_settings import *
+print("KBSB_MODE", KBSB_MODE) 
+ls = "No local settings loaded"
 
-    ls = "local settings loaded"
-except ImportError:
-    ls = "No local settings found"
+if KBSB_MODE == "local":
+    ls = "importing local settings"
+    from env_local import *
+
+if KBSB_MODE == "prodtest":
+    ls = "importing prodtest settings"
+    from env_prodtest import *
+
 
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
-if DEBUG:
-    LOG_CONFIG["handlers"]["console"]["level"] = "DEBUG"
-    LOG_CONFIG["loggers"]["kbsb"]["level"] = "DEBUG"
-    LOG_CONFIG["loggers"]["reddevil"]["level"] = "DEBUG"
 
-with open(BOARDROLES_PATH) as file:
-    BOARDROLES = yaml.load(file, Loader=yaml.FullLoader)["boardroles"]
+# with open(BOARDROLES_PATH) as file:
+#     BOARDROLES = yaml.load(file, Loader=yaml.FullLoader)["boardroles"]
+
+logging.config.dictConfig(LOG_CONFIG)
+logger = logging.getLogger(__name__)
+logger.info(ls)

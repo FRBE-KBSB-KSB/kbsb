@@ -1,8 +1,5 @@
-# settings to run everything on the deployment machine
-#   - we need to have maildev running locally in docker
-#   - we are still reading from the Google Cloud Bucket for the common files
-#   - mongodb is running in local odcker container
-#   - mysql is reffring to the Infomaniak server
+
+COLORLOG = True
 
 EMAIL = {
     "backend": "SMTP",
