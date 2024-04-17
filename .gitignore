@@ -24,3 +24,4 @@ frontend/.nuxt
 
 # data
 share/mysql/*.sql
+.env
