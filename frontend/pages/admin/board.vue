@@ -4,35 +4,17 @@ import { useI18n } from 'vue-i18n'
 import { parse } from 'yaml'
 const { t, locale } = useI18n()
 
-
-
 // data model
 
+const { $backend } = useNuxtApp()
 const board = ref([])
 const collaborator = ref([])
 const ombudsman = ref([])
 const honorary = ref([])
 const honorpres = ref([])
 
-async function readBucket(group, name) {
+async function parseYaml(yamlcontent) {
   try {
-    const reply = await $backend('filestore', 'anon_get_file', {
-      group,
-      name,
-    })
-    return parseYaml(reply.data)
-  }
-  catch (error) {
-    console.log('failed')
-  }
-}
-
-async function parseYaml(group, name) {
-  try {
-    const yamlcontent = await readBucket(group, name)
-    if (!yamlcontent) {
-      return null
-    }
     return parse(yamlcontent)
   }
   catch (error) {
@@ -41,14 +23,40 @@ async function parseYaml(group, name) {
 }
 
 async function processBoard() {
-  let b = await readBucket("data", "board.yaml")
-  roomtypes.value = []
-  common.value.roomtypes.forEach((rt) => {
-    roomtypes.value.push({
-      title: common.value.i18n[rt][locale.value],
-      value: rt,
-    })
+  let b = await readBoardFromBucket()
+  b.board.forEach((it) => {
+    switch(it.category) {
+      case "board":
+        board.value.push(it)
+        break
+      case "collaborator":
+        collaborator.value.push(it)
+        break
+      case "ombudsman":
+        ombudsman.value.push(it)
+        break
+      case "honorary":
+        honorary.value.push(it)
+        break
+      case "honorpres":
+        honorpres.value.push(it)
+        break
+    }
   })
+  board.value.sort((x,y)=>(y.order-x.order))
+}
+
+async function readBoardFromBucket() {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group: 'data',
+      name: 'board.yaml'
+    })
+    return parseYaml(reply.data)
+  }
+  catch (error) {
+    console.log('failed')
+  }
 }
 
 onMounted(() => {

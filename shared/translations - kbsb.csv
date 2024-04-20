@@ -1,0 +1,314 @@
+ctx,key,en,nl,fr,de
+,1 group,1 group,1 groep,1 groupe,1 Gruppe
+,2 opposite groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
+,Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
+,Actions,Actions,Acties,Actions,Aktionen
+,Active players of club,Active players of club,Actieve clubspelers,Joueurs actifs du club,Aktive Spieler des Vereins
+,Add a transfer from a club,Add a transfer from a club,Een transfer vanaf een club toevoegen,Ajouter un transfert depuis un club,Fügen Sie einen Transfer hinzu
+,Add enrollment,Add enrollment,Inschrijving toevoegen,Ajouter une inscription,Anmeldung hinzufügen
+,Add to playerlist,Add to playerlist,Toevegen aan spelerslijst,Ajouter à la liste de force,Zur Spielerliste hinzufügen
+,Add transfer to a club,Add transfer to a club,Trnasfer naar een club toevoegen,Ajouter un transfert à un club,Transfer zu einem Verein hinzufügen
+,Address,Address,Adres,Adresse,Adresse
+,Administration,Administration,Beheer,Administration,Administration
+,Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
+,Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
+,All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
+,Announcements,Announcements,Meldingen,Annonces,Ankündigungen
+,"As a default, your clubname is used.","As a default, your clubname is used.",Standaard wordt je clubnaam gebruikt.,"Par défaut, le nom de cercle est utilisé.",Standardmäßig wird Ihr Vereinsname verwendet.
+,"As such, for this interclub season, it can transfer it members to other clubs.","As such, for this interclub season, it can transfer it members to other clubs.",Als zodanig kan het voor dit interclubseizoen zijn leden overdragen aan andere clubs.,"A ce titre, pour cette saison interclubs, il peut transférer ses membres vers d'autres clubs.",Als solcher kann er für diese Interclub-Saison seine Mitglieder zu anderen Clubs transferieren.
+,Assigned Rating,Assigned Elo,Toegewezen Elo,Elo attribué,Zugewiesenes Elo
+,Availability,Availability,Beschikbaarheid,Disponibilité,Verfügbarkeit
+,Average ELO,Average ELO,Gemiddelde ELO,Moyenne ELO,durchschnittlicher ELO
+,Average ELO home,Average ELO home,Elo-gemiddelde thuis,Elo moyenne domicile,Durchschnittliches ELO Heim
+,Average ELO visit,Average ELO away,Elo-gemiddelde uit,Elo moyenne extérieur,Durchschnittliches ELO Auswärts
+,away,Away,Uit,Extérieur,Auswährt
+,Back,Back,Terug,Retour,Zurück
+,Bank account BIC,Bank account BIC,Bankrekening BIC,BIC du compte bancaire,Bankkonto-BIC
+,Bank account IBAN,Bank account IBAN,Bankrekening IBAN,IBAN du compte bancaire,Bankkonto-IBAN
+,Bank account name,Bank account name,Naam bankrekening,nom du compte bancaire,Bankkontoname
+,Bank details,Bank details,Bankgegevens,coordonnées bancaires,Bank details
+,bar_manager,bar manager,barmanager,gestionnaire du bar,Barleiter
+,BC Adults,BC Adults,BK volwassenen,CB adultes,BLM Erwachsene
+,BC Blitz,BC Blitz,BK Blitz,CB Blitz,BLM Blitz
+,BC Rapid,BC Rapid,BK Rapid,CB Rapid,BLM Rapid
+,BC School chess,BC School chess,BC Schoolschaak,CB inter-écoles,BLM Schulschah
+,BC Youth,BC Youth,BK Jeugd,CB Jeunesse,BLM Jugend
+,Board,Board,Bestuur,Organe d'administration,Verwaltungsrat
+,Board members,Board members,Bestuursleden,Administrateurs,Vorstandsmitglieder
+,Book 100 years,Book 100 years,Boek 100 jaar,Livre 100 ans,Buch 100 Jahre
+,Calendar,Calender,Kalender,Calendrier,Kalender
+,Cancel,Cancel,Annuleren,Annuler,Absagen
+,Capacity (boards),Capacity (boards),Capaciteit (borden),Capacité (échiquiers),Kapazität (Schachbretter)
+,Chess equiment,Chess equiment,Schaakmateriaal,Equipement d'échecs,Schachausrüstung
+,Click on the value of assigned rating to change it,Click on the value of assigned rating to change it,Klik op de waarde van de toegewezen Elo om deze te wijzigen,Cliquez sur la valeur de l'ELO attribué pour la modifier,"Klicken Sie auf den Wert der zugewiesenen Elo, um ihn zu ändern"
+,Closing time for modifying the playerlist,Closing time for modifying the playerlist,Sluitingstijd voor het wijzigen van de spelerslijst,Heure de fermeture pour modifier la liste de force,Schließungszeit für die Änderung der Spielerliste
+,Club,Club,Club,Cercle,Verein
+,Club administrators,Club administrators,Clubbeheerders,Administrateurs du cercle,Vereinsadministratoren
+,Club details,Club details,Clubgegevens,Détails du club,Vereinsdaten
+,Club number,Club number,Clubnummer,Numéro de club,Clubnummer
+,Club saved,Club saved,Club bewaard,Cercle sauvé,Verein gespeichert
+,Club venue,Club venue,Clublokaal,Lieu du club,Ort des Clubs
+,Clubs,Clubs,Clubs,Cercles,Vereine
+,Collaborator,Collaborator,Medewerker,Collaborateur,Mitarbeiter
+,Committees,Committees,Commissies,Commissions,Ausschüsse
+,Communication manager,Communication manager,Communicatiemanager,Responsable de la communication,Kommunikationsmanager
+,Competitions,Competitions,Competities,Compétitions,Wettbewerbe
+,Confirm,Confirm,Bevestigen,Confirmer,Bestätigen
+,Confirmation,Confirmation,Bevestiging,Confirmation,Bestätigung
+,Confirmed,Confirmed,Bevestigd,Confirmé,Bestätigt
+,Connectiom issue: server unreachable,Connectiom issue: server unreachable,Verbindingsprobleem: server niet bereikbaar,Problème de connexion : serveur inaccessible,Verbindungsproblem: Server nicht erreichbar
+,Consulting access rights,Consulting access rights,Toegangsrechten raadplegen,Consulter les droits d'accès,Zugriffsrechte abfragen
+,Consulting club details,Consulting club details,Clubdetails raadplegen,Consulter les details du cercle,Vereinsdetails abfragen
+,Contact,Contact,Contact,Contact,Kontakt
+,Contact details,Contact details,Contactdetails,Détails de contact,Kontaktdetails
+,Continue,Continue,Verder,Continuer,Weiter
+,Cost,Cost,Kost,Coût,Kosten
+,Dates,Dates,Data,Dates,Daten
+,Define order,Define order,Bepaal volgorde,Définir l'ordre,Reihenfolge definieren
+,Define players,Define players,Definieer spelers,Définir les joueurs,Spieler definieren
+,Define teams,Define teams,Bepaal teams,Définir les équipes,Teams definieren
+,Define the incoming and outgoing transfers.,Define the incoming and outgoing transfers.,Bepaal de inkomende en uitgaande transfers.,Définir les transferts entrants et sortants.,Definieren Sie die eingehenden und ausgehenden Transfers.
+,Define the order of the players in the list.,Define the order of the players in the list.,Bepaal de volgorde van de spelers in de lijst.,Définir l'ordre des joueurs dans la liste.,Definieren Sie die Reihenfolge der Spieler in der Liste.
+,Define the titulars per team,Define the titulars per team,BEpaal titularissen per ploeg,Définir les titulaires par équipe,Definieren Inhaber  für Teams
+,Define transfers,Define transfers,Definieer transfers,Définir les transferts,Transfers definieren
+,Define who are the players on the list.,Define who are the players on the list.,Bepaal wie de spelers op de lijst zijn.,Définir qui sont les joueurs sur la liste.,"Definieren Sie, wer die Spieler auf der Liste sind."
+,Delivery,Delivery,Levering,Livraison,Lieferung
+,Details,Details,Details,Détails,Details
+,Distribution,Distribution,Verdeling,Distribution,Verteilung
+,Distribution of teams in same division,Distribution of teams in same division,Verdeling van teams in dezelfde afdeling,Répartition des équipes dans la même division,Verteilung der Teams in derselben Division
+,Distribution points,Distribution points,Verdeelpunten,Points de distribution,Verteilungspunkte
+,Division,Division,Divisie,Division,Division
+,Dutch,Dutch,Nederlands,Néerlandais,Niederländisch
+,E-mail,E-mail,E-mail,E-mail,E-mail
+,Edit,Edit,Wijzigen,Modifier,Bearbeiten
+,ELO processing,ELO processing,ELO-verwerking,Traitement ELO,ELO Verarbeitung
+,Elo too high,Elo too high,Elo te laag,Elo top haut,Elo zu hoch
+,Elo too low,Elo too low,Elo te laag,Elo trop bas,Elo zu niedrig
+,ELO tournaments,ELO tournaments,ELO toernooien,Tournois Elo,ELO Turniere
+,Email,Email,E-mail,E-mail,E-Mail
+,Email address,Email address,E-mailadress,Adresse e-mail,E-mailadresse
+,Email address administration,Email address for administration,E-mailadres voor administratie,Adresse e-mail de l'administration,E-Mail-Adresse für die Verwaltung
+,Email address finance,Email address for finance,E-mailadres voor financiën,Adresse e-mail pour les finances,E-Mail-Adresse für Finanzen
+,Email address Interclub,Email address for Interclub,E-mailadres voor Interclub,Adresse e-mail pour les Interclubs,E-Mail-Adresse für Interclub
+,Email address venue,Email address venue,E-mailadres speelzaal,Adresse e-mail de la salle de jeu,E-Mail-Adresse des Veranstaltungsortes
+,Email addresses,Email addresses,E-mailadressen,Adresses e-mail,E-mailadressen
+,Enrollment,Enrollment,Inschrijving,Inscription,Anmeldung
+,Entry of the results starts on Sunday at 15h,Entry of the results starts on Sunday at 15h,Het ingeven van de resultaten start zondag om 15u,La saisie des résultats commence dimanche à 15h,Die Eingabe der Ergebnisse beginnt am Sonntag um 15 Uhr
+,Existing enrollment,Existing enrollment,Bestaande inschrijving,Inscription existante,Bestehende Anmeldung
+,Export,Export,Exporteren,Exporter,Exportieren
+,Export all players,Export all players,Exporteer alle spelers,Exporter tous les joueurs,Alle Spieler exportieren
+,Exporting a player to another club,Exporting a player to another club,Een speler exporteren naar een andere club,Exporter un joueur vers un autre club,Einen Spieler zu einem anderen Verein exportieren
+,Federation,Federation,Federatie,Fédération,Föderation
+,First name,First name,Voornaam,Prénom,Vorname
+,French,French,Frans,Français,Französisch
+,Friday,Friday,Vrijdag,Vendredi,Freitag
+,From club,From club,Van club,Du club,Vom Verein
+,G License,G License,G Licentie,Licence G,G Lizenz
+,GDPR,GDPR,GDPR,RGPD,GDPR
+,German,German,Duits,Allemand,Deutsch
+,Getting club details failed,Getting club details failed,Het ophalen van clubgegevens is mislukt,Échec de l'optention des détails du club,Abrufen der Clubdetails fehlgeschlagen
+,Getting club members failed,Getting club members failed,Het ophalen van clubleden is mislukt,Échec de l'obtention des membres du club,Abrufen der Mitglieder fehlgeschlagen
+,Getting clubs failed,Getting clubs failed,Het ophalen van clubs is mislukt,Échec de l'obtention des clubs,Abrufen der Vereine fehlgeschlagen
+,Goal,Goal,Doel,But,Ziel
+,Grouping,Grouping,Groepering,Regroupement,Gruppierung
+,Hidden,Hidden,Verborgen,Caché,Versteckt
+,Home,Home,Home,Accueil,Startseite
+,home,Home,Thuis,Domicile,Heim
+,Honorary members,Honorary members,Ereleden,Membres d'honneur,Ehrenmitglieder
+,Honorary president,Honorary president,Erevoorzitter,Président d'honneur,Ehrenpräsident
+,ID number,ID number,Stamnummer,Matricule,ID-Nummer
+,Identity,Identity,Identiteit,Identité,Identität
+,In 1 series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
+,In multiple series,In multiple series,In meerdere reeksen,En plusieurs séries,In mehrere Serien
+,Incoming transfers,Incoming transfers,Inkomende transfers,Transfrets entrants,Eingehende Trnasfers
+,Informations utiles,Informations utiles,Nuttige informatie,Informations utiles,Nützliche Informationen
+,Interclub Administrators,Interclub Administrators,Interclubbeheerders,Administrateurs interclubs,Interclub-Administratoren
+,Interclub Captains,Interclub Captains,Interclubkapiteinen,Capitaines interclubs,Interclub-Kapitäne
+,Interclub enrollment,Interclub enrollment,Inschrijving Interclub,Enregistrement Interclubs,Interclub-Anmeldung
+,Interclub venue saved,Interclub venue saved,Speelzaal Interclubs opgeslagen,Salle de jeux des Interclubs sauvegardé,Interclubs-Veranstaltungsort gespeichert
+,Interclub venues,Interclub venues,Speellokalen Interclub,Salles de jeux Interclubs,Interclub-Spielorte
+,interclub_director,interclub director,Interclubverantwoordlijke,directeur d'interclubs,Interclubleiter
+,Interclubs enrollment,Interclubs enrollment,Inschrijving Interclubs,Enregistrmernt Interclubs,Anmeldung Interclubs
+,Internal rules,Internal rules,Intern reglement,Règlement interne,interne Regulierung
+,International,International,Internationaal,International,International
+,International competitions,International competitions,Internationale competities,Compétitions internationales,Internationale Wettbewerbe
+,Intro,Intro,Intro,Intro,Intro
+,Intro Player List,Intro Player List,Intro Spelerslijst,Intro liste de force,Intro-Spielerliste
+,Last name,Last name,Familienaam,Nom,Nachname
+,Loading members ... Please wait,Loading members ... Please wait,Leden aan het laden ... Even geduld aub,Chargement des membres... Veuillez patienter,Mitglieder werden geladen ... Bitte warten
+,Loading...,Loading...,Laden...,Chargement...,Wird geladen...
+,Long name,Long name,Lange naam,Nom long,Langer Name
+,Main email address,Main email address,Hoofd e-mailadres,Adresse e-mail principale,Haupt-E-Mail-Adresse
+,Manager international selections,Manager international selections,Manager internationale selecties,Responsable sélections internationales,Manager internationale Auswahlen
+,Mandated persons,Mandated persons,Gemandateerden,Personnes mandatées,Mandierte Personen
+,material_manager,material manager,materiaalverantwoordelijke,gestionnaire de matérial,Materialmanager
+,Members,Members,Leden,Membres,Mitglieder
+,Mobile,Mobile,GSM,GSM,Handy
+,Mobile phone,Mobile phone,GSM,GSM,Handy
+,Modify,Modify,Wijzigen,Modifier,Ändern
+,Modify access rights,Modify access rights,Toegangsrechten wijzigen,Modifier les droits d'accès,Zugriffsrechte ändern
+,Modify club,Modify club,Club wijzigen,Modifier cercle,Verein ändern
+,Modify enrollment,Modify enrollment,Inschrijving wijzigen,Modifier l'inscription,Anmeldung ändern
+,Modify playerlist again,Modify playerlist again,Spelerlijst opnieuw wijzigen,Modifier à nouveau la liste de force,Ändern Sie die Spielerliste erneut
+,Modify venues,Modify venues,Lokalen wijzigen,Modifier salles de jeux,Orte ändern
+,Monday,Monday,Maandag,Lundi,Montag
+,More,More,Meer,Plus,Mehr
+,Name,Name,Naam,Nom,Name
+,Name of the club as shown in results and pairings,Name of the club as shown in results and pairings,Naam van de club zoals weergegeven in uitslagen en standen,Nom du club tel qu'indiqué dans les résultats et le classement,"Name des Vereins, wie in den Ergebnissen und der Rangliste angezeigt"
+,New enrollment,New enrollment,Nieuwe inschrijving,Nouvelle inscription,Neuanmeldung
+,No incoming transfers,No incoming transfers,No incoming transfers,Aucun transfert entrant,Keine eingehenden Überweisungen
+,No interclub venue is defined yet,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
+,No outgoing transfers,No outgoing transfers,Geen uitgaande transfers,Pas de transferts sortants,Keine ausgehenden Transfers
+,No preference,No preference,Geen voorkeur,Pas de préférence,keine Präferenz
+,No titular,No titular,Geen titularis,Pas de titulaire,keine Titulatur
+,Not available,Not available,Niet beschikbaar,Indisponible,Nicht verfügbar
+,Not available yet,Not available yet,Nog niet beschikbaar,Pas encore disponible,Zurzeit nicht verfügbar
+,Not enough titulars,Not enough titulars,Niet voldoende titularissen,Pas assez de titulaires,Nicht genügend Titularen
+,not on the playerlist.,not on the playerlist.,niet op de spelerslijst.,pas sur la liste de force.,nicht auf der Spielerliste.
+,Number of teams per division,Number of teams per division,Aantal teams per divisie,Nombre d'équipes par division,Anzahl der Teams pro Division
+,OK,OK,OK,d'accord,OK
+,Ombudsman,Ombudsman,Ombudsman,Médiateur,Ombudsmann
+,Optional,Optional,Optioneel,Optionel,Optional
+,Optionally,Optionally,Optioneel,En option,Optional
+,Order created successfully,Order created successfully,Bestelling succesvol aangemaakt,Commande créée avec succès,Bestellung erfolgreich erstellt
+,Order of players,Order of players,Volgorde van spelers,Ordre des joueurs,Reihenfolge der Spieler
+,Order the players by adjusting the assigned rating.,Order the players by adjusting the assigned rating.,Rangschik de spelers door de toegekende rating aan te passen.,Triez les joueurs en ajustant la note attribuée.,"Ordnen Sie die Spieler, indem Sie den zugewiesene Elo anpassen."
+,Ordering form,Ordering form,Bestelformulier,Formulaire de commande,Bestellformular
+,Ordering the book 100 years of Belgian chess history,Ordering the book 100 years of Belgian chess history,Bestellen boek 100 jaar Belgische schaakgeschiedenis,Commander le livre 100 ans d'histoire des échecs en Belgique,Bestellung des Buches 100 Jahre Belgische Schachgeschichte
+,Other wishes,Other wishes,Andere wensen,Autres souhaits,Andere Wünsche
+,Outgoing transfers,Outgoing transfers,Uitgaande transfers,Transferts sortants,Ausgehende Transfers
+,Own players on the playerlist,Own players on the playerlist,Eigen spelers op de spelerslijst,Propres joueurs sur la liste de force,Eigene Spieler auf der Spielerliste
+,Password,Password,Wachtwoord,Mot de passe,Passwort
+,Permission denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
+,Planning,Planning,Planning,Planification,Planung
+,Played,Played,Gespeeld,Joué,Gespielt
+,Player,Player,Speler,Joueur,Spieler
+,Player home,Player home,Thuisspeler,joueur domicile,Heimspieler
+,Player list,Player list,Spelerslijst,Liste de force,Spielerliste
+,Player visit,Player away,Uitspeler,joueur extérieur,Auswärtsspieler
+,Playerlist saved,Playerlist saved,Spelerslijst opgeslagen,Liste de joueurs enregistrée,Spielerliste gespeichert
+,Players with the same assigned rating are not allowed.,Players with the same assigned rating are not allowed.,Spelers met dezelfde toegewezen Elo zijn niet toegelaten,Les joueurs avec le même Elo attribué ne sont pas autorisés.,Spieler mit dem gleichen zugewiesenen Elo sind nicht erlaubt.
+,Playing details,Playing details,Speelgegevens,Détails de jeu,Spieldetails
+,Playing hours,Playing hours,Speeluren,Heures de jeu,Spielstunden
+,Please select a club,Please select a club,Selecteer een club,Veuillez sélectionner un club,Bitte wählen Sie einen Verein aus
+,Please select a club to view the enrollment,Please select a club to view the enrollment,Selecteer een club om de inschrijving te bekijken,Veuillez sélectionner un club pour voir l'inscription,"Bitte wählen Sie einen Club aus, um die Anmeldung anzuzeigen"
+,Please select a club to view the interclub venues,Please select a club to view the interclub venues,Selecteer een club om de speellokalen te bekijken,Veuillez sélectionner un club pour voir les salles de jeux,"Bitte wählen Sie einen Club aus, um die Interclub-Spielorte anzuzeigen"
+,Please select a club to view the interclubs player list,Please select a club to view the interclubs player list,Selecteer een club om de Interclubs spelerslijst te bekijken,Veuillez sélectionner un club pour consulter la liste de force,"Bitte wählen Sie einen Verein aus, um die Interclubs-Spielerliste anzuzeigen"
+,Postal address,Postal address,Postadres,Adresse postale,Postanschrift
+,postponed,postponed,uitgesteld,reporté,verschoben
+,President,President,Voorzitter,Président,Prásident
+,president,president,voorzitter,président,Präsident
+,President CIS,President CIS,Voorzitter CIS,Président CIS,Prásident CIS
+,press_officer,press officer,persverantwoordelijke,attaché de presse,Pressesprecher
+,Public,Public,Publiek,Public,öffentlich
+,Questions,Questions,Vragen,Questions,Fragen
+,Rating manager,Rating manager,Ratingmanager,Responsable du classement ELO,Ratingmanager
+,Rating manager Belg.,Rating manager Belg.,Belg. Ratingmanager,Responsable du classement ELO belge,Belg. Ratingmanager
+,Rating manager FIDE,Rating manager FIDE,FIDE Ratingmanager,Responsable du classement ELO FIDE,FIDE-Ratingmanager
+,RBCF,RCBF,KBSB,FRBE,KSB
+,read more,read more,lees meer,en savoir plus,weiter lesen
+,Regional,Regional,Regionaal,Régional,Regional
+,Regional preferences,Regional preferences,Regionale voorkeuren,Préférences régionales,Regionale Präferenzen
+,Registered office,Registered office,Maatschappelijke zetel,Siège social,Sitz der Gesellschaft
+,Remarks,Remarks,Opmerkingen,Remarques,Bemerkungen
+,Remove transfer,Remove transfer,Transfer verwijderen,Supprimer le transfert,Transfer entfernen
+,Report Board Meeting,Report Board Meeting,PV bestuursorgaan,PV organe d'aministration,Bericht Vorstandssitzung
+,Report General Assembly,Report General Assembly,PV algemene vergadering,PV Assemblée Générale,Bericht der Generalversammlung
+,Reports,Reports,Verslagen,Procès verbaux,Berichte
+,Representative BOIC,Representative BOIC,BOIC afgevaardigde,Délegué COIB,Stellvertreter BOIC
+,Representative female players,Representative female players,Vertegenwoordiger speelsters,Représentant joueuses,Vertreter für Spielerinnen
+,Representative for FIDE & ECU,Representative for FIDE & ECU,Afgevaardigde FIDE & ECU,Représentant pour FIDE & ECU,Vertreter für FIDE & ECU
+,Representative titled players,Representative titled players,Vertegenwoordiger  titelspelers,Représentant joueurs titrés,Vertreter für Titelspieler
+,Results,Results,Resultaten,Résultats,Ergebnisse
+,Results SWAR,Results SWAR,Resulaten SWAR,Résultats SWAR,Ergebnisse SWAR
+,Round,Round,Ronde,Ronde,Runde
+,Royal Belgian Chess Federation npo,Royal Belgian Chess Federation npo,Koninklijke Belgische Schaakbond vzw.,Fédération Royale Belge des Echecs asbl.,Königlicher Schachbund Belgien VoE
+,Saturday,Saturday,Zaterdag,Samedi,Samstag
+,Save,Save,Opslaan,Sauvegarder,Speichern
+,Save access rights,Save access rights,Toegangsrechten bewaren,Enregistrer les droits d'accès,Zugriffsrechte speichern
+,Save anyhow,Save anyhow,Toch opslaan,Sauvegarder quand même,Sparen Sie trotzdem
+,Save changes,Save changes,Wijzigingen opslaan,Sauvegarder les modifications,Änderungen speichern
+,Save club,Save club,Club bewaren,Enregistrer le club,Verein speichern
+,Save enrollment,Save enrollment,Inschrijving opslaan,Enregistrer l'inscription,Anmeldung speichern
+,Save player list,Save player list,Spelerslijst opslaan,Sauvegarder la liste de force,Spielerliste speichern
+,Save results,Save results,Resultaten bewaren,Sauvegarder les résultats,Ergebnisse speichern
+,Save Venues,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
+,Secretary,Secretary,Secretaris,Secrétaire,Sekretär
+,secretary,secretary,secretaris,secrétaire,Sekretär
+,Secretary general,Secretary general,Secretaris-generaal,Secrétaire général,Generalsekretär
+,Select a club to view the access rights,Select a club to view the access rights,Selecteer een club om de toegangsrechten te bekijken,Sélectionnez un club pour voir les droits d'accès,"Wählen Sie einen Club aus, um die Zugriffsrechte anzuzeigen"
+,Select a club to view the club details,Select a club to view the club details,Selecteer een club om de clubdetails te bekijken,Sélectionnez un club pour afficher les détails du club,"Wählen Sie einen Club aus, um die Clubdetails anzuzeigen"
+,Select the club,Select the club,Kles de club,Sélectionnez le cercle,Wählen Sie den Verein aus
+,Select the rounds the venue is not available,Select the rounds the venue is not available,Selecteer de ronden waarop het lokaal niet beschikbaar is,Sélectionnez les rondes où le lieu n'est pas disponible,"Wählen Sie die Runden aus, für die der Ort nicht verfügbar ist"
+,Selected club,Selected club,Geselecteerde club,Cercle sélectionné,Ausgewählter Verein
+,Short name,Short name,Korte naam,Nom court,Kurzer Name
+,sign,Sign,Ondertekenen,Signer,Unterschreiben
+,Sign in,Sign in,Aanmelden,Identification,Einloggen
+,signature,Signature,Ondertekening,Signature,Unterschreibung
+,Social media,Social media,Sociale media,Mediasociaux,Sozialen Medien
+,Standings,Standings,Stand,Classement,Rangliste
+,Start entering planning,Start entering planning,De start voor het invoeren van planning,Le début de la saisie du planning,Der Start zum Einstieg in die Planung
+,Start typing number or name,Start typing number or name,Begin met het typen van nummer of naam,Commencez à taper le numéro ou le nom,Beginnen Sie mit der Eingabe der Nummer oder des Namens
+,Start typing to filter (clubnumber or name),Start typing to filter (clubnumber or name),Begin met typen om te filteren (clubnummer of naam),Commencez à taper pour filtrer (numéro de club ou nom),"Beginnen Sie mit der Eingabe, um zu filtern (Clubnummer oder Name)"
+,Status,Status,Status,Statut,Status
+,Statutes,Statutes,Statuten,Statuts,Statuten
+,Submit,Submit,Indienen,Soumettre,Einreichen
+,Sunday,Sunday,Zondag,Dimanche,Sonntag
+,Team,Team,Team,Equipe,Mannschaft
+,Teams,Teams,Teams,Equipes,Mannschaften
+,Teams grouped by pairing number,Teams grouped by pairing number,Teams gegroepeerd per paringsnummer,Equipes regroupées par numéro d'appariement,Teams gruppiert nach Paarung-Nummer
+,Teams in division,Teams in division,Teams in divisie,Equipes en division,Mannschaften in der Division
+,Telephone number,Telephone number,Telefoonnummer,Numéro de téléphone,Telefonnummer
+,Telephone number venue,Telephone number venue,Telefoonnummerr speelzaal,Numéro de téléphone de la salle de jeu,Telefonnummer Veranstaltungsort
+,The club administrators have write access to the Club Manager,This club is not enrolled in the interclubs.,De clubbeheerders hebben schrijftoegang tot de Clubmanager,Les administrateurs du club ont un accès en écriture au Club Manager,Die Clubadministratoren haben Schreibzugriff auf den Clubmanager
+,The club is not enrolled yet,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
+,The ELO's are assinged correctly,The ELO's are assinged correctly,De ELO's zijn correct toegewezen,Les ELO sont correctement attribués,Die ELO's sind korrekt zugeordnet
+,The interclub administrators have write access to the Interclub Manager,The interclub administrators have write access to the Interclub Manager,De interclubbeheerders hebben schrijftoegang tot de Interclub Manager,Les administrateurs interclubs ont accès en écriture au Interclub Manager,Die Interclub-Administratoren haben Schreibzugriff auf den Interclub Manager
+,The interclub captains have write access to the planning and results of the Interclub.,The interclub captains have write access to the planning and results of the Interclub.,De interclubcaptains hebben schrijftoegang tot de planning en resultaten van de Interclub.,Les capitaines interclubs ont accès en écriture au planning et aux résultats de l'interclub.,Die Interclub-Captains haben schriftlichen Zugriff auf die Planungen und Ergebnisse des Interclubs.
+,The player list can no longer be modified,The player list can no longer be modified,De spelerslijst kan niet meer veranderd worden,La liste de force ne peut plus être modifiée,Die Spielerliste kann nicht mehr geändert werden
+,The player list contains validation errors,The player list contains validation errors,De spelerslijst bevat validatiefouten,La liste de force contient des erreurs de validation,Die Spielerliste enthält Validierungsfehler
+,The player list of a club is established in 4 steps,The player list of a club is established in 4 steps,De spelerslijst van een club komt tot stand in 4 stappen,La liste de force d'un club est établie en 4 étapes,Die Spielerliste eines Vereins wird in 4 Schritten erstellt
+,The titulars are assigned correctly,The titulars are assigned correctly,De titularissen zijn correct toegewezen,Les titulaires sont attribués correctement,Die Titularen sind korrekt zugeordnet
+,The venue is not available on following rounds,The venue is not available on following rounds,Het lokaal is niet beschikbaar in de volgende ronden,La salle n'est pas disponible pour les rondes suivantes,Der Ort ist in den folgenden Runden nicht verfügbar
+,There are errors with the assignment of the  titulars,There are errors with the assignment of the  titulars,Er zijn fouten bij de toewijzing van de titularissen,Il y a des erreurs dans l'attribution des titulaires,Es gibt Fehler bei der Zuordnung der Titelaren
+,There are players with the same assigned rating.,There are players with the same assigned rating.,Er zijn spelers met dezelfde Elo,Il y a des joueurs avec le même Elo attribué.,Es gibt Spieler mit dem gleichen zugewiesenen Elo.
+,There are players wtth the same ELO,There are players wtth the same ELO,Er zijn spelers met dezelfde ELO,Il y a des joueurs avec le même ELO,Es gibt Spieler mit der gleichen ELO
+,These members can automatically be added to the playerlist.,These members can automatically be added to the playerlist.,Deze leden kunnen automatisch aan de spelerslijst worden toegevoegd.,Ces membres peuvent être automatiquement ajoutés à la liste de force.,Diese Mitglieder können automatisch zur Spielerliste hinzugefügt werden.
+,This club is enrolled in Interclubs 2023-24,This club is enrolled in Interclubs 2023-24,Deze club is ingeschreven voor Interclubs 2023-24,Ce club est inscrit aux Interclubs 2023-24,Dieser Club ist für die Interclubs 2023-24 angemeldet
+,This club is not enrolled in Interclubs 2023-24,This club is not enrolled in Interclubs 2023-24,Deze club is niet ingeschreven voor Interclubs 2023-24,Ce club n'est pas inscrit aux Interclubs 2023-24,Dieser Club is tnicht  für die Interclubs 2023-24 angemeldet
+,This club is not enrolled in the interclubs,This club is not enrolled in the interclubs,Deze club is niet ingeschreven in de interclubs,Ce club n'est pas inscrit aux interclubs,Dieser Club ist nicht in den Interclubs eingeschrieben
+,This club is not enrolled in the interclubs.,This club is not enrolled in the interclubs.,De club is  voor de Interclubs niet ingeschreven,Le cercle n'est pas iinscrit pour les interclub,Der Verein ist nicht für Interclubs registriert
+,This is done by adapting the rating of the players.,This is done by adapting the rating of the players.,Dit gebeurt door de rating van de spelers aan te passen.,Cela se fait en adaptant l'Elo des joueurs.,Dies geschieht durch die Anpassung des Elos der Spieler.
+,Thursday,Thursday,Donderdag,Jeudi,Mittwoch
+,Titular,Titular,Titularis,Titiulaire,Titular
+,Titulars must be highest rated players,Titulars must be highest rated players,Titularissen moeten de hoogste Elo hebben,Les titulaires doivent avoir les ELOs les plus élevés,Die Titularen müssen den höchsten ELO haben
+,Too many titulars,Too many titulars,Teveel titularissen,Trop de titulaires,Zu viele Titularen
+,Tools,Tools,Tools,Outils,Werkzeuge
+,Tournament director,Tournament director,Toernooidirecteur,Directeur de tournoi,Turnierleiter
+,Tournament rules,Tournament rules,Wedstrijdreglement,Règlement des tournois,Turnierregeln
+,tournament_director,tournament director,toernooileider,directeur de tournoi,Turnierleiter
+,Transfer of all members to a single club at once.,Transfer of all members to a single club at once.,Transfer van alle leden in één keer naar één club.,Transfert de tous les membres vers un seul club à la fois.,Transfer aller Mitglieder auf einen einzigen Club auf einmal.
+,Transgender,Transgender,Transgenders,Transgenres,Transgendern
+,Treasurer,Treasurer,Penningmeester,Trésorier,Schatzmeister
+,treasurer,treasurer,penningmeester,trésorier,Schatzmeister
+,Treasurer a.i.,Treasurer a.i.,Penningmeester a.i.,Trésorier a.i.,Schatzmeister a.I.
+,Tuesday,Tuesday,Dinsdag,Mardi,Dienstag
+,Useful information,Useful information,Nuttige informatie,Information utile,Nützliche Informationen
+,Validation of player list.,Validation of player list.,Validatie van de spelerslijst.,Validation de la liste de force,Validierung der Spielerliste.
+,Venue,Venue,Speelzaal,Salle de jeux,Spielort
+,Venues,Venues,Speelzalen,Les salles de jeu,Veranstaltungsorte
+,Vice president,Vice president,Vicevoorzitter,Vice-président,Vizepräsident
+,vice_president,vice president,vicevoorzitter,vice-président,Vizepräsident
+,Webmaster,Webmaster,Webmaster,Webmaster,Webmaster
+,webmaster,webmaster,webmaster,webmaster,Webmaster
+,Website,Website,Website,Site web,Webseite
+,Wednesday,Wednesday,Woensdag,Mercredi,Mittwoch
+,Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
+,Wishes,Wishes,Wensen,Vœux,Wünsche
+,Wrong combination of username and password,Wrong combination of username and password,Verkeerde combinatie van gebruikersnaam en wachtwoord,Mauvaise combinaison de nom d'utilisateur et de mot de passe,Falsche Kombination aus Benutzername und Passwort
+,You can define a name for your club when the results and standings are displayed.,You can define a name for your club when the results and standings are displayed.,U kunt een naam voor uw club definiëren wanneer de resultaten en standen worden weergegeven.,Vous pouvez définir un nom pour votre club lors de l'affichage des résultats et du classement.,"Sie können einen Namen für Ihren Verein festlegen, wenn die Ergebnisse und Tabellen angezeigt werden."
+,You can no longer modify the planning of this round,You can no longer modify the planning of this round,Je kan de planning van deze ronde niet meer wijzigen,Vous ne pouvez plus modifier la planification de cette ronde,Sie können die Planung dieser Runde nicht mehr ändern
+,You triggered a bug. Please inform the webmaster.,You triggered a bug. Please inform the webmaster.,Je hebt een bug geactiveerd. Informeer de webmaster.,Vous avez déclenché un bug. Merci d'en informer le webmaster.,Sie haben einen Fehler ausgelöst. Bitte informieren Sie den Webmaster.
+,Youth,Youth,Jeugd,Jeunesse,Jugend
+,Youth director,Youth director,Jeugdleider,Directeur de la jeunesse,Jugendleiter
+,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiter

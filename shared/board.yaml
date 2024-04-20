@@ -12,6 +12,7 @@ board:
       - "Manager international selections"
       - "Representative titled players"
     slug: arben
+    order: 0
   - category: board
     email: bernard.malfliet
     first_name: Bernard
@@ -20,6 +21,7 @@ board:
     roles: 
       - "Secretary general"
     slug: bernard
+    order: 0
   - category: honorary
     first_name: Chris
     last_name: Ghysels
@@ -60,7 +62,7 @@ board:
       - President
       - "Interclubs Communication"
     slug: laurent
-    order: 1
+    order: 10
   - category: board
     email: philippe.vukojevic
     first_name: Philippe
@@ -70,6 +72,7 @@ board:
       - "Youth director"
       - "Secretary"  
     slug: philippe
+    order: 0
   - category: board
     email: luc.cornet
     first_name: Luc
@@ -78,6 +81,7 @@ board:
     roles: 
       - "Representative for FIDE & ECU"
     slug: luc    
+    order: 0
   - category: board
     email: ruben.decrop
     first_name: Ruben
@@ -86,6 +90,7 @@ board:
     roles: 
       - "IT manager"
     slug: ruben        
+    order: 0
   - category: board
     email: steven.bellens
     first_name: Steven
@@ -94,6 +99,7 @@ board:
       - "Rating manager"
       - "Vice president"
     slug: steven    
+    order: 5
   - category: board
     email: wiebke.barbier
     first_name: Wiebke
@@ -102,6 +108,7 @@ board:
       - "Communication manager"
       - "Representative female players"
     slug: wiebke    
+    order: 0
   - category: board
     email: yves.moreels
     first_name: Yves
@@ -110,4 +117,5 @@ board:
       - Treasurer
       - Development activities seniors
     slug: yves.moreels
+    order: 0
 

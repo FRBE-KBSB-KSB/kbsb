@@ -1,6 +1,5 @@
 <script setup>
-import {ref} from 'vue'
-import { VCarousel, VCarouselItem } from 'vuetify/lib/components/index.mjs';
+import { ref } from 'vue'
 
 const current = ref(0)
 const interval = ref(6)
@@ -14,7 +13,7 @@ const items = ref([
 ])
 
 onMounted(()=> {
-  const secCarousel = Math.floor((new Date() / 1000) % (interval.vlue * items.value.length))
+  const secCarousel = Math.floor((new Date() / 1000) % (interval.value * items.value.length))
   current.value = Math.floor(secCarousel / items.value.length)
   if (current.value === items.value.length) {current.value = 0 }
 
