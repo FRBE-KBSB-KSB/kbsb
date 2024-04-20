@@ -12,12 +12,12 @@ const { person } = storeToRefs(personstore)
 // datamodel
 const wrong_domain = ref(false)
 
-async function checkAuth() {
+function checkAuth () {
   console.log('checking if auth is present so we can go to overview')
   if (person.value.credentials.length > 0) {
-    if (person.value.email.endsWith('@bycco.be')) {
+    if (person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
       navigateTo('/mgmt/overview')
-    }
+    } 
     else {
       wrong_domain.value = true
     }
@@ -73,10 +73,10 @@ onMounted(() => {
 
 <template>
   <VContainer>
-    <p>Management Bycco</p>
+    <p>Management FRBE KBSB KSB</p>
     <p>
       This part of the site is only accessible for people with a valid
-      @bycco.be email address
+      @frbe-kbsb-ksb.be email address
     </p>
     <div id="parent_id" />
     <v-alert error v-show="wrong_domain">Invalid domain</v-alert>

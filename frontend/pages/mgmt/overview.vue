@@ -24,50 +24,9 @@ function checkAuth() {
   if (person.value.credentials.length === 0) {
     navigateTo('/mgmt')
   }
-  if (!person.value.email.endsWith('@bycco.be')) {
+  if (!person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
     navigateTo('/mgmt')
   }
-}
-
-async function checkin() {
-  checkinlaunched = true
-  const data = {
-    user: person.value.user,
-    email: person.value.email,
-    branch: config.public.repo_branch,
-  }
-  let reply = await fetch(config.public.statamic_url + '/python/checkin', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  checkinlaunched = false
-  checkinsuccess = true
-}
-
-async function checkout() {
-  checkoutlaunched = true
-  const data = {
-    user: person.value.user,
-    email: person.value.email,
-    branch: config.public.repo_branch,
-  }
-  const reply = await fetch(config.public.statamic_url + '/python/checkout', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  checkoutlaunched = false
-  checkoutsuccess = true
-}
-
-function openCollections() {
-  const stUrl = config.public.statamic_url
-  window.open(`${stUrl}/cp/collections`, '_statamic')
 }
 
 onMounted(() => {
@@ -80,33 +39,17 @@ onMounted(() => {
   <v-container class="markdowncontent">
     <h1>Overview</h1>
     <ul>
-      <li>Managing the <NuxtLink to="/mgmt/reservations">Reservations</NuxtLink>
-      </li>
       <li>Managing the <NuxtLink to="/mgmt/pages">Pages</NuxtLink>
       </li>
-      <li>Managing the <NuxtLink to="/mgmt/paymentrequests">Payment Requests</NuxtLink>
+      <li>Managing the <NuxtLink to="/mgmt/articles">Articles</NuxtLink>
       </li>
-    </ul>
-    <h3>VK 2024</h3>
-    <ul>
-      <li>Managing the <NuxtLink to="/mgmt/enrollments_vk">Enrollments VK2024</NuxtLink>
+      <li>Managing the <NuxtLink to="/mgmt/reports">Reports</NuxtLink>
       </li>
-      <li>Managing the <NuxtLink to="/mgmt/participants_vk">Participants VK2024</NuxtLink>
+      <li>Admin part <NuxtLink to="/mgmt/clubs">Clubs Manager</NuxtLink>
       </li>
-      <li>Managing the <NuxtLink to="/mgmt/tournament_vk">Tournaments VK 2024</NuxtLink>
+      <li>Admin part <NuxtLink to="/mgmt/interclubs">Interclubs Manager</NuxtLink>
       </li>
-      <li>Managing the <NuxtLink to="/mgmt/attendee_vk">Attendees VK 2024</NuxtLink>
-      </li>
-    </ul>
-    <h3>BJK 2024</h3>
-    <ul>
-      <li>Managing the <NuxtLink to="/mgmt/enrollments_bjk">Enrollments BJK2024</NuxtLink>
-      </li>
-      <li>Managing the <NuxtLink to="/mgmt/participants_bjk">Participants BJK2024</NuxtLink>
-      </li>
-      <li>Managing the <NuxtLink to="/mgmt/tournament_bjk">Tournaments BJK 2024</NuxtLink>
-      </li>
-      <li>Managing the <NuxtLink to="/mgmt/attendee_bjk">Attendees BJK 2024</NuxtLink>
+      <li><NuxtLink to="/mgmt/logout">Logout</NuxtLink>
       </li>
     </ul>
   </v-container>

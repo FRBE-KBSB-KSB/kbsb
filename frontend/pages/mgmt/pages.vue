@@ -141,7 +141,7 @@ onMounted(() => {
     <ProgressLoading ref="refloading" />
 
     <h1>Management Pages</h1>
-    <p>Here you can modify the pages of the Bycco website</p>
+    <p>Here you can modify the pages of the FRBE-KBSB-KSB website</p>
     <p>We use a tool called Statamic</p>
     <p>In order to make changes to a page, you have the following steps</p>
     <ul>
@@ -157,8 +157,8 @@ onMounted(() => {
       username + password.
     </P>
     <ul>
-      <li><b>username:</b> info@bycco.be</li>
-      <li><b>password:</b> jeugd2024</li>
+      <li><b>username:</b> board@frbe-kbsb-ksb.be</li>
+      <li><b>password:</b> frbekbsb2024</li>
 
     </ul>
   </v-container>

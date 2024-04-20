@@ -17,41 +17,26 @@ useHead({
 
 
 </script>
-<script>
-</script>
+
 <template>
   <VApp>
-    <VNavigationDrawer v-model="drawer" color="deep-purple darken-1" dark>
-      <VToolbar title="BYCCO Mgmt" color="deep-purple darken-3" dark />
-      <v-list>
-        <v-list-item @click="goto('overview')" title="Overview" />
-        <v-list-item @click="goto('pages')" title="Pages" />
-        <v-list-item @click="goto('reservations')" title="Reservations" />
-        <v-list-item @click="goto('paymentrequests')" title="Payment Requests" />
-        <v-list-group no-action>
-          <template #activator="{ props }">
-            <v-list-item v-bind="props" title="VK 2024" />
-          </template>
-          <v-list-item @click="goto('enrollments_vk')" title="Enrollments" />
-          <v-list-item @click="goto('participants_vk')" title="Participants" />
-          <v-list-item @click="goto('tournament_vk')" title="Tournaments" />
-          <v-list-item @click="goto('attendee_vk')" title="Attendees" />
-        </v-list-group>
-        <v-list-group no-action>
-          <template #activator="{ props }">
-            <v-list-item v-bind="props" title="BJK 2024" />
-          </template>
-          <v-list-item @click="goto('enrollments_bjk')" title="Enrollments" />
-          <v-list-item @click="goto('participants_bjk')" title="Participants" />
-          <v-list-item @click="goto('tournament_bjk')" title="Tournaments" />
-          <v-list-item @click="goto('attendee_bjk')" title="Attendees" />
-        </v-list-group>
-        <v-list-item @click="goto('logout')" title="Logout" />
-      </v-list>
+    <VNavigationDrawer v-model="drawer" class="bg-deep-purple-darken-1 text-white">
+      <VToolbar class="bg-deep-purple-lighten-1 text-white">
+        <VToolbarTitle>Menu</VToolbarTitle>
+      </VToolbar>
+      <VList class="bg-deep-purple-lighten-1 text-white">
+        <VListItem @click="goto('overview')" title="Overview" />
+        <VListItem @click="goto('content')" title="Site Content" />
+        <VListItem @click="goto('clubs')" title="Clubs" />
+        <VListItem @click="goto('reports')" title="Reports" />
+        <VListItem @click="goto('interclubs')" title="Interclubs" />
+        <VListItem @click="goto('mailing')" title="Mailing" />
+        <VListItem @click="goto('logout')" title="Logout" />
+      </VList>
     </VNavigationDrawer>
-    <VAppBar color="deep-purple darken-1" dark>
+    <VAppBar class="bg-deep-purple-darken-1 text-white">
       <VAppBarNavIcon @click="drawer = !drawer" />
-      <VAppBarTitle>Management Bycco </VAppBarTitle>
+      <VAppBarTitle> Management FRBE- KBSB-KSB </VAppBarTitle>
     </VAppBar>
     <VMain>
       <slot />
