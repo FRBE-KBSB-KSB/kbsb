@@ -26,9 +26,7 @@ const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 
 // model
-let checkinlaunched = false
-let checkinsuccess = false
-const instance = ref("bycco1")
+const instance = ref("kbsb")
 
 definePageMeta({
   layout: "mgmt",
@@ -46,7 +44,7 @@ async function checkAuth() {
     router.push('/mgmt')
     return
   }
-  if (!person.value.email.endsWith('@bycco.be')) {
+  if (!person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
     router.push('/mgmt')
     return
   }
@@ -73,58 +71,9 @@ async function checkAuth() {
 }
 
 
-async function checkin() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("page", "checkin", {
-      instance: instance.value,
-      token: token.value,
-    })
-  }
-  catch (error) {
-    console.error('failed', error)
-    showSnackbar("Error while copying content to Statamic")
-    // mgmtstore.updateToken(null)
-    // router.push('/mgmt')
-    return
-  }
-  finally {
-    showLoading(false)
-  }
-  showSnackbar("Content copied to Statamic")
-  mgmtstore.updateToken(reply.data)
-}
-
-
-async function checkout() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("page", "checkout", {
-      instance: instance.value,
-      token: token.value,
-    })
-  }
-  catch (error) {
-    console.error('failed', error)
-    showSnackbar("Error while copying content to operational site")
-    // mgmtstore.updateToken(null)
-    // router.push('/mgmt')
-    return
-  }
-  finally {
-    showLoading(false)
-  }
-  showSnackbar("Content copied to operational site")
-  mgmtstore.updateToken(reply.data)
-}
-
-
 
 function openPageCollection() {
-  const hostname = "st1"
-  window.open(`https://${hostname}.bycco.be/cp/collections/pages`, '_statamic')
+  window.open(`https://st.frbe-kbsb-ksb.be/cp/collections/pages`, '_statamic')
 }
 
 onMounted(() => {

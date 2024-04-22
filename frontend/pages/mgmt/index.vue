@@ -40,7 +40,7 @@ function handleGoogle(resp) {
 function setupGoogle() {
   console.log('Setup google sign in')
   const reply = google.accounts.id.initialize({
-    client_id: '464711449307-7j2oecn3mkfs1eh3o7b5gh8np3ebhrdp.apps.googleusercontent.com',
+    client_id: '658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com',
     callback: handleGoogle,
     prompt_parent_id: 'parent_id'
   })
