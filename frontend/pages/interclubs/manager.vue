@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { router } from 'vue-router'
 import Results from '@/components/interclubs/Results.vue'
 import Planning from '@/components/interclubs/Planning.vue'
 import Playerlist from '@/components/interclubs/Playerlist.vue'
@@ -14,6 +13,7 @@ import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
 
 // i18n
 const { locale, t: $t } = useI18n()
+const router = useRouter()
 
 // idtoken
 const idstore = useIdtokenStore()
