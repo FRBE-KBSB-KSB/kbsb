@@ -4,7 +4,6 @@ import * as jose from 'jose'
 import { usePersonStore } from "@/store/person"
 import { storeToRefs } from 'pinia'
 
-
 // stores
 const personstore = usePersonStore();
 const { person } = storeToRefs(personstore)
@@ -12,12 +11,12 @@ const { person } = storeToRefs(personstore)
 // datamodel
 const wrong_domain = ref(false)
 
-function checkAuth () {
+function checkAuth() {
   console.log('checking if auth is present so we can go to overview')
   if (person.value.credentials.length > 0) {
     if (person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
       navigateTo('/mgmt/overview')
-    } 
+    }
     else {
       wrong_domain.value = true
     }

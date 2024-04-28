@@ -3,17 +3,17 @@ import axios from 'axios'
 const prefix = '/api/v1/page'
 
 export default {
-  checkin: async function (options) {
-    const { token, instance } = options
-    return await axios.post(`${prefix}/checkin/${instance}`, {}, {
+  copyarticles: async function (options) {
+    const { token } = options
+    return await axios.post(`${prefix}/checkout/articles`, {}, {
       headers: {
         Authorization: "Bearer " + token,
       }
     })
   },
-  checkout: async function (options) {
-    const { token, instance } = options
-    return await axios.post(`${prefix}/checkout/${instance}`, {}, {
+  copypages: async function (options) {
+    const { token } = options
+    return await axios.post(`${prefix}/checkout/pages`, {}, {
       headers: {
         Authorization: "Bearer " + token,
       }

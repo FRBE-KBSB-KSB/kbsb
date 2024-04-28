@@ -1,1 +1,1 @@
-from .page import checkin, checkout
+from .page import checkoutpages

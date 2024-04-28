@@ -24,32 +24,11 @@ from reddevil.filestore.filestore import (
 logger = logging.getLogger(__name__)
 
 
-async def checkin(st_instance: str) -> None:
+async def checkoutpages() -> None:
     """
-    copy pages from the GCP bucket to
-    the pages collection of statamic
+    copy pages from statamic pages collection to the GCP bucket
     """
-    # empty statamic pages collection
-    path = f"{st_instance}/content/collections/pages"
-    await empty_dir(path)
-    # get all bucket pages
-    files = list_bucket_files("pages")
-    for f in files:
-        # read the content per file
-        content = read_bucket_content(f)
-        # write it in the statamic collection
-        fname = f.split("/")[1]
-        path = f"{st_instance}/content/collections/pages/{fname}"
-        await put_file(path, content, "wb")
-
-
-async def checkout(st_instance: str) -> None:
-    """
-    copy pages from statamic pages collection
-    to the GCP bucket
-    """
-    # empty statamic pages collection
-    path = f"{st_instance}/content/collections/pages"
+    path = f"kbsb1/content/collections/pages"
     # get all statamic pages
     files = await list_files(path)
     for f in files:

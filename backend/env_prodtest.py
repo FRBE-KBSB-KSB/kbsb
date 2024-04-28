@@ -33,6 +33,14 @@ SECRETS = {
         "name": "kbsb-gmail",
         "manager": "filejson",
     },
+    "statamic": {
+        "name": "statamic-server",
+        "manager": "filejson",
+    },
+    "known-hosts": {
+        "name": "known-hosts",
+        "manager": "filejson",
+    },     
 }
 
 

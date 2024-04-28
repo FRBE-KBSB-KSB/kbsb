@@ -3,13 +3,9 @@ import { onMounted } from 'vue'
 import { usePersonStore } from "@/store/person";
 import { storeToRefs } from "pinia";
 
-
-const config = useRuntimeConfig()
+const router = useRouter()
 const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
-
-let checkinlaunched = false
-let checkinsuccess = false
 
 definePageMeta({
   layout: "mgmt",
@@ -22,10 +18,10 @@ useHead({
 
 function checkAuth() {
   if (person.value.credentials.length === 0) {
-    navigateTo('/mgmt')
+    router.push('/mgmt')
   }
   if (!person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
-    navigateTo('/mgmt')
+    router.push('/mgmt')
   }
 }
 
@@ -49,7 +45,8 @@ onMounted(() => {
       </li>
       <li>Admin part <NuxtLink to="/mgmt/interclubs">Interclubs Manager</NuxtLink>
       </li>
-      <li><NuxtLink to="/mgmt/logout">Logout</NuxtLink>
+      <li>
+        <NuxtLink to="/mgmt/logout">Logout</NuxtLink>
       </li>
     </ul>
   </v-container>

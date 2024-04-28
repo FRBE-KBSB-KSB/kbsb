@@ -29,9 +29,28 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Management Pages',
+  title: 'Management Articles',
 })
 
+async function archivearticles() {
+  let reply
+  showLoading(true)
+  try {
+    reply = await $backend("page", "archivearticles", {
+      token: token.value,
+    })
+  }
+  catch (error) {
+    console.error('failed', error)
+    showSnackbar("Error while archiving")
+    return
+  }
+  finally {
+    showLoading(false)
+  }
+  showSnackbar("Articles archived")
+  mgmtstore.updateToken(reply.data)
+}
 
 async function checkAuth() {
   console.log('checking if auth is already set', token.value)
@@ -66,11 +85,11 @@ async function checkAuth() {
   mgmtstore.updateToken(reply.data)
 }
 
-async function checkout() {
+async function copyarticles() {
   let reply
   showLoading(true)
   try {
-    reply = await $backend("page", "copypages", {
+    reply = await $backend("page", "copyarticles", {
       token: token.value,
     })
   }
@@ -90,6 +109,7 @@ function openPageCollection() {
   window.open(`https://st.frbe-kbsb-ksb.be/cp/collections/pages`, '_statamic')
 }
 
+
 onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
@@ -103,8 +123,8 @@ onMounted(() => {
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
 
-    <h1>Management Pages</h1>
-    <p>Here you can modify the pages of the FRBE-KBSB-KSB website</p>
+    <h1>Management Articles</h1>
+    <p>Here you can modify the articles of the FRBE-KBSB-KSB website</p>
     <p>We use a tool called Statamic</p>
     <p>In order to make changes to a page, you have the following steps</p>
     <ul>
@@ -112,7 +132,9 @@ onMounted(() => {
       <v-btn variant="tonal" @click="openPageCollection">open Statamic</v-btn><br><br>
       <li>Modify the pages in the statamic tool</li><br>
       <li>Copy the modified content in Statamic to the operational site</li>
-      <v-btn variant="tonal" @click="checkout">copy</v-btn><br><br>
+      <v-btn variant="tonal" @click="copyarticles">copy</v-btn><br><br>
+      <li>Archive articles</li>
+      <v-btn variant="tonal" :disabled="true" @click="archivearticles">archive</v-btn><br><br>
     </ul>
     <br>
     <p>
