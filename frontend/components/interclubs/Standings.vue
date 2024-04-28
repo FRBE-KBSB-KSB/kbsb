@@ -1,18 +1,17 @@
 <script setup>
 import { ref } from 'vue'
-import { VContainer, VCard, VCardTitle, VCardText, VDivider, VCol, VRow, VBtn,
-  VDialog, VProgressCircular, VAutocomplete} from 'vuetify/lib/components/index.mjs';
+import { useI18n } from 'vue-i18n'
 
 // communication with manager
-const emit = defineEmits(['displaySnackbar',  'changeDialogCounter'])
+const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
 defineExpose({ setup })
 
 // waiting
 const waitingdialog = ref(false)
 let dialogcounter = 0
 function changeDialogCounter(i) {
-    dialogcounter += i
-    waitingdialog.value = (dialogcounter > 0)
+  dialogcounter += i
+  waitingdialog.value = (dialogcounter > 0)
 }
 
 // snackbar
@@ -34,7 +33,7 @@ async function getClubs() {
   let reply
   emit('changeDialogCounter', 1)
   try {
-    reply = await $backend("interclub","anon_getICclubs", {})
+    reply = await $backend("interclub", "anon_getICclubs", {})
   } catch (error) {
     emit('displaySnackbar', $t(error.message))
     return
@@ -45,14 +44,14 @@ async function getClubs() {
   icclubs.value = reply.data
   icclubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name}`
-  }) 
+  })
 }
 
 async function getStandings() {
   let reply
   emit('changeDialogCounter', 1)
   try {
-    reply = await $backend("interclub","anon_getICstandings", {
+    reply = await $backend("interclub", "anon_getICstandings", {
       idclub: idclub.value
     })
   } catch (error) {
@@ -65,7 +64,7 @@ async function getStandings() {
   icstandings.value = reply.data
 }
 
-function setup(){
+function setup() {
   console.log('setup standings')
   getClubs()
 }
@@ -77,17 +76,16 @@ function setup(){
     <h2>{{ $t('Standings') }}</h2>
     <v-row>
       <v-col cols="8">
-        <VAutocomplete v-model="idclub" :items="icclubs" 
-          item-title="merged" item-value="idclub" color="green"
-          label="Club" clearable  >
-        </VAutocomplete>        
+        <VAutocomplete v-model="idclub" :items="icclubs" item-title="merged" item-value="idclub"
+          color="green" label="Club" clearable>
+        </VAutocomplete>
       </v-col>
       <v-col cols="4">
         <VBtn icon="mdi-play" @click="getStandings"></VBtn>
       </v-col>
     </v-row>
     <v-card v-for="s in icstandings" class="my-2">
-      <v-card-title> 
+      <v-card-title>
         {{ $t('Division') }} {{ s.division }}{{ s.index }}
         <VDivider />
       </v-card-title>
@@ -110,11 +108,11 @@ function setup(){
     </v-card>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
-        <v-card-title>{{ $t('Loading...')}}</v-card-title>
+        <v-card-title>{{ $t('Loading...') }}</v-card-title>
         <v-card-text>
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
       </v-card>
-    </v-dialog> 
+    </v-dialog>
   </v-container>
 </template>

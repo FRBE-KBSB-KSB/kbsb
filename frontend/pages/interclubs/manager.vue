@@ -1,40 +1,42 @@
 <script setup>
 import { ref, onMounted, } from 'vue'
-import { VContainer, VAutocomplete, VSelect, VBtn, VCard, VCardTitle, VCardText, VRow, 
-  VCol, VDialog, VProgressCircular, VSnackbar,  VTabs, VTab,VWindow, 
-  VWindowItem } from 'vuetify/lib/components/index.mjs';
+import { useI18n } from 'vue-i18n'
+import { router } from 'vue-router'
 import Results from '@/components/interclubs/Results.vue'
 import Planning from '@/components/interclubs/Planning.vue'
 import Playerlist from '@/components/interclubs/Playerlist.vue'
 import Venue from '@/components/interclubs/Venue.vue'
 
-import { useIdtokenStore}  from '@/store/idtoken'
+import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
 
+
 // i18n
 const { locale, t: $t } = useI18n()
-const localePath = useLocalePath()
 
 // idtoken
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
+
+
 function checkAuth() {
   if (!idtoken.value) {
     gotoLogin()
   }
 }
+
 async function gotoLogin() {
-  await navigateTo(localePath('/tools/oldlogin?url=__interclubs__manager'))
+  await router.push('/tools/oldlogin?url=__interclubs__manager')
 }
 
 // communication with tabbed children
 const tab = ref(null)
 const refplanning = ref(null)
 const refplayerlist = ref(null)
-const refresults = ref(null) 
-const refvenues = ref(null) 
-function changeTab(){
+const refresults = ref(null)
+const refvenues = ref(null)
+function changeTab() {
   console.log('changeTab', tab.value)
   switch (tab.value) {
     case 'planning':
@@ -48,7 +50,7 @@ function changeTab(){
       break
     case 'venues':
       refvenues.value.setup(icclub.value)
-      break    
+      break
   }
 }
 
@@ -56,17 +58,18 @@ function changeTab(){
 const clubs = ref([])
 const icclub = ref({})          // the icclub data
 const idclub = ref(null)
-const ic_rounds = Object.keys(INTERCLUBS_ROUNDS).map((x)=> {
-  return {value: x, title: `R${x}: ${INTERCLUBS_ROUNDS[x]}`}
+const ic_rounds = Object.keys(INTERCLUBS_ROUNDS).map((x) => {
+  return { value: x, title: `R${x}: ${INTERCLUBS_ROUNDS[x]}` }
 })
 const round = ref("1")
 
 // waiting dialog
 const waitingdialog = ref(false)
 let dialogcounter = 0
+
 function changeDialogCounter(i) {
-    dialogcounter += i
-    waitingdialog.value = (dialogcounter > 0)
+  dialogcounter += i
+  waitingdialog.value = (dialogcounter > 0)
 }
 
 // snackbar
@@ -87,7 +90,7 @@ async function getClubs() {
   let reply
   changeDialogCounter(1)
   try {
-    reply = await $backend("club","anon_get_clubs", {})
+    reply = await $backend("club", "anon_get_clubs", {})
   } catch (error) {
     if (error.code == 401) gotoLogin()
     displaySnackbar($t(error.message))
@@ -108,7 +111,7 @@ async function getClubDetails() {
   if (idclub.value) {
     changeDialogCounter(1)
     try {
-      reply = await $backend("interclub","clb_getICclub" ,{
+      reply = await $backend("interclub", "clb_getICclub", {
         idclub: idclub.value,
         token: idtoken.value
       })
@@ -128,12 +131,12 @@ async function getClubDetails() {
 }
 
 
-function selectClub(){
+function selectClub() {
   console.log('selected', idclub.value)
   getClubDetails()
 }
 
-onMounted( () => {
+onMounted(() => {
   checkAuth()
   getClubs()
   tab.value = "results"
@@ -147,7 +150,7 @@ onMounted( () => {
     <h1>Interclubs Manager</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
-        <v-card-title>{{ $t('Loading...')}}</v-card-title>
+        <v-card-title>{{ $t('Loading...') }}</v-card-title>
         <v-card-text>
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
@@ -157,17 +160,16 @@ onMounted( () => {
       <v-card-text>
         <v-row>
           <v-col cols="12" sm="6">
-            <VAutocomplete v-model="idclub" :items="clubs" 
-            item-title="merged" item-value="idclub" color="green"
-            label="Club" clearable @update:model-value="selectClub" >
-          </VAutocomplete>
+            <VAutocomplete v-model="idclub" :items="clubs" item-title="merged" item-value="idclub"
+              color="green" label="Club" clearable @update:model-value="selectClub">
+            </VAutocomplete>
           </v-col>
           <v-col cols="12" sm="6">
-            <VSelect v-model="round" :items="ic_rounds" :label="$t('Round')" 
+            <VSelect v-model="round" :items="ic_rounds" :label="$t('Round')"
               @update:model-value="changeTab">
             </VSelect>
           </v-col>
-        </v-row>  
+        </v-row>
       </v-card-text>
     </v-card>
     <h3 class="my-2">
@@ -175,41 +177,35 @@ onMounted( () => {
     </h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
-        <v-tab value="results">{{ $t('Results') }}</v-tab>   
-        <v-tab value="planning">{{ $t('Planning') }}</v-tab>        
+        <v-tab value="results">{{ $t('Results') }}</v-tab>
+        <v-tab value="planning">{{ $t('Planning') }}</v-tab>
         <v-tab value="venues">{{ $t('Venue') }}</v-tab>
-        <v-tab value="playerlist">{{ $t('Player list') }}</v-tab>        
+        <v-tab value="playerlist">{{ $t('Player list') }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">
         <v-window-item :eager="true" value="results">
-          <Results ref="refresults" 
-            @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter"
-          />
-        </v-window-item>      
+          <Results ref="refresults" @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter" />
+        </v-window-item>
         <v-window-item :eager="true" value="planning">
-          <Planning ref="refplanning" 
-            @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter"
-          />
-        </v-window-item>         
+          <Planning ref="refplanning" @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter" />
+        </v-window-item>
         <v-window-item :eager="true" value="venues">
-          <Venue  ref="refvenues"
-            @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter"
-            />
+          <Venue ref="refvenues" @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter" />
         </v-window-item>
         <v-window-item :eager="true" value="playerlist">
           <Playerlist ref="refplayerlist" />
-        </v-window-item>       
+        </v-window-item>
       </v-window>
     </div>
     <VSnackbar v-model="snackbar" timeout="6000">
-        {{ errortext }}
-        <template v-slot:actions>
-          <v-btn color="green-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
-        </template>
-      </VSnackbar>     
+      {{ errortext }}
+      <template v-slot:actions>
+        <v-btn color="green-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
+      </template>
+    </VSnackbar>
   </VContainer>
 
 </template>

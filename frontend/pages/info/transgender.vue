@@ -12,22 +12,26 @@ const pagetitle = ref("")
 const pagecontent = ref("")
 
 async function getContent() {
-  console.log('getting Content')
   try {
-    const reply = await $backend('file', 'anon_get_file', {
+    const reply = await $backend('filestore', 'anon_get_file', {
       group: 'pages',
       name: 'transgenders.md'
     })
     metadata.value = useMarkdown(reply.data).metadata
-    pagetitle.value = metadata.value["title_" + locale.value]
-    pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+    updateLocale(locale.value)
   }
   catch (error) {
-    console.log('getContent failed', error)
+    console.log('failed')
   }
 }
 
+function updateLocale(l) {
+  locale.value = l
+  pagetitle.value = metadata.value["title_" + l]
+  pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + l])
+}
 
+watch(locale, (nl, ol) => updateLocale(nl))
 
 onMounted(() => {
   getContent()
@@ -43,17 +47,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-h1:after {
-  content: ' ';
-  display: block;
-  border: 1px solid #aaa;
-  margin-bottom: 1em;
-}
-
-ul {
-  padding-left: 1rem;
-}
-
 .v-card-title {
   white-space: normal;
 }

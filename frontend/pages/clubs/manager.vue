@@ -1,15 +1,17 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Details from '@/components/club/Details.vue'
 import Board from '@/components/club/Board.vue'
 import Access from '@/components/club/Access.vue'
 
 import { EMPTY_CLUB } from '@/util/club'
-import { useIdtokenStore}  from '@/store/idtoken'
+import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 
+
 const { locale, t } = useI18n()
-const localePath = useLocalePath()
+const router = useRouter()
 const { $backend } = useNuxtApp()
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
@@ -17,7 +19,7 @@ const { token: idtoken } = storeToRefs(idstore)
 
 const clubmembers = ref(null)
 const clubmembers_id = ref(0)
-const club = ref(EMPTY_CLUB) 
+const club = ref(EMPTY_CLUB)
 const clubs = ref([])
 const idclub = ref(null)
 const waitingdialog = ref(false)
@@ -36,8 +38,8 @@ function checkAuth() {
 }
 
 function changeDialogCounter(i) {
-    dialogcounter += i
-    waitingdialog.value = (dialogcounter > 0)
+  dialogcounter += i
+  waitingdialog.value = (dialogcounter > 0)
 }
 
 async function getClubs() {
@@ -79,7 +81,7 @@ async function getClubDetails() {
     }
     changeDialogCounter(1)
     try {
-      reply = await $backend("club","clb_get_club" ,{
+      reply = await $backend("club", "clb_get_club", {
         idclub: idclub.value,
         token: idtoken.value
       })
@@ -90,7 +92,7 @@ async function getClubDetails() {
     } finally {
       changeDialogCounter(-1)
     }
-    club.value = reply.data    
+    club.value = reply.data
   }
   nextTick(() => {
     detail.value.readClubDetails()
@@ -110,7 +112,7 @@ async function getClubMembers() {
     reply = await $backend("member", "anon_getclubmembers", {
       idclub: idclub.value,
     })
-  } catch (error) {    
+  } catch (error) {
     if (error.code == 401) gotoLogin()
     displaySnackbar(t(error.message))
     return
@@ -126,12 +128,12 @@ async function getClubMembers() {
     (a.last_name > b.last_name ? 1 : -1))
   nextTick(() => {
     board.value.readClubMembers()
-    access.value.readClubMembers()  
-  })  
+    access.value.readClubMembers()
+  })
 }
 
 async function gotoLogin() {
-  await navigateTo(localePath('/tools/oldlogin?url=__clubs__manager'))
+  await router.push('/tools/oldlogin?url=__clubs__manager')
 }
 
 function displaySnackbar(text, color) {
@@ -139,12 +141,12 @@ function displaySnackbar(text, color) {
   snackbar.value = true
 }
 
-async function selectClub(){
+async function selectClub() {
   await getClubDetails()
   await getClubMembers()
 }
 
-onMounted( () => {
+onMounted(() => {
   checkAuth()
   getClubs()
 })
@@ -155,7 +157,7 @@ onMounted( () => {
     <h1>Club Manager</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
-        <v-card-title>{{ $t('Loading...')}}</v-card-title>
+        <v-card-title>{{ $t('Loading...') }}</v-card-title>
         <v-card-text>
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
@@ -164,9 +166,8 @@ onMounted( () => {
     <v-card>
       <v-card-text>
         {{ $t('Select the club') }} ({{ $t('Start typing number or name') }})
-        <VAutocomplete v-model="idclub" :items="clubs" 
-          item-title="merged" item-value="idclub" color="green"
-          label="Club" clearable @update:model-value="selectClub" >
+        <VAutocomplete v-model="idclub" :items="clubs" item-title="merged" item-value="idclub"
+          color="green" label="Club" clearable @update:model-value="selectClub">
         </VAutocomplete>
       </v-card-text>
     </v-card>
@@ -179,27 +180,27 @@ onMounted( () => {
         <v-tab>{{ $t('Board members') }}</v-tab>
         <v-tab>{{ $t('Access Rights') }}</v-tab>
       </v-tabs>
-      <v-window v-model="tab" >
+      <v-window v-model="tab">
         <v-window-item :eager="true">
-          <Details :club="club" ref="detail" @snackbar="displaySnackbar" 
+          <Details :club="club" ref="detail" @snackbar="displaySnackbar"
             @updateClub="getClubDetails" />
         </v-window-item>
         <v-window-item :eager="true">
-          <Board  :club="club" :clubmembers="clubmembers" ref="board" @snackbar="displaySnackbar"
+          <Board :club="club" :clubmembers="clubmembers" ref="board" @snackbar="displaySnackbar"
             @updateClub="getClubDetails" />
         </v-window-item>
         <v-window-item :eager="true">
-          <Access  :club="club" :clubmembers="clubmembers" ref="access" @snackbar="displaySnackbar"
+          <Access :club="club" :clubmembers="clubmembers" ref="access" @snackbar="displaySnackbar"
             @updateClub="getClubDetails" />
         </v-window-item>
       </v-window>
     </div>
     <VSnackbar v-model="snackbar" timeout="6000">
-        {{ errortext }}
-        <template v-slot:actions>
-          <v-btn color="green-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
-        </template>
-      </VSnackbar>     
+      {{ errortext }}
+      <template v-slot:actions>
+        <v-btn color="green-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
+      </template>
+    </VSnackbar>
   </VContainer>
 
 </template>

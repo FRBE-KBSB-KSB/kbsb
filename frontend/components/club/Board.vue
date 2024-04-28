@@ -1,16 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { VContainer, VBtn, VCard, VCardTitle, VCardText, VRow, VCol, VSelect, 
-  VAutocomplete,VTextField } from 'vuetify/lib/components/index.mjs';
+import { useI18n } from 'vue-i18n'
+
 
 import { visibility_items, CLUB_STATUS, EMPTY_BOARD, EMPTY_CLUB } from '@/util/club'
-import { useIdtokenStore}  from '@/store/idtoken'
+import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 
-const { localePath } = useLocalePath()
 const { locale, t: $t } = useI18n()
+const router = useRouter()
 const { $backend } = useNuxtApp()
-const props = defineProps(["club","clubmembers"])
+const props = defineProps(["club", "clubmembers"])
 const boardmembers = ref(EMPTY_BOARD)
 const clubdetails = ref(EMPTY_CLUB)
 const idstore = useIdtokenStore()
@@ -18,7 +18,7 @@ const { token: idtoken } = storeToRefs(idstore)
 const statuscm = ref(CLUB_STATUS.CONSULTING)
 const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
 const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
-const t_vis_items = computed(()=>  visibility_items.map((x) =>({
+const t_vis_items = computed(() => visibility_items.map((x) => ({
   title: $t(x.title),
   value: x.value
 })))
@@ -31,7 +31,7 @@ function cancelClub() {
 }
 
 function gotoLogin() {
-  navigateTo(localePath('/tools/login?url=__clubs__manager'))
+  router.push('/tools/login?url=__clubs__manager')
 }
 
 async function modifyClub() {
@@ -58,7 +58,7 @@ async function saveClub() {
     }
   }
   try {
-    const reply = await $backend("club", "clb_update_club",{
+    const reply = await $backend("club", "clb_update_club", {
       ...update,
       idclub: props.club.idclub,
       token: idtoken.value,
@@ -93,10 +93,10 @@ function updateboard(f) {
     bm.email_visibility = null
     bm.mobile_visibility = null
     delete clubdetails.value.boardmembers[f]
- }
+  }
 }
 
-defineExpose({readClubDetails, readClubMembers})
+defineExpose({ readClubDetails, readClubMembers })
 
 </script>
 
@@ -111,7 +111,7 @@ defineExpose({readClubDetails, readClubMembers})
           <v-col cols="12" sm="6" md="4" xl="3" v-for="(bm, f) in boardmembers" :key="f">
             <v-card class="elevation-5">
               <v-card-title class="text-green">
-                {{  $t(f) }}
+                {{ $t(f) }}
               </v-card-title>
               <v-card-text>
                 {{ $t('Name') }}: {{ bm.first_name }} {{ bm.last_name }}<br />
@@ -123,7 +123,7 @@ defineExpose({readClubDetails, readClubMembers})
         </v-row>
         <v-row class="mt-2">
           <v-btn @click="modifyClub">{{ $t('Modify') }}</v-btn>
-        </v-row>        
+        </v-row>
       </v-container>
       <v-container v-if="status_modifying">
         <h2>{{ $t('Modify board members') }}</h2>
@@ -131,22 +131,23 @@ defineExpose({readClubDetails, readClubMembers})
           <v-col cols="12" sm="6" md="4" xl="3" v-for="(bm, f) in boardmembers" :key="f">
             <v-card class="elevation-5">
               <v-card-title class="text-green">
-                {{  $t(f) }}
+                {{ $t(f) }}
               </v-card-title>
               <v-card-text>
-                <v-autocomplete v-model="boardmembers[f].idnumber" :items="props.clubmembers" item-title="merged"
-                  item-value="idnumber" color="green" clearable  @update:model-value="updateboard(f)">
+                <v-autocomplete v-model="boardmembers[f].idnumber" :items="props.clubmembers"
+                  item-title="merged" item-value="idnumber" color="green" clearable
+                  @update:model-value="updateboard(f)">
                 </v-autocomplete>
                 <v-text-field label="Email" v-model="boardmembers[f].email"></v-text-field>
-                <v-select v-model="boardmembers[f].email_visibility" :items="t_vis_items" color="green"
-                  label="Email visibility" />
+                <v-select v-model="boardmembers[f].email_visibility" :items="t_vis_items"
+                  color="green" label="Email visibility" />
                 <v-text-field label="GSM" v-model="boardmembers[f].mobile"></v-text-field>
-                <v-select v-model="boardmembers[f].mobile_visibility" :items="t_vis_items" color="green"
-                  label="Mobile visibility" />
+                <v-select v-model="boardmembers[f].mobile_visibility" :items="t_vis_items"
+                  color="green" label="Mobile visibility" />
               </v-card-text>
             </v-card>
           </v-col>
-        </v-row>     
+        </v-row>
         <v-row class="ma-2">
           <v-btn @click="saveClub">{{ $t('Save club') }}</v-btn>
           <v-btn @click="cancelClub">{{ $t('Cancel') }}</v-btn>
@@ -160,7 +161,10 @@ defineExpose({readClubDetails, readClubMembers})
 .fieldname {
   color: green;
 }
-.v-card__text, .v-card__title {
-  word-break: normal; /* maybe !important  */
+
+.v-card__text,
+.v-card__title {
+  word-break: normal;
+  /* maybe !important  */
 }
 </style>

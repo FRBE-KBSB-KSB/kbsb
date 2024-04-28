@@ -32,9 +32,9 @@ function gotoOldsite(url) {
       <v-btn variant="text" class="btn-language hover-darker" @click="setLocale('en')">EN</v-btn>
     </div>
     <v-list nav class="bg-green-darken-1">
-      
+
       <v-list-item to="/" :title="t('Home')" />
-      
+
       <v-list-group>
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" :title="t('Administration')" />
@@ -47,7 +47,7 @@ function gotoOldsite(url) {
         <!-- <v-list-item :to="localePath('/admin/reports')" :title="$t('Reports')" /> -->
         <v-list-item to="/admin/vademecum" title="Vademecum" />
         <v-list-item to="/admin/regional" :title="t('Regional')" />
-        <v-list-item to="/admin/commissions" :title="t('Committees')" /> 
+        <v-list-item to="/admin/commissions" :title="t('Committees')" />
       </v-list-group>
 
       <v-list-group>
@@ -59,7 +59,8 @@ function gotoOldsite(url) {
         <v-list-item to="/competition/championships-adult" :title="t('BC Adults')" />
         <v-list-item to="/competition/championships-blitz" :title="t('BC Blitz')" />
         <v-list-item to="/competition/championships-rapid" :title="t('BC Rapid')" />
-        <v-list-item to="/competition/international-adult" :title="t('International competitions')" />
+        <v-list-item to="/competition/international-adult"
+          :title="t('International competitions')" />
       </v-list-group>
 
       <v-list-group>
@@ -100,8 +101,9 @@ function gotoOldsite(url) {
           @click="gotoOldsite('sites/manager/GestionCOMMON/GestionLogin.php')" />
         <v-list-item to="/clubs/manager" title="Club Manager" />
         <v-list-item to="/interclubs/manager" title="Interclub Manager" />
-        <v-list-item title="Elo" @click="gotoOldsite('sites/manager/GestionFICHES/FRBE_Fiche.php')" />
-        <v-list-item title="t('Results SWAR')"
+        <v-list-item title="Elo"
+          @click="gotoOldsite('sites/manager/GestionFICHES/FRBE_Fiche.php')" />
+        <v-list-item :title="t('Results SWAR')"
           @click="gotoOldsite('sites/manager/GestionSWAR/SwarResults.php')" />
         <v-list-item title="Calc Norm" @click="gotoOldsite('sites/manager/CalcNorm/norm.php')" />
       </v-list-group>

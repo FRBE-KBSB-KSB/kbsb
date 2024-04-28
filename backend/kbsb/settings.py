@@ -84,6 +84,8 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
+MEMBERDB = "oldmysql"
+
 SECRETS = {
     "mongodb": {
         "name": "kbsb-mongodb",
