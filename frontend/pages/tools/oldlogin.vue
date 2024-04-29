@@ -1,53 +1,90 @@
 <script setup>
-import { ref, watch } from 'vue'
-import showdown from 'showdown'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-const { t, locale } = useI18n()
+import { useIdtokenStore } from '@/store/idtoken'
+import { useIdnumberStore } from '@/store/idnumber'
+import showdown from 'showdown'
 
-const mdConverter = new showdown.Converter()
-
+const { locale, t } = useI18n()
 const { $backend } = useNuxtApp()
-const metadata = ref(null)
-const pagetitle = ref("")
-const pagecontent = ref("")
+const router = useRouter()
+const route = useRoute()
+const idstore = useIdtokenStore()
+const idnstore = useIdnumberStore()
 
-async function getContent() {
+// help dialog 
+const ttitle = `title_${locale.value}`
+const tcontent = `content_${locale.value}`
+const { data: help } = await useAsyncData('help-login', () => queryContent('/pages/help-login').findOne())
+const helpdialog = ref(false)
+const login = ref({})
+const snackbar = ref(null)
+const errortext = ref("")
+const url = route.query.url
+const mdConverter = new showdown.Converter()
+function md(s) { return mdConverter.makeHtml(s) }
+
+async function dologin() {
+  const returnUrl = url ? url.replaceAll("__", "/") : '/'
+  let reply
   try {
-    const reply = await $backend('filestore', 'anon_get_file', {
-      group: 'pages',
-      name: 'transgenders.md'
+    reply = await $backend("member", "login", {
+      idnumber: login.value.idnumber,
+      password: login.value.password
     })
-    metadata.value = useMarkdown(reply.data).metadata
-    updateLocale(locale.value)
   }
   catch (error) {
-    console.log('failed')
+    errortext.value = t(error.message)
+    snackbar.value = true
+    return
   }
+  idstore.updateToken(reply.data)
+  idnstore.updateIdnumber(login.value.idnumber)
+  router.push(returnUrl)
 }
-
-function updateLocale(l) {
-  locale.value = l
-  pagetitle.value = metadata.value["title_" + l]
-  pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + l])
-}
-
-watch(locale, (nl, ol) => updateLocale(nl))
-
-onMounted(() => {
-  getContent()
-})
 
 </script>
-
 <template>
-  <v-container>
-    <h1>{{ pagetitle }}</h1>
-    <div v-html="pagecontent" class="markdowncontent"></div>
-  </v-container>
+  <VContainer>
+    <VRow align="start">
+      <VCol cols="12" md="6" offset-md="3" lg="6" offset-lg="3">
+        <VCard>
+          <VCardTitle>
+            <VIcon large>
+              mdi-account
+            </VIcon>
+            <label class="headline ml-3">{{ $t('Sign in') }}</label>
+            <VBtn icon="mdi-help" color="green" class="float-right" @click="helpdialog = true" />
+          </VCardTitle>
+          <VDivider />
+          <VCardText>
+            <VTextField v-model="login.idnumber" :label="$t('ID number')" />
+            <VTextField v-model="login.password" xs="12" lg="6" :label="$t('Password')"
+              type="password" />
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn @click="dologin()">
+              {{ $t('Submit') }}
+            </VBtn>
+          </VCardActions>
+        </VCard>
+      </VCol>
+    </VRow>
+    <VDialog v-model="helpdialog" width="20em">
+      <ContentRenderer :value="help">
+        <VCard>
+          <VCardTitle v-html="help[ttitle] ? help[ttitle] : help.title" />
+          <VDivider />
+          <VCardText class="pa-3 ma-1 markdowncontent" v-html="md(help[tcontent])" />
+        </VCard>
+      </ContentRenderer>
+    </VDialog>
+    <VSnackbar v-model="snackbar" timeout="6000">
+      {{ errortext }}
+      <template v-slot:actions>
+        <v-btn color="green-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
+      </template>
+    </VSnackbar>
+  </VContainer>
 </template>
-
-<style scoped>
-.v-card-title {
-  white-space: normal;
-}
-</style>

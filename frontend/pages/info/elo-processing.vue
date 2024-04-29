@@ -1,20 +1,53 @@
 <script setup>
-
+import { ref, watch } from 'vue'
 import showdown from 'showdown'
-
-const {data}  = await useAsyncData('elo=processing', 
-  () => queryContent('/pages/elo-processing').findOne())
+import { useI18n } from 'vue-i18n'
+const { t, locale } = useI18n()
 
 const mdConverter = new showdown.Converter()
-function md(s) { return  mdConverter.makeHtml(s)}
+
+const { $backend } = useNuxtApp()
+const metadata = ref(null)
+const pagetitle = ref("")
+const pagecontent = ref("")
+
+async function getContent() {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group: 'pages',
+      name: 'elo-processing.md'
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    updateLocale(locale.value)
+  }
+  catch (error) {
+    console.log('failed')
+  }
+}
+
+function updateLocale(l) {
+  locale.value = l
+  pagetitle.value = metadata.value["title_" + l]
+  pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + l])
+}
+
+watch(locale, (nl, ol) => updateLocale(nl))
+
+onMounted(() => {
+  getContent()
+})
 
 </script>
 
 <template>
   <v-container>
-    <ContentRenderer :value="data"  >
-      <h1>{{ data.title }}</h1>
-      <div v-html= "md(data.content_nl)" class="markdowncontent"/>
-    </ContentRenderer>
+    <h1>{{ pagetitle }}</h1>
+    <div v-html="pagecontent" class="markdowncontent"></div>
   </v-container>
 </template>
+
+<style scoped>
+.v-card-title {
+  white-space: normal;
+}
+</style>

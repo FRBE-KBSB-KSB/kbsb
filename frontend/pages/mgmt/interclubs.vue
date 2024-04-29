@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Downloads, Playerlist, Results, Venue, Teamforfeit } from '@/components/mgmtinterclubs'
 import ProgressLoading from '@/components/ProgressLoading.vue'
 import SnackbarMessage from '@/components/SnackbarMessage.vue'
 import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
@@ -21,7 +20,7 @@ const { token: mgmttoken } = storeToRefs(mgmttokenstore)
 const personstore = usePersonStore();
 const { person } = storeToRefs(personstore)
 const mgmtinterclubstore = useMgmtInterclubStore()
-const { club, round } = storeToRefs(mgmtinterclubstore)
+const { club } = storeToRefs(mgmtinterclubstore)
 
 
 // datamodel
