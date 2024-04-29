@@ -7,21 +7,26 @@ import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 import showdown from 'showdown'
 
+
 const { locale, t } = useI18n()
 const router = useRouter()
 const { $backend } = useNuxtApp()
+
+// help dialog 
+const mdConverter = new showdown.Converter()
+const helptitle = ref("")
+const helpdialog = ref(false)
+const helpcontent = ref("")
+
+
+// model
 const props = defineProps(['club'])
 const clubdetails = ref(EMPTY_CLUB)
-const helpdialog = ref(false)
 const statuscm = ref(CLUB_STATUS.CONSULTING)
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
-const { data: help } = await useAsyncData('help-login', () => queryContent('/pages/help-club-contact').findOne())
 const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
 const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
-const mdConverter = new showdown.Converter()
-const ttitle = `title_${locale.value}`
-const tcontent = `content_${locale.value}`
 let copyclubdetails = null
 const emit = defineEmits(['displaySnackbar', 'updateClub'])
 
@@ -73,8 +78,28 @@ async function saveClub() {
   }
 }
 
+async function getContent() {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group: 'pages',
+      name: `help-club-contact.md`
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    helptitle.value = metadata.value["title_" + locale.value]
+    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+  }
+  catch (error) {
+    console.log('failed')
+  }
+}
 
 defineExpose({ readClubDetails })
+
+onMounted(() => {
+  getContent()
+})
+
+
 
 
 </script>
@@ -252,14 +277,11 @@ defineExpose({ readClubDetails })
       </v-container>
     </div>
     <v-dialog v-model="helpdialog" width="20em">
-      <ContentRenderer :value="help">
-        <v-card>
-          <v-card-title v-html="help[ttitle] ? help[ttitle] : help.title" />
-          <v-divider></v-divider>
-          <v-card-text class="pa-3 ma-1 markdowncontent" v-html="md(help[tcontent])">
-          </v-card-text>
-        </v-card>
-      </ContentRenderer>
+      <v-card>
+        <v-card-title v-html="helptitle" />
+        <v-divider></v-divider>
+        <v-card-text class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
+      </v-card>
     </v-dialog>
   </v-container>
 </template>

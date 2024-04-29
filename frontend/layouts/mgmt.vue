@@ -26,9 +26,10 @@ useHead({
       </VToolbar>
       <VList class="bg-deep-purple-lighten-1 text-white">
         <VListItem @click="goto('overview')" title="Overview" />
-        <VListItem @click="goto('content')" title="Site Content" />
+        <VListItem @click="goto('pages')" title="Pages" />
+        <VListItem @click="goto('articles')" title="Articles" />
+        <!-- <VListItem @click="goto('reports')" title="Reports" /> -->
         <VListItem @click="goto('clubs')" title="Clubs" />
-        <VListItem @click="goto('reports')" title="Reports" />
         <VListItem @click="goto('interclubs')" title="Interclubs" />
         <VListItem @click="goto('mailing')" title="Mailing" />
         <VListItem @click="goto('logout')" title="Logout" />

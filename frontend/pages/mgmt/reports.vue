@@ -1,19 +1,16 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import { VContainer, VAutocomplete, VCard,  VCardText, VTabs, VTab, VWindow, 
-  VWindowItem} from 'vuetify/components'
-import { Details, Access, Board }  from '@/components/mgmtclub'
 import ProgressLoading from '@/components/ProgressLoading.vue'
 import SnackbarMessage from '@/components/SnackbarMessage.vue'
 
-import  { EMPTY_CLUB } from '@/util/club'
+import { EMPTY_CLUB } from '@/util/club'
 import { useMgmtTokenStore } from "@/store/mgmttoken";
 import { usePersonStore } from "@/store/person"
 import { storeToRefs } from 'pinia'
 
 // stores
 const mgmtstore = useMgmtTokenStore()
-const {token: mgmttoken} = storeToRefs(mgmtstore) 
+const { token: mgmttoken } = storeToRefs(mgmtstore)
 const personstore = usePersonStore();
 const { person } = storeToRefs(personstore)
 
@@ -26,7 +23,7 @@ let showLoading
 // datamodel
 const clubmembers = ref(null)
 const clubmembers_id = ref(0)
-const club = ref(EMPTY_CLUB) 
+const club = ref(EMPTY_CLUB)
 const clubs = ref([])
 const idclub = ref(null)
 
@@ -37,19 +34,19 @@ const tab = ref(null)
 const refboard = ref(null)
 const refdetails = ref(null)
 const refaccess = ref(null)
-function changeTab(){
+function changeTab() {
   console.log('changeTab', tab.value)
   switch (tab.value) {
     case 'access':
       refaccess.value.setup(club.value)
-      break 
+      break
     case 'board':
       refboard.value.setup(club.value)
       break
     case 'details':
       console.log('refdetails', refdetails.value)
       refdetails.value.setup(club.value)
-      break   
+      break
   }
 }
 
@@ -62,12 +59,12 @@ useHead({
   script: [
     { src: 'https://accounts.google.com/gsi/client', defer: true }
   ],
-  title: 'Management Clubs',    
+  title: 'Management Clubs',
 })
 
 async function checkAuth() {
   console.log('checking if auth is already set', mgmttoken.value)
-  if (mgmttoken.value) return 
+  if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
     navigateTo('/mgmt')
     return
@@ -121,7 +118,7 @@ async function getClubDetails() {
   if (idclub.value) {
     showLoading(true)
     try {
-      reply = await $backend("club","mgmt_get_club" ,{
+      reply = await $backend("club", "mgmt_get_club", {
         idclub: idclub.value,
         token: mgmttoken.value
       })
@@ -149,7 +146,7 @@ async function getClubMembers() {
     reply = await $backend("member", "anon_getclubmembers", {
       idclub: idclub.value,
     })
-  } catch (error) {    
+  } catch (error) {
     console.log('getClubMembers error')
     showSnackbar(error.message)
     return
@@ -167,16 +164,16 @@ async function getClubMembers() {
   refaccess.value.copyClubMembers(clubmembers.value)
 }
 
-async function selectClub(){
+async function selectClub() {
   await getClubDetails()
   await getClubMembers()
 }
 
-function updateClubDetails(){
+function updateClubDetails() {
   console.log('getting updated club details')
 }
 
-onMounted( () => {
+onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   changeTab('details')
@@ -189,38 +186,8 @@ onMounted( () => {
 <template>
   <VContainer>
     <SnackbarMessage ref="refsnackbar" />
-    <ProgressLoading ref="refloading"/>
-    <h1>Management Clubs</h1>
-      <v-card>
-        <v-card-text>
-          Select the club: start typing number or name
-          <VAutocomplete v-model="idclub" :items="clubs" 
-            item-title="merged" item-value="idclub" color="purple"
-            label="Club" clearable @update:model-value="selectClub" >
-          </VAutocomplete>
-        </v-card-text>
-      </v-card>
-      <h3 class="mt-2">
-        Selected club: {{ club.idclub }} {{ club.name_short }}
-      </h3>
-      <div class="elevation-2">
-        <v-tabs v-model="tab" color="purple" @update:modelValue="changeTab">
-          <v-tab value="details">Details</v-tab>
-          <v-tab value="board">Board members</v-tab>
-          <v-tab value="access">Access Rights</v-tab>
-        </v-tabs>
-        <v-window v-model="tab" @update:modelValue="changeTab" >
-          <v-window-item value="details" :eager="true">
-            <Details ref="refdetails" @updateClub="updateClubDetails" />
-          </v-window-item>
-          <v-window-item value="board" :eager="true">
-            <Board ref="refboard" @updateClub="updateClubDetails" />
-          </v-window-item>
-          <v-window-item value="access" :eager="true">
-            <Access ref="refaccess" @updateClub="updateClubDetails" /> 
-          </v-window-item>
-        </v-window>
-      </div>
-    
-  </VContainer>  
+    <ProgressLoading ref="refloading" />
+    <h1>Management Reports</h1>
+    Still in progress
+  </VContainer>
 </template>

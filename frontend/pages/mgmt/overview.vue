@@ -39,11 +39,13 @@ onMounted(() => {
       </li>
       <li>Managing the <NuxtLink to="/mgmt/articles">Articles</NuxtLink>
       </li>
-      <li>Managing the <NuxtLink to="/mgmt/reports">Reports</NuxtLink>
-      </li>
+      <!-- <li>Managing the <NuxtLink to="/mgmt/reports">Reports</NuxtLink>
+      </li> -->
       <li>Admin part <NuxtLink to="/mgmt/clubs">Clubs Manager</NuxtLink>
       </li>
       <li>Admin part <NuxtLink to="/mgmt/interclubs">Interclubs Manager</NuxtLink>
+      </li>
+      <li>Getting the <NuxtLink to="/mgmt/mailing">Mailing Lists</NuxtLink> for all clubs
       </li>
       <li>
         <NuxtLink to="/mgmt/logout">Logout</NuxtLink>

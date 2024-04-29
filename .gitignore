@@ -22,6 +22,7 @@ __pycache__/
 frontend/node_modules
 frontend/.nuxt
 frontend/.output
+frontend/dist
 
 # data
 share/mysql/*.sql

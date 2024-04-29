@@ -1,20 +1,31 @@
 <script setup>
+import { ref } from 'vue'
 import showdown from 'showdown'
-import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n';
 
+const mdConverter = new showdown.Converter()
 const props = defineProps({
   file: String
 })
 const { locale } = useI18n()
 const ttitle = `title_${locale.value}`
-const tcontent = `content_${locale.value}`
-const helptopic = `help-${props.file}`
-console.log('helptopic', helptopic)
-const { data }  = await useAsyncData(helptopic, () => queryContent(`/pages/${help-topic.value}`).findOne())
-const dialog = ref(false)
-const mdConverter = new showdown.Converter()
+const metadata = ref({})
+const pagecontent = ref("")
 
-function md(s) { return  mdConverter.makeHtml(s)}
+async function getContent() {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group: 'pages',
+      name: `help-${props.file}.md`
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + l])
+  }
+  catch (error) {
+    console.log('failed')
+  }
+}
+
 
 </script>
 
@@ -25,15 +36,12 @@ function md(s) { return  mdConverter.makeHtml(s)}
       </v-btn>
     </template>
 
-    <ContentRenderer :value="data">
-      <v-card>
-        <v-card-title v-html="data[ttitle] ? data[ttitle] : data.title" />
-        <v-divider></v-divider>
-        <v-card-text class="pt-3 markdowncontent" v-html="md(data[tcontent])"> 
-        </v-card-text>
-      </v-card>
-    </ContentRenderer>
+
+    <v-card>
+      <v-card-title v-html="metadata[ttitle] ? metadata[ttitle] : metadata.title" />
+      <v-divider></v-divider>
+      <v-card-text v-html="pagecontent" class="markdowncontent" />
+    </v-card>
 
   </v-dialog>
 </template>
-

@@ -10,6 +10,7 @@ local_settings.py
 launch
 __pycache__/
 create_env
+.env
 env_local.py
 env_staging.py
 env_prod.py

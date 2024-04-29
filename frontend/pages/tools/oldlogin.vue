@@ -13,16 +13,16 @@ const idstore = useIdtokenStore()
 const idnstore = useIdnumberStore()
 
 // help dialog 
-const ttitle = `title_${locale.value}`
-const tcontent = `content_${locale.value}`
-const { data: help } = await useAsyncData('help-login', () => queryContent('/pages/help-login').findOne())
+const mdConverter = new showdown.Converter()
+const helptitle = ref("")
 const helpdialog = ref(false)
+const helpcontent = ref("")
+
 const login = ref({})
 const snackbar = ref(null)
 const errortext = ref("")
 const url = route.query.url
-const mdConverter = new showdown.Converter()
-function md(s) { return mdConverter.makeHtml(s) }
+
 
 async function dologin() {
   const returnUrl = url ? url.replaceAll("__", "/") : '/'
@@ -42,6 +42,25 @@ async function dologin() {
   idnstore.updateIdnumber(login.value.idnumber)
   router.push(returnUrl)
 }
+
+async function getContent() {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group: 'pages',
+      name: `help-login.md`
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    helptitle.value = metadata.value["title_" + locale.value]
+    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+  }
+  catch (error) {
+    console.log('failed')
+  }
+}
+
+onMounted(() => {
+  getContent()
+})
 
 </script>
 <template>
@@ -72,13 +91,11 @@ async function dologin() {
       </VCol>
     </VRow>
     <VDialog v-model="helpdialog" width="20em">
-      <ContentRenderer :value="help">
-        <VCard>
-          <VCardTitle v-html="help[ttitle] ? help[ttitle] : help.title" />
-          <VDivider />
-          <VCardText class="pa-3 ma-1 markdowncontent" v-html="md(help[tcontent])" />
-        </VCard>
-      </ContentRenderer>
+      <VCard>
+        <VCardTitle v-html="helptitle" />
+        <VDivider />
+        <VCardText class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
+      </VCard>
     </VDialog>
     <VSnackbar v-model="snackbar" timeout="6000">
       {{ errortext }}
