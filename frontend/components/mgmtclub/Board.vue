@@ -1,14 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { VContainer, VBtn, VCard, VCardTitle, VCardText, VRow, VCol, 
-  VAutocomplete, VSelect, VTextField,  } from 'vuetify/components'
+import { useI18n } from 'vue-i18n'
+
 import { visibility_items, CLUB_STATUS, EMPTY_BOARD, EMPTY_CLUB } from '@/util/club'
 
 // stores
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 import { storeToRefs } from 'pinia'
 const mgmtstore = useMgmtTokenStore()
-const { token: mgmttoken } = storeToRefs(mgmtstore) 
+const { token: mgmttoken } = storeToRefs(mgmtstore)
 
 //  snackbar and loading widgets
 import ProgressLoading from '@/components/ProgressLoading.vue'
@@ -25,7 +25,7 @@ const clubmembers = ref([])
 const statuscm = ref(CLUB_STATUS.CONSULTING)
 const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
 const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
-const t_vis_items = computed(()=>  visibility_items.map((x) =>({
+const t_vis_items = computed(() => visibility_items.map((x) => ({
   title: x.title,
   value: x.value
 })))
@@ -55,7 +55,7 @@ async function modifyClub() {
 }
 
 function readClubDetails(club) {
-  console.log('readClubDetails in board')  
+  console.log('readClubDetails in board')
   clubdetails.value = { ...EMPTY_CLUB, ...club }
   copyclubdetails = JSON.parse(JSON.stringify(club))
   boardmembers.value = { ...EMPTY_BOARD, ...club.boardmembers }
@@ -71,7 +71,7 @@ async function saveClub() {
     }
   }
   try {
-    const reply = await $backend("club", "mgmt_update_club",{
+    const reply = await $backend("club", "mgmt_update_club", {
       ...update,
       idclub: clubdetails.value.idclub,
       token: mgmttoken.value,
@@ -79,7 +79,7 @@ async function saveClub() {
     statuscm.value = CLUB_STATUS.CONSULTING
     showSnackbar('Club saved')
     emit('updateClub')
-  } catch (error) { 
+  } catch (error) {
     if (error.code == 401) gotoLogin()
     showSnackbar(error.message)
     return
@@ -109,17 +109,17 @@ function updateboard(f) {
     bm.email_visibility = null
     bm.mobile_visibility = null
     delete clubdetails.value.boardmembers[f]
- }
+  }
 }
 
-function setup(club){
+function setup(club) {
   console.log('setupBoard', club)
   readClubDetails(club)
 }
 
-defineExpose({setup, copyClubMembers})
+defineExpose({ setup, copyClubMembers })
 
-onMounted( () => {
+onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
 })
@@ -131,7 +131,7 @@ onMounted( () => {
 <template>
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
-    <ProgressLoading ref="refloading"/>    
+    <ProgressLoading ref="refloading" />
     <p v-if="!clubdetails.idclub">Select a club to view the club details</p>
     <div v-if="clubdetails.idclub">
       <v-container v-if="status_consulting">
@@ -152,7 +152,7 @@ onMounted( () => {
         </v-row>
         <v-row class="mt-2">
           <v-btn @click="modifyClub">Modify</v-btn>
-        </v-row>        
+        </v-row>
       </v-container>
       <v-container v-if="status_modifying">
         <h2>Modify board members</h2>
@@ -160,22 +160,23 @@ onMounted( () => {
           <v-col cols="12" sm="6" md="4" xl="3" v-for="(bm, f) in boardmembers" :key="f">
             <v-card class="elevation-5">
               <v-card-title>
-                {{  f  }}
+                {{ f }}
               </v-card-title>
               <v-card-text>
-                <v-autocomplete v-model="boardmembers[f].idnumber" :items="clubmembers" item-title="merged"
-                  item-value="idnumber" color="green" clearable  @update:model-value="updateboard(f)">
+                <v-autocomplete v-model="boardmembers[f].idnumber" :items="clubmembers"
+                  item-title="merged" item-value="idnumber" color="green" clearable
+                  @update:model-value="updateboard(f)">
                 </v-autocomplete>
                 <v-text-field label="Email" v-model="boardmembers[f].email"></v-text-field>
-                <v-select v-model="boardmembers[f].email_visibility" :items="t_vis_items" color="green"
-                  label="Email visibility" />
+                <v-select v-model="boardmembers[f].email_visibility" :items="t_vis_items"
+                  color="green" label="Email visibility" />
                 <v-text-field label="GSM" v-model="boardmembers[f].mobile"></v-text-field>
-                <v-select v-model="boardmembers[f].mobile_visibility" :items="t_vis_items" color="green"
-                  label="Mobile visibility" />
+                <v-select v-model="boardmembers[f].mobile_visibility" :items="t_vis_items"
+                  color="green" label="Mobile visibility" />
               </v-card-text>
             </v-card>
           </v-col>
-        </v-row>     
+        </v-row>
         <v-row class="ma-2">
           <v-btn @click="saveClub">Save club</v-btn>
           <v-btn @click="cancelClub">Cancel</v-btn>
@@ -189,7 +190,10 @@ onMounted( () => {
 .fieldname {
   color: green;
 }
-.v-card__text, .v-card__title {
-  word-break: normal; /* maybe !important  */
+
+.v-card__text,
+.v-card__title {
+  word-break: normal;
+  /* maybe !important  */
 }
 </style>

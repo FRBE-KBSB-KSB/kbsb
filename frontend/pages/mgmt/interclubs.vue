@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Downloads, Playerlist, Results, Venue, Teamforfeit } from '@/components/mgmtinterclubs'
 import ProgressLoading from '@/components/ProgressLoading.vue'
 import SnackbarMessage from '@/components/SnackbarMessage.vue'
 import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
