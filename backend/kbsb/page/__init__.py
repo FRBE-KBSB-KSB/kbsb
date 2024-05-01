@@ -1,1 +1,1 @@
-from .page import checkoutpages
+from .page import checkoutpages, checkoutarticles

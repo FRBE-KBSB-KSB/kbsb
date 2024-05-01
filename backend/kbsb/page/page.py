@@ -43,3 +43,23 @@ async def checkoutpages() -> None:
         except Exception as e:
             logger.info(f"failed to write {f.filename}")
             logger.exception(e)
+
+async def checkoutarticles() -> None:
+    """
+    copy articles from statamic articles collection to the GCP bucket
+    """
+    path = f"kbsb1/content/collections/articles"
+    # get all statamic pages
+    files = await list_files(path)
+    for f in files:
+        if f.attrs.type != constants.FILEXFER_TYPE_REGULAR:
+            logger.info(f"skipping {f.filename}")
+            continue
+        logger.info(f"copying {f.filename}")
+        rrq = ReadRequest(name=f"{path}/{f.filename}", binary=True)
+        fc = BytesIO(await get_file(rrq))
+        try:
+            write_bucket_content(f"articles/{f.filename}", fc)
+        except Exception as e:
+            logger.info(f"failed to write {f.filename}")
+            logger.exception(e)
