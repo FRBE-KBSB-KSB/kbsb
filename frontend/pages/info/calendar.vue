@@ -18,7 +18,7 @@ function addItem(ci) {
 
 function calenderItem(c) {
   const output = []
-  output.push(c.date.toLocaleDateString(locale, { dateStyle: 'medium' }) + ':')
+  output.push(c.date.toLocaleDateString(locale.value, { dateStyle: 'medium' }) + ':')
   output.push(c.title)
   if (c.round) {
     output.push(t('Round'))
@@ -30,9 +30,7 @@ function calenderItem(c) {
   return output.join(' ')
 }
 
-
 async function getCalendar(cal) {
-  console.log('calling get calendar', cal.name, cal.data)
   try {
     const reply = await $backend('filestore', 'anon_get_file', {
       group: 'calendar',
@@ -47,7 +45,6 @@ async function getCalendar(cal) {
 }
 
 async function getCalendarList() {
-  console.log('calling calender list')
   try {
     const reply = await $backend('filestore', 'anon_get_filelist', {
       group: 'calendar',
@@ -68,25 +65,7 @@ async function parseYaml(yamlcontent) {
   }
 }
 
-async function readCalenders(lc) {
-  caldata.value = []
-  let allpromises = []
-  lc.forEach(e => {
-    let name = e.split('/')[1]
-    if (name) {
-      console.log('adding calendar', name)
-      caldata.value.push({ name })
-    }
-  });
-  caldata.value.forEach(async cal => {
-    allpromises.push(getCalendar(cal))
-  })
-  await Promise.all(allpromises)
-  processCalendars()
-}
-
 function processCalendar(ci) {
-  console.log('process calendar', ci)
   if (ci.multiple) {
     ci.multiple.forEach((c) => processCalendar(c))
   }
@@ -104,18 +83,37 @@ function processCalendar(ci) {
 }
 
 function processCalendars() {
-  console.log('process calendars', caldata.value.length)
   calitems.value = []
   caldata.value.forEach((cal) => {
-    console.log('trying to process', cal.name, cal.data)
     processCalendar(cal.data)
   })
   calitems.value.sort((a, b) => a.date > b.date)
 }
 
+async function readCalenders(lc) {
+  caldata.value = []
+  let allpromises = []
+  lc.forEach(e => {
+    let name = e.split('/')[1]
+    if (name) {
+      console.log('adding calendar', name)
+      caldata.value.push({ name })
+    }
+  });
+  caldata.value.forEach(async cal => {
+    allpromises.push(getCalendar(cal))
+  })
+  await Promise.all(allpromises)
+  processCalendars()
+}
 
 function updateLocale(l) {
+  console.log('updating locale', l)
+  if (process.client) {
+    localStorage.setItem("locale", l)
+  }
   locale.value = l
+  processCalendars()
 }
 
 watch(locale, (nl, ol) => updateLocale(nl))

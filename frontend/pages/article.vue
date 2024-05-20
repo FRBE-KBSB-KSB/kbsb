@@ -2,10 +2,9 @@
 import { ref, watch } from 'vue'
 import showdown from 'showdown'
 import { useI18n } from 'vue-i18n'
-
-
-// i18n
 const { locale, t } = useI18n()
+
+
 const { $backend } = useNuxtApp()
 const route = useRoute()
 const slug = route.query.slug || ""
@@ -34,6 +33,9 @@ async function getArticle() {
 function updateLocale(l) {
   console.log("Updating locale", l)
   locale.value = l
+  if (process.client) {
+    localStorage.setItem("locale", l)
+  }
   art_title.value = metadata.value["title_" + l]
   art_intro.value = metadata.value["intro_" + l]
   art_text.value = mdConverter.makeHtml(metadata.value["text_" + l])

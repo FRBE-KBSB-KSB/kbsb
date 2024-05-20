@@ -27,6 +27,9 @@ async function getContent() {
 
 function updateLocale(l) {
   locale.value = l
+  if (process.client) {
+    localStorage.setItem("locale", l)
+  }
   pagetitle.value = metadata.value["title_" + l]
   pagecontent.value = mdConverter.makeHtml(metadata.value["content_" + l])
 }
