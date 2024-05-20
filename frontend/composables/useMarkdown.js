@@ -11,7 +11,6 @@ export const useMarkdown = (content) => {
     console.error("cannot convert markdown", error)
   }
   const metadata = fm(content).attributes
-  console.log('html', html)
   return {
     html,
     metadata,
