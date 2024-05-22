@@ -1,3 +1,0 @@
-#!/bin/bash
-gcloud config configurations activate kbsbprod
-gcloud app deploy --quiet app-prod.yaml
