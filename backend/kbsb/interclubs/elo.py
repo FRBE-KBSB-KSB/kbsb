@@ -523,3 +523,6 @@ async def calc_belg_elo(round):
     logger.info(f"games {len(games1)} {len(games2)}")
     to_belgian_elo(games1, "part1", round)
     to_belgian_elo(games2, "part2", round)
+
+
+async def trf_porcess_round(round):

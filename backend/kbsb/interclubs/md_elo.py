@@ -48,3 +48,19 @@ class EloPlayer(BaseModel):
     sc2: str = ""
     team: str
     title: str
+
+
+class TrfRound:
+    round: int
+    color: str
+    player_ix: int
+    opponent_idbel: str
+    result: str
+
+class TrfRecord:
+    event: str
+    idbel: str
+    idfide: str
+    fiderating: int
+    rounds: TrfRound
+    chesstitle: str
