@@ -616,7 +616,9 @@ async def trf_process_playerdetails(round):
     read the trf_report and fill in all fields but the fiderating
     """
     read_elo_data()
-    for trf in await DbICTrfRecord.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
         details = elodata.get(trf.idbel)
         if not details:
             logger.error(f"no elodata for {trf.idbel}")
@@ -632,3 +634,47 @@ async def trf_process_playerdetails(round):
             "idclub": details["idclub"],
         }
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
+
+
+async def trf_process_fideratings():
+    """
+    read the trf_report and fill in all fields but the fiderating
+    """
+    players = {}
+    read_elo_data()
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
+        players[str(trf.idfide)] = trf  # force str index
+    logger.info(f"trf records read # {len(players)}")
+    rubenfound = 201308 in players
+    logger.info(f"ruben found {rubenfound}")
+    with open(ROOT_DIR / "shared" / "data" / "standard_sep23frl.txt") as ff:
+        ff.readline()  # skip first line
+        i = 1
+        while line := ff.readline():
+            if line.startswith("201308"):
+                logger.info("needing to update ruben")
+                logger.info(line[0:11].strip())
+            id = line[0:11].strip()  # force str
+            if id in players:
+                try:
+                    pl = players[id]
+                    rating = int(line[113:118].strip())
+                except Exception:
+                    logger.error(f"failed to read rating {line[113:118]}")
+                    continue
+                logger.info(f"update rating for {id} to {rating}")
+                try:
+                    await DbICTrfRecord.update(
+                        {"idbel": pl.idbel},
+                        {
+                            "fiderating": rating,
+                            "idfide": str(id),
+                        },
+                    )
+                except RdNotFound:
+                    logger.error(f"Could not find fideid {id} in TrfRecord")
+                    logger.info(f"pl {pl}")
+            i += 1
+    logger.info(f"processed {i} lines")

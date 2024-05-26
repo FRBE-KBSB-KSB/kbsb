@@ -54,6 +54,7 @@ from . import (
     set_interclubvenues,
     trf_process_round,
     trf_process_playerdetails,
+    trf_process_fideratings,
 )
 
 logger = logging.getLogger(__name__)
@@ -577,5 +578,19 @@ async def api_trf_process_playerdetails(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except:  # NOQA: E722
-        logger.exception("failed api trf_process_round")
+        logger.exception("failed api trf_process_playerdetails")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trffideratings", status_code=201)
+async def api_trf_process_fideratings(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_fideratings()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:  # NOQA: E722
+        logger.exception("failed api trf_process_fideratings")
         raise HTTPException(status_code=500, detail="Internal Server Error")

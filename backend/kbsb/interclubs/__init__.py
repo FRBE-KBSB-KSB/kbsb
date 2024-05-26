@@ -76,4 +76,5 @@ from .elo import (
     calc_fide_elo,
     trf_process_round,
     trf_process_playerdetails,
+    trf_process_fideratings,
 )

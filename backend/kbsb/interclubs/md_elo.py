@@ -68,7 +68,7 @@ class TrfRecord(BaseModel):
     chesstitle: str | None = None
     birthdate: str | None = None
     event: str | None = None
-    fiderating: int | None = None
+    fiderating: str | int | None = None
     fidefederation: str | None = None
     fullname: str | None = None
     gender: str | None = None
