@@ -1,4 +1,5 @@
 import toml
+from pathlib import Path
 
 
 def read_version():
@@ -8,3 +9,5 @@ def read_version():
 
 
 version = read_version()
+
+ROOT_DIR = (Path(".") / "..").resolve()

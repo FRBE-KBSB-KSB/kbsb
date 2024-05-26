@@ -1,11 +1,11 @@
 import logging
 
-from pydantic import BaseModel
 from csv import DictReader
-from datetime import date
-from typing import Literal, List
+from typing import List
 from unidecode import unidecode
-from .md_elo import EloGame, EloPlayer
+from reddevil.core import RdNotFound
+from kbsb import ROOT_DIR
+from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries, ICROUNDS
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def replaceAt(source, index, replace):
 
 
 def read_elo_data():
-    with open("data/eloprocessing.csv") as ff:
+    with open(ROOT_DIR / "shared" / "data" / "eloprocessing.csv") as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
             elodata[int(fd["idnumber"])] = fd
@@ -159,7 +159,7 @@ async def fidegames_round(round):
                 fidev = elodata.get(idnv, None)
                 if not fideh or not fidev:
                     logger.info(
-                        f"failed fidev or fideh, updateing eloprocessin.csv might help"
+                        "failed fidev or fideh, updateing eloprocessin.csv might help"
                     )
                 if ix % 2:
                     idbel_white, idbel_black = idnv, idnh
@@ -525,4 +525,110 @@ async def calc_belg_elo(round):
     to_belgian_elo(games2, "part2", round)
 
 
-async def trf_porcess_round(round):
+async def trf_process_round(round):
+    """
+    read the results of a round and stoire them in the trf_report
+    """
+    read_elo_data()
+    for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
+        for r in series.rounds:
+            if r.round == round:
+                encounters = r.encounters
+                break
+        else:
+            continue
+        for enc in encounters:
+            icclub_home = enc.icclub_home
+            icclub_visit = enc.icclub_visit
+            if icclub_home == 0 or icclub_visit == 0:
+                continue  # skip bye
+            for ix, g in enumerate(enc.games):
+                idnh = g.idnumber_home
+                idnv = g.idnumber_visit
+                if not idnh or not idnv:
+                    continue
+
+                # home player
+                try:
+                    ph = await DbICTrfRecord.find_single(
+                        {"idbel": idnh, "_model": DbICTrfRecord.DOCUMENTTYPE}
+                    )
+                except RdNotFound:
+                    await DbICTrfRecord.add(
+                        {"idbel": idnh, "rounds": [], "event": "ic2324"}
+                    )
+                    ph = await DbICTrfRecord.find_single(
+                        {"idbel": idnh, "_model": DbICTrfRecord.DOCUMENTTYPE}
+                    )
+                for r in ph.rounds:
+                    if r.round == round:
+                        r.color = "w" if not ix % 2 else "b"
+                        r.opponent_idbel = idnv
+                        r.result = g.result
+                        break
+                else:
+                    ph.rounds.append(
+                        TrfRound(
+                            round=round,
+                            color="w" if not ix % 2 else "b",
+                            opponent_idbel=idnv,
+                            result=g.result,
+                        )
+                    )
+                await DbICTrfRecord.update(
+                    {"idbel": idnh}, ph.model_dump(exclude_none=True)
+                )
+
+                # visit player
+                try:
+                    pv = await DbICTrfRecord.find_single(
+                        {"idbel": idnv, "_model": DbICTrfRecord.DOCUMENTTYPE}
+                    )
+                except RdNotFound:
+                    await DbICTrfRecord.add(
+                        {"idbel": idnv, "rounds": [], "event": "ic2324"}
+                    )
+                    pv = await DbICTrfRecord.find_single(
+                        {"idbel": idnv, "_model": DbICTrfRecord.DOCUMENTTYPE}
+                    )
+                for r in pv.rounds:
+                    if r.round == round:
+                        r.color = "w" if ix % 2 else "b"
+                        r.opponent_idbel = idnh
+                        r.result = g.result
+                        break
+                else:
+                    pv.rounds.append(
+                        TrfRound(
+                            round=round,
+                            color="w" if ix % 2 else "b",
+                            opponent_idbel=idnh,
+                            result=g.result,
+                        )
+                    )
+                await DbICTrfRecord.update(
+                    {"idbel": idnv}, pv.model_dump(exclude_none=True)
+                )
+
+
+async def trf_process_playerdetails(round):
+    """
+    read the trf_report and fill in all fields but the fiderating
+    """
+    read_elo_data()
+    for trf in await DbICTrfRecord.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
+        details = elodata.get(trf.idbel)
+        if not details:
+            logger.error(f"no elodata for {trf.idbel}")
+            continue
+        upd = {
+            "birthdate": details["birthday"],
+            "gender": details["gender"],
+            "chesstitle": details["title"],
+            "fullname": details["fullname"],
+            "federation": details["natfide"],
+            "idfide": details["idfide"],
+            "fiderating": details["fiderating"],
+            "idclub": details["idclub"],
+        }
+        await DbICTrfRecord.update({"idbel": trf.idbel}, upd)

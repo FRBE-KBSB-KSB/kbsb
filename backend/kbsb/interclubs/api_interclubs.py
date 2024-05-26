@@ -1,7 +1,4 @@
 import logging
-
-logger = logging.getLogger(__name__)
-
 from fastapi import HTTPException, Depends, APIRouter
 
 from fastapi.security import HTTPAuthorizationCredentials
@@ -11,10 +8,9 @@ from reddevil.core import (
     validate_token,
     jwt_getunverifiedpayload,
 )
-from typing import List, Any
-from io import BytesIO
-
+from typing import List
 from kbsb.member import validate_membertoken
+
 
 from . import (
     ICEnrollmentDB,
@@ -56,8 +52,11 @@ from . import (
     mgmt_register_teamforfeit,
     set_interclubenrollment,
     set_interclubvenues,
+    trf_process_round,
+    trf_process_playerdetails,
 )
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/interclubs")
 
@@ -548,6 +547,35 @@ async def api_mgmt_register_teamforfeit(
         await mgmt_register_teamforfeit(division, index, name)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except:  # NOQA: E722
         logger.exception("failed api register teamdefault")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trf/{round}", status_code=201)
+async def api_trf_process_round(
+    round: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_round(round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:  # NOQA: E722
+        logger.exception("failed api trf_process_round")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trfplayerdetails", status_code=201)
+async def api_trf_process_playerdetails(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_playerdetails(round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except:  # NOQA: E722
+        logger.exception("failed api trf_process_round")
         raise HTTPException(status_code=500, detail="Internal Server Error")
