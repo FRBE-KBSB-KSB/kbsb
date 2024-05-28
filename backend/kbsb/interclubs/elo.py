@@ -3,6 +3,7 @@ import logging
 from csv import DictReader
 from typing import List
 from unidecode import unidecode
+from operator import attrgetter
 from reddevil.core import RdNotFound
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
@@ -46,6 +47,23 @@ def replaceAt(source, index, replace):
     creates a copy of source where replace is filled in at index
     """
     return source[:index] + replace + source[index + len(replace) :]
+
+
+def result2score(res, color):
+    """
+    return the scores as a float and string
+    """
+    if res == "1-0":
+        sc = (1.0, "1"), (0.0, "0")
+    if res == "½-½":
+        sc = (0.5, "="), (0.5, "=")
+    if res == "0-1":
+        sc = (0.0, "0"), (1.0, "1")
+    if res == "1-0 FF":
+        sc = (1.0, "+"), (0.0, "-")
+    if res == "0-1 FF":
+        sc = (0.0, "-"), (1.0, "+")
+    return sc[0] if color == "w" else sc[1]
 
 
 def read_elo_data():
@@ -647,15 +665,10 @@ async def trf_process_fideratings():
     ):
         players[str(trf.idfide)] = trf  # force str index
     logger.info(f"trf records read # {len(players)}")
-    rubenfound = 201308 in players
-    logger.info(f"ruben found {rubenfound}")
     with open(ROOT_DIR / "shared" / "data" / "standard_sep23frl.txt") as ff:
         ff.readline()  # skip first line
         i = 1
         while line := ff.readline():
-            if line.startswith("201308"):
-                logger.info("needing to update ruben")
-                logger.info(line[0:11].strip())
             id = line[0:11].strip()  # force str
             if id in players:
                 try:
@@ -678,3 +691,34 @@ async def trf_process_fideratings():
                     logger.info(f"pl {pl}")
             i += 1
     logger.info(f"processed {i} lines")
+
+
+async def trf_process_sort():
+    """
+    Perform the following steps
+    - order players by rating, fullname
+    - assign player_ix and opponent_ix
+    """
+
+    players_dict = {}
+    players_list = []
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
+        players_dict[trf.idbel] = trf
+        players_list.append(trf)
+    sorted(players_list, key=attrgetter("fullname"))
+    sorted(players_list, key=attrgetter("fiderating"), reverse=True)
+    for ix, trf in enumerate(players_list):
+        trf.player_ix = ix + 1
+    for trf in players_list:
+        points = 0.0
+        for r in trf.rounds:
+            p, s = result2score(r.result, r.color)
+            r.opponenent_ix = players_dict[r.opponent_idbel].player_ix
+            r.score = s
+            points += p
+        trf.points = points
+        upd = trf.model_dump(exclude_none=True)
+        upd.pop("idbel", None)
+        await DbICTrfRecord.update({"idbel": trf.idbel}, upd)

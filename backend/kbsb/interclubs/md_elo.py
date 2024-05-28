@@ -56,7 +56,8 @@ class TrfRound(BaseModel):
     color: str | None = None
     opponent_ix: int | None = None
     opponent_idbel: int | None = None
-    result: str | None = None
+    result: str | None = None  # result as in interclib
+    score: str | None = None  # trf score
 
 
 class TrfRecord(BaseModel):
@@ -69,7 +70,7 @@ class TrfRecord(BaseModel):
     birthdate: str | None = None
     event: str | None = None
     fiderating: str | int | None = None
-    fidefederation: str | None = None
+    federation: str | None = None
     fullname: str | None = None
     gender: str | None = None
     idbel: int
