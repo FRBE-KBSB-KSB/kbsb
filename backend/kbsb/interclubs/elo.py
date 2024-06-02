@@ -4,6 +4,7 @@ from csv import DictReader
 from typing import List
 from unidecode import unidecode
 from operator import attrgetter
+from io import StringIO
 from reddevil.core import RdNotFound
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
@@ -705,20 +706,63 @@ async def trf_process_sort():
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
+        if not trf.fiderating:
+            trf.fiderating = 0
+        try:
+            trf.fiderating = int(trf.fiderating)
+        except ValueError:
+            logger.error(f"cannot make fiderating {trf.fiderating} an int")
+            raise ValueError
         players_dict[trf.idbel] = trf
         players_list.append(trf)
-    sorted(players_list, key=attrgetter("fullname"))
-    sorted(players_list, key=attrgetter("fiderating"), reverse=True)
+    players_list.sort(key=attrgetter("fullname"))
+    players_list.sort(key=attrgetter("fiderating"), reverse=True)
     for ix, trf in enumerate(players_list):
         trf.player_ix = ix + 1
     for trf in players_list:
         points = 0.0
         for r in trf.rounds:
             p, s = result2score(r.result, r.color)
-            r.opponenent_ix = players_dict[r.opponent_idbel].player_ix
+            r.opponent_ix = players_dict[r.opponent_idbel].player_ix
             r.score = s
             points += p
         trf.points = points
         upd = trf.model_dump(exclude_none=True)
         upd.pop("idbel", None)
+        upd.pop("id", None)
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
+
+
+async def trf_generate(round: int = 0) -> None:
+    """
+    generate a TRF file, round is specified only for that round
+    """
+    players_dict = {}
+    f = StringIO()
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
+        players_dict[trf.player_ix] = trf
+    for k in range(len(players_dict)):
+        pl = players_dict[k + 1]
+        ls = " " * (90 + 10 * 11)
+        ls = replaceAt(ls, 0, "001")
+        ls = replaceAt(ls, 4, "{:4d}".format(pl.player_ix))
+        ls = replaceAt(ls, 9, "{:1s}".format(pl.gender))
+        ls = replaceAt(ls, 10, "{:>3s}".format(pl.chesstitle))
+        ls = replaceAt(ls, 14, "{:33s}".format(pl.fullname))
+        ls = replaceAt(ls, 48, "{:4d}".format(pl.fiderating))
+        ls = replaceAt(ls, 53, pl.federation)
+        ls = replaceAt(ls, 57, "{:11d}".format(pl.idfide))
+        ls = replaceAt(ls, 69, "{:10s}".format(pl.birthdate))
+        ls = replaceAt(ls, 80, "{:4.1f}".format(pl.points))
+        for r in pl.rounds:
+            ls = replaceAt(ls, 81 + r.round * 10, "{:4d}".format(r.opponent_ix))
+            ls = replaceAt(ls, 86 + r.round * 10, r.color)
+            ls = replaceAt(ls, 88 + r.round * 10, r.score)
+        if "`" in ls:
+            ls = ls.replace("`", "'")
+        f.write(ls)
+        f.write(linefeed)
+    with open("icn_trf.txt", "w") as trff:
+        trff.write(f.getvalue())

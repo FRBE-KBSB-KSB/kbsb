@@ -3,7 +3,6 @@ from .md_interclubs import (
     PLAYERSPERDIVISION,
     GAMERESULT,
     DbICClub,
-    DbICClub,
     DbICEnrollment,
     DbICSeries,
     DbICStandings,
@@ -77,4 +76,6 @@ from .elo import (
     trf_process_round,
     trf_process_playerdetails,
     trf_process_fideratings,
+    trf_process_sort,
+    trf_generate,
 )
