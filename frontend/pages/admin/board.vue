@@ -2,10 +2,9 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { parse } from 'yaml'
-const { t, locale } = useI18n()
 
 // data model
-
+const { t, locale } = useI18n()
 const { $backend } = useNuxtApp()
 const board = ref([])
 const collaborator = ref([])
@@ -25,7 +24,7 @@ async function parseYaml(yamlcontent) {
 async function processBoard() {
   let b = await readBoardFromBucket()
   b.board.forEach((it) => {
-    switch(it.category) {
+    switch (it.category) {
       case "board":
         board.value.push(it)
         break
@@ -43,7 +42,7 @@ async function processBoard() {
         break
     }
   })
-  board.value.sort((x,y)=>(y.order-x.order))
+  board.value.sort((x, y) => (y.order - x.order))
 }
 
 async function readBoardFromBucket() {

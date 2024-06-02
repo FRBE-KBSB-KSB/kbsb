@@ -2,9 +2,9 @@
 import { ref, watch } from 'vue'
 import showdown from 'showdown'
 import { useI18n } from 'vue-i18n'
+
+
 const { locale, t } = useI18n()
-
-
 const { $backend } = useNuxtApp()
 const route = useRoute()
 const slug = route.query.slug || ""

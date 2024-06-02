@@ -44,7 +44,7 @@ function gotoOldsite(url) {
         <v-list-item to="/admin/statutes" :title="t('Statutes')" />
         <v-list-item to="/admin/tournamentrules" :title="t('Tournament rules')" />
         <v-list-item to="/admin/internalrules" :title="t('Internal rules')" />
-        <!-- <v-list-item :to="localePath('/admin/reports')" :title="$t('Reports')" /> -->
+        <v-list-item to="/admin/reports" :title="$t('Reports')" />
         <v-list-item to="/admin/vademecum" title="Vademecum" />
         <v-list-item to="/admin/regional" :title="t('Regional')" />
         <v-list-item to="/admin/commissions" :title="t('Committees')" />
