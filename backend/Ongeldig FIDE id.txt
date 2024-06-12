@@ -1,8 +1,10 @@
 Ongeldig FIDE id:
-27417, 1029584: Gijsbers, Bert:
+27417, 1029584: Gijsbers, Bert
 
 Geen FIDE id:
-27249: le Beau de Hemricourt, Charlotte
+27249: le Beau de Hemricourt, Charlotte, geen fide id
+
+Update FIDE id:
 83437: De Greve, Tony
 28162: Beernaert, Stefaan
 24338: De Neve, Patrick

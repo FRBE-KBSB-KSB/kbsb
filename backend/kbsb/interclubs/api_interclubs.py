@@ -576,7 +576,7 @@ async def api_trf_process_playerdetails(
 ):
     # await validate_token(auth)
     try:
-        await trf_process_playerdetails(round)
+        await trf_process_playerdetails()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

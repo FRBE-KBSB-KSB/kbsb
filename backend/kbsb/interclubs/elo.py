@@ -5,10 +5,11 @@ from typing import List
 from unidecode import unidecode
 from operator import attrgetter
 from io import StringIO
-from reddevil.core import RdNotFound
+from reddevil.core import RdNotFound, RdInternalServerError
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries, ICROUNDS
+from kbsb.member import anon_getmember
 
 logger = logging.getLogger(__name__)
 
@@ -47,25 +48,41 @@ def replaceAt(source, index, replace):
     """
     creates a copy of source where replace is filled in at index
     """
+    replace = replace or ""
     return source[:index] + replace + source[index + len(replace) :]
 
 
-def result2score(res, color):
-    """
-    return the scores as a float and string
-    """
-    if res == "1-0":
-        sc = (1.0, "1"), (0.0, "0")
-    if res == "½-½":
-        sc = (0.5, "="), (0.5, "=")
-    if res == "0-1":
-        sc = (0.0, "0"), (1.0, "1")
-    if res == "1-0 FF":
-        sc = (1.0, "+"), (0.0, "-")
-    if res == "0-1 FF":
-        sc = (0.0, "-"), (1.0, "+")
-    return sc[0] if color == "w" else sc[1]
+result4home = {
+    "1-0": 1.0,
+    "½-½": 0.5,
+    "0-1": 0.0,
+    "1-0 FF": 1.0,
+    "0-1 FF": 0.0
+}
 
+result4visit = {
+    "1-0": 0.0,
+    "½-½": 0.5,
+    "0-1": 1.0,
+    "1-0 FF": 0.0,
+    "0-1 FF": 1.0
+}
+
+score4home = {
+    "1-0": '1',
+    "½-½": '=',
+    "0-1": '0',
+    "1-0 FF": '+',
+    "0-1 FF": '-',
+}
+
+score4visit = {
+    "1-0": '0',
+    "½-½": '=',
+    "0-1": '1',
+    "1-0 FF": '-',
+    "0-1 FF": '+',
+}
 
 def read_elo_data():
     with open(ROOT_DIR / "shared" / "data" / "eloprocessing.csv") as ff:
@@ -546,7 +563,7 @@ async def calc_belg_elo(round):
 
 async def trf_process_round(round):
     """
-    read the results of a round and stoire them in the trf_report
+    read the results of a round and store them in the trf_report
     """
     read_elo_data()
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
@@ -584,6 +601,8 @@ async def trf_process_round(round):
                         r.color = "w" if not ix % 2 else "b"
                         r.opponent_idbel = idnv
                         r.result = g.result
+                        r.score = result4home[g.result]
+                        r.scorestr = score4home[g.result]
                         break
                 else:
                     ph.rounds.append(
@@ -592,6 +611,8 @@ async def trf_process_round(round):
                             color="w" if not ix % 2 else "b",
                             opponent_idbel=idnv,
                             result=g.result,
+                            score=result4home[g.result],
+                            scorestr=score4home[g.result],
                         )
                     )
                 await DbICTrfRecord.update(
@@ -615,6 +636,8 @@ async def trf_process_round(round):
                         r.color = "w" if ix % 2 else "b"
                         r.opponent_idbel = idnh
                         r.result = g.result
+                        r.score = result4visit[g.result]
+                        r.scorestr = score4visit[g.result]
                         break
                 else:
                     pv.rounds.append(
@@ -623,6 +646,8 @@ async def trf_process_round(round):
                             color="w" if ix % 2 else "b",
                             opponent_idbel=idnh,
                             result=g.result,
+                            score=result4visit[g.result],
+                            scorestr=score4visit[g.result],
                         )
                     )
                 await DbICTrfRecord.update(
@@ -630,7 +655,7 @@ async def trf_process_round(round):
                 )
 
 
-async def trf_process_playerdetails(round):
+async def trf_process_playerdetails():
     """
     read the trf_report and fill in all fields but the fiderating
     """
@@ -706,6 +731,8 @@ async def trf_process_sort():
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
+        if not trf.fullname:
+            trf.fullname = ''
         if not trf.fiderating:
             trf.fiderating = 0
         try:
@@ -722,10 +749,8 @@ async def trf_process_sort():
     for trf in players_list:
         points = 0.0
         for r in trf.rounds:
-            p, s = result2score(r.result, r.color)
             r.opponent_ix = players_dict[r.opponent_idbel].player_ix
-            r.score = s
-            points += p
+            points += r.score
         trf.points = points
         upd = trf.model_dump(exclude_none=True)
         upd.pop("idbel", None)
@@ -743,23 +768,28 @@ async def trf_generate(round: int = 0) -> None:
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
         players_dict[trf.player_ix] = trf
+    
     for k in range(len(players_dict)):
         pl = players_dict[k + 1]
+        if not pl:
+            logger.info(f"Cannot access player at index {k+1}")
+        if not pl.fullname:
+            pl.fullname = f"*** {pl.idbel} ***"
         ls = " " * (90 + 10 * 11)
         ls = replaceAt(ls, 0, "001")
         ls = replaceAt(ls, 4, "{:4d}".format(pl.player_ix))
-        ls = replaceAt(ls, 9, "{:1s}".format(pl.gender))
-        ls = replaceAt(ls, 10, "{:>3s}".format(pl.chesstitle))
+        ls = replaceAt(ls, 9, "{:1s}".format(pl.gender or "X"))
+        ls = replaceAt(ls, 10, "{:>3s}".format(pl.chesstitle or ""))
         ls = replaceAt(ls, 14, "{:33s}".format(pl.fullname))
-        ls = replaceAt(ls, 48, "{:4d}".format(pl.fiderating))
+        ls = replaceAt(ls, 48, "{:4d}".format(pl.fiderating or 0))
         ls = replaceAt(ls, 53, pl.federation)
-        ls = replaceAt(ls, 57, "{:11d}".format(pl.idfide))
-        ls = replaceAt(ls, 69, "{:10s}".format(pl.birthdate))
-        ls = replaceAt(ls, 80, "{:4.1f}".format(pl.points))
+        ls = replaceAt(ls, 57, "{:11d}".format(pl.idfide or 0))
+        ls = replaceAt(ls, 69, "{:10s}".format(pl.birthdate or ""))
+        ls = replaceAt(ls, 80, "{:4.1f}".format(pl.points or 0.0))
         for r in pl.rounds:
             ls = replaceAt(ls, 81 + r.round * 10, "{:4d}".format(r.opponent_ix))
             ls = replaceAt(ls, 86 + r.round * 10, r.color)
-            ls = replaceAt(ls, 88 + r.round * 10, r.score)
+            ls = replaceAt(ls, 88 + r.round * 10, r.scorestr)
         if "`" in ls:
             ls = ls.replace("`", "'")
         f.write(ls)

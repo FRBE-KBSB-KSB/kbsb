@@ -52,12 +52,17 @@ class EloPlayer(BaseModel):
 
 
 class TrfRound(BaseModel):
+    """
+    the scorecard of a player for a specific round
+    """
     round: int | None = None
     color: str | None = None
     opponent_ix: int | None = None
     opponent_idbel: int | None = None
     result: str | None = None  # result as in interclib
-    score: str | None = None  # trf score
+    score: float = 0.0  # score
+    scorestr: str = ""  # scorestr as in trf round results
+    team: str | None = None
 
 
 class TrfRecord(BaseModel):
