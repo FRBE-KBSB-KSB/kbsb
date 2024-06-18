@@ -13,26 +13,46 @@ from reddevil.core.dbbase import DbBase
 
 # interclub data
 
-ICROUNDS = {
-    1: date.fromisoformat("2023-09-24"),
-    2: date.fromisoformat("2023-10-15"),
-    3: date.fromisoformat("2023-10-22"),
-    4: date.fromisoformat("2023-11-19"),
-    5: date.fromisoformat("2023-12-03"),
-    6: date.fromisoformat("2024-01-28"),
-    7: date.fromisoformat("2024-02-04"),
-    8: date.fromisoformat("2024-02-18"),
-    9: date.fromisoformat("2024-03-10"),
-    10: date.fromisoformat("2024-03-24"),
-    11: date.fromisoformat("2024-04-24"),
-}
-
-PLAYERSPERDIVISION = {
-    1: 8,
-    2: 8,
-    3: 6,
-    4: 4,
-    5: 4,
+ICDATA = {
+    "rounds": {
+        1: date.fromisoformat("2024-09-29"),
+        2: date.fromisoformat("2024-10-06"),
+        3: date.fromisoformat("2024-11-03"),
+        4: date.fromisoformat("2024-11-17"),
+        5: date.fromisoformat("2024-12-01"),
+        6: date.fromisoformat("2025-01-26"),
+        7: date.fromisoformat("2025-02-02"),
+        8: date.fromisoformat("2025-02-16"),
+        9: date.fromisoformat("2025-03-16"),
+        10: date.fromisoformat("2025-03-30"),
+        11: date.fromisoformat("2025-04-27"),
+    },
+    "playerperdivision": {
+        1: 8,
+        2: 8,
+        3: 6,
+        4: 4,
+        5: 4,
+    },
+    "enrollmentfee": {
+        1: 305,
+        2: 80,
+        3: 55,
+        4: 30,
+        5: 30,
+    },
+    "ntitulars": {1: 12, 2: 12, 3: 9, 4: 6, 5: 6},
+    "max_elo": {
+        1: 2350,
+        2: 2150,
+        3: 2050,
+        4: 1900,
+        5: 1750,
+    },
+    "notrated_elo": {
+        "min": 1000,
+        "max": 1800,
+    },
 }
 
 
