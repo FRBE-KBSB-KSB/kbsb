@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal, List
+from reddevil.core import DbBase
 
 
 class EloGame(BaseModel):
@@ -48,3 +49,46 @@ class EloPlayer(BaseModel):
     sc2: str = ""
     team: str
     title: str
+
+
+class TrfRound(BaseModel):
+    """
+    the scorecard of a player for a specific round
+    """
+    round: int | None = None
+    color: str | None = None
+    opponent_ix: int | None = None
+    opponent_idbel: int | None = None
+    result: str | None = None  # result as in interclib
+    score: float = 0.0  # score
+    scorestr: str = ""  # scorestr as in trf round results
+    team: str | None = None
+
+
+class TrfRecord(BaseModel):
+    """
+    contains all the field of a player TRF record
+    and idbel and optional an event
+    """
+
+    chesstitle: str | None = None
+    birthdate: str | None = None
+    event: str | None = None
+    fiderating: str | int | None = None
+    federation: str | None = None
+    fullname: str | None = None
+    gender: str | None = None
+    idbel: int
+    idclub: int | None = None
+    idfide: int | None = None
+    player_ix: int | None = None  # the index (1 based after sorting)
+    points: float | None = None
+    rounds: List[TrfRound] | None = None
+
+
+class DbICTrfRecord(DbBase):
+    COLLECTION = "ic2324trf"
+    DOCUMENTTYPE = TrfRecord
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = True

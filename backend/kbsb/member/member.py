@@ -55,7 +55,7 @@ async def login(ol: LoginValidator) -> str:
         return await mysql_login(ol.idnumber, ol.password)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_login(ol.idnumber, ol.password)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 def validate_membertoken(auth: HTTPAuthorizationCredentials) -> int:
@@ -99,7 +99,7 @@ async def mgmt_getmember(idbel: str | int) -> Member:
         return await mysql_mgmt_getmember(nidbel)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_mgmt_getmember(nidbel)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def mgmt_getclubmembers(idclub: int, active: bool) -> List[Member]:
@@ -113,7 +113,7 @@ async def mgmt_getclubmembers(idclub: int, active: bool) -> List[Member]:
         return mm
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_mgmt_getclubmembers(idclub, active)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def anon_getclubmembers(idclub: int, active: bool) -> List[AnonMember]:
@@ -125,7 +125,7 @@ async def anon_getclubmembers(idclub: int, active: bool) -> List[AnonMember]:
         return await mysql_anon_getclubmembers(idclub, active)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_anon_getclubmembers(idclub, active)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def anon_getmember(idbel: int) -> AnonMember:
@@ -134,7 +134,7 @@ async def anon_getmember(idbel: int) -> AnonMember:
         return await mysql_anon_getmember(idbel)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_anon_getmember(idbel)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def anon_getfidemember(idfide: int) -> AnonMember:
@@ -143,7 +143,7 @@ async def anon_getfidemember(idfide: int) -> AnonMember:
         return await mysql_anon_getfidemember(idfide)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_anon_getfidemember(idfide)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def anon_belid_from_fideid(idfide: int) -> int:
@@ -152,7 +152,7 @@ async def anon_belid_from_fideid(idfide: int) -> int:
         return await mysql_anon_belid_from_fideid(idfide)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_anon_belid_from_fideid(idfide)
-    raise NotImplemented
+    raise NotImplementedError
 
 
 async def old_userpassword(oupw: OldUserPasswordValidator) -> None:
@@ -161,4 +161,4 @@ async def old_userpassword(oupw: OldUserPasswordValidator) -> None:
         return await mysql_old_userpassword(oupw)
     elif settings.MEMBERDB == "mongodb":
         return await mongodb_mgmt_getmember(oupw)
-    raise NotImplemented
+    raise NotImplementedError

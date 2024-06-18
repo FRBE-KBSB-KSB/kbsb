@@ -1,7 +1,4 @@
 import logging
-
-logger = logging.getLogger(__name__)
-
 from fastapi import HTTPException, Depends, APIRouter
 
 from fastapi.security import HTTPAuthorizationCredentials
@@ -11,10 +8,9 @@ from reddevil.core import (
     validate_token,
     jwt_getunverifiedpayload,
 )
-from typing import List, Any
-from io import BytesIO
-
+from typing import List
 from kbsb.member import validate_membertoken
+
 
 from . import (
     ICEnrollmentDB,
@@ -56,8 +52,14 @@ from . import (
     mgmt_register_teamforfeit,
     set_interclubenrollment,
     set_interclubvenues,
+    trf_process_round,
+    trf_process_playerdetails,
+    trf_process_fideratings,
+    trf_process_sort,
+    trf_generate,
 )
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/interclubs")
 
@@ -74,7 +76,7 @@ async def api_find_interclubenrollment(idclub: int):
         return await find_interclubenrollment(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call find_interclubenrollment")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -90,7 +92,7 @@ async def api_mgmt_set_enrollment(
         return await set_interclubenrollment(idclub, ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call update_interclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -110,7 +112,7 @@ async def api_csv_interclubenrollments(
             raise RdException(status_code=400, description="Unsupported export format")
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call csv_interclubenrollments")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -127,7 +129,7 @@ async def api_set_enrollment(
         return await set_interclubenrollment(idclub, ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call update_interclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -145,7 +147,7 @@ async def api_find_interclubvenues(idclub: int):
     except RdException as e:
         logger.info(f"get venues failed {e}")
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call find_interclubvenues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -161,7 +163,7 @@ async def api_mgmt_set_interclubvenues(
         return await set_interclubvenues(idclub, ivi)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call set_interclubvenues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -181,7 +183,7 @@ async def api_csv_interclubvenues(
             raise RdException(status_code=400, description="Unsupported export format")
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call csv_interclubvenues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -197,7 +199,7 @@ async def api_clb_set_icvenues(
         return await set_interclubvenues(idclub, ivi)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call set_interclubvenues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -211,7 +213,7 @@ async def api_anon_getICteams(idclub: int):
         return await anon_getICteams(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getICteams")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -222,7 +224,7 @@ async def api_anon_getICclub(idclub: int):
         return await anon_getICclub(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_getICclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -233,7 +235,7 @@ async def api_anon_getICclubs():
         return await anon_getICclubs()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_getICclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -248,7 +250,7 @@ async def api_clb_getICclub(
         return await clb_getICclub(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_getICclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -263,7 +265,7 @@ async def api_mgmt_getICclub(
         return await clb_getICclub(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call mgmt_getICclub")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -281,7 +283,7 @@ async def api_clb_validateICplayers(
         return await clb_validateICPlayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_validateICPlayers")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -299,7 +301,7 @@ async def api_mgmt_validateICplayers(
         return await clb_validateICPlayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_validateICPlayers")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -315,7 +317,7 @@ async def api_clb_updateICPlayers(
         await clb_updateICplayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_updateICplayers")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -331,7 +333,7 @@ async def api_mgmt_updateICPlayers(
         await clb_updateICplayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_updateICplayers")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -345,7 +347,7 @@ async def api_mgmt_getXlsAllplayerlist(token: str):
         return await mgmt_getXlsAllplayerlist()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call mgmt_getXlsAllplayerlist")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -356,7 +358,7 @@ async def api_anon_getXlsplayerlist(idclub: int):
         return await anon_getXlsplayerlist(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call mgmt_getXlsAllplayerlist")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -370,7 +372,7 @@ async def api_anon_getICseries(idclub: int | None = 0, round: int | None = 0):
         return await anon_getICseries(idclub, round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getICseries")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -386,7 +388,7 @@ async def api_clb_getICseries(
         return await clb_getICseries(idclub, round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_getICseries")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -402,7 +404,7 @@ async def api_mgmt_getICseries(
         return await clb_getICseries(idclub, round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call mgmt_getICseries")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -417,7 +419,7 @@ async def api_clb_saveICplanning(
         await clb_saveICplanning(icpi.plannings)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_saveICplanning")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -432,13 +434,13 @@ async def api_mgmt_saveICresults(
         await mgmt_saveICresults(icri.results)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call mgmt_saveICresults")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.put("/clb/icresults", status_code=201)
-async def api_mgmt_saveICresults(
+async def api_clb_saveICresults(
     icri: ICResult,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
@@ -448,7 +450,7 @@ async def api_mgmt_saveICresults(
         await clb_saveICresults(icri.results)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call clb_saveICresults")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -475,7 +477,7 @@ async def api_anon_getICencounterdetails(
         )
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getICencounterdetails")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -486,7 +488,7 @@ async def api_anon_getICstandings(idclub: int | None = 0):
         return await anon_getICstandings(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getICstandings")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -501,7 +503,7 @@ async def api_calc_belg_elo(
         await calc_belg_elo(round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api cacl belgelo")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -516,7 +518,7 @@ async def api_calc_fide_elo(
         await calc_fide_elo(round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api calc fideelo")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -531,7 +533,7 @@ async def api_mgmt_generate_penalties(
         await mgmt_generate_penalties(round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api generate penalties")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -548,6 +550,78 @@ async def api_mgmt_register_teamforfeit(
         await mgmt_register_teamforfeit(division, index, name)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api register teamdefault")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trf/{round}", status_code=201)
+async def api_trf_process_round(
+    round: int,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_round(round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_process_round")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trfplayerdetails", status_code=201)
+async def api_trf_process_playerdetails(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_playerdetails()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_process_playerdetails")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trffideratings", status_code=201)
+async def api_trf_process_fideratings(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_fideratings()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_process_fideratings")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trf_sort", status_code=201)
+async def api_trf_process_sort(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_process_sort()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_process_sort")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trf_generate/{round}", status_code=201)
+async def api_trf_generate(
+    round: int = 0,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        return await trf_generate(round=round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_generate")
         raise HTTPException(status_code=500, detail="Internal Server Error")

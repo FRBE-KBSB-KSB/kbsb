@@ -3,7 +3,6 @@ from .md_interclubs import (
     PLAYERSPERDIVISION,
     GAMERESULT,
     DbICClub,
-    DbICClub,
     DbICEnrollment,
     DbICSeries,
     DbICStandings,
@@ -71,4 +70,12 @@ from .venues import (
     set_interclubvenues,
 )
 from .penalties import mgmt_generate_penalties
-from .elo import calc_belg_elo, calc_fide_elo
+from .elo import (
+    calc_belg_elo,
+    calc_fide_elo,
+    trf_process_round,
+    trf_process_playerdetails,
+    trf_process_fideratings,
+    trf_process_sort,
+    trf_generate,
+)
