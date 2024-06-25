@@ -2,14 +2,8 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
-
-from typing import cast, List, Dict, Any
+from typing import cast, List
 from datetime import datetime, timezone, timedelta, time
-import openpyxl
-from tempfile import NamedTemporaryFile
-from fastapi.responses import Response
 
 
 from reddevil.core import (
@@ -19,7 +13,6 @@ from reddevil.core import (
     get_mongodb,
     encode_model,
 )
-from reddevil.mail import sendEmail
 
 from kbsb.interclubs import (
     ICEncounter,
@@ -34,11 +27,12 @@ from kbsb.interclubs import (
     ICTeamStanding,
     DbICSeries,
     DbICStandings,
-    ICROUNDS,
-    GAMERESULT,
-    PLAYERSPERDIVISION,
+    ICDATA,
     anon_getICclub,
 )
+
+logger = logging.getLogger(__name__)
+
 
 settings = get_settings()
 

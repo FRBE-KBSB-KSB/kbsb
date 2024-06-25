@@ -4,8 +4,8 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
-from datetime import datetime, date, time
-from typing import Dict, Any, List, Optional
+from datetime import date, datetime
+from typing import Dict, Any, List
 from pydantic import BaseModel
 from enum import StrEnum, auto
 from typing import Literal

@@ -2,10 +2,7 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
-
-from typing import cast, List, Dict, Any
+from typing import List, Dict, Any
 import openpyxl
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
@@ -15,7 +12,6 @@ from reddevil.core import (
     RdNotFound,
     get_settings,
 )
-from reddevil.mail import sendEmail
 
 from kbsb.interclubs import (
     ICPlayer,
@@ -26,9 +22,11 @@ from kbsb.interclubs import (
     ICTeam,
     DbICClub,
     DbICSeries,
-    PLAYERSPERDIVISION,
+    # ICDATA,
 )
 
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 

@@ -1,7 +1,5 @@
 from .md_interclubs import (
-    ICROUNDS,
-    PLAYERSPERDIVISION,
-    GAMERESULT,
+    ICDATA,
     DbICClub,
     DbICEnrollment,
     DbICSeries,

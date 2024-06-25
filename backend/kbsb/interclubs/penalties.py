@@ -2,14 +2,8 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
-import asyncio
-from typing import cast, List, Dict, Any
 from datetime import datetime, timezone, timedelta, time
 from csv import DictWriter
-
-from reddevil.core import get_mongodb, connect_mongodb, register_app
 from kbsb.interclubs.md_interclubs import (
     DbICSeries,
     ICSeries,
@@ -17,8 +11,10 @@ from kbsb.interclubs.md_interclubs import (
     ICClubDB,
     ICRound,
     ICTeam,
-    ICROUNDS,
+    # ICDATA,
 )
+
+logger = logging.getLogger(__name__)
 
 
 async def mgmt_generate_penalties(round: int):

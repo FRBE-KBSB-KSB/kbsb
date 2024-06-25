@@ -11,8 +11,6 @@ vetur.config.js
 .DS_Store
 
 # backend
-backend/public
-backend/reddevil
 backend/local_settings.py
 .mypy_cache
 __pycache__/

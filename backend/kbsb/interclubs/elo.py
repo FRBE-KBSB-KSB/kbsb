@@ -5,10 +5,10 @@ from typing import List
 from unidecode import unidecode
 from operator import attrgetter
 from io import StringIO
-from reddevil.core import RdNotFound, RdInternalServerError
+from reddevil.core import RdNotFound
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
-from .md_interclubs import DbICSeries, ICROUNDS
+from .md_interclubs import DbICSeries
 from kbsb.member import anon_getmember
 
 logger = logging.getLogger(__name__)
@@ -52,37 +52,26 @@ def replaceAt(source, index, replace):
     return source[:index] + replace + source[index + len(replace) :]
 
 
-result4home = {
-    "1-0": 1.0,
-    "½-½": 0.5,
-    "0-1": 0.0,
-    "1-0 FF": 1.0,
-    "0-1 FF": 0.0
-}
+result4home = {"1-0": 1.0, "½-½": 0.5, "0-1": 0.0, "1-0 FF": 1.0, "0-1 FF": 0.0}
 
-result4visit = {
-    "1-0": 0.0,
-    "½-½": 0.5,
-    "0-1": 1.0,
-    "1-0 FF": 0.0,
-    "0-1 FF": 1.0
-}
+result4visit = {"1-0": 0.0, "½-½": 0.5, "0-1": 1.0, "1-0 FF": 0.0, "0-1 FF": 1.0}
 
 score4home = {
-    "1-0": '1',
-    "½-½": '=',
-    "0-1": '0',
-    "1-0 FF": '+',
-    "0-1 FF": '-',
+    "1-0": "1",
+    "½-½": "=",
+    "0-1": "0",
+    "1-0 FF": "+",
+    "0-1 FF": "-",
 }
 
 score4visit = {
-    "1-0": '0',
-    "½-½": '=',
-    "0-1": '1',
-    "1-0 FF": '-',
-    "0-1 FF": '+',
+    "1-0": "0",
+    "½-½": "=",
+    "0-1": "1",
+    "1-0 FF": "-",
+    "0-1 FF": "+",
 }
+
 
 def read_elo_data():
     with open(ROOT_DIR / "shared" / "data" / "eloprocessing.csv") as ff:
@@ -732,7 +721,7 @@ async def trf_process_sort():
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
         if not trf.fullname:
-            trf.fullname = ''
+            trf.fullname = ""
         if not trf.fiderating:
             trf.fiderating = 0
         try:
@@ -768,7 +757,7 @@ async def trf_generate(round: int = 0) -> None:
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
         players_dict[trf.player_ix] = trf
-    
+
     for k in range(len(players_dict)):
         pl = players_dict[k + 1]
         if not pl:

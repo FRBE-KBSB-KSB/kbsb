@@ -2,30 +2,21 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
-
-from typing import cast, List, Dict, Any
-from fastapi.responses import Response
-
-
+from typing import cast, List
 from reddevil.core import (
-    RdBadRequest,
     RdNotFound,
     get_settings,
-    get_mongodb,
-    get_mongodbs,
 )
 from reddevil.mail import sendEmail, MailParams
-
 from kbsb.interclubs import (
     ICEnrollmentDB,
     ICEnrollmentIn,
     DbICEnrollment,
-    ICROUNDS,
-    PLAYERSPERDIVISION,
+    # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
+
+logger = logging.getLogger(__name__)
 
 
 # CRUD
