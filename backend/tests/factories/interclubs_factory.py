@@ -4,6 +4,8 @@ from kbsb.interclubs import (
     ICClubDB,
     ICClubItem,
     ICEncounter,
+    ICEnrollment,
+    ICEnrollmentIn,
     ICGame,
     ICGameDetails,
     ICPlanning,
@@ -16,6 +18,16 @@ from kbsb.interclubs import (
     ICStandingsDB,
     ICTeam,
 )
+
+
+@register_fixture
+class IcEnrollmentFactory(ModelFactory[ICEnrollment]):
+    __model__ = ICEnrollment
+
+
+@register_fixture
+class IcEnrollmentInFactory(ModelFactory[ICEnrollmentIn]):
+    __model__ = ICEnrollmentIn
 
 
 @register_fixture

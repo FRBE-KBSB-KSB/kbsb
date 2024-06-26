@@ -13,7 +13,7 @@ from kbsb.member import validate_membertoken
 
 
 from . import (
-    ICEnrollmentDB,
+    ICEnrollment,
     ICEnrollmentIn,
     ICVenueIn,
     ICVenueDB,
@@ -66,7 +66,7 @@ router = APIRouter(prefix="/api/v1/interclubs")
 # enrollments
 
 
-@router.get("/anon/enrollment/{idclub}", response_model=ICEnrollmentDB | None)
+@router.get("/anon/enrollment/{idclub}", response_model=ICEnrollment | None)
 async def api_find_interclubenrollment(idclub: int):
     """
     return an enrollment by idclub
@@ -81,7 +81,7 @@ async def api_find_interclubenrollment(idclub: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/enrollment/{idclub}", response_model=ICEnrollmentDB)
+@router.post("/mgmt/enrollment/{idclub}", response_model=ICEnrollment)
 async def api_mgmt_set_enrollment(
     idclub: int,
     ie: ICEnrollmentIn,
@@ -117,7 +117,7 @@ async def api_csv_interclubenrollments(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollmentDB)
+@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
 async def api_set_enrollment(
     idclub: int,
     ie: ICEnrollmentIn,
