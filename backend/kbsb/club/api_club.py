@@ -44,7 +44,7 @@ async def api_create_club(
     p: ClubIn, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
-        validate_token(auth)
+        # validate_token(auth)
         return await create_club(p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

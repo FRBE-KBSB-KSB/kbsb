@@ -93,22 +93,22 @@ class ClubIn(BaseModel):
     Validator for inserting a club
     """
 
-    address: Optional[str]  # full contact address
-    bankaccount_name: Optional[str]
-    bankaccount_iban: Optional[str]
-    bankaccount_bic: Optional[str]
+    address: Optional[str] = ""  # full contact address
+    bankaccount_name: Optional[str] = ""
+    bankaccount_iban: Optional[str] = ""
+    bankaccount_bic: Optional[str] = ""
     boardmembers: Optional[Dict[str, ClubMember]]
-    clubroles: Optional[List[ClubRole]]
-    email_admin: Optional[str]  # email address for administrative tasks
-    email_finance: Optional[str]  # email address for financial tasks
-    email_interclub: Optional[str]  # email_fdor interclub tasks
+    clubroles: Optional[List[ClubRole]] = []
+    email_admin: Optional[str] = ""  # email address for administrative tasks
+    email_finance: Optional[str] = ""  # email address for financial tasks
+    email_interclub: Optional[str] = ""  # email_fdor interclub tasks
     email_main: Optional[str]  # main email address to contact, must be available
     enabled: Optional[bool]
     federation: Federation
     idclub: int
     name_long: str  # long name without abbrevioations
     name_short: str  # short name with abbreviations
-    openinghours: Optional[Dict[Day, str]]
+    openinghours: Optional[Dict[Day, str]] = {}
     venue: Optional[str]  # full multiline address of playing venue
     website: Optional[str]
 
