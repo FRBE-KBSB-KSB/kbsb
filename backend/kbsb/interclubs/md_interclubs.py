@@ -414,6 +414,8 @@ class ICEnrollmentIn(BaseModel):
     a input validator for an new enrollment
     """
 
+    idclub: int
+    locale: str | None = "nl"
     teams1: int
     teams2: int
     teams3: int
@@ -491,7 +493,15 @@ class DbICClub(DbBase):
 
 
 class DbICEnrollment(DbBase):
-    COLLECTION = "interclub2324enrollment"
+    COLLECTION = "icenrollment_wrongseason"
+    DOCUMENTTYPE = ICEnrollmentDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = True
+
+
+class DbICEnrollment2425(DbBase):
+    COLLECTION = "interclub2425enrollment"
     DOCUMENTTYPE = ICEnrollmentDB
     VERSION = 1
     IDGENERATOR = "uuid"

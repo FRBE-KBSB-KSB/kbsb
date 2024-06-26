@@ -2,6 +2,7 @@ from .md_interclubs import (
     ICDATA,
     DbICClub,
     DbICEnrollment,
+    DbICEnrollment2425,
     DbICSeries,
     DbICStandings,
     DbICVenue,

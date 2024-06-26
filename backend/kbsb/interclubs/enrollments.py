@@ -2,16 +2,16 @@
 
 import logging
 
-from typing import cast, List
+from typing import cast, List, Dict, Any
 from reddevil.core import (
     RdNotFound,
     get_settings,
 )
 from reddevil.mail import sendEmail, MailParams
 from kbsb.interclubs import (
-    ICEnrollmentDB,
+    ICEnrollment,
     ICEnrollmentIn,
-    DbICEnrollment,
+    DbICEnrollment2425,
     # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
@@ -22,51 +22,53 @@ logger = logging.getLogger(__name__)
 # CRUD
 
 
-async def create_interclubenrollment(enr: ICEnrollmentDB) -> str:
+async def create_interclubenrollment(enr: ICEnrollmentIn) -> str:
     """
     create a new InterclubEnrollment returning its id
     """
     enrdict = enr.model_dump()
     enrdict.pop("id", None)
-    return await DbICEnrollment.add(enrdict)
+    return await DbICEnrollment2425.add(enrdict)
 
 
-async def get_interclubenrollment(id: str, options: dict = {}) -> ICEnrollmentDB:
+async def get_interclubenrollment(id: str, options: dict = {}) -> ICEnrollment:
     """
     get the interclub enrollment
     """
     filter = options.copy()
-    filter["_model"] = filter.pop("_model", ICEnrollmentDB)
+    filter["_model"] = filter.pop("_model", ICEnrollment)
     filter["id"] = id
-    return cast(ICEnrollmentDB, await DbICEnrollment.find_single(filter))
+    return cast(ICEnrollment, await DbICEnrollment2425.find_single(filter))
 
 
-async def get_interclubenrollments(options: dict = {}) -> List[ICEnrollmentDB]:
+async def get_interclubenrollments(options: dict = {}) -> List[ICEnrollment]:
     """
     get the interclub enrollment
     """
     filter = options.copy()
-    filter["_model"] = filter.pop("_model", ICEnrollmentDB)
-    return [cast(ICEnrollmentDB, x) for x in await DbICEnrollment.find_multiple(filter)]
+    filter["_model"] = filter.pop("_model", ICEnrollment)
+    return [
+        cast(ICEnrollment, x) for x in await DbICEnrollment2425.find_multiple(filter)
+    ]
 
 
 async def update_interclubenrollment(
-    id: str, iu: ICEnrollmentDB, options: dict = {}
-) -> ICEnrollmentDB:
+    id: str, iu: ICEnrollment, options: Dict[str, Any] = {}
+) -> ICEnrollment:
     """
     update a interclub enrollment
     """
-    options1 = options.copy
-    options1["_model"] = options1.pop("_model", ICEnrollmentDB)
+    options1 = options.copy()
+    options1["_model"] = options1.pop("_model", ICEnrollment)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
-    return cast(ICEnrollmentDB, await DbICEnrollment.update(id, iudict, options1))
+    return cast(ICEnrollment, await DbICEnrollment2425.update(id, iudict, options1))
 
 
 # business methods
 
 
-async def find_interclubenrollment(idclub: str) -> ICEnrollmentDB | None:
+async def find_interclubenrollment(idclub: int) -> ICEnrollment | None:
     """
     find an enrollment by idclub
     """
@@ -75,7 +77,7 @@ async def find_interclubenrollment(idclub: str) -> ICEnrollmentDB | None:
     return enrs[0] if enrs else None
 
 
-async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollmentDB:
+async def set_interclubenrollment(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
     """
     set enrollment (and overwrite it if it already exists)
     """
@@ -86,10 +88,12 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
     settings = get_settings()
     enr = await find_interclubenrollment(idclub)
     if enr:
+        assert enr.id
         nenr = await update_interclubenrollment(
             enr.id,
-            ICEnrollmentDB(
+            ICEnrollment(
                 name=ie.name,
+                locale=locale,
                 teams1=ie.teams1,
                 teams2=ie.teams2,
                 teams3=ie.teams3,
@@ -100,7 +104,7 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
         )
     else:
         id = await create_interclubenrollment(
-            ICEnrollmentDB(
+            ICEnrollmentIn(
                 idclub=idclub,
                 locale=locale,
                 name=ie.name,
@@ -126,7 +130,7 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject="Interclub 2022-23",
+        subject="Interclubs 2024-2025",
         template="interclub/enrollment_{locale}.md",
     )
     sendEmail(mp, nenr.model_dump(), "interclub enrollment")

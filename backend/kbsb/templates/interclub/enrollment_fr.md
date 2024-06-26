@@ -1,6 +1,6 @@
-## Inscription Interclubs 2022-2023
+## Inscription Interclubs 2024-2025
 
-Nous confirmons par la présente l'inscription de {{ idclub }} : {{ name_short }}, {{ name_long }} pour la saison interclubs 2022-2023
+Nous confirmons par la présente l'inscription de {{ idclub }} : {{ name_short }}, {{ name_long }} pour la saison interclubs 2024-2025
 
 Les équipes suivantes étaient inscrites :
 
