@@ -1,5 +1,6 @@
 <script setup>
 import { ref, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useIdtokenStore } from '@/store/idtoken'
 import { useIdnumberStore } from '@/store/idnumber'
 import { storeToRefs } from 'pinia'
@@ -30,10 +31,11 @@ const splitting = ref([
   { "text": t("In 1 series"), "value": "1" },
   { "text": t("In multiple series"), "value": "2" },
 ])
-const enrollment = ref(empty_enrollment)
+const enrollment = ref({})
 const rules = ref({
   count20: (x) => (x && x.length <= 20 || 'Max 20 characters')
 })
+const club=ref({})
 
 function cancelEnrollment() {
   this.status = INTERCLUBS_STATUS.CONSULTING
@@ -125,7 +127,8 @@ async function saveEnrollment() {
   // }
 }
 
-async function setupEnrollment() {
+async function setup() {
+  console.log('setup Enrollment')
   // await this.find_interclubenrollment()
 }
 
@@ -133,9 +136,15 @@ async function setupEnrollment() {
 </script>
 <template>
   <v-container>
-    <h2>{{ $t('Interclubs enrollment') }}</h2>
-    <p v-if="!club.idclub">{{ $t('Please select a club to view the enrollment') }}</p>
-    <div v-if="club.idclub">
+    <v-alert type="warning" variant="outlined" v-if="enrstatus == 'closed'"
+      :text="t('Currently the enrollment cannot be modified')" />
+    <v-alert type="warning" variant="outlined" v-if="enrstatus == 'noclub'"
+      :text="t('Please select a club')" />
+    <v-alert type="error" variant="outlined" v-if="enrstatus == 'noaccess'"
+      :text="t('Permission denied')" />
+    <v-alert type="warning" variant="outlined" v-if="enrstatus == 'expired'"
+      :text="t('You can no longer modify the enrollment of this round')" />    
+    <div v-if="enrstatus == 'open'">
       <v-container v-show="status_consulting">
         <v-row v-show="!enrollment.id">
           <v-col cols="12" sm="6" md="4" xl="3">
@@ -254,8 +263,7 @@ async function setupEnrollment() {
                 {{ t('Name') }}
               </v-card-title>
               <v-card-text>
-                {{ t('You can define a name for your club when the results and
-                standings are displayed.') }}
+                {{ t('You can define a name for your club when the results and standings are displayed.') }}
                 {{ t('As a default, your clubname is used.') }}
                 <v-text-field v-model="enrollment.name" :label="$t('Name')" maxlength="20"
                   :rules="[rules.count20]" />

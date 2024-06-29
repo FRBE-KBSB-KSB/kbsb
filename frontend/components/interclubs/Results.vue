@@ -1,11 +1,14 @@
 <script setup>
 import { ref, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useIdtokenStore } from '@/store/idtoken'
 import { useIdnumberStore } from '@/store/idnumber'
 import { storeToRefs } from 'pinia'
 import { INTERCLUBS_ROUNDS, PLAYERS_DIVISION, resultchoices } from '@/util/interclubs'
 
-// communication with manager
+// communication
+const router = useRouter()
 const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
 defineExpose({ setup })
 
@@ -164,7 +167,7 @@ async function getICSeries() {
 }
 
 async function gotoLogin() {
-  await navigateTo(localePath('/tools/oldlogin?url=__interclubs__manager'))
+  await router.push('/tools/oldlogin?url=__interclubs__manager')
 }
 
 

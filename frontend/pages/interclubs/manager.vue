@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { router } from 'vue-router'
+import { useRouter } from 'vue-router'
 import Enrollment from '@/components/interclubs/Enrollment.vue'
 import Results from '@/components/interclubs/Results.vue'
 import Planning from '@/components/interclubs/Planning.vue'
@@ -12,6 +12,8 @@ import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
 
+// communication
+const router = useRouter()
 
 // i18n
 const { locale, t } = useI18n()
@@ -43,7 +45,7 @@ function changeTab() {
   console.log('changeTab', tab.value)
   switch (tab.value) {
     case 'enrollment':
-      refplanning.value.setup(icclub.value, round.value)
+      refenrollment.value.setup(icclub.value, round.value)
       break
     case 'planning':
       refplanning.value.setup(icclub.value, round.value)
@@ -91,7 +93,6 @@ const { $backend } = useNuxtApp()
 
 // methods alphabetically
 
-
 async function getClubs() {
   let reply
   changeDialogCounter(1)
@@ -136,7 +137,6 @@ async function getClubDetails() {
   }
 }
 
-
 function selectClub() {
   console.log('selected', idclub.value)
   getClubDetails()
@@ -145,7 +145,7 @@ function selectClub() {
 onMounted(() => {
   checkAuth()
   getClubs()
-  tab.value = "results"
+  tab.value = "planning"
   changeTab()
 })
 
@@ -191,7 +191,7 @@ onMounted(() => {
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">
         <v-window-item :eager="true" value="enrollment">
-          <Results ref="refenrollment" @snackbar="displaySnackbar"
+          <Enrollment ref="refenrollment" @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter" />
         </v-window-item>
         <v-window-item :eager="true" value="results">

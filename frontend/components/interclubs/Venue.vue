@@ -1,16 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue'
-import {
-  VContainer, VSelect, VBtn, VCard, VCardTitle, VCardText, VCardActions, VRow,
-  VCol, VAlert, VTextField, VTextarea, VIcon, VRadio, VRadioGroup
-} from 'vuetify/lib/components/index.mjs';
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { INTERCLUBS_STATUS, INTERCLUBS_ROUNDS, EMPTY_VENUE } from '@/util/interclubs.js'
 import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
 
-// communication with manager
+// communication 
+const router = useRouter()
 const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
 defineExpose({ setup })
+
 
 // idtoken
 const idstore = useIdtokenStore()
@@ -30,7 +30,6 @@ const accessdenied = ref(true)
 const venuestatus = ref("closed")
 
 // i18n
-const { localePath } = useLocalePath()
 const { locale, t } = useI18n()
 
 
@@ -95,7 +94,7 @@ async function getICVenues() {
 }
 
 async function gotoLogin() {
-  await navigateTo(localePath('/tools/oldlogin?url=__interclubs__manager'))
+  await router.push('/tools/oldlogin?url=__interclubs__manager')
 }
 
 function modifyICvenues() {
@@ -143,7 +142,7 @@ function setup(clb) {
       :text="t('Please select a club')" />
     <v-alert type="warning" variant="outlined" v-if="venuestatus == 'noaccess'"
       :text="t('Permission denied')" />
-    <div v-if="venustatus == 'open'">
+    <div v-if="venuestatus == 'open'">
       <v-container v-show="status_consulting">
         <v-row v-show="!venues.length">
           <v-col cols="12" sm="6" md="4" xl="3">

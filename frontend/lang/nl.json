@@ -312,5 +312,8 @@
 "Youth": "Jeugd",
 "Youth director": "Jeugdleider",
 "youth_director": "jeugdleider",
+"Currently the planning cannot be modified": "nl_planning",
+"Currently the venues cannot be modified": "nl_venues",
+"Currently the player list cannot be modified": "nl_playerlist",
 "ZZZ": "ZZZ"
 }

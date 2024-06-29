@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PLAYERSTATUS } from "@/util/interclubs"
 
 // store
@@ -15,7 +16,6 @@ const { $backend } = useNuxtApp()
 
 // i18n
 const { t } = useI18n()
-const { localePath } = useLocalePath()
 
 //  snackbar and loading widgets
 import ProgressLoading from '@/components/ProgressLoading.vue'
@@ -369,7 +369,6 @@ onMounted(() => {
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h2>{{ t('Player list') }}</h2>
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'noclub'"
       :text="t('Please select a club')" />
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'closed'"

@@ -312,3 +312,6 @@ ctx,key,en,nl,fr,de
 ,Youth,Youth,Jeugd,Jeunesse,Jugend
 ,Youth director,Youth director,Jeugdleider,Directeur de la jeunesse,Jugendleiter
 ,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiter
+,Currently the planning cannot be modified,Currently the planning cannot be modified,nl_planning,,
+,Currently the venues cannot be modified,Currently the venues cannot be modified,nl_venues,,
+,Currently the player list cannot be modified,Currently the player list cannot be modified,nl_playerlist,,
