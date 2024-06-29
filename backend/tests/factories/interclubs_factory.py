@@ -6,6 +6,7 @@ from kbsb.interclubs import (
     ICEncounter,
     ICEnrollment,
     ICEnrollmentIn,
+    ICEnrollmentOut,
     ICGame,
     ICGameDetails,
     ICPlanning,
@@ -28,6 +29,11 @@ class IcEnrollmentFactory(ModelFactory[ICEnrollment]):
 @register_fixture
 class IcEnrollmentInFactory(ModelFactory[ICEnrollmentIn]):
     __model__ = ICEnrollmentIn
+
+
+@register_fixture
+class IcEnrollmentOutFactory(ModelFactory[ICEnrollmentOut]):
+    __model__ = ICEnrollmentOut
 
 
 @register_fixture

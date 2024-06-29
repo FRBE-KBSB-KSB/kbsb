@@ -24,7 +24,7 @@ let playersindexed = {}
 const icseries = ref([])
 const round = ref(-1)
 const teamresults = ref([])
-const errstatus = ref(null)
+const resstatus = ref(null)
 
 // i18n
 const { t } = useI18n()
@@ -240,47 +240,48 @@ async function saveResults() {
 
 async function setup(clb, rnd) {
   console.log('setup results', clb, rnd)
-  errstatus.value = null
-  icclub.value = clb
-  round.value = rnd
-  idclub.value = clb.idclub
-  if (!idclub.value) {
-    errstatus.value = 'noclub'
-    playerlist_buffer.value = {}
-    teamresults.value = []
-    icseries.value = []
-    return
-  }
-  let ca = await checkAccess()
-  if (!ca) {
-    errstatus.value = 'noaccess'
-    playerlist_buffer.value = {}
-    teamresults.value = []
-    icseries.value = []
-    return
-  }
-  const now = new Date().valueOf()
-  const opened = new Date(INTERCLUBS_ROUNDS[round.value] + 'T15:00').valueOf()
-  const closed = opened + 3600000 * (9 + 24)
-  console.log('dates', new Date(), new Date(INTERCLUBS_ROUNDS[round.value] + 'T15:00'))
-  if (now < opened) {
-    errstatus.value = 'notopenyet'
-    playerlist_buffer.value = {}
-    teamresults.value = []
-    icseries.value = []
-    return
-  }
-  if (now > closed) {
-    errstatus.value = 'closed'
-    playerlist_buffer.value = {}
-    teamresults.value = []
-    icseries.value = []
-    return
-  }
-  if (!playerlist_buffer[idclub.value]) {
-    getICplayerlist(clb)
-  }
-  getICSeries()
+  resstatus.value = 'closed'
+  // resstatus.value = null
+  // icclub.value = clb
+  // round.value = rnd
+  // idclub.value = clb.idclub
+  // if (!idclub.value) {
+  //   resstatus.value = 'noclub'
+  //   playerlist_buffer.value = {}
+  //   teamresults.value = []
+  //   icseries.value = []
+  //   return
+  // }
+  // let ca = await checkAccess()
+  // if (!ca) {
+  //   resstatus.value = 'noaccess'
+  //   playerlist_buffer.value = {}
+  //   teamresults.value = []
+  //   icseries.value = []
+  //   return
+  // }
+  // const now = new Date().valueOf()
+  // const opened = new Date(INTERCLUBS_ROUNDS[round.value] + 'T15:00').valueOf()
+  // const closed = opened + 3600000 * (9 + 24)
+  // console.log('dates', new Date(), new Date(INTERCLUBS_ROUNDS[round.value] + 'T15:00'))
+  // if (now < opened) {
+  //   resstatus.value = 'notopenyet'
+  //   playerlist_buffer.value = {}
+  //   teamresults.value = []
+  //   icseries.value = []
+  //   return
+  // }
+  // if (now > closed) {
+  //   resstatus.value = 'closed'
+  //   playerlist_buffer.value = {}
+  //   teamresults.value = []
+  //   icseries.value = []
+  //   return
+  // }
+  // if (!playerlist_buffer[idclub.value]) {
+  //   getICplayerlist(clb)
+  // }
+  // getICSeries()
 }
 
 
@@ -324,21 +325,21 @@ function sign(tr, who) {
 
 <template>
   <v-container>
-    <div v-if="errstatus == 'noclub'">
+    <div v-if="resstatus == 'noclub'">
       <v-alert type="warning" variant="outlined" closable :text="t('Please select a club')" />
     </div>
-    <div v-if="errstatus == 'noaccess'">
+    <div v-if="resstatus == 'noaccess'">
       <v-alert type="error" variant="outlined" closable :text="t('Permission denied')" />
     </div>
-    <div v-if="errstatus == 'notopenyet'">
+    <div v-if="resstatus == 'notopenyet'">
       <v-alert type="warning" variant="outlined" closable
         :text="t('Entry of the results starts on Sunday at 15h')" />
     </div>
-    <div v-if="errstatus == 'closed'">
+    <div v-if="resstatus == 'closed'">
       <v-alert type="warning" variant="outlined" closable
         :text="t('You can no longer modify the results')" />
     </div>
-    <div v-if="!errstatus">
+    <div v-if="!resstatus">
       <VBtn color="green" @click="saveResults">{{ t('Save results') }}</VBtn>
       <v-card v-for="tr in teamresults" class="my-2">
         <v-card-title>

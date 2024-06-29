@@ -1,8 +1,8 @@
 import pytest
-
-from .factories import *
-
 import mysql.connector
+from reddevil.core import register_app, get_settings
+from kbsb.main import app
+from tests.factories import *  # noqa F401
 
 
 @pytest.fixture
@@ -16,3 +16,9 @@ def mysql_connection():
         database="testkbsb",
     )
     return cnx
+
+
+@pytest.fixture
+def settings():
+    register_app(app=app, settingsmodule="kbsb.settings")
+    return get_settings()

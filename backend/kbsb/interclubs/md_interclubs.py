@@ -6,12 +6,36 @@
 
 from datetime import date, datetime
 from typing import Dict, Any, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import StrEnum, auto
 from typing import Literal
 from reddevil.core.dbbase import DbBase
 
-# interclub data
+# old interclub data
+ICROUNDS = {
+    1: date.fromisoformat("2023-09-24"),
+    2: date.fromisoformat("2023-10-15"),
+    3: date.fromisoformat("2023-10-22"),
+    4: date.fromisoformat("2023-11-19"),
+    5: date.fromisoformat("2023-12-03"),
+    6: date.fromisoformat("2024-01-28"),
+    7: date.fromisoformat("2024-02-04"),
+    8: date.fromisoformat("2024-02-18"),
+    9: date.fromisoformat("2024-03-10"),
+    10: date.fromisoformat("2024-03-24"),
+    11: date.fromisoformat("2024-04-24"),
+}
+
+PLAYERSPERDIVISION = {
+    1: 8,
+    2: 8,
+    3: 6,
+    4: 4,
+    5: 4,
+}
+
+
+# new data
 
 ICDATA = {
     "rounds": {
@@ -187,8 +211,7 @@ class ICGame(BaseModel):
     result: GAMERESULT = GAMERESULT.NOTPLAYED
     overruled: GAMERESULT | None = GAMERESULT.NOTOVERRULED
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ICGameDetails(BaseModel):
@@ -205,8 +228,7 @@ class ICGameDetails(BaseModel):
     result: GAMERESULT = GAMERESULT.NOTPLAYED
     overruled: GAMERESULT | None = GAMERESULT.NOTOVERRULED
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ICEncounter(BaseModel):
@@ -396,6 +418,25 @@ class ICEnrollment(BaseModel):
     teams4: int | None = None
     teams5: int | None = None
     wishes: Dict | None = None
+
+
+class ICEnrollmentOut(BaseModel):
+    """
+    an IC Enrollment as used internally
+    """
+
+    id: str
+    idclub: int
+    idinvoice: str = ""
+    idpaymentrequest: str = ""
+    locale: str
+    name: str
+    teams1: int = 0
+    teams2: int = 0
+    teams3: int = 0
+    teams4: int = 0
+    teams5: int = 0
+    wishes: Dict = {}
 
 
 class ICEnrollmentHistory(BaseModel):

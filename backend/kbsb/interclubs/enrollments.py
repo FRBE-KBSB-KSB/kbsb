@@ -1,7 +1,8 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-
+import csv
+import io
 from typing import cast, List, Dict, Any
 from reddevil.core import (
     RdNotFound,
@@ -11,6 +12,7 @@ from reddevil.mail import sendEmail, MailParams
 from kbsb.interclubs import (
     ICEnrollment,
     ICEnrollmentIn,
+    ICEnrollmentOut,
     DbICEnrollment2425,
     # ICDATA,
 )
@@ -86,6 +88,7 @@ async def set_interclubenrollment(idclub: int, ie: ICEnrollmentIn) -> ICEnrollme
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
     settings = get_settings()
+    print("settings", settings)
     enr = await find_interclubenrollment(idclub)
     if enr:
         assert enr.id
@@ -150,8 +153,7 @@ async def csv_ICenrollments() -> str:
     fieldnames = [
         "idclub",
         "locale",
-        "name_long",
-        "name_short",
+        "name",
         "teams1",
         "teams2",
         "teams3",
@@ -163,12 +165,12 @@ async def csv_ICenrollments() -> str:
     csvstr = io.StringIO()
     csvf = csv.DictWriter(csvstr, fieldnames + wishes_keys)
     csvf.writeheader()
-    for enr in await DbICEnrollment.find_multiple(
-        {"_fieldlist": fieldnames + ["wishes"]}
+    for enr in await DbICEnrollment2425.find_multiple(
+        {"_fieldlist": fieldnames + ["wishes"], "_model": ICEnrollmentOut}
     ):
         enrdict = enr.model_dump()
-        id = enrdict.pop("id", None)
-        wishes = enr.pop("wishes", {})
+        enrdict.pop("id", None)
+        wishes = enrdict.pop("wishes", {})
         enrdict["wishes.grouping"] = wishes.get("grouping", "")
         enrdict["wishes.split"] = wishes.get("split", "")
         enrdict["wishes.regional"] = wishes.get("regional", "")
