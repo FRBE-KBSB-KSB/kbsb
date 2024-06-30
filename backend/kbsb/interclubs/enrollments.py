@@ -135,7 +135,7 @@ async def set_interclubenrollment(idclub: int, ie: ICEnrollmentIn) -> ICEnrollme
         subject="Interclubs 2024-2025",
         template="interclub/enrollment_{locale}.md",
     )
-    # sendEmail(mp, nenr.model_dump(), "interclub enrollment")
+    sendEmail(mp, nenr.model_dump(), "interclub enrollment")
     return nenr
 
 

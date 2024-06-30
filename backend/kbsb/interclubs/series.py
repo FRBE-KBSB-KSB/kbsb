@@ -15,6 +15,7 @@ from reddevil.core import (
 )
 
 from kbsb.interclubs import (
+    ICROUNDS,
     ICEncounter,
     ICGame,
     ICGameDetails,

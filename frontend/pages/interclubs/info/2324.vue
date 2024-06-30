@@ -27,18 +27,6 @@ function changeTab() {
     case 'standings':
       refstandings.value.setup()
       break
-    // case 'playerlist':
-    //   refplayerlist.value.setup()
-    //   break
-    // case 'venues':
-    //   refvenues.value.setup()
-    //   break    
-    // case 'announcements':
-    //   refannouncements.value.setup()
-    //   break
-    // case 'dates':
-    //   refdates.value.setup()
-    //   break
   }
 }
 
@@ -55,10 +43,6 @@ onMounted(() => {
     <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
       <v-tab value="results">{{ $t('Results') }}</v-tab>
       <v-tab value="standings">{{ $t('Standings') }}</v-tab>
-      <!-- <v-tab value="playerlist">{{ $t('Player list') }}</v-tab>
-      <v-tab value="venues">{{ $t('Venues') }}</v-tab>
-      <v-tab value="announcements">{{ $t('Announcements') }}</v-tab>
-      <v-tab value="dates">{{ $t('Dates') }}</v-tab> -->
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changeTab">
       <v-window-item :eager="true" value="results">
@@ -67,18 +51,6 @@ onMounted(() => {
       <v-window-item :eager="true" value="standings">
         <Standings ref="refstandings" />
       </v-window-item>
-      <!-- <v-window-item :eager="true" value="playerlist">
-        <PlayerlistPublic ref="refplayerlist"/>
-      </v-window-item>      
-      <v-window-item :eager="true" value="venues">
-        <VenuePublic ref="refvenues"/>
-      </v-window-item>
-      <v-window-item :eager="true" value="announcements">
-        <Announcements ref="refannouncements"/>
-      </v-window-item>
-      <v-window-item :eager="true" value="dates">
-        <Dates ref="refdates"/>
-      </v-window-item> -->
     </v-window>
   </v-container>
 </template>
