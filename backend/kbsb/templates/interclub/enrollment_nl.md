@@ -25,7 +25,7 @@ Volgende ploegen werden ingeschreven:
 Wensen:
 
  - Teams gegroepeerd per paringsnummer: {{ grouping [wishes.grouping] }}
- - Verdeling teams in dezelfde afdeling: {{ splitting [wishes.split] }}
+ - Verdeling teams in dezelfde afdeling: {{ splitting [wishes.splitting] }}
  - Regionale voorkeuren: {{ wishes.regional }}
  - Opmerkingen: {{ wishes.remarks }}
 

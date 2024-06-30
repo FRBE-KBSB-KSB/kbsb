@@ -26,7 +26,7 @@ The following teams were entered:
 Wishes:
 
  - Teams grouped by pairing number: {{ grouping [wishes.grouping] }}
- - Distribution of teams in same division: {{ splitting [wishes.split] }}
+ - Distribution of teams in same division: {{ splitting [wishes.splitting] }}
  - Regional preferences: {{ wishes.regional }}
  - Remarks: {{ wishes.remarks }}
  

@@ -25,7 +25,7 @@ Les équipes suivantes étaient inscrites :
 Vœux:
 
  - Equipes regroupées par numéro d'appariement: {{ grouping [wishes.grouping] }}
- - Répartition des équipes dans la même division: {{ splitting [wishes.split] }}
+ - Répartition des équipes dans la même division: {{ splitting [wishes.splitting] }}
  - Préférences régionales: {{ wishes.regional }}
  - Remarques: {{ wishes.remarks }}
 
