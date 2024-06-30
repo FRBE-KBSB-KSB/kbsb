@@ -247,14 +247,14 @@ function validatePlanning() {
 <template>
   <v-container>
     <v-alert type="warning" variant="outlined" v-if="planstatus == 'closed'"
-      :text="t('Currently the planning cannot be modified')" />
+      :text="t('icn.planning_closed')" />
     <v-alert type="warning" variant="outlined" v-if="planstatus == 'noclub'"
-      :text="t('Please select a club')" />
+      :text="t('icn.select_club')" />
     <v-alert type="error" variant="outlined" v-if="planstatus == 'noaccess'"
-      :text="t('Permission denied')" />
+      :text="t('icn.perm_denied')" />
     <v-alert type="warning" variant="outlined" v-if="planstatus == 'expired'"
       :text="t('You can no longer modify the planning of this round')" />
-    <div v-if="planstatus == 'opem'">
+    <div v-if="planstatus == 'open'">
       <VCard v-for="( tp, ix ) in  teamsplanning " class="my-2">
         <VCardTitle>
           {{ tp.name }}

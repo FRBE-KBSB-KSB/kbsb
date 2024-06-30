@@ -3,9 +3,9 @@ import { ref, onMounted, } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import Enrollment from '@/components/interclubs/Enrollment.vue'
-import Results from '@/components/interclubs/Results.vue'
-import Planning from '@/components/interclubs/Planning.vue'
-import Playerlist from '@/components/interclubs/Playerlist.vue'
+// import Results from '@/components/interclubs/Results.vue'
+// import Planning from '@/components/interclubs/Planning.vue'
+// import Playerlist from '@/components/interclubs/Playerlist.vue'
 import Venue from '@/components/interclubs/Venue.vue'
 import { parse } from 'yaml'
 import { useIdtokenStore } from '@/store/idtoken'
@@ -37,7 +37,7 @@ const refvenues = ref(null)
 const icdata = ref({})
 const clubs = ref([])
 const icclub = ref({})          // the icclub data
-const idclub = ref(0)
+const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
 
@@ -183,7 +183,7 @@ onMounted(async () => {
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager</h1>
+    <h1>Interclubs Manager 2024-25</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ t('Loading...') }}</v-card-title>
@@ -213,11 +213,11 @@ onMounted(async () => {
     </h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
-        <v-tab value="enrollment">{{ t('Enrollment') }}</v-tab>
-        <v-tab value="results">{{ t('Results') }}</v-tab>
-        <v-tab value="planning">{{ t('Planning') }}</v-tab>
+        <v-tab value="enrollment">{{ t('icn.enr') }}</v-tab>
+        <!-- <v-tab value="results">{{ t('Results') }}</v-tab>
+        <v-tab value="planning">{{ t('Planning') }}</v-tab> -->
         <v-tab value="venues">{{ t('Venue') }}</v-tab>
-        <v-tab value="playerlist">{{ t('Player list') }}</v-tab>
+        <!-- <v-tab value="playerlist">{{ t('Player list') }}</v-tab> -->
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">
         <v-window-item :eager="true" value="enrollment">

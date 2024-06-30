@@ -88,7 +88,6 @@ async def set_interclubenrollment(idclub: int, ie: ICEnrollmentIn) -> ICEnrollme
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
     settings = get_settings()
-    print("settings", settings)
     enr = await find_interclubenrollment(idclub)
     if enr:
         assert enr.id
@@ -136,7 +135,7 @@ async def set_interclubenrollment(idclub: int, ie: ICEnrollmentIn) -> ICEnrollme
         subject="Interclubs 2024-2025",
         template="interclub/enrollment_{locale}.md",
     )
-    sendEmail(mp, nenr.model_dump(), "interclub enrollment")
+    # sendEmail(mp, nenr.model_dump(), "interclub enrollment")
     return nenr
 
 

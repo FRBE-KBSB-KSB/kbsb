@@ -137,11 +137,11 @@ function setup(clb) {
 <template>
   <v-container>
     <v-alert type="warning" variant="outlined" v-if="venuestatus == 'closed'"
-      :text="t('Currently the venues cannot be modified')" />
+      :text="t('icn.venues_closed')" />
     <v-alert type="warning" variant="outlined" v-if="venuestatus == 'noclub'"
-      :text="t('Please select a club')" />
+      :text="t('icn.select_club')" />
     <v-alert type="warning" variant="outlined" v-if="venuestatus == 'noaccess'"
-      :text="t('Permission denied')" />
+      :text="t('icn.perm_denied')" />
     <div v-if="venuestatus == 'open'">
       <v-container v-show="status_consulting">
         <v-row v-show="!venues.length">

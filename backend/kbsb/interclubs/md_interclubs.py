@@ -4,7 +4,6 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
-import yaml
 from datetime import date, datetime
 from typing import Dict, Any, List
 from pydantic import BaseModel, ConfigDict
@@ -342,20 +341,21 @@ class ICResult(BaseModel):
 class ICEnrollmentDB(BaseModel):
     """
     an IC Enrollment as written in the database
+    for doc purposes only
     """
 
     id: str
     idclub: int
-    idinvoice: str | None = None
-    idpaymentrequest: str | None = None
-    locale: str | None = None
-    name: str | None = None
-    teams1: int | None = None
-    teams2: int | None = None
-    teams3: int | None = None
-    teams4: int | None = None
-    teams5: int | None = None
-    wishes: Dict | None = {}
+    idinvoice: str
+    idpaymentrequest: str
+    locale: str
+    name: str
+    teams1: int
+    teams2: int
+    teams3: int
+    teams4: int
+    teams5: int
+    wishes: Dict[str, Any]
 
 
 class ICEnrollment(BaseModel):
@@ -412,8 +412,8 @@ class ICEnrollmentIn(BaseModel):
     a input validator for an new enrollment
     """
 
-    idclub: int
     locale: str | None = "nl"
+    idclub: int | None = None
     teams1: int
     teams2: int
     teams3: int

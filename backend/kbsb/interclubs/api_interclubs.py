@@ -81,6 +81,22 @@ async def api_find_interclubenrollment(idclub: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
+async def api_clb_set_enrollment(
+    idclub: int,
+    ie: ICEnrollmentIn,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    try:
+        validate_membertoken(auth)
+        return await set_interclubenrollment(idclub, ie)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call clb_set_enrollemnt")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @router.post("/mgmt/enrollment/{idclub}", response_model=ICEnrollment)
 async def api_mgmt_set_enrollment(
     idclub: int,
@@ -93,7 +109,7 @@ async def api_mgmt_set_enrollment(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call update_interclub")
+        logger.exception("failed api call mgmt_set_enrollment")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

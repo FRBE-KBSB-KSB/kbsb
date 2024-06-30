@@ -370,11 +370,11 @@ onMounted(() => {
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'noclub'"
-      :text="t('Please select a club')" />
+      :text="t('icn.select_club')" />
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'closed'"
-      :text="t('Currently the player list cannot be modified')" />
+      :text="t('icn.playerlist_closed')" />
     <v-alert type="error" variant="outlined" v-if="plstatus == 'noaccess'"
-      :text="t('Permission denied')" />
+      :text="t('icn.perm_denie')" />
     <div v-if="plstatus == 'open'">
       <div v-if="!enrolled">
         This club is not enrolled in Interclubs 2023-24
