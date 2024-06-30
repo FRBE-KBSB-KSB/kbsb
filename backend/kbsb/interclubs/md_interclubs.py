@@ -4,12 +4,14 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
+import yaml
 from datetime import date, datetime
 from typing import Dict, Any, List
 from pydantic import BaseModel, ConfigDict
 from enum import StrEnum, auto
 from typing import Literal
 from reddevil.core.dbbase import DbBase
+
 
 # old interclub data
 ICROUNDS = {

@@ -27,7 +27,6 @@ from kbsb.interclubs import (
     ICTeamStanding,
     DbICSeries,
     DbICStandings,
-    ICDATA,
     anon_getICclub,
 )
 

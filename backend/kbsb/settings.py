@@ -35,6 +35,7 @@ GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
+ICDATA_PATH = os.environ.get("ICDATA_PATH", "../data/ic2425.yml")
 INTERCLUBS_CC_EMAIL = "interclubs@frbe-kbsb-ksb.be"
 
 JWT_ALGORITHM = "HS256"

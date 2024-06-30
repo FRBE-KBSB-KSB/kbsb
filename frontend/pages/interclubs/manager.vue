@@ -7,18 +7,23 @@ import Results from '@/components/interclubs/Results.vue'
 import Planning from '@/components/interclubs/Planning.vue'
 import Playerlist from '@/components/interclubs/Playerlist.vue'
 import Venue from '@/components/interclubs/Venue.vue'
-
+import { parse } from 'yaml'
 import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'
-import { INTERCLUBS_ROUNDS } from '@/util/interclubs'
+
 
 // communication
 const router = useRouter()
+const waitingdialog = ref(false)
+let dialogcounter = 0
+const errortext = ref(null)
+const snackbar = ref(null)
 
-// i18n
+// locale
 const { locale, t } = useI18n()
 
-// idtoken
+// API backend
+const { $backend } = useNuxtApp()
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
 
@@ -29,23 +34,25 @@ const refplanning = ref(null)
 const refplayerlist = ref(null)
 const refresults = ref(null)
 const refvenues = ref(null)
+const icdata = ref({})
+const clubs = ref([])
+const icclub = ref({})          // the icclub data
+const idclub = ref(0)
+const ic_rounds = ref([])
+const round = ref("1")
 
-function checkAuth() {
-  if (!idtoken.value) {
-    gotoLogin()
-  }
+// methods alphabetically
+
+function changeDialogCounter(i) {
+  dialogcounter += i
+  waitingdialog.value = (dialogcounter > 0)
 }
-
-async function gotoLogin() {
-  await router.push('/tools/oldlogin?url=__interclubs__manager')
-}
-
 
 function changeTab() {
   console.log('changeTab', tab.value)
   switch (tab.value) {
     case 'enrollment':
-      refenrollment.value.setup(icclub.value, round.value)
+      refenrollment.value.setup(icclub.value, icdata.value)
       break
     case 'planning':
       refplanning.value.setup(icclub.value, round.value)
@@ -62,36 +69,18 @@ function changeTab() {
   }
 }
 
-// datamodel
-const clubs = ref([])
-const icclub = ref({})          // the icclub data
-const idclub = ref(null)
-const ic_rounds = Object.keys(INTERCLUBS_ROUNDS).map((x) => {
-  return { value: x, title: `R${x}: ${INTERCLUBS_ROUNDS[x]}` }
-})
-const round = ref("1")
 
-// waiting dialog
-const waitingdialog = ref(false)
-let dialogcounter = 0
-
-function changeDialogCounter(i) {
-  dialogcounter += i
-  waitingdialog.value = (dialogcounter > 0)
+function checkAuth() {
+  if (!idtoken.value) {
+    gotoLogin()
+  }
 }
 
-// snackbar
-const errortext = ref(null)
-const snackbar = ref(null)
+
 function displaySnackbar(text, color) {
   errortext.value = text
   snackbar.value = true
 }
-
-// API backend
-const { $backend } = useNuxtApp()
-
-// methods alphabetically
 
 async function getClubs() {
   let reply
@@ -137,15 +126,56 @@ async function getClubDetails() {
   }
 }
 
+async function gotoLogin() {
+  await router.push('/tools/oldlogin?url=__interclubs__manager')
+}
+
+async function parseYaml(group, name) {
+  try {
+    const yamlcontent = await readBucket(group, name)
+    if (!yamlcontent) {
+      return null
+    }
+    return parse(yamlcontent)
+  }
+  catch (error) {
+    console.error('cannot parse yaml', yamlcontent)
+  }
+}
+
+async function processICdata() {
+  icdata.value = await parseYaml("data", "ic2425.yml")
+  ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
+    return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
+  })
+}
+
+async function readBucket(group, name) {
+  try {
+    const reply = await $backend('filestore', 'anon_get_file', {
+      group,
+      name,
+    })
+    return reply.data
+  }
+  catch (error) {
+    console.error('failed to fetch file from bucket')
+    return null
+  }
+}
+
 function selectClub() {
   console.log('selected', idclub.value)
   getClubDetails()
 }
 
-onMounted(() => {
+// startup
+
+onMounted(async () => {
   checkAuth()
+  await processICdata()
   getClubs()
-  tab.value = "planning"
+  tab.value = "enrollment"
   changeTab()
 })
 

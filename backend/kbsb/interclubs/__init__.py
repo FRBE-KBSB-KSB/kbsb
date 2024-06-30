@@ -1,7 +1,9 @@
+import yaml
+from reddevil.core import get_settings
+
 from .md_interclubs import (
     PLAYERSPERDIVISION,
     ICROUNDS,
-    ICDATA,
     DbICClub,
     DbICEnrollment,
     DbICEnrollment2425,
