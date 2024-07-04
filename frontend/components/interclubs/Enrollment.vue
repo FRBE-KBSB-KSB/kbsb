@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useIdtokenStore } from '@/store/idtoken'
 import { storeToRefs } from 'pinia'

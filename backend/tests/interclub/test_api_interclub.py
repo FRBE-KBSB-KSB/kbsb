@@ -40,6 +40,27 @@ def test_mgmt_set_enrollment(
     assert isinstance(callargs[1], ICEnrollmentIn)
 
 
+@patch("kbsb.interclubs.api_interclubs.validate_membertoken")
+@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
+def test_clb_set_enrollment(
+    set_interclubenrollment: AsyncMock,
+    vmt: MagicMock,
+    ic_enrollment_in_factory,
+    ic_enrollment_factory,
+):
+    client = TestClient(app)
+    set_interclubenrollment.return_value = ic_enrollment_factory.build()
+    enr_in = ic_enrollment_in_factory.build()
+    resp = client.post(
+        "/api/v1/interclubs/clb/enrollment/123", json=jsonable_encoder(enr_in)
+    )
+    assert resp.status_code == 200
+    set_interclubenrollment.assert_awaited()
+    callargs = set_interclubenrollment.await_args[0]
+    assert callargs[0] == 123
+    assert isinstance(callargs[1], ICEnrollmentIn)
+
+
 @patch("kbsb.interclubs.api_interclubs.validate_token")
 @patch("kbsb.interclubs.api_interclubs.csv_ICenrollments")
 def test_csv_interclubenrollments(csv_ICenrollments: AsyncMock, vt):

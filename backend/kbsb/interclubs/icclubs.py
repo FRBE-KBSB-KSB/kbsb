@@ -2,7 +2,7 @@
 
 import logging
 
-from typing import List, Dict, Any
+from typing import Any
 import openpyxl
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
@@ -34,7 +34,7 @@ settings = get_settings()
 # Interclub Clubs, Playerlist and Teams
 
 
-async def anon_getICteams(idclub: int, options: dict = {}) -> List[ICTeam]:
+async def anon_getICteams(idclub: int, options: dict = {}) -> list[ICTeam]:
     """
     get all the interclub teams for a club available in all divisions
     """
@@ -47,7 +47,7 @@ async def anon_getICteams(idclub: int, options: dict = {}) -> List[ICTeam]:
     return teams
 
 
-async def anon_getICclub(idclub: int, options: Dict[str, Any] = {}) -> ICClubDB | None:
+async def anon_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB | None:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
@@ -60,7 +60,7 @@ async def anon_getICclub(idclub: int, options: Dict[str, Any] = {}) -> ICClubDB 
     return club
 
 
-async def anon_getICclubs() -> List[ICClubItem] | None:
+async def anon_getICclubs() -> list[ICClubItem] | None:
     """
     get IC club by idclub, returns None if nothing found
     """
@@ -72,7 +72,7 @@ async def anon_getICclubs() -> List[ICClubItem] | None:
     return await DbICClub.find_multiple(options)
 
 
-async def clb_getICclub(idclub: int, options: Dict[str, Any] = {}) -> ICClubDB | None:
+async def clb_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB | None:
     """
     get IC club by idclub, returns None if nothing found
     """
@@ -149,7 +149,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
 
 async def clb_validateICPlayers(
     idclub: int, pi: ICPlayerUpdate
-) -> List[ICPlayerValidationError]:
+) -> list[ICPlayerValidationError]:
     """
     creates a list of validation errors
     """

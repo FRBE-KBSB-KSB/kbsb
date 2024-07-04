@@ -1,17 +1,12 @@
 <script setup>
-import { ref } from 'vue'
-
-// stores
+import { ref, computed } from 'vue'
 import { useMgmtTokenStore } from "@/store/mgmttoken"
-import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
 import { storeToRefs } from 'pinia'
+
+// communication
+defineExpose({ setup })
 const mgmttokenstore = useMgmtTokenStore()
 const { token: mgmttoken } = storeToRefs(mgmttokenstore)
-const mgmtinterclubstore = useMgmtInterclubStore()
-const { club, round } = storeToRefs(mgmtinterclubstore)
-
-// communication 
-defineExpose({ checkStore })
 const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
@@ -35,6 +30,13 @@ function d() {
   const url = `${runtimeConfig.public.apiurl}api/v1/interclubs/mgmt/command/xls/allplayerlist?token=${mgmttoken.value}`
   window.location.href = url
 }
+
+function down_reg() {
+  console.log('down reg token', mgmttoken.value)
+  // const url = `${runtimeConfig.public.apiurl}api/v1/interclubs/mgmt/command/xls/allplayerlist?token=${mgmttoken.value}`
+  // window.location.href = url
+}
+
 
 async function generateBelELO() {
   showLoading(true)
@@ -71,7 +73,9 @@ async function generateFideELO() {
   }
 }
 
-
+async function setup(icclub_, icdata_) {
+  console.log('setup Downloads', icclub_, icdata_)
+}
 
 // trigger
 onMounted(() => {
@@ -85,13 +89,15 @@ onMounted(() => {
   <VContainer>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h3>Playerlist</h3>
+    <h3>Registrations</h3>
+    <v-btn @click="down_reg">Download all registrations</v-btn>
+    <!-- <h3>Playerlist</h3>
     <v-btn @click="d">Download full playerlist</v-btn>
     <h3 class="mt-3">ELO processing</h3>
     <VBtn class="ma-2" @click="generateFideELO" disabled>Generate FIDE rapport</VBtn>
-    <VBtn class="ma-2" @click="generateBelELO" disabled>Generate BEL rapport</VBtn>
+    <VBtn class="ma-2" @click="generateBelELO" disabled>Generate BEL rapport</VBtn> -->
     <!-- <VBtn class="ma-2" @click="generateFideELO" >Generate FIDE rapport</VBtn>
     <VBtn class="ma-2" @click="generateBelELO" >Generate BEL rapport</VBtn> -->
-    <h4 class="mt-2">Availabale ELo rapports</h4>
+    <!-- <h4 class="mt-2">Availabale ELo rapports</h4> -->
   </VContainer>
 </template>

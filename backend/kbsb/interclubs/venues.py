@@ -1,27 +1,25 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-
-logger = logging.getLogger(__name__)
-
-
-from typing import cast, List, Dict, Any
-import io, csv
-from tempfile import NamedTemporaryFile
-from fastapi.responses import Response
-
+from typing import cast
+import io
+import csv
 
 from reddevil.core import (
     RdNotFound,
     get_settings,
 )
-from reddevil.mail import sendEmail
+
+# from reddevil.mail import sendEmail
 from kbsb.club import get_club_idclub, club_locale
 from kbsb.interclubs import (
     ICVenueDB,
     ICVenueIn,
     DbICVenue,
 )
+
+logger = logging.getLogger(__name__)
+
 
 # CRUD actions
 
@@ -45,7 +43,7 @@ async def get_interclubvenues(id: str, options: dict = {}) -> ICVenueDB:
     return cast(ICVenueDB, await DbICVenue.find_single(filter))
 
 
-async def get_interclubvenues_clubs(options: dict = {}) -> List[ICVenueDB]:
+async def get_interclubvenues_clubs(options: dict = {}) -> list[ICVenueDB]:
     """
     get the interclubvenues of all clubs
     """

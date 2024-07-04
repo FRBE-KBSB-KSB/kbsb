@@ -3,7 +3,7 @@
 import logging
 import csv
 import io
-from typing import cast, List, Dict, Any
+from typing import cast, Any
 from reddevil.core import (
     RdNotFound,
     get_settings,
@@ -43,7 +43,7 @@ async def get_interclubenrollment(id: str, options: dict = {}) -> ICEnrollment:
     return cast(ICEnrollment, await DbICEnrollment2425.find_single(filter))
 
 
-async def get_interclubenrollments(options: dict = {}) -> List[ICEnrollment]:
+async def get_interclubenrollments(options: dict = {}) -> list[ICEnrollment]:
     """
     get the interclub enrollment
     """
@@ -55,7 +55,7 @@ async def get_interclubenrollments(options: dict = {}) -> List[ICEnrollment]:
 
 
 async def update_interclubenrollment(
-    id: str, iu: ICEnrollment, options: Dict[str, Any] = {}
+    id: str, iu: ICEnrollment, options: dict[str, Any] = {}
 ) -> ICEnrollment:
     """
     update a interclub enrollment
