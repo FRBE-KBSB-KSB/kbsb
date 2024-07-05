@@ -1,6 +1,6 @@
 `## Enrollment Interclub 2024-2025
 
-We hereby confirm the registration of {{ idclub }}: {{ name_short }}, {{ name_long }} for the interclub season 2024-2025
+We hereby confirm the registration of {{ idclub }}: {{ name }} for the interclub season 2024-2025
 
 The following teams were entered:
 

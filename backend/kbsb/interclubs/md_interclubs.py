@@ -56,6 +56,9 @@ class PlayerlistNature(StrEnum):
     IMPORTED = auto()
     EXPORTED = auto()
     LOCKED = auto()
+    # older
+    REQUESTEDIN = auto()
+    CONFIRMEDOUT = auto()
 
 
 # interclub club

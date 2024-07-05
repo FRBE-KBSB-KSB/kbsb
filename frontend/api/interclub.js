@@ -35,9 +35,9 @@ export default {
     )
     return resp
   },
-  mgmt_csv_interclubenrollment: async function (options) {
+  mgmt_xls_icregistrations: async function (options) {
     const { token } = options
-    const resp = await axios.get(`${prefix}/mgmt/command/exportenrollments`, {
+    const resp = await axios.get(`${prefix}/mgmt/command/xls_registrations`, {
       headers: {
         Authorization: "Bearer " + token,
       },

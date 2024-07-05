@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import Enrollment  from '@/components/mgmtinterclubs/Enrollment'
-import Downloads  from '@/components/mgmtinterclubs/Downloads'
+import Enrollment from '@/components/mgmtinterclubs/Enrollment'
+import Downloads from '@/components/mgmtinterclubs/Downloads'
 import { parse } from 'yaml'
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
@@ -20,7 +20,7 @@ const snackbar = ref(null)
 // API backend
 const { $backend } = useNuxtApp()
 const mgmttokenstore = useMgmtTokenStore()
-const { token: mgmttoken } = storeToRefs(mgmttokenstore)
+const { token: idtoken } = storeToRefs(mgmttokenstore)
 const personstore = usePersonStore();
 const { person } = storeToRefs(personstore)
 // const mgmtinterclubstore = useMgmtInterclubStore()
@@ -74,8 +74,8 @@ function changeTab() {
 }
 
 async function checkAuth() {
-  console.log('checking if auth is already set', mgmttoken.value)
-  if (mgmttoken.value) return
+  console.log('checking if auth is already set', idtoken.value)
+  if (idtoken.value) return
   if (person.value.credentials.length === 0) {
     gotoLogin()
     return
@@ -94,7 +94,7 @@ async function checkAuth() {
       username: null,
       password: null,
     })
-    mgmttokenstore.updateToken(reply.data)    
+    mgmttokenstore.updateToken(reply.data)
   }
   catch (error) {
     console.log('failed login to backend', error)

@@ -1,6 +1,6 @@
 import logging
+import base64
 from fastapi import HTTPException, Depends, APIRouter
-
 from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
@@ -42,21 +42,21 @@ from . import (
     clb_saveICresults,
     clb_updateICplayers,
     clb_validateICPlayers,
-    csv_ICenrollments,
     csv_ICvenues,
-    find_interclubenrollment,
+    find_icregistration,
     getICvenues,
     mgmt_getXlsAllplayerlist,
     mgmt_saveICresults,
     mgmt_generate_penalties,
     mgmt_register_teamforfeit,
-    set_interclubenrollment,
+    set_icregistration,
     set_interclubvenues,
     trf_process_round,
     trf_process_playerdetails,
     trf_process_fideratings,
     trf_process_sort,
     trf_generate,
+    xls_registrations,
 )
 
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ async def api_find_interclubenrollment(idclub: int):
     """
     logger.debug(f"api_find_interclubenrollment {idclub}")
     try:
-        return await find_interclubenrollment(idclub)
+        return await find_icregistration(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -89,7 +89,7 @@ async def api_clb_set_enrollment(
 ):
     try:
         validate_membertoken(auth)
-        return await set_interclubenrollment(idclub, ie)
+        return await set_icregistration(idclub, ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -105,7 +105,7 @@ async def api_mgmt_set_enrollment(
 ):
     try:
         await validate_token(auth)
-        return await set_interclubenrollment(idclub, ie)
+        return await set_icregistration(idclub, ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -113,23 +113,18 @@ async def api_mgmt_set_enrollment(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/mgmt/command/exportenrollments", response_model=str)
-async def api_csv_interclubenrollments(
-    format: str,
+@router.get("/mgmt/command/xls_registrations")
+async def api_xls_registrations(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     await validate_token(auth)
     try:
-        if format == "csv":
-            return await csv_ICenrollments()
-        elif format == "excel":
-            return ""
-        else:
-            raise RdException(status_code=400, description="Unsupported export format")
+        xlsfile = await xls_registrations()
+        return {"xls64": base64.b64encode(xlsfile)}
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call csv_interclubenrollments")
+        logger.exception("failed api call xls_registrations")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -142,7 +137,7 @@ async def api_set_enrollment(
     try:
         validate_membertoken(auth)
         # TODO check club autorization
-        return await set_interclubenrollment(idclub, ie)
+        return await set_icregistration(idclub, ie)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

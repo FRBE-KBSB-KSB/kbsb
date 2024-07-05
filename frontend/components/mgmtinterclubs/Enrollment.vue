@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 // communication
 defineExpose({ setup })
 const mgmttokenstore = useMgmtTokenStore()
-const { token: mgmttoken } = storeToRefs(mgmttokenstore)
+const { token: idtoken } = storeToRefs(mgmttokenstore)
 const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
@@ -26,7 +26,7 @@ const empty_enrollment = {
   teams5: 0,
   wishes: {},
 };
-const enrollment = ref({ ...empty_enrollment})
+const enrollment = ref({ ...empty_enrollment })
 const enr_status = ref('open')
 const modifying = ref(false)
 const grouping = ref([
@@ -46,7 +46,7 @@ let icclub = {}
 let icdata = {}
 
 // computed
-const splittingvalue = computed(()=>{
+const splittingvalue = computed(() => {
   let sp = splitting.value[0].title
   const val = enrollment.value.wishes.splitting || "2"
   splitting.value.forEach(e => {
@@ -54,9 +54,9 @@ const splittingvalue = computed(()=>{
       sp = e.title
     }
   });
-  return sp  
+  return sp
 })
-const groupingvalue = computed(()=>{
+const groupingvalue = computed(() => {
   let gr = grouping.value[0].title
   const val = enrollment.value.wishes.grouping || "0"
   grouping.value.forEach(e => {
@@ -64,7 +64,7 @@ const groupingvalue = computed(()=>{
       gr = e.title
     }
   });
-  return gr  
+  return gr
 })
 
 async function cancelEnrollment() {
@@ -72,7 +72,7 @@ async function cancelEnrollment() {
   await find_interclubenrollment()
 }
 
-function calcstatus(){
+function calcstatus() {
   // we have the following status for the mgmt
   // - open
   // - noclub
@@ -100,10 +100,10 @@ async function find_interclubenrollment() {
   showLoading(true)
   try {
     reply = await $backend("interclub", "find_interclubenrollment", {
-        idclub: icclub.idclub
+      idclub: icclub.idclub
     })
     readEnrollment(reply.data)
-  } 
+  }
   catch (error) {
     console.log('NOK find_interclubenrollment', error)
     if (error.code == 401) {
@@ -124,7 +124,7 @@ async function gotoLogin() {
 }
 
 async function modifyEnrollment() {
-  if (! modifying.value) {
+  if (!modifying.value) {
     const allowed = await checkAccess()
     if (allowed) {
       modifying.value = true
@@ -136,12 +136,12 @@ async function modifyEnrollment() {
   calcstatus()
 }
 
-function readEnrollment(data){
+function readEnrollment(data) {
   if (data) {
     enrollment.value = data
   }
   else {
-      enrollment.value.id = null
+    enrollment.value.id = null
   }
   if (!enrollment.value.name || !enrollment.value.name.length) {
     enrollment.value.name = icclub.name
@@ -161,41 +161,41 @@ async function saveEnrollment() {
   showLoading(true)
 
   try {
-      reply = await $backend("interclub", "mgmt_set_interclubenrollment", {
-        idclub: icclub.idclub,
-        token: idtoken.value,
-        name: enrollment.value.name,
-        teams1: enrollment.value.teams1,
-        teams2: enrollment.value.teams2,
-        teams3: enrollment.value.teams3,
-        teams4: enrollment.value.teams4,
-        teams5: enrollment.value.teams5,
-        wishes: enrollment.value.wishes,        
-      })
-      modifying.value = false
-      calcstatus()
-      showSnackbar('Save OK')      
-  } 
+    reply = await $backend("interclub", "mgmt_set_interclubenrollment", {
+      idclub: icclub.idclub,
+      token: idtoken.value,
+      name: enrollment.value.name,
+      teams1: enrollment.value.teams1,
+      teams2: enrollment.value.teams2,
+      teams3: enrollment.value.teams3,
+      teams4: enrollment.value.teams4,
+      teams5: enrollment.value.teams5,
+      wishes: enrollment.value.wishes,
+    })
+    modifying.value = false
+    calcstatus()
+    showSnackbar('Save OK')
+  }
   catch (error) {
     console.log('NOK set_interclubenrollment', error)
     if (error.code == 401) {
       gotoLogin()
     }
     else {
-      showSnackbar('Save failed')      
+      showSnackbar('Save failed')
     }
     return
   }
   finally {
     showLoading(false)
     await find_interclubenrollment()
-  }  
+  }
 }
 
 async function setup(icclub_, icdata_) {
   console.log('setup Enrollment', icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
-  showLoading = refloading.value.showLoading  
+  showLoading = refloading.value.showLoading
   icclub = icclub_
   icdata = icdata_
   calcstatus()
@@ -268,7 +268,7 @@ async function setup(icclub_, icdata_) {
               Name of the club as displayed in results and standings
             </v-card-title>
             <v-card-text>
-              Name: {{enrollment.name }}
+              Name: {{ enrollment.name }}
             </v-card-text>
           </v-card>
         </v-col>

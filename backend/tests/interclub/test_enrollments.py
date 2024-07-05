@@ -2,8 +2,8 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
 from kbsb.interclubs.enrollments import (
-    find_interclubenrollment,
-    set_interclubenrollment,
+    find_icregistration,
+    set_icregistration,
     csv_ICenrollments,
 )
 
@@ -18,7 +18,7 @@ async def test_find_interclubenrollment(
 ):
     enr1 = ic_enrollment_factory.build(idclub=123)
     get_interclubenrollments.return_value = [enr1]
-    enr2 = await find_interclubenrollment(123)
+    enr2 = await find_icregistration(123)
     assert enr2 == enr1
 
 
@@ -46,7 +46,7 @@ async def test_set_interclubenrollment_existing(
     get_club_idclub.return_value = club1
     find_interclubenrollment.return_value = enr1
     update_interclubenrollment.return_value = enr2
-    enr3 = await set_interclubenrollment(456, enr_in1)
+    enr3 = await set_icregistration(456, enr_in1)
     assert enr3 == enr2
     sendEmail.assert_called()
 
@@ -77,7 +77,7 @@ async def test_set_interclubenrollment_new(
     find_interclubenrollment.return_value = None
     get_interclubenrollment.return_value = enr2
     create_interclubenrollment.return_value = 123
-    enr3 = await set_interclubenrollment(456, enr_in1)
+    enr3 = await set_icregistration(456, enr_in1)
     assert enr3 == enr2
     sendEmail.assert_called()
 
