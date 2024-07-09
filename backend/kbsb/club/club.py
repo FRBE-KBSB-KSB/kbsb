@@ -3,8 +3,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
 from typing import cast, Optional, List
 import io
 import csv
@@ -25,6 +23,8 @@ from .md_club import (
 )
 from kbsb.core import RdForbidden
 
+
+logger = logging.getLogger(__name__)
 
 CLUB_EMAIL = "admin@frbe-kbsb-ksb.be"
 
@@ -87,7 +87,7 @@ async def create_club(c: ClubIn, user: str = "admin") -> str:
     """
     create a new Club returning its id
     """
-    docin = c.dict()
+    docin = c.model_dump()
     docin["_username"] = user
     return await DbClub.add(docin)
 
