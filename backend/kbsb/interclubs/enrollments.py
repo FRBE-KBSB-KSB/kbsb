@@ -1,90 +1,84 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-
-logger = logging.getLogger(__name__)
-
-
-from typing import cast, List, Dict, Any
-from fastapi.responses import Response
-
-
+from tempfile import NamedTemporaryFile
+import openpyxl
+from typing import cast, Any
 from reddevil.core import (
-    RdBadRequest,
     RdNotFound,
     get_settings,
-    get_mongodb,
-    get_mongodbs,
 )
-from reddevil.mail import sendEmail, MailParams
-
+from reddevil.mail import MailParams
 from kbsb.interclubs import (
-    ICEnrollmentDB,
+    ICEnrollment,
     ICEnrollmentIn,
-    DbICEnrollment,
-    ICROUNDS,
-    PLAYERSPERDIVISION,
+    DbICEnrollment2425,
+    # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
+
+logger = logging.getLogger(__name__)
 
 
 # CRUD
 
 
-async def create_interclubenrollment(enr: ICEnrollmentDB) -> str:
+async def create_icregistration(enr: ICEnrollmentIn) -> str:
     """
     create a new InterclubEnrollment returning its id
     """
     enrdict = enr.model_dump()
     enrdict.pop("id", None)
-    return await DbICEnrollment.add(enrdict)
+    return await DbICEnrollment2425.add(enrdict)
 
 
-async def get_interclubenrollment(id: str, options: dict = {}) -> ICEnrollmentDB:
+async def get_icregistration(id: str, options: dict = {}) -> ICEnrollment:
     """
     get the interclub enrollment
     """
     filter = options.copy()
-    filter["_model"] = filter.pop("_model", ICEnrollmentDB)
+    filter["_model"] = filter.pop("_model", ICEnrollment)
     filter["id"] = id
-    return cast(ICEnrollmentDB, await DbICEnrollment.find_single(filter))
+    return cast(ICEnrollment, await DbICEnrollment2425.find_single(filter))
 
 
-async def get_interclubenrollments(options: dict = {}) -> List[ICEnrollmentDB]:
+async def get_icregistrations(options: dict = {}) -> list[ICEnrollment]:
     """
     get the interclub enrollment
     """
     filter = options.copy()
-    filter["_model"] = filter.pop("_model", ICEnrollmentDB)
-    return [cast(ICEnrollmentDB, x) for x in await DbICEnrollment.find_multiple(filter)]
+    filter["_model"] = filter.pop("_model", ICEnrollment)
+    return [
+        cast(ICEnrollment, x) for x in await DbICEnrollment2425.find_multiple(filter)
+    ]
 
 
-async def update_interclubenrollment(
-    id: str, iu: ICEnrollmentDB, options: dict = {}
-) -> ICEnrollmentDB:
+async def update_icregistration(
+    id: str, iu: ICEnrollment, options: dict[str, Any] = {}
+) -> ICEnrollment:
     """
     update a interclub enrollment
     """
-    options1 = options.copy
-    options1["_model"] = options1.pop("_model", ICEnrollmentDB)
+    options1 = options.copy()
+    options1["_model"] = options1.pop("_model", ICEnrollment)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
-    return cast(ICEnrollmentDB, await DbICEnrollment.update(id, iudict, options1))
+    return cast(ICEnrollment, await DbICEnrollment2425.update(id, iudict, options1))
 
 
 # business methods
 
 
-async def find_interclubenrollment(idclub: str) -> ICEnrollmentDB | None:
+async def find_icregistration(idclub: int) -> ICEnrollment | None:
     """
     find an enrollment by idclub
     """
     logger.debug(f"find_interclubenrollment {idclub}")
-    enrs = await get_interclubenrollments({"idclub": idclub})
+    enrs = await get_icregistrations({"idclub": idclub})
     return enrs[0] if enrs else None
 
 
-async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollmentDB:
+async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
     """
     set enrollment (and overwrite it if it already exists)
     """
@@ -93,12 +87,14 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
     settings = get_settings()
-    enr = await find_interclubenrollment(idclub)
+    enr = await find_icregistration(idclub)
     if enr:
-        nenr = await update_interclubenrollment(
+        assert enr.id
+        nenr = await update_icregistration(
             enr.id,
-            ICEnrollmentDB(
+            ICEnrollment(
                 name=ie.name,
+                locale=locale,
                 teams1=ie.teams1,
                 teams2=ie.teams2,
                 teams3=ie.teams3,
@@ -108,8 +104,8 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
             ),
         )
     else:
-        id = await create_interclubenrollment(
-            ICEnrollmentDB(
+        id = await create_icregistration(
+            ICEnrollmentIn(
                 idclub=idclub,
                 locale=locale,
                 name=ie.name,
@@ -121,7 +117,7 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
                 wishes=ie.wishes,
             )
         )
-        nenr = await get_interclubenrollment(id)
+        nenr = await get_icregistration(id)
     receiver = (
         [club.email_main, settings.INTERCLUBS_CC_EMAIL]
         if club.email_main
@@ -135,48 +131,62 @@ async def set_interclubenrollment(idclub: str, ie: ICEnrollmentIn) -> ICEnrollme
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject="Interclub 2022-23",
+        subject="Interclubs 2024-2025",
         template="interclub/enrollment_{locale}.md",
     )
     sendEmail(mp, nenr.model_dump(), "interclub enrollment")
     return nenr
 
 
-async def csv_ICenrollments() -> str:
+async def xls_registrations() -> str:
     """
-    get all enrollments in csv format
+    get all reservations in xls format
     """
-    wishes_keys = [
-        "wishes.grouping",
-        "wishes.split",
-        "wishes.regional",
-        "wishes.remarks",
-    ]
-    fieldnames = [
-        "idclub",
-        "locale",
-        "name_long",
-        "name_short",
-        "teams1",
-        "teams2",
-        "teams3",
-        "teams4",
-        "teams5",
-        "idinvoice",
-        "idpaymentrequest",
-    ]
-    csvstr = io.StringIO()
-    csvf = csv.DictWriter(csvstr, fieldnames + wishes_keys)
-    csvf.writeheader()
-    for enr in await DbICEnrollment.find_multiple(
-        {"_fieldlist": fieldnames + ["wishes"]}
-    ):
-        enrdict = enr.model_dump()
-        id = enrdict.pop("id", None)
-        wishes = enr.pop("wishes", {})
-        enrdict["wishes.grouping"] = wishes.get("grouping", "")
-        enrdict["wishes.split"] = wishes.get("split", "")
-        enrdict["wishes.regional"] = wishes.get("regional", "")
-        enrdict["wishes.remarks"] = wishes.get("remarks", "")
-        csvf.writerow(enrdict)
-    return csvstr.getvalue()
+    docs = await get_icregistrations()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Reservations"
+    ws.append(
+        [
+            "id",
+            "idclub",
+            "idinvoice",
+            "idpaymentrequest",
+            "locale",
+            "name",
+            "teams1",
+            "teams2",
+            "teams3",
+            "teams4",
+            "teams5",
+            "grouping",
+            "splitting",
+            "regional",
+            "remarks",
+        ]
+    )
+    for d in docs:
+        ws.append(
+            [
+                d.id,
+                d.idclub,
+                d.idinvoice,
+                d.idpaymentrequest,
+                d.locale,
+                d.name,
+                d.teams1,
+                d.teams2,
+                d.teams3,
+                d.teams4,
+                d.teams5,
+                d.wishes.get("grouping", ""),
+                d.wishes.get("splitting", ""),
+                d.wishes.get("regional", ""),
+                d.wishes.get("remarks", ""),
+            ]
+        )
+    with NamedTemporaryFile() as tmp:
+        wb.save(tmp.name)
+        tmp.seek(0)
+        xlscontent = tmp.read()
+    return xlscontent

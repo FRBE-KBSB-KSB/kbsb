@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PLAYERSTATUS } from "@/util/interclubs"
 
 // store
@@ -14,8 +15,7 @@ defineExpose({ setup })
 const { $backend } = useNuxtApp()
 
 // i18n
-const { t: $t } = useI18n()
-const { localePath } = useLocalePath()
+const { t } = useI18n()
 
 //  snackbar and loading widgets
 import ProgressLoading from '@/components/ProgressLoading.vue'
@@ -39,7 +39,7 @@ const exportalldialog = ref(false)
 const exportallvisit = ref(0)
 const exportdialog = ref(false)
 const titularchoices = [{ title: "No titular", value: "" }]
-const plstatus = ref("noclub")
+const plstatus = ref("closed")
 
 // validation
 const validationdialog = ref(false)
@@ -48,14 +48,14 @@ const validationerrors = ref([])
 // data table definiton
 const headers = [
   { title: "N", key: "index" },
-  { title: $t("Name"), key: 'fullname' },
-  { title: $t("ID number"), key: 'idnumber', sortable: false },
+  { title: t("Name"), key: 'fullname' },
+  { title: t("ID number"), key: 'idnumber', sortable: false },
   { title: "ELO", key: "assignedrating" },
   { title: "F-ELO", key: "fiderating" },
   { title: "B-ELO", key: "natrating" },
   { title: "Club", key: "idcluborig" },
-  { title: $t("Titular"), key: "titular" },
-  { title: $t("Actions"), key: "action" },
+  { title: t("Titular"), key: "titular" },
+  { title: t("Actions"), key: "action" },
 ]
 const itemsPerPage = 50
 const itemsPerPageOptions = [
@@ -82,31 +82,32 @@ function assignPlayer(idnumber) {
 }
 
 async function calcPlstatus() {
-  if (!icclub.value.idclub) return 'noclub'
-  const now = new Date().valueOf()
-  if (now < startdate1.valueOf()) {
-    clubmembers.value = []
-    return "closed"
-  }
-  const acc = await checkAccess()
-  if (!acc) {
-    console.log('no access granted')
-    clubmembers.value = []
-    return "noaccess"
-  }
-  if (cutoffday1.valueOf() >= now && now > startdate2.valueOf()) {
-    clubmembers.value = []
-    return "closed"
-  }
-  if (cutoffday2.valueOf() >= now && now > startdate3.valueOf()) {
-    clubmembers.value = []
-    return "closed"
-  }
-  if (cutoffday3.valueOf() < now) {
-    clubmembers.value = []
-    return "closed"
-  }
-  return "open"
+  return "closed"
+  // if (!icclub.value.idclub) return 'noclub'
+  // const now = new Date().valueOf()
+  // if (now < startdate1.valueOf()) {
+  //   clubmembers.value = []
+  //   return "closed"
+  // }
+  // const acc = await checkAccess()
+  // if (!acc) {
+  //   console.log('no access granted')
+  //   clubmembers.value = []
+  //   return "noaccess"
+  // }
+  // if (cutoffday1.valueOf() >= now && now > startdate2.valueOf()) {
+  //   clubmembers.value = []
+  //   return "closed"
+  // }
+  // if (cutoffday2.valueOf() >= now && now > startdate3.valueOf()) {
+  //   clubmembers.value = []
+  //   return "closed"
+  // }
+  // if (cutoffday3.valueOf() < now) {
+  //   clubmembers.value = []
+  //   return "closed"
+  // }
+  // return "open"
 }
 
 function canAssign(idnumber) {
@@ -368,13 +369,12 @@ onMounted(() => {
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h2>{{ $t('Player list') }}</h2>
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'noclub'"
-      :text="$t('Please select a club')" />
+      :text="t('icn.select_club')" />
     <v-alert type="warning" variant="outlined" v-if="plstatus == 'closed'"
-      :text="$t('Currently the player list cannot be modified')" />
+      :text="t('icn.playerlist_closed')" />
     <v-alert type="error" variant="outlined" v-if="plstatus == 'noaccess'"
-      :text="$t('Permission denied')" />
+      :text="t('icn.perm_denie')" />
     <div v-if="plstatus == 'open'">
       <div v-if="!enrolled">
         This club is not enrolled in Interclubs 2023-24
@@ -434,24 +434,24 @@ onMounted(() => {
     <VDialog v-model="editdialog" width="20em">
       <VCard>
         <VCardTitle>
-          {{ $t('Edit') }}: {{ playeredit.fullname }}
+          {{ t('Edit') }}: {{ playeredit.fullname }}
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <h4>{{ $t('Modify assigned Elo') }}</h4>
-          <div>{{ $t('Current assigned rating') }}: {{ playeredit.assignedrating }} </div>
+          <h4>{{ t('Modify assigned Elo') }}</h4>
+          <div>{{ t('Current assigned rating') }}: {{ playeredit.assignedrating }} </div>
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
           <VTextField v-model="playeredit.assignedrating" label="New Elo" />
           <!-- <VDivider />
-					<h4>{{ $t('Titular') }}</h4>
+					<h4>{{ t('Titular') }}</h4>
 						<VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
 					<VDivider /> -->
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doEditPlayer">{{ $t('OK') }}</VBtn>
-          <VBtn @click="editdialog = false">{{ $t('Cancel') }}</VBtn>
+          <VBtn @click="doEditPlayer">{{ t('OK') }}</VBtn>
+          <VBtn @click="editdialog = false">{{ t('Cancel') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -492,21 +492,21 @@ onMounted(() => {
     <VDialog v-model="validationdialog" width="30em">
       <VCard>
         <VCardTitle>
-          {{ $t('Validation of player list.') }}
+          {{ t('Validation of player list.') }}
           <VDivider />
         </VCardTitle>
         <VCardText class="markdowncontent">
-          <div>{{ $t('The player list contains validation errors') }}</div>
+          <div>{{ t('The player list contains validation errors') }}</div>
           <ul>
             <li v-for="(err, ix) in validationerrors" :key="ix">
               <span v-show="err.errortype == 'ELO'">
-                {{ $t('Player') }} {{ $t(err.detail) }}: {{ $t(err.message) }}
+                {{ t('Player') }} {{ t(err.detail) }}: {{ t(err.message) }}
               </span>
               <span v-show="err.errortype == 'TitularOrder'">
-                {{ $t(err.message) }}
+                {{ t(err.message) }}
               </span>
               <span v-show="err.errortype == 'TitularCount'">
-                {{ $t(err.detail) }}: {{ $t(err.message) }}
+                {{ t(err.detail) }}: {{ t(err.message) }}
               </span>
             </li>
           </ul>
@@ -514,8 +514,8 @@ onMounted(() => {
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="savePlayerlist()">{{ $t('Save anyhow') }}</VBtn>
-          <VBtn @click="validationdialog = false">{{ $t('Cancel') }}</VBtn>
+          <VBtn @click="savePlayerlist()">{{ t('Save anyhow') }}</VBtn>
+          <VBtn @click="validationdialog = false">{{ t('Cancel') }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

@@ -1,9 +1,96 @@
-import pytest
+import pytest  # noqa F401
+
 from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 from fastapi.encoders import jsonable_encoder
 
 from kbsb.main import app
+from kbsb.interclubs.md_interclubs import ICEnrollmentIn
+
+
+@patch("kbsb.interclubs.api_interclubs.find_interclubenrollment")
+def test_find_interclubenrollment(
+    find_interclubenrollment: AsyncMock, ic_enrollment_factory
+):
+    client = TestClient(app)
+    find_interclubenrollment.return_value = ic_enrollment_factory.build()
+    resp = client.get("/api/v1/interclubs/anon/enrollment/123")
+    assert resp.status_code == 200
+    find_interclubenrollment.assert_awaited_with(123)
+
+
+@patch("kbsb.interclubs.api_interclubs.validate_token")
+@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
+def test_mgmt_set_enrollment(
+    set_interclubenrollment: AsyncMock,
+    vt: AsyncMock,
+    ic_enrollment_in_factory,
+    ic_enrollment_factory,
+):
+    client = TestClient(app)
+    set_interclubenrollment.return_value = ic_enrollment_factory.build()
+    enr_in = ic_enrollment_in_factory.build()
+    resp = client.post(
+        "/api/v1/interclubs/mgmt/enrollment/123", json=jsonable_encoder(enr_in)
+    )
+    assert resp.status_code == 200
+    set_interclubenrollment.assert_awaited()
+    callargs = set_interclubenrollment.await_args[0]
+    assert callargs[0] == 123
+    assert isinstance(callargs[1], ICEnrollmentIn)
+
+
+@patch("kbsb.interclubs.api_interclubs.validate_membertoken")
+@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
+def test_clb_set_enrollment(
+    set_interclubenrollment: AsyncMock,
+    vmt: MagicMock,
+    ic_enrollment_in_factory,
+    ic_enrollment_factory,
+):
+    client = TestClient(app)
+    set_interclubenrollment.return_value = ic_enrollment_factory.build()
+    enr_in = ic_enrollment_in_factory.build()
+    resp = client.post(
+        "/api/v1/interclubs/clb/enrollment/123", json=jsonable_encoder(enr_in)
+    )
+    assert resp.status_code == 200
+    set_interclubenrollment.assert_awaited()
+    callargs = set_interclubenrollment.await_args[0]
+    assert callargs[0] == 123
+    assert isinstance(callargs[1], ICEnrollmentIn)
+
+
+@patch("kbsb.interclubs.api_interclubs.validate_token")
+@patch("kbsb.interclubs.api_interclubs.csv_ICenrollments")
+def test_csv_interclubenrollments(csv_ICenrollments: AsyncMock, vt):
+    client = TestClient(app)
+    csv_ICenrollments.return_value = "csvcontent"
+    resp = client.get("/api/v1/interclubs/mgmt/command/exportenrollments?format=csv")
+    assert resp.status_code == 200
+    csv_ICenrollments.assert_awaited()
+    assert resp.content == b'"csvcontent"'
+
+
+@patch("kbsb.interclubs.api_interclubs.validate_membertoken")
+@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
+def test_clb_set_enrollment(
+    set_interclubenrollment: AsyncMock,
+    vt: AsyncMock,
+    ic_enrollment_in_factory,
+    ic_enrollment_factory,
+):
+    client = TestClient(app)
+    set_interclubenrollment.return_value = ic_enrollment_factory.build()
+    enr_in = ic_enrollment_in_factory.build()
+    resp = client.post(
+        "/api/v1/interclubs/clb/enrollment/123", json=jsonable_encoder(enr_in)
+    )
+    assert resp.status_code == 200
+    set_interclubenrollment.assert_awaited()
+    callargs = set_interclubenrollment.await_args[0]
+    assert callargs[0] == 123
+    assert isinstance(callargs[1], ICEnrollmentIn)
 
 
 @patch("kbsb.interclubs.api_interclubs.anon_getICteams")
@@ -11,7 +98,6 @@ def test_anon_getICTeams(anon_getICteams: AsyncMock, ic_team_factory):
     client = TestClient(app)
     anon_getICteams.return_value = ic_team_factory.batch(size=3)
     resp = client.get("/api/v1/interclubs/anon/icteams/123")
-    reply = resp.json()
     assert resp.status_code == 200
     anon_getICteams.assert_awaited()
 
@@ -21,7 +107,6 @@ def test_anon_getICclub(anon_getICclub: AsyncMock, ic_club_db_factory):
     client = TestClient(app)
     anon_getICclub.return_value = ic_club_db_factory.build()
     resp = client.get("/api/v1/interclubs/anon/icclub/123")
-    reply = resp.json()
     assert resp.status_code == 200
     anon_getICclub.assert_awaited()
 
@@ -31,7 +116,6 @@ def test_anon_getICclubs(anon_getICclubs: AsyncMock, ic_club_item_factory):
     client = TestClient(app)
     anon_getICclubs.return_value = ic_club_item_factory.batch(3)
     resp = client.get("/api/v1/interclubs/anon/icclub")
-    reply = resp.json()
     assert resp.status_code == 200
     anon_getICclubs.assert_awaited()
 
@@ -42,7 +126,6 @@ def test_clb_getICclub(clb_getICclub: AsyncMock, vmt: AsyncMock, ic_club_db_fact
     client = TestClient(app)
     clb_getICclub.return_value = ic_club_db_factory.build()
     resp = client.get("/api/v1/interclubs/clb/icclub/123")
-    reply = resp.json()
     assert resp.status_code == 200
     clb_getICclub.assert_awaited()
 
@@ -53,7 +136,6 @@ def test_mgmt_getICclub(mgmt_getICclub: AsyncMock, vt: AsyncMock, ic_club_db_fac
     client = TestClient(app)
     mgmt_getICclub.return_value = ic_club_db_factory.build()
     resp = client.get("/api/v1/interclubs/mgmt/icclub/123")
-    reply = resp.json()
     assert resp.status_code == 200
     mgmt_getICclub.assert_awaited()
 
@@ -72,7 +154,6 @@ def test_clb_validateICPlayers(
     resp = client.post(
         "/api/v1/interclubs/clb/icclub/123/validate", json=jsonable_encoder(pu)
     )
-    reply = resp.json()
     assert resp.status_code == 200
     clb_validateICPlayers.assert_awaited()
 
@@ -91,7 +172,6 @@ def test_mgmt_validateICPlayers(
     resp = client.post(
         "/api/v1/interclubs/mgmt/icclub/123/validate", json=jsonable_encoder(pu)
     )
-    reply = resp.json()
     assert resp.status_code == 200
     clb_validateICPlayers.assert_awaited()
 

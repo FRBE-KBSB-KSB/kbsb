@@ -11,11 +11,13 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from reddevil.core import register_app, get_settings, connect_mongodb, close_mongodb
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     connect_mongodb()
     yield
     close_mongodb()
+
 
 from . import version
 
@@ -80,9 +82,9 @@ logger.info("Api's loaded")
 
 
 # static files
-app.mount("/css", StaticFiles(directory="css"), name="css")
-app.mount("/img", StaticFiles(directory="img"), name="img")
-app.mount("/docs", StaticFiles(directory="docs"), name="docs")
+app.mount("/css", StaticFiles(directory="public/css"), name="css")
+app.mount("/img", StaticFiles(directory="public/img"), name="img")
+app.mount("/docs", StaticFiles(directory="public/docs"), name="docs")
 
 for route in app.routes:
     if isinstance(route, APIRoute):
@@ -90,4 +92,3 @@ for route in app.routes:
 
 # importing test endpoints
 import kbsb.tst_endpoints
-

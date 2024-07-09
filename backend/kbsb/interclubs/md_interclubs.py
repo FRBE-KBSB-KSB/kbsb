@@ -4,15 +4,15 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
-from datetime import datetime, date, time
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel
+from datetime import date, datetime
+from typing import Any
+from pydantic import BaseModel, ConfigDict
 from enum import StrEnum, auto
 from typing import Literal
 from reddevil.core.dbbase import DbBase
 
-# interclub data
 
+# old interclub data
 ICROUNDS = {
     1: date.fromisoformat("2023-09-24"),
     2: date.fromisoformat("2023-10-15"),
@@ -51,11 +51,14 @@ class GAMERESULT(StrEnum):
 
 
 class PlayerlistNature(StrEnum):
-    ASSIGNED = "assigned"
+    ASSIGNED = auto()
     UNASSIGNED = auto()
-    IMPORTED = "requestedin"
-    EXPORTED = "confirmedout"
+    IMPORTED = auto()
+    EXPORTED = auto()
     LOCKED = auto()
+    # older
+    REQUESTEDIN = auto()
+    CONFIRMEDOUT = auto()
 
 
 # interclub club
@@ -67,12 +70,12 @@ class ICTeam(BaseModel):
     """
 
     division: int
-    titular: List[int]
+    titular: list[int]
     idclub: int
     index: str
     name: str  # includes numbercat like "KOSK 1"
     pairingnumber: int
-    playersplayed: List[int]
+    playersplayed: list[int]
     teamforfeit: bool = False
 
 
@@ -116,7 +119,7 @@ class ICPlayerUpdate(BaseModel):
     a input validator for a list of Player updates
     """
 
-    players: List[ICPlayerUpdateItem]
+    players: list[ICPlayerUpdateItem]
 
 
 class ICPlayerValidationError(BaseModel):
@@ -138,8 +141,8 @@ class ICClubDB(BaseModel):
     name: str
     id: str | None
     idclub: int
-    teams: List[ICTeam]
-    players: List[ICPlayer]
+    teams: list[ICTeam]
+    players: list[ICPlayer]
     enrolled: bool
 
 
@@ -150,7 +153,7 @@ class ICClubItem(BaseModel):
 
     name: str
     idclub: int
-    teams: List[ICTeam]
+    teams: list[ICTeam]
     enrolled: bool
 
 
@@ -167,8 +170,7 @@ class ICGame(BaseModel):
     result: GAMERESULT = GAMERESULT.NOTPLAYED
     overruled: GAMERESULT | None = GAMERESULT.NOTOVERRULED
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ICGameDetails(BaseModel):
@@ -185,8 +187,7 @@ class ICGameDetails(BaseModel):
     result: GAMERESULT = GAMERESULT.NOTPLAYED
     overruled: GAMERESULT | None = GAMERESULT.NOTOVERRULED
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ICEncounter(BaseModel):
@@ -202,7 +203,7 @@ class ICEncounter(BaseModel):
     matchpoint_visit: int = 0
     boardpoint2_home: int = 0
     boardpoint2_visit: int = 0
-    games: List[ICGame] = []
+    games: list[ICGame] = []
     played: bool = False
     signhome_idnumber: int = 0
     signhome_ts: datetime | None = None
@@ -217,7 +218,7 @@ class ICRound(BaseModel):
 
     round: int
     rdate: str
-    encounters: List[ICEncounter]
+    encounters: list[ICEncounter]
 
 
 class ICSeriesDB(BaseModel):
@@ -228,8 +229,8 @@ class ICSeriesDB(BaseModel):
     division: int
     index: str
     id: str
-    teams: List[ICTeam]
-    rounds: List[ICRound] = []
+    teams: list[ICTeam]
+    rounds: list[ICRound] = []
 
 
 class ICSeries(BaseModel):
@@ -239,8 +240,8 @@ class ICSeries(BaseModel):
 
     division: int
     index: str
-    teams: List[ICTeam]
-    rounds: List[ICRound] = []
+    teams: list[ICTeam]
+    rounds: list[ICRound] = []
 
 
 class ICTeamGame(BaseModel):
@@ -264,7 +265,7 @@ class ICTeamStanding(BaseModel):
     pairingnumber: int
     matchpoints: int
     boardpoints: float
-    games: List[ICTeamGame]
+    games: list[ICTeamGame]
 
 
 class ICStandingsDB(BaseModel):
@@ -276,7 +277,7 @@ class ICStandingsDB(BaseModel):
     division: int
     id: str | None = None
     index: str
-    teams: List[ICTeamStanding]
+    teams: list[ICTeamStanding]
 
 
 class ICPlanningItem(BaseModel):
@@ -285,7 +286,7 @@ class ICPlanningItem(BaseModel):
     """
 
     division: int
-    games: List[ICGame]
+    games: list[ICGame]
     idclub: int
     idclub_opponent: int
     index: str
@@ -302,7 +303,7 @@ class ICPlanning(BaseModel):
     a input validator for the planning of IC club for a round
     """
 
-    plannings: List[ICPlanningItem]
+    plannings: list[ICPlanningItem]
 
 
 class ICResultItem(BaseModel):
@@ -312,7 +313,7 @@ class ICResultItem(BaseModel):
 
     boardpoints: str | None = None
     division: int
-    games: List[ICGame]
+    games: list[ICGame]
     icclub_home: int
     icclub_visit: int
     index: str
@@ -334,7 +335,7 @@ class ICResult(BaseModel):
     an input validator for a the incoming IC results of a club
     """
 
-    results: List[ICResultItem]
+    results: list[ICResultItem]
 
 
 # enrollment
@@ -343,20 +344,21 @@ class ICResult(BaseModel):
 class ICEnrollmentDB(BaseModel):
     """
     an IC Enrollment as written in the database
+    for doc purposes only
     """
 
     id: str
     idclub: int
-    idinvoice: str | None = None
-    idpaymentrequest: str | None = None
-    locale: str | None = None
-    name: str | None = None
-    teams1: int | None = None
-    teams2: int | None = None
-    teams3: int | None = None
-    teams4: int | None = None
-    teams5: int | None = None
-    wishes: Dict | None = {}
+    idinvoice: str
+    idpaymentrequest: str
+    locale: str
+    name: str
+    teams1: int
+    teams2: int
+    teams3: int
+    teams4: int
+    teams5: int
+    wishes: dict[str, Any]
 
 
 class ICEnrollment(BaseModel):
@@ -375,7 +377,26 @@ class ICEnrollment(BaseModel):
     teams3: int | None = None
     teams4: int | None = None
     teams5: int | None = None
-    wishes: Dict | None = None
+    wishes: dict | None = None
+
+
+class ICEnrollmentOut(BaseModel):
+    """
+    an IC Enrollment as used internally
+    """
+
+    id: str
+    idclub: int
+    idinvoice: str = ""
+    idpaymentrequest: str = ""
+    locale: str
+    name: str
+    teams1: int = 0
+    teams2: int = 0
+    teams3: int = 0
+    teams4: int = 0
+    teams5: int = 0
+    wishes: dict = {}
 
 
 class ICEnrollmentHistory(BaseModel):
@@ -394,6 +415,8 @@ class ICEnrollmentIn(BaseModel):
     a input validator for an new enrollment
     """
 
+    locale: str | None = "nl"
+    idclub: int | None = None
     teams1: int
     teams2: int
     teams3: int
@@ -416,7 +439,7 @@ class ICVenueItem(BaseModel):
     phone: str | None
     capacity: int  # number of boards, 0  is unlimited
     remarks: str | None = ""
-    notavailable: List[str]
+    notavailable: list[str]
 
 
 class ICVenueIn(BaseModel):
@@ -424,7 +447,7 @@ class ICVenueIn(BaseModel):
     an input validator for the IC Venues
     """
 
-    venues: List[ICVenueItem]
+    venues: list[ICVenueItem]
 
 
 class ICVenueDB(BaseModel):
@@ -434,7 +457,7 @@ class ICVenueDB(BaseModel):
 
     id: str | None = None
     idclub: int | None = None
-    venues: List[ICVenueItem]
+    venues: list[ICVenueItem]
 
 
 # DB classes
@@ -471,7 +494,15 @@ class DbICClub(DbBase):
 
 
 class DbICEnrollment(DbBase):
-    COLLECTION = "interclub2324enrollment"
+    COLLECTION = "icenrollment_wrongseason"
+    DOCUMENTTYPE = ICEnrollmentDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = True
+
+
+class DbICEnrollment2425(DbBase):
+    COLLECTION = "interclub2425enrollment"
     DOCUMENTTYPE = ICEnrollmentDB
     VERSION = 1
     IDGENERATOR = "uuid"

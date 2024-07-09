@@ -54,8 +54,10 @@ function gotoOldsite(url) {
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" :title="t('Competitions')" />
         </template>
-        <v-list-item to="/interclubs/info" title="Interclubs 2023-24" />
-        <v-list-item to="/interclubs/interclubs-2022-23" title="Interclubs 2022-23" />
+        <v-list-item to="/interclubs/info/2425" title="Interclubs 2024-25" />
+        <v-list-item to="/interclubs/info/2324" title="Interclubs 2023-24" />
+        <!-- <v-list-item wz1knbg
+         to="/interclubs/interclubs-2022-23" title="Interclubs 2022-23" /> -->
         <v-list-item to="/competition/championships-adult" :title="t('BC Adults')" />
         <v-list-item to="/competition/championships-blitz" :title="t('BC Blitz')" />
         <v-list-item to="/competition/championships-rapid" :title="t('BC Rapid')" />

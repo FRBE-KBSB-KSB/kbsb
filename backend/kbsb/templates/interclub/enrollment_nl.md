@@ -1,6 +1,6 @@
-## Inschrijving Interclub 2022-2023
+## Inschrijving Interclub 2024-2025
 
-Hierbij bevestigen wij de inschrijving van {{ idclub }}: {{ name_short }}, {{ name_long }} voor het interclubseizoen 2022-2023
+Hierbij bevestigen wij de inschrijving van {{ idclub }}: {{ name }} voor het interclubseizoen 2024-2025
 
 Volgende ploegen werden ingeschreven:
 
@@ -25,7 +25,7 @@ Volgende ploegen werden ingeschreven:
 Wensen:
 
  - Teams gegroepeerd per paringsnummer: {{ grouping [wishes.grouping] }}
- - Verdeling teams in dezelfde afdeling: {{ splitting [wishes.split] }}
+ - Verdeling teams in dezelfde afdeling: {{ splitting [wishes.splitting] }}
  - Regionale voorkeuren: {{ wishes.regional }}
  - Opmerkingen: {{ wishes.remarks }}
 
