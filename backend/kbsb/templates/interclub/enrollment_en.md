@@ -1,6 +1,6 @@
-`## Registration Interclub 2022-2023
+`## Enrollment Interclub 2024-2025
 
-We hereby confirm the registration of {{ idclub }}: {{ name_short }}, {{ name_long }} for the interclub season 2022-2023
+We hereby confirm the registration of {{ idclub }}: {{ name }} for the interclub season 2024-2025
 
 The following teams were entered:
 
@@ -26,7 +26,7 @@ The following teams were entered:
 Wishes:
 
  - Teams grouped by pairing number: {{ grouping [wishes.grouping] }}
- - Distribution of teams in same division: {{ splitting [wishes.split] }}
+ - Distribution of teams in same division: {{ splitting [wishes.splitting] }}
  - Regional preferences: {{ wishes.regional }}
  - Remarks: {{ wishes.remarks }}
  

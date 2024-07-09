@@ -1,9 +1,12 @@
+import yaml
+from reddevil.core import get_settings
+
 from .md_interclubs import (
-    ICROUNDS,
     PLAYERSPERDIVISION,
-    GAMERESULT,
+    ICROUNDS,
     DbICClub,
     DbICEnrollment,
+    DbICEnrollment2425,
     DbICSeries,
     DbICStandings,
     DbICVenue,
@@ -13,6 +16,7 @@ from .md_interclubs import (
     ICEnrollment,
     ICEnrollmentDB,
     ICEnrollmentIn,
+    ICEnrollmentOut,
     ICGame,
     ICGameDetails,
     ICPlanning,
@@ -60,9 +64,9 @@ from .series import (
     mgmt_register_teamforfeit,
 )
 from .enrollments import (
-    csv_ICenrollments,
-    find_interclubenrollment,
-    set_interclubenrollment,
+    find_icregistration,
+    set_icregistration,
+    xls_registrations,
 )
 from .venues import (
     csv_ICvenues,

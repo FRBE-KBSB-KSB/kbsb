@@ -1,7 +1,6 @@
 # copyright Ruben Decrop 2012 - 2022
 
 import os
-import yaml
 from pathlib import Path
 import logging
 
@@ -36,8 +35,12 @@ GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
+ICDATA_PATH = os.environ.get("ICDATA_PATH", "../data/ic2425.yml")
+INTERCLUBS_CC_EMAIL = "interclubs@frbe-kbsb-ksb.be"
+
 JWT_ALGORITHM = "HS256"
 JWT_SECRET = "levedetorrevanostende"
+
 
 LOG_CONFIG = {
     "version": 1,
@@ -64,11 +67,7 @@ LOG_CONFIG = {
             "level": "INFO",
             "propagate": False,
         },
-        "reddevil": {
-            "handlers": ["console"], 
-            "level": "INFO", 
-            "propagate": False
-        },
+        "reddevil": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "fastapi": {
             "handlers": ["console"],
             "level": "INFO",
@@ -106,7 +105,7 @@ SECRETS = {
     "known-hosts": {
         "name": "known-hosts",
         "manager": "googlejson",
-    },    
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
@@ -123,7 +122,7 @@ TOKEN = {
     "nocheck": False,
 }
 
-print("KBSB_MODE", KBSB_MODE) 
+print("KBSB_MODE", KBSB_MODE)
 ls = "No local settings loaded"
 
 if KBSB_MODE == "local":
@@ -133,7 +132,6 @@ if KBSB_MODE == "local":
 if KBSB_MODE == "prodtest":
     ls = "importing prodtest settings"
     from env_prodtest import *
-
 
 
 if COLORLOG:
