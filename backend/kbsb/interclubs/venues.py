@@ -40,7 +40,8 @@ async def get_interclubvenues(id: str, options: dict = {}) -> ICVenueDB:
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICVenueDB)
     filter["id"] = id
-    return cast(ICVenueDB, await DbICVenue.find_single(filter))
+    # return cast(ICVenueDB, await DbICVenue.find_single(filter))
+    return await DbICVenue.find_single(filter)
 
 
 async def get_interclubvenues_clubs(options: dict = {}) -> list[ICVenueDB]:
@@ -49,7 +50,7 @@ async def get_interclubvenues_clubs(options: dict = {}) -> list[ICVenueDB]:
     """
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICVenueDB)
-    return [cast(ICVenueDB, x) for x in await DbICVenue.find_multiple(filter)]
+    return [x for x in await DbICVenue.find_multiple(filter)]
 
 
 async def update_interclubvenues(
@@ -68,7 +69,7 @@ async def update_interclubvenues(
 async def getICvenues(idclub: int) -> ICVenueDB:
     try:
         venues = await DbICVenue.find_single({"_model": ICVenueDB, "idclub": idclub})
-    except RdNotFound as e:
+    except RdNotFound:
         return ICVenueDB(id="", idclub=idclub, venues=[])
     return venues
 
@@ -82,8 +83,6 @@ async def set_interclubvenues(idclub: str, ivi: ICVenueIn) -> ICVenueDB:
     if not club:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
-    logger.info(f"locale {locale}")
-    settings = get_settings()
     ivn = await getICvenues(idclub)
     iv = ICVenueDB(
         idclub=idclub,

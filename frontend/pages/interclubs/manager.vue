@@ -64,7 +64,7 @@ function changeTab() {
       refresults.value.setup(icclub.value, round.value)
       break
     case 'venues':
-      refvenues.value.setup(icclub.value)
+      refvenues.value.setup(icclub.value, icdata.value)
       break
   }
 }
