@@ -27,9 +27,9 @@ const empty_venue = {
   phone: "",
   capacity: 0,
   remarks: "",
-  rounds: "ALL",
-  teams: "ALL",
-  weelchair: true,
+  rounds: "",
+  teams: "",
+  wheelchair: true,
 };
 const venues = ref([])
 const ven_status = ref('closed')
@@ -38,13 +38,13 @@ let icclub = {}
 let icdata = {}
 
 
-function addEmptyVenue() {
+function addVenue() {
   venues.value.push({ ...empty_venue })
 }
 
 
 async function cancelVenues() {
-  van_status.value = 'open'
+  ven_status.value = 'open'
   await getICVenues()
 }
 
@@ -97,11 +97,11 @@ async function getICVenues() {
   showLoading(true)  
   try {
     reply = await $backend("interclub", "anon_getICVenues", {
-      idclub: icclub.value.idclub
+      idclub: icclub.idclub
     })
     readVenues(reply.data)
   } catch (error) {
-    displaySnackbar(t(error.message))
+    showSnackbar(t(error.message))
     return
   }
   finally {
@@ -130,8 +130,13 @@ function readVenues(data){
   console.log('readvenues', data)
   venues.value= []
   if (data) {
-    data.forEach((v)=>{
-      venues.value.push({...empty_venue, ...v})      
+    data.venues.forEach((v)=>{
+      let vn = {...empty_venue, ...v}
+      vn.rounds = vn.rounds.join(',')
+      vn.roundsel = vn.rounds.length ? "selected" : "all"
+      vn.teams = vn.teams.join(",")
+      vn.teamssel = vn.rounds.length ? "selected" : "all"
+      venues.value.push(vn)      
     })
   }
   console.log('venues read', venues.value)
@@ -139,13 +144,18 @@ function readVenues(data){
 
 async function saveVenues() {
   let reply
+  venues.value.forEach((v)=>{
+    v.rounds = v.roundsel == "selected" ? v.roundsel.split(',') : []
+    v.teams = v.teamssel == "selected" ? v.teamssel.split(',') : []
+  })
   showLoading(true)
   try {
     reply = await $backend("interclub", "set_interclubvenues", {
       token: idtoken.value,
-      idclub: icclub.value,
+      idclub: icclub.idclub,
       venues: venues.value,
     })
+    showSnackbar(t('enc.save_ven_ok'))     
   } 
   catch (error) {
     console.log('NOK set_venue', error)
@@ -180,9 +190,9 @@ async function setup(icclub_, icdata_) {
     <ProgressLoading ref="refloading" />      
     <v-alert type="warning" variant="outlined" v-if="ven_status == 'closed'"
       :text="t('icn.ven_closed')" />
-    <v-alert type="warning" variant="outlined" v-if="van_status == 'noclub'"
+    <v-alert type="warning" variant="outlined" v-if="ven_status == 'noclub'"
       :text="t('icn.select_club')" />
-    <v-alert type="error" variant="outlined" v-if="van_status == 'noaccess'"
+    <v-alert type="error" variant="outlined" v-if="ven_status == 'noaccess'"
       :text="t('icn.perm_denied')" />   
     <div v-if="ven_status == 'open'">
       <v-row v-show="!venues.length">
@@ -198,7 +208,7 @@ async function setup(icclub_, icdata_) {
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in venues" :key="ix">
+        <v-col cols="12" sm="6" v-for="(v, ix) in venues" :key="ix">
           <v-card class="elevation-5">
             <v-card-title>
               {{ $t('Venue') }}: {{ ix + 1 }}
@@ -208,7 +218,9 @@ async function setup(icclub_, icdata_) {
                 <span v-html="v.address.split('\n').join('<br />')"></span>
               </div>
               <div><b>{{ $t('Capacity (boards)') }}:</b> {{ v.capacity }}</div>
-              <div><b>{{ $t('Not available') }}:</b> {{ v.notavailable.join(', ') }}</div>
+              <div><b>{{ $t('Teams') }}:</b> {{ v.teams }}</div>
+              <div><b>{{ $t('Rounds') }}:</b> {{ v.rounds }}</div>
+              <div><b>{{ $t('Wheelchair)') }}:</b> {{ v.wheelchair }}</div>
               <p>{{ $t('Optional') }}</p>
               <div><b>{{ $t('Email address venue') }}:</b> {{ v.email }}</div>
               <div><b>{{ $t('Telephone number venue') }}:</b> {{ v.phone }}</div>
@@ -223,8 +235,19 @@ async function setup(icclub_, icdata_) {
       </v-row>
     </div>
     <div v-if="ven_status=='editing'">
+      <v-row class="my-2">
+        <v-btn @click="addVenue()">
+          {{ $t('icn.add_venue') }}
+        </v-btn>
+        <v-btn @click="saveVenues" class="ml-2">
+          {{ $t('icn.save_venue') }}
+        </v-btn>
+        <v-btn @click="cancel" class="ml-2">
+          {{ $t('Cancel') }}
+        </v-btn>
+      </v-row>        
       <v-row>
-        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in venues" :key="ix">
+        <v-col cols="12" sm="6" v-for="(v, ix) in venues" :key="ix">
           <v-card class="elevation-5">
             <v-card-title>
               {{ $t('Venue') }}: {{ ix + 1 }}
@@ -234,34 +257,31 @@ async function setup(icclub_, icdata_) {
                 @input="addEmptyVenue" outlined />
               <v-text-field v-model="v.capacity" :label="$t('Capacity (boards)')" type="number" />
               <h4>{{ $t('Availability') }}</h4>
-              <v-radio-group v-model="v.available">
+              <v-radio-group v-model="v.roundsel">
                 <v-radio value="all" :label="$t('All rounds')" />
                 <v-radio value="selected"
-                  :label="$t('The venue is not available on following rounds')" />
+                  :label="$t('icn.ven_round_avail')" />
               </v-radio-group>
-              <v-select multiple v-show="v.available != 'all'" :items="rounds" chips
-                v-model="v.notavailable"
-                :label="$t('Select the rounds the venue is not available')" />
+              <v-text-field v-show="v.roundsel == 'selected'" v-model="v.rounds" :label="t('icn.ven_rounds_select')" />
+              <v-radio-group v-model="v.teamssel">
+                <v-radio value="all" :label="$t('All teams')" />
+                <v-radio value="selected"
+                  :label="$t('icn.ven_teams_avail')" />
+              </v-radio-group>
+              <v-text-field v-show="v.teamssel == 'selected'" v-model="v.teams" :label="t('icn.ven_teams_select')"/>
+              <v-checkbox v-model="v.wheelchair" :label="t('icn.wheelchair')" />
               <p class="fieldname">{{ $t('Optionally') }}</p>
               <v-text-field v-model="v.email" :label="$t('Email address venue')" />
               <v-text-field v-model="v.phone" :label="$t('Telephone number venue')" />
               <v-textarea v-model="v.remarks" :label="$t('Remarks')" />
             </v-card-text>
             <v-card-actions>
-              <v-btn fab small @click="deleteVenue(ix)" v-show="ix < venues.length - 1">
+              <v-btn fab small @click="deleteVenue(ix)" >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
-      </v-row>
-      <v-row>
-        <v-btn @click="saveVenues">
-          {{ $t('Save Venues') }}
-        </v-btn>
-        <v-btn @click="cancelVenues">
-          {{ $t('Cancel') }}
-        </v-btn>
       </v-row>
     </div>
   </v-container>

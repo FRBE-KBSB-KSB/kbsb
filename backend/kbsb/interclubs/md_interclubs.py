@@ -439,7 +439,7 @@ class ICVenueItem(BaseModel):
     email: str | None = ""
     phone: str | None = ""
     remarks: str | None = ""
-    rounds: list[int] | None = None
+    rounds: list[str] | None = None
     teams: list[str] | None = None
     wheelchair: bool | None = False
 

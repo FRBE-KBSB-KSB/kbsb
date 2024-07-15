@@ -47,7 +47,7 @@ export default {
 
   //venues
   anon_getICVenues: async function (options) {
-    const { token, idclub } = options
+    const { idclub } = options
     const resp = await axios.get(`${prefix}/anon/venue/${idclub}`)
     return resp
   },
@@ -244,7 +244,8 @@ export default {
   mgmt_generate_penalties: async function (options) {
     const { token, round } = options
     const resp = await axios.post(
-      `${prefix}/mgmt/command/penalties/${round}`, {},
+      `${prefix}/mgmt/command/penalties/${round}`,
+      {},
       { headers: { Authorization: "Bearer " + token } }
     )
     return resp
@@ -260,5 +261,4 @@ export default {
     )
     return resp
   },
-
 }

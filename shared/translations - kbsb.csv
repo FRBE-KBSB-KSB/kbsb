@@ -2,6 +2,7 @@ ctx,key,en,nl,fr,de
 icn,1group,1 group,1 groep,1 groupe,1 Gruppe
 icn,1series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 icn,2groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
+icn,add_venue,Add a venue,Speellokaal toevoegen,Ajouter une salle de jeu,Spielort hinzufügen
 icn,dist,Distribution,Verdeling,Distribution,Verteilung
 icn,div,Division,Divisie,Division,Division
 icn,enr,Enrollment,Inschrijving,Inscription,Anmeldung
@@ -20,6 +21,7 @@ icn,reg_pref,Regional preferences,Regionale voorkeuren,Préférences régionales
 icn,results_closed,The management of the results is currently unavailable,Het beheer van de resultaten is momenteel niet beschikbaar,La gestion des résultats est actuellement indisponible,Die Ergebnisverwaltung  ist derzeit nicht verfügbar
 icn,save_enr_fail,Saving enrollment failed,Opslaan inschrijving mislukt,Enregistrément échoué,Speichern Registrierung fehlgeschlagen
 icn,save_enr_ok,Saving enrollment OK,Opslaan inschrijving OK,Inscription bien enregistré,Speichern Registrierung OK
+icn,save_venue,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 icn,select_club,Please select a club,Selecteer een club,Veuillez sélectionner un club,Bitte wählen Sie einen Verein aus
 icn,team_name,"You can define a name for your club when the results and standings are displayed. As a default, your clubname is used.",U kunt een naam voor uw club definiëren wanneer de resultaten en standen worden weergegeven.  Standaard wordt je clubnaam gebruikt.,"Vous pouvez définir un nom pour votre club lors de l'affichage des résultats et du classement. Par défaut, le nom de cercle est utilisé.","Sie können einen Namen für Ihren Verein festlegen, wenn die Ergebnisse und Tabellen angezeigt werden. Standardmäßig wird Ihr Vereinsname verwendet."
 icn,teams,Teams,Teams,Equipes,Mannschaften
@@ -27,7 +29,12 @@ icn,teams_distr,Distribution of teams in same division,Verdeling van teams in de
 icn,teams_div,Teams in division,Teams in divisie,Equipes en division,Mannschaften in der Division
 icn,teams_grouped,Teams grouped by pairing number,Teams gegroepeerd per paringsnummer,Equipes regroupées par numéro d'appariement,Teams gruppiert nach Paarung-Nummer
 icn,teams_nb_div,Number of teams per division,Aantal teams per divisie,Nombre d'équipes par division,Anzahl der Teams pro Division
+icn,ven_round_avail,Available for the ounds,Beschikbaar op ronden,Disponibles aux rondes,Verfügbar in den Runden
+icn,ven_round_selected,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
+icn,ven_teams_avail,Teams using the venue ,Teams die het lokaal gebruiken,Equipes qui utilisent la salle,"Mannschaften, die den Spielorte nutzen"
+icn,ven_round_selected,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
 icn,venues_closed,The management of the planning is currently unavailable,Het beheer van de speelzalen is momenteel niet beschikbaar,La gestion de la liste des salles de jeu est actuellement indisponible,Die Verwaltung der Spielräume ist derzeit nicht verfügbar
+icn,weelchair,Wheelchair accessible,Toegankelijk voor rolstoel,Accessible aux fauteuils roulants,Barrierefrei
 icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
 ,Actions,Actions,Acties,Actions,Aktionen
@@ -40,6 +47,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
 ,Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
 ,All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
+,All teams,All teams,Alle teams,Toutes les équipes,Alle Mannschaften
 ,Announcements,Announcements,Meldingen,Annonces,Ankündigungen
 ,"As such, for this interclub season, it can transfer it members to other clubs.","As such, for this interclub season, it can transfer it members to other clubs.",Als zodanig kan het voor dit interclubseizoen zijn leden overdragen aan andere clubs.,"A ce titre, pour cette saison interclubs, il peut transférer ses membres vers d'autres clubs.",Als solcher kann er für diese Interclub-Saison seine Mitglieder zu anderen Clubs transferieren.
 ,Assigned Rating,Assigned Elo,Toegewezen Elo,Elo attribué,Zugewiesenes Elo
@@ -239,7 +247,6 @@ icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis
 ,Save enrollment,Save enrollment,Inschrijving opslaan,Enregistrer l'inscription,Anmeldung speichern
 ,Save player list,Save player list,Spelerslijst opslaan,Sauvegarder la liste de force,Spielerliste speichern
 ,Save results,Save results,Resultaten bewaren,Sauvegarder les résultats,Ergebnisse speichern
-,Save Venues,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 ,Secretary,Secretary,Secretaris,Secrétaire,Sekretär
 ,secretary,secretary,secretaris,secrétaire,Sekretär
 ,Secretary general,Secretary general,Secretaris-generaal,Secrétaire général,Generalsekretär
