@@ -5,31 +5,22 @@ env_variables:
 
 handlers:
 
-# root 
-- url: /
-  static_files: .output/public/index.html
-  upload: .output/public/index.html
-  secure: always
+  - url: /(.*\..+)$
+    static_files: dist/\1
+    upload: dist/(.*\..+)$
+    secure: always
 
-# url  /capi
-- url: /capi
-  static_dir: .output/public/capi
-  secure: always
+  - url: /
+    static_files: dist/index.html
+    secure: always
+    upload: dist/index.html
 
-# url ending with /
-- url: /(.+)/
-  static_files: .output/public/\1/index.html
-  upload: .output/public/(.+)/index.html
-  secure: always
+  - url: /([^\.]*)$
+    static_files: dist/\1/index.html
+    upload: dist/([^\.]*)/index.html
+    secure: always
 
-# url with no dot
-- url: /([^.]*)$
-  static_files: .output/public/\1/index.html
-  upload: .output/public/[^.]*/index.html
-  secure: always
-
-# the rest
-- url: /(.*)
-  static_files: .output/public/\1
-  upload: .output/public/(.*)
-  secure: always
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist//index.html
+    secure: always
