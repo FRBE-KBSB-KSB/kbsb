@@ -2,7 +2,6 @@ ctx,key,en,nl,fr,de
 icn,1group,1 group,1 groep,1 groupe,1 Gruppe
 icn,1series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 icn,2groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
-icn,add_venue,Add a venue,Speellokaal toevoegen,Ajouter une salle de jeu,Spielort hinzufügen
 icn,dist,Distribution,Verdeling,Distribution,Verteilung
 icn,div,Division,Divisie,Division,Division
 icn,enr,Enrollment,Inschrijving,Inscription,Anmeldung
@@ -22,7 +21,6 @@ icn,reg_pref,Regional preferences,Regionale voorkeuren,Préférences régionales
 icn,results_closed,The management of the results is currently unavailable,Het beheer van de resultaten is momenteel niet beschikbaar,La gestion des résultats est actuellement indisponible,Die Ergebnisverwaltung  ist derzeit nicht verfügbar
 icn,save_enr_fail,Saving enrollment failed,Opslaan inschrijving mislukt,Enregistrément échoué,Speichern Registrierung fehlgeschlagen
 icn,save_enr_ok,Saving enrollment OK,Opslaan inschrijving OK,Inscription bien enregistré,Speichern Registrierung OK
-icn,save_venue,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 icn,select_club,Please select a club,Selecteer een club,Veuillez sélectionner un club,Bitte wählen Sie einen Verein aus
 icn,team_name,"You can define a name for your club when the results and standings are displayed. As a default, your clubname is used.",U kunt een naam voor uw club definiëren wanneer de resultaten en standen worden weergegeven.  Standaard wordt je clubnaam gebruikt.,"Vous pouvez définir un nom pour votre club lors de l'affichage des résultats et du classement. Par défaut, le nom de cercle est utilisé.","Sie können einen Namen für Ihren Verein festlegen, wenn die Ergebnisse und Tabellen angezeigt werden. Standardmäßig wird Ihr Vereinsname verwendet."
 icn,teams,Teams,Teams,Equipes,Mannschaften

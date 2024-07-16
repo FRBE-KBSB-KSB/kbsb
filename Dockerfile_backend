@@ -2,8 +2,10 @@
 FROM python:3.11
 RUN pip install poetry
 WORKDIR /app
-COPY backend backend
-COPY shared shared
+COPY backend/pyproject.toml ./backend/pyproject.toml
+COPY backend/libs ./backend/libs/
 WORKDIR /app/backend
 RUN poetry install
+COPY backend .
+COPY shared ../shared
 CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "kbsb.main:app"] 

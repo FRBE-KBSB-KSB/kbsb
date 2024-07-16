@@ -4,6 +4,7 @@ import logging
 from tempfile import NamedTemporaryFile
 import openpyxl
 from typing import cast, Any
+from fastapi import BackgroundTasks
 from reddevil.core import (
     RdNotFound,
     get_settings,
@@ -77,7 +78,9 @@ async def find_icregistration(idclub: int) -> ICEnrollment | None:
     return enrs[0] if enrs else None
 
 
-async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
+async def set_icregistration(
+    idclub: int, ie: ICEnrollmentIn, bt: BackgroundTasks
+) -> ICEnrollment:
     """
     set registration (and overwrite it if it already exists)
     """
@@ -134,7 +137,12 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         subject=f"Interclubs 2024-2025 club {idclub} {ie.name}",
         template="interclub/enrollment_{locale}.md",
     )
-    sendEmail(mp, nenr.model_dump(), "interclub registration")
+    if bt:
+        try:
+            bt.add_task(sendEmail, mp, nenr.model_dump(), "interclub registration")
+        except Exception:
+            logger.error("sending confirmation email failed")
+            pass
     return nenr
 
 
