@@ -87,6 +87,7 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
     settings = get_settings()
+    assert settings is not None
     enr = await find_icregistration(idclub)
     if enr:
         assert enr.id
