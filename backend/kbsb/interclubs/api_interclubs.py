@@ -1,6 +1,6 @@
 import logging
 import base64
-from fastapi import HTTPException, Depends, APIRouter
+from fastapi import HTTPException, Depends, APIRouter, BackgroundTasks
 from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
@@ -85,11 +85,12 @@ async def api_find_interclubenrollment(idclub: int):
 async def api_clb_set_enrollment(
     idclub: int,
     ie: ICEnrollmentIn,
+    bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
         validate_membertoken(auth)
-        return await set_icregistration(idclub, ie)
+        return await set_icregistration(idclub, ie, bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -101,11 +102,12 @@ async def api_clb_set_enrollment(
 async def api_mgmt_set_enrollment(
     idclub: int,
     ie: ICEnrollmentIn,
+    bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
         await validate_token(auth)
-        return await set_icregistration(idclub, ie)
+        return await set_icregistration(idclub, ie, bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -132,12 +134,13 @@ async def api_xls_registrations(
 async def api_set_enrollment(
     idclub: int,
     ie: ICEnrollmentIn,
+    bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
         validate_membertoken(auth)
         # TODO check club autorization
-        return await set_icregistration(idclub, ie)
+        return await set_icregistration(idclub, ie, bt=bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -251,7 +254,7 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    logger.info(f"api_clb_getICclub {idclub}")
+    logger.info(f"api_clb_getICclub {idclub} {auth}")
     try:
         validate_membertoken(auth)
         return await clb_getICclub(idclub)

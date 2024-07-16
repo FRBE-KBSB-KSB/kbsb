@@ -125,12 +125,7 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
     """
 
     logger.info(f"clb_getICclub {idclub}")
-    try:
-        return await get_icclub({"idclub": idclub})
-    except RdNotFound:
-        pass
-    # we need to check if the club is registered, and if so
-    logger.info(f"No icclub found for {idclub}")
+    # we need to check if the club is registered for interclub, and if so
     registration = await find_icregistration(idclub)
     logger.info(f"got registration {registration}")
     if not registration:
@@ -144,6 +139,15 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
         )
         await create_icclub(icc)
         return await get_icclub({"idclub": idclub})
+    try:
+        icclub = await get_icclub({"idclub": idclub})
+    except RdNotFound:
+        icclub = None
+    logger.info(f"got icclub {icclub}")
+    if icclub and icclub.registered:
+        return icclub
+
+    # we don't have an icclub, or we didi not register the icclub
     teams = []
     ix = 1
     for t in range(registration.teams1):
@@ -171,12 +175,27 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=5)
         )
         ix += 1
-    icc = ICClubDB(
-        name=registration.name, idclub=idclub, players=[], registered=True, teams=teams
-    )
-    logger.info(f"create icclub {icc}")
-    await create_icclub(icc)
-    return await get_icclub({"idclub": idclub})
+    if icclub:
+        # we need to update the registration
+        logger.info("update registration of club")
+        teams_enc = [t.model_dump(exclude_unset=True) for t in teams]
+        return await DbICClub.update(
+            {"idclub": idclub},
+            {"registered": True, "teams": teams_enc},
+            {"_model": ICClubDB},
+        )
+    else:
+        # we create the icclub
+        icc = ICClubDB(
+            name=registration.name,
+            idclub=idclub,
+            players=[],
+            registered=True,
+            teams=teams,
+        )
+        logger.info(f"create icclub {icc}")
+        await create_icclub(icc)
+        return await get_icclub({"idclub": idclub})
 
 
 async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
