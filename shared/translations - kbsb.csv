@@ -34,8 +34,8 @@ icn,ven_add,Add a venue,Speellokaal toevoegen,Ajouter une salle de jeu,Spielort 
 icn,ven_closed,The management of the planning is currently unavailable,Het beheer van de speelzalen is momenteel niet beschikbaar,La gestion de la liste des salles de jeu est actuellement indisponible,Die Verwaltung der Spielräume ist derzeit nicht verfügbar
 icn,ven_notdefined,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
 icn,ven_round_avail,Available for the ounds,Beschikbaar op ronden,Disponibles aux rondes,Verfügbar in den Runden
-icn,ven_round_selected,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
-icn,ven_round_selected,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
+icn,ven_round_sel,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
+icn,ven_team_sel,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
 icn,ven_save,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 icn,ven_save_fail,Saving venues failed,Opslaan speellokalen mislukt,Sauvegarder les salles de jeu échoué,Speichern Spielorte fehlgeschlagen
 icn,ven_save_ok,Saving venues OK,Opslaan speellokalen OK,Les salles de jeu sont bien enregistrées,Speichern Spielorte OK

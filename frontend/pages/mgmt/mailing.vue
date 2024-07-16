@@ -16,6 +16,7 @@ const { person } = storeToRefs(personstore)
 
 // config
 const runtimeConfig = useRuntimeConfig(); 
+console.log('runtimeConfig', runtimeConfig)
 
 //  snackbar and loading widgets
 const refsnackbar = ref(null)
@@ -72,8 +73,8 @@ async function checkAuth() {
 }
 
 function download(){
-  console.log('token', mgmttoken.value)
-  const url = `${runtimeConfig.public.apiurl}api/v1/clubs/mgmt/mailinglist?token=${mgmttoken.value}`
+  console.log('token', mgmttoken.value, 'apiUrl', runtimeConfig.public.apiUrl)
+  const url = `${runtimeConfig.public.apiUrl}api/v1/clubs/mgmt/mailinglist?token=${mgmttoken.value}`
   window.location.href = url
 }
 

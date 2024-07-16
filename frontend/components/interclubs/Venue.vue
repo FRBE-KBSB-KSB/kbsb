@@ -43,9 +43,10 @@ function addVenue() {
 }
 
 
-async function cancelVenues() {
-  ven_status.value = 'open'
+async function cancel() {
+  modifying.value = false
   await getICVenues()
+  calcstatus()
 }
 
 function calcstatus(){
@@ -145,8 +146,8 @@ function readVenues(data){
 async function saveVenues() {
   let reply
   venues.value.forEach((v)=>{
-    v.rounds = v.roundsel == "selected" ? v.roundsel.split(',') : []
-    v.teams = v.teamssel == "selected" ? v.teamssel.split(',') : []
+    v.rounds = v.roundsel == "selected" ? v.rounds.split(',') : []
+    v.teams = v.teamssel == "selected" ? v.teams.split(',') : []
   })
   showLoading(true)
   try {
@@ -222,8 +223,8 @@ async function setup(icclub_, icdata_) {
               <div><b>{{ t('Rounds') }}:</b> {{ v.rounds }}</div>
               <div><b>{{ t('icn.ven_wheelchair)') }}:</b> {{ v.wheelchair }}</div>
               <p>{{ t('Optional') }}</p>
-              <div><b>{{ t('Email address') t('icn.ven_1') }}:</b> {{ v.email }}</div>
-              <div><b>{{ t('Telephone number') t('icn.ven_1') }}:</b> {{ v.phone }}</div>
+              <div><b>{{ t('Email address') }} {{ t('icn.ven_1') }}:</b> {{ v.email }}</div>
+              <div><b>{{ t('Telephone number') }} {{ t('icn.ven_1') }}:</b> {{ v.phone }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -262,17 +263,17 @@ async function setup(icclub_, icdata_) {
                 <v-radio value="selected"
                   :label="t('icn.ven_round_avail')" />
               </v-radio-group>
-              <v-text-field v-show="v.roundsel == 'selected'" v-model="v.rounds" :label="t('icn.ven_rounds_select')" />
+              <v-text-field v-show="v.roundsel == 'selected'" v-model="v.rounds" :label="t('icn.ven_round_sel')" />
               <v-radio-group v-model="v.teamssel">
                 <v-radio value="all" :label="t('All teams')" />
                 <v-radio value="selected"
                   :label="t('icn.ven_teams_avail')" />
               </v-radio-group>
-              <v-text-field v-show="v.teamssel == 'selected'" v-model="v.teams" :label="t('icn.ven_teams_select')"/>
+              <v-text-field v-show="v.teamssel == 'selected'" v-model="v.teams" :label="t('icn.ven_team_sel')"/>
               <v-checkbox v-model="v.wheelchair" :label="t('icn.ven_wheelchair')" />
               <p class="fieldname">{{ t('Optionally') }}</p>
-              <v-text-field v-model="v.email" :label="t('Email address') $('icn.ven_1')" />
-              <v-text-field v-model="v.phone" :label="t('Telephone number') $('icn.ven_1')" />
+              <v-text-field v-model="v.email" :label="`${ t('Email address') } ${ t('icn.ven_1') }`" />
+              <v-text-field v-model="v.phone" :label="`${ t('Telephone number') } ${ t('icn.ven_1') }`" />
               <v-textarea v-model="v.remarks" :label="t('Remarks')" />
             </v-card-text>
             <v-card-actions>

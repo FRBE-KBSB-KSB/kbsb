@@ -1,23 +1,35 @@
 runtime: python311
 
+env_variables:
+  API_URL: https://www.frbe-kbsb-ksb.be/
+
 handlers:
 
-  - url: /(.*\..+)$
-    static_files: dist/\1
-    upload: dist/(.*\..+)$
-    secure: always
+# root 
+- url: /
+  static_files: .output/public/index.html
+  upload: .output/public/index.html
+  secure: always
 
-  - url: /
-    static_files: dist/index.html
-    secure: always
-    upload: dist/index.html
+# url  /capi
+- url: /capi
+  static_dir: .output/public/capi
+  secure: always
 
-  - url: /([^\.]*)$
-    static_files: dist/\1/index.html
-    upload: dist/([^\.]*)/index.html
-    secure: always
+# url ending with /
+- url: /(.+)/
+  static_files: .output/public/\1/index.html
+  upload: .output/public/(.+)/index.html
+  secure: always
 
-  - url: /.*
-    static_files: dist/index.html
-    upload: dist//index.html
-    secure: always
+# url with no dot
+- url: /([^.]*)$
+  static_files: .output/public/\1/index.html
+  upload: .output/public/[^.]*/index.html
+  secure: always
+
+# the rest
+- url: /(.*)
+  static_files: .output/public/\1
+  upload: .output/public/(.*)
+  secure: always

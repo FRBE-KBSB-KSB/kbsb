@@ -16,6 +16,7 @@ from kbsb.interclubs import (
     # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
+from reddevil.mail import sendEmail
 
 logger = logging.getLogger(__name__)
 

@@ -265,17 +265,18 @@ async def mgmt_mailinglist():
         general = set(c.email_main.split(",")) if c.email_main else set()
         admin = set(c.email_admin.split(",")) if c.email_admin else set()
         admin = admin | general
-        secretary = c.boardmembers.get("secretary")
+        boardmembers = c.boardmembers or {}
+        secretary = boardmembers.get("secretary")
         if secretary and secretary.email:
             admin.add(secretary.email)
         finance = set(c.email_finance.split(",")) if c.email_finance else set()
         finance = finance | general
-        treasurer = c.boardmembers.get("treasurer")
+        treasurer = boardmembers.get("treasurer")
         if treasurer and treasurer.email:
             finance.add(treasurer.email)
         interclubs = set(c.email_interclub.split(",")) if c.email_interclub else set()
         interclubs = interclubs | general
-        interclub_director = c.boardmembers.get("interclub_director")
+        interclub_director = boardmembers.get("interclub_director")
         if interclub_director and interclub_director.email:
             interclubs.add(interclub_director.email)
         ws.append(
