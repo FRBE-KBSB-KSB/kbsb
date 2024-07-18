@@ -14,6 +14,7 @@ icn,name_club,Name of the club as shown in results and pairings,Naam van de club
 icn,nopref,No preference,Geen voorkeur,Pas de préférence,keine Präferenz
 icn,not_enrolled,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
 icn,other_wishes,Other wishes,Andere wensen,Autres souhaits,Andere Wünsche
+icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
 icn,planning_closed,The management of the planning is currently unavailable,Het beheer van de planning is momenteel niet beschikbaar,La gestion du planning est actuellement indisponible,Die Verwaltung der Planung ist derzeit nicht verfügbar
 icn,playerlist_closed,The management of the player list is currently unavailable,Het beheer van de spelerlijst is momenteel niet beschikbaar,La gestion de la liste de force est actuellement indisponible,Die Verwaltung der Spielerliste ist derzeit nicht verfügbar
 icn,reg_pref,Regional preferences,Regionale voorkeuren,Préférences régionales,Regionale Präferenzen
@@ -27,7 +28,19 @@ icn,teams_distr,Distribution of teams in same division,Verdeling van teams in de
 icn,teams_div,Teams in division,Teams in divisie,Equipes en division,Mannschaften in der Division
 icn,teams_grouped,Teams grouped by pairing number,Teams gegroepeerd per paringsnummer,Equipes regroupées par numéro d'appariement,Teams gruppiert nach Paarung-Nummer
 icn,teams_nb_div,Number of teams per division,Aantal teams per divisie,Nombre d'équipes par division,Anzahl der Teams pro Division
-icn,venues_closed,The management of the planning is currently unavailable,Het beheer van de speelzalen is momenteel niet beschikbaar,La gestion de la liste des salles de jeu est actuellement indisponible,Die Verwaltung der Spielräume ist derzeit nicht verfügbar
+icn,ven_1,Venue,Speellokaal,La salle de jeu,Spielort
+icn,ven_2,Venues,Speellokalen,Les salles de jeu,Spielorte
+icn,ven_add,Add a venue,Speellokaal toevoegen,Ajouter une salle de jeu,Spielort hinzufügen
+icn,ven_closed,The management of the planning is currently unavailable,Het beheer van de speelzalen is momenteel niet beschikbaar,La gestion de la liste des salles de jeu est actuellement indisponible,Die Verwaltung der Spielräume ist derzeit nicht verfügbar
+icn,ven_notdefined,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
+icn,ven_round_avail,Available for the ounds,Beschikbaar op ronden,Disponibles aux rondes,Verfügbar in den Runden
+icn,ven_round_sel,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
+icn,ven_team_sel,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
+icn,ven_save,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
+icn,ven_save_fail,Saving venues failed,Opslaan speellokalen mislukt,Sauvegarder les salles de jeu échoué,Speichern Spielorte fehlgeschlagen
+icn,ven_save_ok,Saving venues OK,Opslaan speellokalen OK,Les salles de jeu sont bien enregistrées,Speichern Spielorte OK
+icn,ven_teams_avail,Teams using the venue ,Teams die het lokaal gebruiken,Equipes qui utilisent la salle,"Mannschaften, die den Spielorte nutzen"
+icn,ven_weelchair,Wheelchair accessible,Toegankelijk voor rolstoel,Accessible aux fauteuils roulants,Barrierefrei
 icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
 ,Actions,Actions,Acties,Actions,Aktionen
@@ -40,6 +53,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Affiliations,Affiliations,Aanslutingen,Affiliations,Zugehörigkeiten
 ,Affiliations manager,Affiliations manager,Verantwoordelijke aansluitingen,Responsable des affiliations,Verantwortliche Zugehörigkeiten
 ,All rounds,All rounds,Alle ronden,Toutes les rondes,Alle Runden
+,All teams,All teams,Alle teams,Toutes les équipes,Alle Mannschaften
 ,Announcements,Announcements,Meldingen,Annonces,Ankündigungen
 ,"As such, for this interclub season, it can transfer it members to other clubs.","As such, for this interclub season, it can transfer it members to other clubs.",Als zodanig kan het voor dit interclubseizoen zijn leden overdragen aan andere clubs.,"A ce titre, pour cette saison interclubs, il peut transférer ses membres vers d'autres clubs.",Als solcher kann er für diese Interclub-Saison seine Mitglieder zu anderen Clubs transferieren.
 ,Assigned Rating,Assigned Elo,Toegewezen Elo,Elo attribué,Zugewiesenes Elo
@@ -170,7 +184,6 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,More,More,Meer,Plus,Mehr
 ,Name,Name,Naam,Nom,Name
 ,No incoming transfers,No incoming transfers,No incoming transfers,Aucun transfert entrant,Keine eingehenden Überweisungen
-,No interclub venue is defined yet,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
 ,No outgoing transfers,No outgoing transfers,Geen uitgaande transfers,Pas de transferts sortants,Keine ausgehenden Transfers
 ,No titular,No titular,Geen titularis,Pas de titulaire,keine Titulatur
 ,Not available,Not available,Niet beschikbaar,Indisponible,Nicht verfügbar
@@ -189,7 +202,6 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Outgoing transfers,Outgoing transfers,Uitgaande transfers,Transferts sortants,Ausgehende Transfers
 ,Own players on the playerlist,Own players on the playerlist,Eigen spelers op de spelerslijst,Propres joueurs sur la liste de force,Eigene Spieler auf der Spielerliste
 ,Password,Password,Wachtwoord,Mot de passe,Passwort
-icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
 ,Planning,Planning,Planning,Planification,Planung
 ,Played,Played,Gespeeld,Joué,Gespielt
 ,Player,Player,Speler,Joueur,Spieler
@@ -239,7 +251,6 @@ icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis
 ,Save enrollment,Save enrollment,Inschrijving opslaan,Enregistrer l'inscription,Anmeldung speichern
 ,Save player list,Save player list,Spelerslijst opslaan,Sauvegarder la liste de force,Spielerliste speichern
 ,Save results,Save results,Resultaten bewaren,Sauvegarder les résultats,Ergebnisse speichern
-,Save Venues,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 ,Secretary,Secretary,Secretaris,Secrétaire,Sekretär
 ,secretary,secretary,secretaris,secrétaire,Sekretär
 ,Secretary general,Secretary general,Secretaris-generaal,Secrétaire général,Generalsekretär
@@ -293,8 +304,6 @@ icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis
 ,Tuesday,Tuesday,Dinsdag,Mardi,Dienstag
 ,Useful information,Useful information,Nuttige informatie,Information utile,Nützliche Informationen
 ,Validation of player list.,Validation of player list.,Validatie van de spelerslijst.,Validation de la liste de force,Validierung der Spielerliste.
-,Venue,Venue,Speelzaal,Salle de jeux,Spielort
-,Venues,Venues,Speelzalen,Les salles de jeu,Veranstaltungsorte
 ,Vice president,Vice president,Vicevoorzitter,Vice-président,Vizepräsident
 ,vice_president,vice president,vicevoorzitter,vice-président,Vizepräsident
 ,Webmaster,Webmaster,Webmaster,Webmaster,Webmaster

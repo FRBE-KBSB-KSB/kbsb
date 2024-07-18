@@ -40,7 +40,8 @@ async def get_interclubvenues(id: str, options: dict = {}) -> ICVenueDB:
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICVenueDB)
     filter["id"] = id
-    return cast(ICVenueDB, await DbICVenue.find_single(filter))
+    # return cast(ICVenueDB, await DbICVenue.find_single(filter))
+    return await DbICVenue.find_single(filter)
 
 
 async def get_interclubvenues_clubs(options: dict = {}) -> list[ICVenueDB]:
@@ -49,7 +50,7 @@ async def get_interclubvenues_clubs(options: dict = {}) -> list[ICVenueDB]:
     """
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICVenueDB)
-    return [cast(ICVenueDB, x) for x in await DbICVenue.find_multiple(filter)]
+    return [x for x in await DbICVenue.find_multiple(filter)]
 
 
 async def update_interclubvenues(
@@ -66,10 +67,7 @@ async def update_interclubvenues(
 
 
 async def getICvenues(idclub: int) -> ICVenueDB:
-    try:
-        venues = await DbICVenue.find_single({"_model": ICVenueDB, "idclub": idclub})
-    except RdNotFound as e:
-        return ICVenueDB(id="", idclub=idclub, venues=[])
+    venues = await DbICVenue.find_single({"_model": ICVenueDB, "idclub": idclub})
     return venues
 
 
@@ -77,22 +75,20 @@ async def getICvenues(idclub: int) -> ICVenueDB:
 
 
 async def set_interclubvenues(idclub: str, ivi: ICVenueIn) -> ICVenueDB:
+    logger.info(f"running set icvenues {idclub}")
     club = await get_club_idclub(idclub)
     logger.debug(f"set_interclubvenues: {idclub} {ivi}")
     if not club:
         raise RdNotFound(description="ClubNotFound")
-    locale = club_locale(club)
-    logger.info(f"locale {locale}")
-    settings = get_settings()
-    ivn = await getICvenues(idclub)
-    iv = ICVenueDB(
-        idclub=idclub,
-        venues=ivi.venues,
-    )
-    if ivn:
-        logger.info(f"update interclubvenues {ivn.id} {iv}")
-        niv = await update_interclubvenues(ivn.id, iv)
-    else:
+    try:
+        ivn = await getICvenues(idclub)
+        logger.info(f"update interclubvenues {ivn.id}")
+        niv = await update_interclubvenues(ivn.id, ivi)
+    except RdNotFound:
+        iv = ICVenueDB(
+            idclub=idclub,
+            venues=ivi.venues,
+        )
         logger.info(f"insert interclubvenues {iv}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)

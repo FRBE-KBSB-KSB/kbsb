@@ -435,11 +435,13 @@ class ICVenueItem(BaseModel):
     """
 
     address: str
-    email: str | None
-    phone: str | None
     capacity: int  # number of boards, 0  is unlimited
+    email: str | None = ""
+    phone: str | None = ""
     remarks: str | None = ""
-    notavailable: list[str]
+    rounds: list[str] | None = None
+    teams: list[str] | None = None
+    wheelchair: bool | None = False
 
 
 class ICVenueIn(BaseModel):
@@ -477,8 +479,16 @@ class DbICStandings(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICVenue(DbBase):
+class DbICVenueOld(DbBase):
     COLLECTION = "interclub2324venues"
+    DOCUMENTTYPE = ICVenueDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = True
+
+
+class DbICVenue(DbBase):
+    COLLECTION = "interclub2425venues"
     DOCUMENTTYPE = ICVenueDB
     VERSION = 1
     IDGENERATOR = "uuid"

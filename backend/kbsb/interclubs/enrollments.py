@@ -16,6 +16,7 @@ from kbsb.interclubs import (
     # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
+from reddevil.mail import sendEmail
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,7 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         raise RdNotFound(description="ClubNotFound")
     locale = club_locale(club)
     settings = get_settings()
+    assert settings is not None
     enr = await find_icregistration(idclub)
     if enr:
         assert enr.id
