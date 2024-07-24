@@ -133,7 +133,7 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject="Interclubs 2024-2025",
+        subject=f"Interclubs 2024-2025 club {idclub} {ie.name}",
         template="interclub/enrollment_{locale}.md",
     )
     sendEmail(mp, nenr.model_dump(), "interclub enrollment")
