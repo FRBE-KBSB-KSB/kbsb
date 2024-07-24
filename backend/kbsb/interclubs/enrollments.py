@@ -150,7 +150,6 @@ async def xls_registrations() -> str:
     ws.title = "Reservations"
     ws.append(
         [
-            "id",
             "idclub",
             "idinvoice",
             "idpaymentrequest",
@@ -170,7 +169,6 @@ async def xls_registrations() -> str:
     for d in docs:
         ws.append(
             [
-                d.id,
                 d.idclub,
                 d.idinvoice,
                 d.idpaymentrequest,

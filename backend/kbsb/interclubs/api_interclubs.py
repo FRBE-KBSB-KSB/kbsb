@@ -42,7 +42,6 @@ from . import (
     clb_saveICresults,
     clb_updateICplayers,
     clb_validateICPlayers,
-    csv_ICvenues,
     find_icregistration,
     getICvenues,
     mgmt_getXlsAllplayerlist,
@@ -57,6 +56,7 @@ from . import (
     trf_process_sort,
     trf_generate,
     xls_registrations,
+    xls_venues,
 )
 
 logger = logging.getLogger(__name__)
@@ -179,23 +179,18 @@ async def api_mgmt_set_interclubvenues(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/mgmt/command/exportvenues", response_model=str)
-async def api_csv_interclubvenues(
-    format: str,
+@router.get("/mgmt/command/xls_venues")
+async def api_mgmt_xls_venues(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     await validate_token(auth)
     try:
-        if format == "csv":
-            return await csv_ICvenues()
-        elif format == "excel":
-            return
-        else:
-            raise RdException(status_code=400, description="Unsupported export format")
+        xlsfile = await xls_venues()
+        return {"xls64": base64.b64encode(xlsfile)}
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call csv_interclubvenues")
+        logger.exception("failed api call xls_venues")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

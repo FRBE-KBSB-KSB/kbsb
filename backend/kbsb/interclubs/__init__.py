@@ -69,7 +69,7 @@ from .enrollments import (
     xls_registrations,
 )
 from .venues import (
-    csv_ICvenues,
+    xls_venues,
     getICvenues,
     set_interclubvenues,
 )
