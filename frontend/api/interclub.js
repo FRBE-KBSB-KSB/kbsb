@@ -69,9 +69,9 @@ export default {
     )
     return resp
   },
-  mgmt_csv_interclubvenues: async function (options) {
+  mgmt_xls_icvenues: async function (options) {
     const { token } = options
-    const resp = await axios.get(`${prefix}/mgmt/command/exportvenues`, {
+    const resp = await axios.get(`${prefix}/mgmt/command/xls_venues`, {
       headers: {
         Authorization: "Bearer " + token,
       },

@@ -1,17 +1,13 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
+from tempfile import NamedTemporaryFile
 from typing import cast
-import io
-import csv
-
+import openpyxl
 from reddevil.core import (
     RdNotFound,
-    get_settings,
 )
-
-# from reddevil.mail import sendEmail
-from kbsb.club import get_club_idclub, club_locale
+from kbsb.club import get_club_idclub
 from kbsb.interclubs import (
     ICVenueDB,
     ICVenueIn,
@@ -115,40 +111,47 @@ async def set_interclubvenues(idclub: str, ivi: ICVenueIn) -> ICVenueDB:
     return niv
 
 
-async def csv_ICvenues() -> str:
+async def xls_venues() -> str:
     """
     get all venues in csv format
     """
-    fieldnames = [
-        "idclub",
-        "name_long",
-        "name_short",
-        "address",
-        "email",
-        "phone",
-        "capacity",
-        "notavailable",
-    ]
-    csvstr = io.StringIO()
-    csvf = csv.DictWriter(csvstr, fieldnames)
-    csvf.writeheader()
-    for vns in await DbICVenue.find_multiple():
-        vnsdict = vns.model_dump()
-        idclub = vnsdict.get("idclub")
-        name_long = vnsdict.get("name_long")
-        name_short = vnsdict.get("name_short")
-        venues = vnsdict.get("venues")
-        for v in venues:
-            csvf.writerow(
-                {
-                    "idclub": idclub,
-                    "name_long": name_long,
-                    "name_short": name_short,
-                    "address": v.get("address"),
-                    "email": v.get("email"),
-                    "phone": v.get("phone"),
-                    "capacity": v.get("capacity"),
-                    "notavailable": ",".join(v.get("notavailable", [])),
-                }
+    docs = await get_interclubvenues_clubs()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Venues"
+    ws.append(
+        [
+            "idclub",
+            "n.",
+            "address",
+            "capacity",
+            "rounds",
+            "teams",
+            "wheelchaie",
+            "email",
+            "phone",
+            "remarks",
+        ]
+    )
+    for vns in docs:
+        for ix, vn in enumerate(vns.venues):
+            logger.info(f"rec {vn} {ix}")
+            ws.append(
+                [
+                    vns.idclub,
+                    ix + 1,
+                    vn.address,
+                    vn.capacity,
+                    ",".join(vn.rounds),
+                    ",".join(vn.teams),
+                    vn.wheelchair,
+                    vn.email,
+                    vn.phone,
+                    vn.remarks,
+                ]
             )
-    return csvstr.getvalue()
+    with NamedTemporaryFile() as tmp:
+        wb.save(tmp.name)
+        tmp.seek(0)
+        xlscontent = tmp.read()
+    return xlscontent

@@ -43,6 +43,31 @@ async function download_registrations() {
   showSnackbar('Downloading reservations successful')
 }
 
+async function download_venues() {
+  let reply, xls
+  showLoading(true)
+  try {
+    reply = await $backend("interclub", "mgmt_xls_icvenues", {
+      token: idtoken.value
+    })
+    xls = reply.data.xls64
+  }
+  catch (error) {
+    console.log('download error', error)
+    showSnackbar('Download error: ' + error.detail)
+  }
+  finally {
+    showLoading(false)
+  }
+  const link = document.createElement('a')
+  link.download = 'venues_2425.xlsx'
+  link.href = 'data:application/excel;base64,' + xls
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  showSnackbar('Downloading reservations successful')
+}
+
 // async function generateBelELO() {
 //   showLoading(true)
 //   try {
@@ -96,5 +121,7 @@ onMounted(() => {
     <ProgressLoading ref="refloading" />
     <h3>Registrations</h3>
     <v-btn @click="download_registrations">Download registrations</v-btn>
+    <h3>Venues</h3>
+    <v-btn @click="download_venues">Download venues</v-btn>
   </VContainer>
 </template>

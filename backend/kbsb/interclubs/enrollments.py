@@ -133,7 +133,7 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject="Interclubs 2024-2025",
+        subject=f"Interclubs 2024-2025 club {idclub} {ie.name}",
         template="interclub/enrollment_{locale}.md",
     )
     sendEmail(mp, nenr.model_dump(), "interclub enrollment")
@@ -150,7 +150,6 @@ async def xls_registrations() -> str:
     ws.title = "Reservations"
     ws.append(
         [
-            "id",
             "idclub",
             "idinvoice",
             "idpaymentrequest",
@@ -170,7 +169,6 @@ async def xls_registrations() -> str:
     for d in docs:
         ws.append(
             [
-                d.id,
                 d.idclub,
                 d.idinvoice,
                 d.idpaymentrequest,
