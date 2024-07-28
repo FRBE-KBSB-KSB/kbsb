@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from kbsb.interclubs.enrollments import (
+from kbsb.interclubs.registrations import (
     find_icregistration,
     set_icregistration,
     csv_ICenrollments,

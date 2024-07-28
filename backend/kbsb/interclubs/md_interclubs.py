@@ -6,7 +6,7 @@
 
 from datetime import date, datetime
 from typing import Any
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from enum import StrEnum, auto
 from typing import Literal
 from reddevil.core.dbbase import DbBase
@@ -61,6 +61,16 @@ class PlayerlistNature(StrEnum):
     CONFIRMEDOUT = auto()
 
 
+class PlayerPeriod(StrEnum):
+    """
+    The periuod the assignment of the play took place
+    """
+
+    SEPTEMBER = auto()
+    NOVEMBER = auto()
+    JANUARY = auto()
+
+
 # interclub club
 
 
@@ -70,12 +80,12 @@ class ICTeam(BaseModel):
     """
 
     division: int
-    titular: list[int]
+    titular: list[int] | None = Field(default_factory=list)
     idclub: int
-    index: str
+    index: str | None = ""
     name: str  # includes numbercat like "KOSK 1"
-    pairingnumber: int
-    playersplayed: list[int]
+    pairingnumber: int | None = 0
+    playersplayed: list[int] | None = Field(default_factory=list)
     teamforfeit: bool = False
 
 
@@ -89,11 +99,12 @@ class ICPlayer(BaseModel):
     fiderating: int | None = 0
     first_name: str
     idnumber: int
-    idcluborig: int  # the club the player belongs to in signaletique
+    idcluborig: int  # the club the player belongs to in membermgmt
     idclubvisit: int  # the club the player is playing if he plays elsewhere. a transfer
     last_name: str
     natrating: int | None = 0
     nature: PlayerlistNature
+    period: PlayerPeriod | None = None
     titular: str | None = None
 
 
@@ -111,6 +122,7 @@ class ICPlayerUpdateItem(BaseModel):
     last_name: str
     natrating: int | None = 0
     nature: PlayerlistNature
+    period: PlayerPeriod | None = None
     titular: str | None = None
 
 
@@ -138,12 +150,12 @@ class ICClubDB(BaseModel):
     a IC club as written in the database
     """
 
-    name: str
-    id: str | None
+    name: str | None = ""
+    id: str | None = None
     idclub: int
-    teams: list[ICTeam]
-    players: list[ICPlayer]
-    enrolled: bool
+    teams: list[ICTeam] | None = Field(default_factory=list)
+    players: list[ICPlayer] | None = Field(default_factory=list)
+    registered: bool | None = False
 
 
 class ICClubItem(BaseModel):
@@ -154,7 +166,7 @@ class ICClubItem(BaseModel):
     name: str
     idclub: int
     teams: list[ICTeam]
-    enrolled: bool
+    registered: bool
 
 
 # series
@@ -479,7 +491,7 @@ class DbICStandings(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICVenueOld(DbBase):
+class DbICVenue_Old(DbBase):
     COLLECTION = "interclub2324venues"
     DOCUMENTTYPE = ICVenueDB
     VERSION = 1
@@ -495,7 +507,7 @@ class DbICVenue(DbBase):
     HISTORY = True
 
 
-class DbICClub(DbBase):
+class DbICClub_Old(DbBase):
     COLLECTION = "interclub2324club"
     DOCUMENTTYPE = ICClubDB
     VERSION = 1
@@ -503,15 +515,15 @@ class DbICClub(DbBase):
     HISTORY = True
 
 
-class DbICEnrollment(DbBase):
-    COLLECTION = "icenrollment_wrongseason"
-    DOCUMENTTYPE = ICEnrollmentDB
+class DbICClub(DbBase):
+    COLLECTION = "interclub2425club"
+    DOCUMENTTYPE = ICClubDB
     VERSION = 1
     IDGENERATOR = "uuid"
     HISTORY = True
 
 
-class DbICEnrollment2425(DbBase):
+class DbICEnrollment(DbBase):
     COLLECTION = "interclub2425enrollment"
     DOCUMENTTYPE = ICEnrollmentDB
     VERSION = 1

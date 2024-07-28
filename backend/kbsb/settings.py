@@ -127,11 +127,12 @@ ls = "No local settings loaded"
 
 if KBSB_MODE == "local":
     ls = "importing local settings"
-    from env_local import *
+    from env_local import *  # noqa F403
+
 
 if KBSB_MODE == "prodtest":
     ls = "importing prodtest settings"
-    from env_prodtest import *
+    from env_prodtest import *  # noqa F403
 
 
 if COLORLOG:

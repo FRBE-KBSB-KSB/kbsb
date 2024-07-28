@@ -1,20 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { PLAYERSTATUS } from "@/util/interclubs"
-
-// store
-import { storeToRefs } from 'pinia'
 import { useIdtokenStore } from '@/store/idtoken'
-const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
+import { storeToRefs } from 'pinia'
 
 // communication
-const emit = defineEmits(['playerlistUpdated'])
 defineExpose({ setup })
+const idstore = useIdtokenStore()
+const { token: idtoken } = storeToRefs(idstore)
 const { $backend } = useNuxtApp()
-
-// i18n
 const { t } = useI18n()
 
 //  snackbar and loading widgets
@@ -30,7 +24,7 @@ const clubmembers = ref([])
 const clubmembers_id = ref(null)
 const icclub = ref({})
 const idclub = ref(0)
-const enrolled = ref(null)
+const registered = ref(null)
 let playersindexed = {}
 const players = ref([])
 const playeredit = ref({})
@@ -39,7 +33,13 @@ const exportalldialog = ref(false)
 const exportallvisit = ref(0)
 const exportdialog = ref(false)
 const titularchoices = [{ title: "No titular", value: "" }]
-const plstatus = ref("closed")
+const pll_status = ref("closed")
+let pll_period 
+let pll_startdate
+let pll_enddate
+
+let icdata = {}
+
 
 // validation
 const validationdialog = ref(false)
@@ -55,6 +55,7 @@ const headers = [
   { title: "B-ELO", key: "natrating" },
   { title: "Club", key: "idcluborig" },
   { title: t("Titular"), key: "titular" },
+  { title: t("Max div"), key: "maxdiv" },
   { title: t("Actions"), key: "action" },
 ]
 const itemsPerPage = 50
@@ -63,14 +64,6 @@ const itemsPerPageOptions = [
   { value: 150, title: '150' },
   { value: -1, title: 'All' }
 ]
-
-// Constants changing per year
-const startdate1 = new Date("2023-09-01")
-const cutoffday1 = new Date("2023-09-18")
-const startdate2 = new Date("2023-10-28")
-const cutoffday2 = new Date("2023-11-04")
-const startdate3 = new Date("2023-12-28")
-const cutoffday3 = new Date("2024-01-04")
 
 // methods alphabetically
 
@@ -81,33 +74,32 @@ function assignPlayer(idnumber) {
   playerEdit2Player()
 }
 
-async function calcPlstatus() {
-  return "closed"
-  // if (!icclub.value.idclub) return 'noclub'
-  // const now = new Date().valueOf()
-  // if (now < startdate1.valueOf()) {
-  //   clubmembers.value = []
-  //   return "closed"
-  // }
-  // const acc = await checkAccess()
-  // if (!acc) {
-  //   console.log('no access granted')
-  //   clubmembers.value = []
-  //   return "noaccess"
-  // }
-  // if (cutoffday1.valueOf() >= now && now > startdate2.valueOf()) {
-  //   clubmembers.value = []
-  //   return "closed"
-  // }
-  // if (cutoffday2.valueOf() >= now && now > startdate3.valueOf()) {
-  //   clubmembers.value = []
-  //   return "closed"
-  // }
-  // if (cutoffday3.valueOf() < now) {
-  //   clubmembers.value = []
-  //   return "closed"
-  // }
-  // return "open"
+function calcstatus(){
+  // we have the following status
+  // - open
+  // - closed
+  // - noclub
+  // - noaccess
+  
+  if (!idclub.value) {
+    pll_status.value = 'noclub'
+    return
+  }
+  pll_status.value = 'closed'
+  const now = new Date()
+  icdata.playerlist_data.forEach(p => {
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    console.log('now', now, 'start', start, 'end', end)
+    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
+      pll_status.value = 'open'
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      return
+    }
+  })
+
 }
 
 function canAssign(idnumber) {
@@ -132,13 +124,15 @@ async function checkAccess() {
   showLoading(true)
   try {
     reply = await $backend("club", "verify_club_access", {
-      idclub: idclub.value,
+      idclub: icclub.idclub,
       role: "InterclubAdmin,InterclubCaptain",
       token: idtoken.value,
     })
     return true
   } catch (error) {
     console.log('reply NOK', error)
+    enr_status.value = 'noaccess'
+    showSnackbar(t('icn.perm_denied'))
     return false
   } finally {
     showLoading(false)
@@ -169,9 +163,9 @@ function fillinPlayerList() {
   // add new members to the playerlist
   let pnature = PLAYERSTATUS.unassigned
   const now = new Date().valueOf()
-  if (enrolled.value && now < startdate1.valueOf) {
+  if (registered.value) {
     // automatically make players assigned at the start of the Interclubs
-    p.nature = PLAYERSTATUS.assigned
+    pnature = PLAYERSTATUS.assigned
   }
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
@@ -199,7 +193,6 @@ function fillinPlayerList() {
     }
   })
 }
-
 
 async function getClubMembers() {
   // get club members for member database currently on old site
@@ -235,12 +228,10 @@ async function getClubMembers() {
   fillinPlayerList()
 }
 
-
 function maxelo(p) {
   if (!p.fiderating && !p.natrating) return 1600
   return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
 }
-
 
 function minelo(p) {
   let minrating = p.fiderating ? Math.min(p.fiderating, p.natrating) - 100 : p.natrating - 100
@@ -270,8 +261,8 @@ function playerEdit2Player() {
 }
 
 function readICclub() {
-  idclub.value = icclub.value.idclub
-  enrolled.value = icclub.value.enrolled
+  idclub.value = icclub.value.idclub || 0
+  registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
   playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
   titularchoices.splice(1, titularchoices.length - 1)
@@ -318,17 +309,8 @@ function visitingclub(idnumber) {
   return pl ? pl.idclubvisit : ""
 }
 
-async function setup(clb) {
-  console.log('setup playerlist', clb)
-  icclub.value = clb
-  readICclub()
-  plstatus.value = await calcPlstatus()
-  console.log("plstatus", plstatus.value)
-  getClubMembers()
-}
-
 async function validatePlayerlist() {
-  if (!enrolled.value) {
+  if (!registered.value) {
     savePlayerlist()
     return
   }
@@ -358,10 +340,16 @@ async function validatePlayerlist() {
 
 }
 
-onMounted(() => {
+async function setup(icclub_, icdata_) {
+  console.log('setup playerlist', icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
-  showLoading = refloading.value.showLoading
-})
+  showLoading = refloading.value.showLoading  
+  icclub.value = icclub_
+  icdata = icdata_
+  readICclub()
+  calcstatus()
+  getClubMembers()
+}
 
 </script>
 
@@ -369,14 +357,14 @@ onMounted(() => {
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <v-alert type="warning" variant="outlined" v-if="plstatus == 'noclub'"
+    <v-alert type="warning" variant="outlined" v-if="pll_status == 'closed'"
+      :text="t('icn.pll_closed')" />
+    <v-alert type="warning" variant="outlined" v-if="pll_status == 'noclub'"
       :text="t('icn.select_club')" />
-    <v-alert type="warning" variant="outlined" v-if="plstatus == 'closed'"
-      :text="t('icn.playerlist_closed')" />
-    <v-alert type="error" variant="outlined" v-if="plstatus == 'noaccess'"
-      :text="t('icn.perm_denie')" />
-    <div v-if="plstatus == 'open'">
-      <div v-if="!enrolled">
+    <v-alert type="error" variant="outlined" v-if="pll_status == 'noaccess'"
+      :text="t('icn.perm_denied')" />  
+    <div v-if="pll_status == 'open'">
+      <div v-if="!registered">
         This club is not enrolled in Interclubs 2023-24
         <VBtn @click="openExportAll" color="primary" class="ml-8">
           Export all players

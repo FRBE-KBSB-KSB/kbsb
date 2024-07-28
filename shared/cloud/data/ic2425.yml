@@ -38,3 +38,16 @@ max_elo:
 notrated_elo: 
   min: 1000
   max: 1800
+playerlist_data:
+  -
+    period: september
+    start: 2024-07-01
+    end: 2024-09-16
+  -
+    period: november
+    start: 2024-11-01
+    end: 2024-11-15
+  -
+    period: january
+    start: 2025-01-01
+    end: 2025-01-15

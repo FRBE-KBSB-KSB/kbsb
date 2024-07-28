@@ -22,6 +22,7 @@ from kbsb.interclubs import (
     ICTeam,
     DbICClub,
     DbICSeries,
+    PlayerlistNature,
     # ICDATA,
 )
 
@@ -32,6 +33,37 @@ settings = get_settings()
 
 
 # Interclub Clubs, Playerlist and Teams
+
+ONPLAYERLIST = [
+    PlayerlistNature.ASSIGNED,
+    PlayerlistNature.IMPORTED,
+    PlayerlistNature.REQUESTEDIN,
+]
+
+# CRUD
+
+
+async def create_icclub(icclub: ICClubDB) -> str:
+    """
+    create a new InterclubClub returning its id
+    """
+    icclubdict = icclub.model_dump()
+    icclubdict.pop("id", None)
+    return await DbICClub.add(icclubdict)
+
+
+async def get_icclub(options: dict | None = {}) -> ICClubDB | None:
+    """
+    get IC club by idclub, returns None if nothing found
+    filter players for active players
+    """
+    filter = options.copy()
+    filter["_model"] = filter.get("_model", ICClubDB)
+    club = await DbICClub.find_single(filter)
+    return club
+
+
+# Business methods
 
 
 async def anon_getICteams(idclub: int, options: dict = {}) -> list[ICTeam]:
@@ -56,7 +88,7 @@ async def anon_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB 
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
     club = await DbICClub.find_single(filter)
-    club.players = [p for p in club.players if p.nature in ["assigned", "requestedin"]]
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
     return club
 
 
@@ -66,26 +98,74 @@ async def anon_getICclubs() -> list[ICClubItem] | None:
     """
     options = {
         "_model": ICClubItem,
-        "enrolled": True,
+        "registered": True,
         "_fieldlist": {i: 1 for i in ICClubItem.model_fields.keys()},
     }
     return await DbICClub.find_multiple(options)
 
 
-async def clb_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB | None:
+async def clb_getICclub(idclub: int) -> ICClubDB | None:
     """
-    get IC club by idclub, returns None if nothing found
+    get IC club by idclub
+    if the registration of the club exists but the club has no icclub record
+    the latter is created and returned,
+    returns None if nothing found
     """
-    filter = options.copy()
-    filter["_model"] = ICClubDB
-    filter["idclub"] = idclub
-    return await DbICClub.find_single(filter)
+    from kbsb.interclubs import find_icregistration
+
+    logger.info(f"clb_getICclub {idclub}")
+    try:
+        return await get_icclub({"idclub": idclub})
+    except RdNotFound:
+        pass
+    # we need to check if the club is registered, and if so
+    # we nee to create the icclub record
+    logger.info(f"No icclub found for {idclub}")
+    registration = await find_icregistration(idclub)
+    logger.info(f"got registration {registration}")
+    if not registration:
+        logger.info(f"No registration found for {idclub}")
+        return None
+    teams = []
+    ix = 1
+    for t in range(registration.teams1):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=1)
+        )
+        ix += 1
+    for t in range(registration.teams2):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=2)
+        )
+        ix += 1
+    for t in range(registration.teams3):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=3)
+        )
+        ix += 1
+    for t in range(registration.teams4):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=4)
+        )
+        ix += 1
+    for t in range(registration.teams5):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=5)
+        )
+        ix += 1
+    icc = ICClubDB(
+        name=registration.name, idclub=idclub, players=[], registered=True, teams=teams
+    )
+    logger.info(f"create icclub {icc}")
+    await create_icclub(icc)
+    return await get_icclub({"idclub": idclub})
 
 
 async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     """
-    update the the player list of a ckub
+    update the the player list of a club
     """
+    # TODO take care of PlayerPeriod
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
@@ -105,11 +185,18 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             # check for modifications in transfer
             oldpl = oldplsix[idn]
             if oldpl.nature != p.nature:
-                if p.nature in ["assigned", "unassigned", "locked"]:
+                if p.nature in [
+                    PlayerlistNature.ASSIGNED,
+                    PlayerlistNature.UNASSIGNED,
+                    PlayerlistNature.LOCKED,
+                ]:
                     logger.info(f"player {p} moved to transferdeletes")
                     # the transfer is removed
                     transferdeletes.append(p)
-                if p.nature in ["confirmedout"]:
+                if p.nature in [
+                    PlayerlistNature.EXPORTED,
+                    PlayerlistNature.CONFIRMEDOUT,
+                ]:
                     transfersout.append(p)
     dictplayers = [p.model_dump() for p in players]
     await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
@@ -153,8 +240,9 @@ async def clb_validateICPlayers(
     """
     creates a list of validation errors
     """
+    # TODO recheck titulars
     errors = []
-    players = [p for p in pi.players if p.nature in ["assigned", "requestedin"]]
+    players = [p for p in pi.players if p.nature in ONPLAYERLIST]
     # check for valid elo
     elos = set()
     for p in players:
@@ -166,8 +254,6 @@ async def clb_validateICPlayers(
             p.natrating = 1150
         maxrating = max(p.fiderating or 0, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
-        if p.idnumber == 24338:
-            logger.info(f"mx mn {maxrating} {minrating} {max(1000, minrating)} ")
         if p.assignedrating < max(1000, minrating):
             errors.append(
                 ICPlayerValidationError(

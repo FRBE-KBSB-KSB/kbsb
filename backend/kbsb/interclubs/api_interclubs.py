@@ -235,7 +235,7 @@ async def api_anon_getICclub(idclub: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/icclub", response_model=List[ICClubItem])
+@router.get("/anon/icclub", response_model=List[ICClubItem | None])
 async def api_anon_getICclubs():
     try:
         return await anon_getICclubs()
@@ -246,11 +246,12 @@ async def api_anon_getICclubs():
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/clb/icclub/{idclub}", response_model=ICClubDB)
+@router.get("/clb/icclub/{idclub}", response_model=ICClubDB | None)
 async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    logger.info(f"api_clb_getICclub {idclub}")
     try:
         validate_membertoken(auth)
         return await clb_getICclub(idclub)
@@ -261,7 +262,7 @@ async def api_clb_getICclub(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/mgmt/icclub/{idclub}", response_model=ICClubDB)
+@router.get("/mgmt/icclub/{idclub}", response_model=ICClubDB | None)
 async def api_mgmt_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),

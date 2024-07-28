@@ -69,6 +69,8 @@ const groupingvalue = computed(()=>{
   return gr  
 })
 
+// methods 
+
 async function cancelEnrollment() {
   enr_status.value = 'open'
   await find_interclubenrollment()
@@ -92,7 +94,6 @@ function calcstatus(){
   }
   // TODO date check
   enr_status.value = 'open'
-
 }
 
 async function checkAccess() {
@@ -224,8 +225,8 @@ async function setup(icclub_, icdata_) {
   await find_interclubenrollment()
 }
 
-
 </script>
+
 <template>
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
