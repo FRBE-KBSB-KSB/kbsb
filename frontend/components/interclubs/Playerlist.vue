@@ -55,7 +55,7 @@ const headers = [
   { title: "B-ELO", key: "natrating" },
   { title: "Club", key: "idcluborig" },
   { title: t("Titular"), key: "titular" },
-  { title: t("Max div"), key: "maxdiv" },
+  { title: t("Min div"), key: "mindiv" },
   { title: t("Actions"), key: "action" },
 ]
 const itemsPerPage = 50
@@ -169,8 +169,16 @@ function fillinPlayerList() {
   }
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
+      m.fiderating = m.fiderating || 0 
+      let usedrating = m.fiderating > 0 ? m.fiderating: m.natrating
+      let mindiv = ""
+      for (const [div, minelo] of Object.entries(icdata.max_elo)) {
+         if (usedrating <= minelo) {
+          mindiv = div
+        }
+      }
       let newplayer = {
-        assignedrating: Math.max(m.fiderating, m.natrating),
+        assignedrating: usedrating,
         fiderating: m.fiderating,
         fullname: `${m.last_name}, ${m.first_name}`,
         first_name: m.first_name,
@@ -181,6 +189,7 @@ function fillinPlayerList() {
         natrating: m.natrating,
         nature: pnature,
         titular: "",
+        mindiv: mindiv,
         transfer: null,
       }
       players.value.push(newplayer)
@@ -419,11 +428,11 @@ async function setup(icclub_, icdata_) {
         <VBtn @click="validatePlayerlist()" color="primary">Save</VBtn>
       </div>
     </div>
-    <VDialog v-model="editdialog" width="20em">
+    <VDialog v-model="editdialog" width="30em">
       <VCard>
         <VCardTitle>
           {{ t('Edit') }}: {{ playeredit.fullname }}
-          <VDivider />
+          <v-divider class="divider" />
         </VCardTitle>
         <VCardText>
           <h4>{{ t('Modify assigned Elo') }}</h4>
@@ -431,10 +440,8 @@ async function setup(icclub_, icdata_) {
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
           <VTextField v-model="playeredit.assignedrating" label="New Elo" />
-          <!-- <VDivider />
 					<h4>{{ t('Titular') }}</h4>
 						<VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
-					<VDivider /> -->
         </VCardText>
         <VCardActions>
           <VSpacer />
@@ -511,6 +518,10 @@ async function setup(icclub_, icdata_) {
 </template>
 
 <style scoped>
+.divider {
+  margin: 1em 0;
+  color:darkseagreen
+}
 .imported {
   color: purple;
   font-weight: 500;
