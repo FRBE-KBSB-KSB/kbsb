@@ -4,8 +4,10 @@ import logging
 
 from typing import Any
 import openpyxl
+import yaml
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
+from reddevil.filestore.filestore import get_file
 
 
 from reddevil.core import (
@@ -25,12 +27,12 @@ from kbsb.interclubs import (
     PlayerlistNature,
     # ICDATA,
 )
+from kbsb.interclubs.registrations import find_icregistration
 
 
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
-
 
 # Interclub Clubs, Playerlist and Teams
 
@@ -41,6 +43,15 @@ ONPLAYERLIST = [
 ]
 
 # CRUD
+
+
+async def load_icdata():
+    _icd = getattr(load_icdata, "icdata", None)
+    if not _icd:
+        icdr = await get_file("data", "ic2425.yml")
+        _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
+        setattr(load_icdata, "icdata", _icd)
+    return _icd
 
 
 async def create_icclub(icclub: ICClubDB) -> str:
@@ -111,7 +122,6 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
     the latter is created and returned,
     returns None if nothing found
     """
-    from kbsb.interclubs import find_icregistration
 
     logger.info(f"clb_getICclub {idclub}")
     try:
@@ -240,19 +250,26 @@ async def clb_validateICPlayers(
     """
     creates a list of validation errors
     """
-    # TODO recheck titulars
+
+    icdata = await load_icdata()
     errors = []
     players = [p for p in pi.players if p.nature in ONPLAYERLIST]
     # check for valid elo
     elos = set()
     for p in players:
-        if p.natrating is None:
+        fidenotset = False
+        natnotset = False
+        if not p.natrating:
+            natnotset = True
             p.natrating = 0
-        if p.fiderating is None:
+        if not p.fiderating:
+            fidenotset = True
             p.fiderating = 0
         if 1150 > p.natrating > 0:
             p.natrating = 1150
-        maxrating = max(p.fiderating or 0, p.natrating) + 100
+        # now we have healty values for fiderating (0 or value)
+        # and natrating is minimal 1150
+        maxrating = max(p.fiderating, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
         if p.assignedrating < max(1000, minrating):
             errors.append(
@@ -263,7 +280,7 @@ async def clb_validateICPlayers(
                     detail=p.idnumber,
                 )
             )
-        if not p.natrating and not p.fiderating:
+        if natnotset and fidenotset:
             if p.assignedrating > 1600:
                 errors.append(
                     ICPlayerValidationError(
@@ -293,50 +310,55 @@ async def clb_validateICPlayers(
             )
         else:
             elos.add(p.assignedrating)
-    countedTitulars = {}
-    teams = await anon_getICteams(idclub)
-    totaltitulars = 0
-    for t in teams:
-        countedTitulars[t.name] = {
+    titulars = {}
+    registration = await find_icregistration(idclub)
+    ix = 1
+    for t in range(registration.teams1):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 1,
+            "ntitulars": icdata["ntitulars"][1],
             "counter": 0,
-            "teamcount": PLAYERSPERDIVISION[t.division],
-            "name": t.name,
         }
-        totaltitulars += PLAYERSPERDIVISION[t.division]
-    sortedplayers = sorted(players, reverse=True, key=lambda x: x.assignedrating)
-    for ix, p in enumerate(sortedplayers):
-        if ix >= totaltitulars:
-            break
-        if not p.titular:
-            errors.append(
-                ICPlayerValidationError(
-                    errortype="TitularOrder",
-                    idclub=idclub,
-                    message="Titulars must be highest rated players",
-                    detail=None,
-                )
-            )
-            break
+        ix += 1
+    for t in range(registration.teams2):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 2,
+            "ntitulars": icdata["ntitulars"][2],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams3):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 3,
+            "ntitulars": icdata["ntitulars"][3],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams4):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 4,
+            "ntitulars": icdata["ntitulars"][4],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams5):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 5,
+            "ntitulars": icdata["ntitulars"][5],
+            "counter": 0,
+        }
+        ix += 1
     for p in players:
-        if p.titular:
-            countedTitulars[p.titular]["counter"] += 1
-    for ct in countedTitulars.values():
-        if ct["counter"] < ct["teamcount"]:
-            errors.append(
-                ICPlayerValidationError(
-                    errortype="TitularCount",
-                    idclub=idclub,
-                    message="Not enough titulars",
-                    detail=ct["name"],
-                )
-            )
-        if ct["counter"] > ct["teamcount"]:
+        if p.titular and p.titular in titulars:
+            titulars[p.titular]["counter"] += 1
+    for team, tit in titulars.items():
+        if tit["counter"] > tit["ntitulars"]:
             errors.append(
                 ICPlayerValidationError(
                     errortype="TitularCount",
                     idclub=idclub,
                     message="Too many titulars",
-                    detail=ct["name"],
+                    detail=team,
                 )
             )
     return errors
