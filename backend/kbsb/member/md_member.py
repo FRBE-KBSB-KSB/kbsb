@@ -84,7 +84,7 @@ class AnonMember(BaseModel):
     gender: str
     idclub: int
     idnumber: int
-    idfide: int = 0
+    idfide: int | None = 0
     last_name: str
     nationalitybel: str = ""
     nationalityfide: str = ""

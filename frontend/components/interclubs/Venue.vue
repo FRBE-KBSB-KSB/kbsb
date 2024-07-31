@@ -57,7 +57,7 @@ function calcstatus(){
   // - editing
   // - noaccess
   ven_status.value = 'closed'
-  if (!icclub.id) {
+  if (!icclub.idclub) {
     ven_status.value = 'noclub'
     return
   }
@@ -221,7 +221,7 @@ async function setup(icclub_, icdata_) {
               <div><b>{{ t('Capacity (boards)') }}:</b> {{ v.capacity }}</div>
               <div><b>{{ t('Teams') }}:</b> {{ v.teams }}</div>
               <div><b>{{ t('Rounds') }}:</b> {{ v.rounds }}</div>
-              <div><b>{{ t('icn.ven_wheelchair)') }}:</b> {{ v.wheelchair }}</div>
+              <div><b>{{ t('icn.ven_wheelchair') }}:</b> {{ v.wheelchair }}</div>
               <p>{{ t('Optional') }}</p>
               <div><b>{{ t('Email address') }} {{ t('icn.ven_1') }}:</b> {{ v.email }}</div>
               <div><b>{{ t('Telephone number') }} {{ t('icn.ven_1') }}:</b> {{ v.phone }}</div>
