@@ -109,13 +109,13 @@ function canAssign(idnumber) {
 }
 
 function canEdit(idnumber) {
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.comfirmedin, PLAYERSTATUS.requestedin].includes(
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
     playersindexed[idnumber].nature)
 }
 
-
 function canExport(idnumber) {
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassiged].includes(
+  console.log("canExport", playersindexed[idnumber].nature)
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
     playersindexed[idnumber].nature)
 }
 
@@ -153,7 +153,7 @@ function doExportAll() {
 }
 
 function doExportPlayer() {
-  playeredit.value.nature = PLAYERSTATUS.confirmedout
+  playeredit.value.nature = PLAYERSTATUS.exported
   playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
   playerEdit2Player()
   exportdialog.value = false
@@ -170,15 +170,9 @@ function fillinPlayerList() {
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       m.fiderating = m.fiderating || 0 
-      let usedrating = m.fiderating > 0 ? m.fiderating: m.natrating
-      let mindiv = ""
-      for (const [div, minelo] of Object.entries(icdata.max_elo)) {
-         if (usedrating <= minelo) {
-          mindiv = div
-        }
-      }
+      let calcrating = m.fiderating > 0 ? m.fiderating: m.natrating
       let newplayer = {
-        assignedrating: usedrating,
+        assignedrating: calcrating,
         fiderating: m.fiderating,
         fullname: `${m.last_name}, ${m.first_name}`,
         first_name: m.first_name,
@@ -189,7 +183,6 @@ function fillinPlayerList() {
         natrating: m.natrating,
         nature: pnature,
         titular: "",
-        mindiv: mindiv,
         transfer: null,
       }
       players.value.push(newplayer)
@@ -197,9 +190,15 @@ function fillinPlayerList() {
     }
   })
   players.value.forEach((p) => {
-    if (!p.fullname) {
-      p.fullname = `${p.last_name}, ${p.first_name}`
+    let calrating = p.fiderating > 0 ? p.fiderating: p.natrating
+    let mindiv = ""
+    for (const [div, minelo] of Object.entries(icdata.max_elo)) {
+        if (calrating <= minelo) {
+        mindiv = div
+      }
     }
+    p.mindiv = mindiv    
+    p.fullname = `${p.last_name}, ${p.first_name}`
   })
 }
 
@@ -287,8 +286,8 @@ function rowstyle(idnumber) {
   const pl = playersindexed[idnumber]
   if (!pl) return {}
   return {
-    imported: pl.nature == "requestedin",
-    exported: pl.nature == "confirmedout",
+    imported: pl.nature == "imported",
+    exported: pl.nature == "exported",
     unassigned: pl.nature == "unassigned"
   }
 }
@@ -413,7 +412,7 @@ async function setup(icclub_, icdata_) {
         </template>
 
         <template v-slot:item.action="{ item }">
-          <span v-show="item.nature == 'confirmedout'">
+          <span v-show="item.nature == 'exported'">
             <VIcon>mdi-arrow-right-bold</VIcon>{{ visitingclub(item.idnumber) }}
           </span>
           <VBtn density="compact" color="green" icon="mdi-pencil" variant="text"

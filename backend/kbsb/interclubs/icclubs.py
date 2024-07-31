@@ -4,6 +4,7 @@ import logging
 
 from typing import Any
 import openpyxl
+import datetime
 import yaml
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
@@ -25,9 +26,9 @@ from kbsb.interclubs import (
     DbICClub,
     DbICSeries,
     PlayerlistNature,
-    # ICDATA,
 )
 from kbsb.interclubs.registrations import find_icregistration
+from kbsb.club import get_club_idclub
 
 
 logger = logging.getLogger(__name__)
@@ -129,13 +130,20 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
     except RdNotFound:
         pass
     # we need to check if the club is registered, and if so
-    # we nee to create the icclub record
     logger.info(f"No icclub found for {idclub}")
     registration = await find_icregistration(idclub)
     logger.info(f"got registration {registration}")
     if not registration:
-        logger.info(f"No registration found for {idclub}")
-        return None
+        logger.info(
+            f"No registration found for {idclub}, "
+            "creating a non registered icclub record"
+        )
+        clb = await get_club_idclub(idclub)
+        icc = ICClubDB(
+            name=clb.name_short, idclub=idclub, players=[], registered=False, teams=[]
+        )
+        await create_icclub(icc)
+        return await get_icclub({"idclub": idclub})
     teams = []
     ix = 1
     for t in range(registration.teams1):
@@ -176,6 +184,15 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     update the the player list of a club
     """
     # TODO take care of PlayerPeriod
+    icdata = await load_icdata()
+    today = datetime.date.today()
+    for p in icdata["playerlist_data"]:
+        if p["start"] <= today <= p["end"]:
+            period = p["period"]
+            break
+    else:
+        logger.info("today not in playerlist periods")
+        period = "unknown"
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
@@ -184,6 +201,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     for p in newplsix.values():
+        p.period = period
         idn = p.idnumber
         if idn not in oldplsix:
             # inserts
@@ -226,7 +244,8 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     idclubvisit=t.idclubvisit,
                     last_name=t.last_name,
                     natrating=t.natrating,
-                    nature="requestedin",
+                    nature=PlayerlistNature.IMPORTED,
+                    period=period,
                     titular=None,
                 )
             )
