@@ -29,7 +29,7 @@ const t_vis_items = computed(() => visibility_items.map((x) => ({
   title: t(x.title),
   value: x.value
 })))
-let clubadminl, interclubadminl, interclubcaptainl;
+let clubadminl, interclubadminl, interclubcaptainl
 const emit = defineEmits(['displaySnackbar', 'updateClub'])
 
 function addClubAdmin() {
@@ -83,6 +83,7 @@ function readClubDetails() {
   console.log('reading club rights')
   clubdetails.value = { ...EMPTY_CLUB, ...props.club }
   copyclubdetails = JSON.parse(JSON.stringify(props.club))
+  console.log("clubdetails", clubdetails.value)
   clubdetails.value.clubroles.forEach((c) => {
     console.log('loop c', c.nature, c.memberlist)
     if (c.nature == "ClubAdmin") clubadminl = c.memberlist

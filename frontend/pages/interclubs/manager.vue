@@ -103,25 +103,23 @@ async function getClubs() {
 
 async function getClubDetails() {
   let reply
-  icclub.value = {}
-  if (idclub.value) {
-    changeDialogCounter(1)
-    try {
-      reply = await $backend("interclub", "clb_getICclub", {
-        idclub: idclub.value,
-        token: idtoken.value
-      })
-    } catch (error) {
-      if (error.code == 401) gotoLogin()
-      displaySnackbar(t(error.message))
-      return
-    } finally {
-      changeDialogCounter(-1)
-    }
-    icclub.value = reply.data
-    changeTab()
-  }
-  else {
+  icclub.value = { idclub: idclub.value }
+  changeDialogCounter(1)
+  try {
+    reply = await $backend("interclub", "clb_getICclub", {
+      idclub: idclub.value,
+      token: idtoken.value
+    })
+    icclub.value = {idclub: idclub.value, ... reply.data || {}}
+  } 
+  catch (error) {
+    console.log("did not find clubdetails", icclub.value)
+    if (error.code == 401) gotoLogin()
+    displaySnackbar(t(error.message))
+    return
+  } 
+  finally {
+    changeDialogCounter(-1)
     changeTab()
   }
 }
@@ -216,7 +214,7 @@ onMounted(async () => {
         <v-tab value="enrollment">{{ t('icn.enr') }}</v-tab>
         <!-- <v-tab value="results">{{ t('Results') }}</v-tab>
         <v-tab value="planning">{{ t('Planning') }}</v-tab> -->
-        <v-tab value="venues">{{ t('Venue') }}</v-tab>
+        <v-tab value="venues">{{ t('icn.ven_1') }}</v-tab>
         <!-- <v-tab value="playerlist">{{ t('Player list') }}</v-tab> -->
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">

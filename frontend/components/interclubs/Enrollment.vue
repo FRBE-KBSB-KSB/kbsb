@@ -82,7 +82,7 @@ function calcstatus(){
   // - editing
   // - noaccess
   enr_status.value = 'closed'
-  if (!icclub.id) {
+  if (!icclub.idclub) {
     enr_status.value = 'noclub'
     return
   }
