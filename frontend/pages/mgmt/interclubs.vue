@@ -131,25 +131,22 @@ async function getClubs() {
 
 async function getClubDetails() {
   let reply
-  icclub.value = {}
-  if (idclub.value) {
-    changeDialogCounter(1)
-    try {
-      reply = await $backend("interclub", "mgmt_getICclub", {
-        idclub: idclub.value,
-        token: idtoken.value
-      })
-    } catch (error) {
-      if (error.code == 401) gotoLogin()
-      displaySnackbar(error.message)
-      return
-    } finally {
-      changeDialogCounter(-1)
-    }
-    icclub.value = reply.data
-    changeTab()
-  }
-  else {
+  icclub.value = { idclub: idclub.value}
+  changeDialogCounter(1)
+  try {
+    reply = await $backend("interclub", "mgmt_getICclub", {
+      idclub: idclub.value,
+      token: idtoken.value
+    })
+    icclub.value = {idclib: idclub.value, ...reply.data}
+  } 
+  catch (error) {
+    if (error.code == 401) gotoLogin()
+    displaySnackbar(error.message)
+    return
+  } 
+  finally {
+    changeDialogCounter(-1)
     changeTab()
   }
 }

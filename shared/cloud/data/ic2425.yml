@@ -37,7 +37,7 @@ max_elo:
   5: 1750
 notrated_elo: 
   min: 1000
-  max: 1600
+  max: 1800
 playerlist_data:
   -
     period: september

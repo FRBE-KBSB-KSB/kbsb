@@ -290,7 +290,7 @@ async def clb_validateICPlayers(
         # and natrating is minimal 1150
         maxrating = max(p.fiderating, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
-        if p.assignedrating < max(1000, minrating):
+        if p.assignedrating < max(icdata["notrated_elo"]["min"], minrating):
             errors.append(
                 ICPlayerValidationError(
                     errortype="ELO",
@@ -300,7 +300,7 @@ async def clb_validateICPlayers(
                 )
             )
         if natnotset and fidenotset:
-            if p.assignedrating > 1600:
+            if p.assignedrating > icdata["notrated_elo"]["max"]:
                 errors.append(
                     ICPlayerValidationError(
                         errortype="ELO",

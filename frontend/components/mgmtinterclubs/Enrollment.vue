@@ -77,7 +77,7 @@ function calcstatus() {
   // - open
   // - noclub
   // - editing
-  if (!icclub.id) {
+  if (!icclub.idclub) {
     enr_status.value = 'noclub'
     return
   }
