@@ -1,0 +1,9 @@
+# build the core container with all dependencies
+FROM python:3.11
+RUN pip install poetry
+WORKDIR /app
+COPY backend backend
+COPY shared shared
+WORKDIR /app/backend
+RUN poetry install
+CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "kbsb.main:app"] 
