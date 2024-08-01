@@ -108,9 +108,9 @@ SECRETS = {
     },
 }
 
-SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
+SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", "../shared/secrets"))
 
-SHARED_PATH = Path(os.environ.get("SHARED_PATH", "../share"))
+SHARED_PATH = Path(os.environ.get("SHARED_PATH", "../shared"))
 
 
 TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
@@ -134,6 +134,10 @@ if KBSB_MODE == "prodtest":
     ls = "importing prodtest settings"
     from env_prodtest import *  # noqa F403
 
+
+if KBSB_MODE == "docker":
+    ls = "importing prodtest settings"
+    from env_docker import *
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"

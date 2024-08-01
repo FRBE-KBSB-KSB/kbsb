@@ -64,6 +64,7 @@ async def get_clubs(options: dict = {}) -> List[ClubItem]:
     """
     get all the Clubs
     """
+    logger.info("get_clubs")
     _class = options.pop("_class", ClubItem)
     docs = await DbClub.find_multiple(options)
     clubs = [encode_model(d, _class) for d in docs]
