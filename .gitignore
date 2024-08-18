@@ -24,4 +24,5 @@ frontend/dist
 
 # data
 share/mysql/*.sql
+shared/secrets/
 .env
