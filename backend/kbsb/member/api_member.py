@@ -39,7 +39,7 @@ async def api_login(ol: LoginValidator) -> str:
         return await login(ol)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call oldlogin")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -57,7 +57,7 @@ async def api_set_old_userpassword(
         await old_userpassword(ol)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call old_userpassword")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -90,7 +90,7 @@ async def api_mgmt_clubmembers(
         return await mgmt_getclubmembers(idclub, active)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getclubmembers")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -104,7 +104,7 @@ async def api_anon_getmember(idnumber: int):
         return await anon_getmember(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getmember")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -118,7 +118,7 @@ async def api_anon_getfidemember(idnumber: int):
         return await anon_getfidemember(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getmember")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -135,7 +135,7 @@ async def api_clb_get_member(
         return await mgmt_getmember(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call get_activemember")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -149,6 +149,6 @@ async def api_anon_belid_from_fideid(idfide: int):
         return await anon_belid_from_fideid(idfide)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
+    except Exception:
         logger.exception("failed api call anon_getmember")
         raise HTTPException(status_code=500, detail="Internal Server Error")
