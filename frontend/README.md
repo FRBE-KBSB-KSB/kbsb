@@ -25,6 +25,6 @@ Build the application for production:
 
 ```bash
 API_URL=https://www.frbe-kbsb-ksb.be/ yarn generate
-gcloud app deploy
+gcloud app deploy --quiet
 ```
 

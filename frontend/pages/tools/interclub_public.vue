@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+
 // import ResultsPublic from '@/components/interclubs/ResultsPublic.vue'
 // import Standings from '@/components/interclubs/Standings.vue'
 // import VenuePublic from '@/components/interclubs/VenuePublic.vue'
@@ -10,6 +11,7 @@ import { useI18n } from "vue-i18n";
 
 // i18n
 const { locale, t: t } = useI18n();
+const route = useRoute();
 
 // const tab = ref(null)
 // const refresults = ref(null)
@@ -42,10 +44,13 @@ const { locale, t: t } = useI18n();
 //   }
 // }
 
-// onMounted(() => {
-//   tab.value = "results"
-//   changeTab()
-// })
+onMounted(() => {
+  let l = route.query.locale;
+  console.log("query locale", l);
+  locale.value = l ? l : "nl";
+  // tab.value = "results"
+  // changeTab()
+});
 
 definePageMeta({
   layout: "nomenu",
