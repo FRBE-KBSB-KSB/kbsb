@@ -19,6 +19,7 @@ icn,planning_closed,The management of the planning is currently unavailable,Het 
 icn,playerlist_closed,The management of the player list is currently unavailable,Het beheer van de spelerlijst is momenteel niet beschikbaar,La gestion de la liste de force est actuellement indisponible,Die Verwaltung der Spielerliste ist derzeit nicht verfügbar
 icn,reg_pref,Regional preferences,Regionale voorkeuren,Préférences régionales,Regionale Präferenzen
 icn,results_closed,The management of the results is currently unavailable,Het beheer van de resultaten is momenteel niet beschikbaar,La gestion des résultats est actuellement indisponible,Die Ergebnisverwaltung  ist derzeit nicht verfügbar
+icn,rounds,Rounds,Ronden,Ronden,Runden
 icn,save_enr_fail,Saving enrollment failed,Opslaan inschrijving mislukt,Enregistrément échoué,Speichern Registrierung fehlgeschlagen
 icn,save_enr_ok,Saving enrollment OK,Opslaan inschrijving OK,Inscription bien enregistré,Speichern Registrierung OK
 icn,select_club,Please select a club,Selecteer een club,Veuillez sélectionner un club,Bitte wählen Sie einen Verein aus
@@ -183,6 +184,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Monday,Monday,Maandag,Lundi,Montag
 ,More,More,Meer,Plus,Mehr
 ,Name,Name,Naam,Nom,Name
+,No,No,Nee,Non,Nein
 ,No incoming transfers,No incoming transfers,No incoming transfers,Aucun transfert entrant,Keine eingehenden Überweisungen
 ,No outgoing transfers,No outgoing transfers,Geen uitgaande transfers,Pas de transferts sortants,Keine ausgehenden Transfers
 ,No titular,No titular,Geen titularis,Pas de titulaire,keine Titulatur
@@ -312,6 +314,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Wednesday,Wednesday,Woensdag,Mercredi,Mittwoch
 ,Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
 ,Wrong combination of username and password,Wrong combination of username and password,Verkeerde combinatie van gebruikersnaam en wachtwoord,Mauvaise combinaison de nom d'utilisateur et de mot de passe,Falsche Kombination aus Benutzername und Passwort
+,Yes,Yes,Ja,Oui,Ja
 ,You can no longer modify the planning of this round,You can no longer modify the planning of this round,Je kan de planning van deze ronde niet meer wijzigen,Vous ne pouvez plus modifier la planification de cette ronde,Sie können die Planung dieser Runde nicht mehr ändern
 ,You triggered a bug. Please inform the webmaster.,You triggered a bug. Please inform the webmaster.,Je hebt een bug geactiveerd. Informeer de webmaster.,Vous avez déclenché un bug. Merci d'en informer le webmaster.,Sie haben einen Fehler ausgelöst. Bitte informieren Sie den Webmaster.
 ,Youth,Youth,Jeugd,Jeunesse,Jugend

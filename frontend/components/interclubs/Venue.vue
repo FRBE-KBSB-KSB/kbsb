@@ -86,7 +86,7 @@ async function checkAccess() {
 }
 
 function deleteVenue(ix) {
-  venues.value, splice(ix, 1)
+  venues.value.splice(ix, 1)
 }
 
 async function getICVenues() {
