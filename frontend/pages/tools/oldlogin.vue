@@ -58,6 +58,10 @@ async function getContent() {
 onMounted(() => {
   getContent();
 });
+
+definePageMeta({
+  layout: "nomenu",
+});
 </script>
 <template>
   <VContainer>
