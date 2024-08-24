@@ -120,7 +120,7 @@ async function getClubDetails() {
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__tools__interclub_protected");
+  await router.push("/tools/oldlogin?url=__tools__interclub_protected?locale="+locale.value);
 }
 
 async function parseYaml(group, name) {

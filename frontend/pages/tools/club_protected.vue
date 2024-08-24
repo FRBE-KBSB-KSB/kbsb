@@ -130,7 +130,7 @@ async function getClubMembers() {
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__tools__club_protected");
+  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value);
 }
 
 function displaySnackbar(text, color) {
