@@ -13,6 +13,7 @@ import { storeToRefs } from "pinia";
 
 // communication
 const router = useRouter();
+const route = useRoute();
 const waitingdialog = ref(false);
 let dialogcounter = 0;
 const errortext = ref(null);
@@ -162,6 +163,9 @@ function selectClub() {
 // startup
 
 onMounted(async () => {
+  let l = route.query.locale;
+  console.log("query locale", l);
+  locale.value = l ? l : "nl";
   checkAuth();
   await processICdata();
   getClubs();

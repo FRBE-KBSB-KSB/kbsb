@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 
 import { EMPTY_CLUB } from "@/util/club";
 
+const route = useRoute();
 const { locale, t: $t } = useI18n();
 const { $backend } = useNuxtApp();
 const boardmembers = ref({});
@@ -73,7 +74,9 @@ function selectclub() {
 }
 
 onMounted(() => {
-  console.log("mounting clubs");
+  let l = route.query.locale;
+  console.log("query locale", l);
+  locale.value = l ? l : "nl";
   getClubs();
 });
 

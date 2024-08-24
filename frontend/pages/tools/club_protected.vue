@@ -11,6 +11,7 @@ import { storeToRefs } from "pinia";
 
 const { locale, t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 const { $backend } = useNuxtApp();
 const idstore = useIdtokenStore();
 const { token: idtoken } = storeToRefs(idstore);
@@ -145,6 +146,9 @@ async function selectClub() {
 // setup
 
 onMounted(() => {
+  let l = route.query.locale;
+  console.log("query locale", l);
+  locale.value = l ? l : "nl";
   checkAuth();
   getClubs();
 });
