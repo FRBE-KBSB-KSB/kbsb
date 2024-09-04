@@ -5,7 +5,7 @@ icn,2groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entge
 icn,dist,Distribution,Verdeling,Distribution,Verteilung
 icn,div,Division,Divisie,Division,Division
 icn,enr,Enrollment,Inschrijving,Inscription,Anmeldung
-icn,enrollment_closed,The management of the enrollement is currently unavailable,Het beheer van de inschrijving is momenteel niet beschikbaar,La gestion de l'enregistrement est actuellement indisponible,Die Registrierungsverwaltung ist derzeit nicht verfügbar
+icn,enr_closed,The management of the enrollement is currently unavailable,Het beheer van de inschrijving is momenteel niet beschikbaar,La gestion de l'enregistrement est actuellement indisponible,Die Registrierungsverwaltung ist derzeit nicht verfügbar
 icn,exist_enr,Existing enrollment,Bestaande inschrijving,Inscription existante,Bestehende Anmeldung
 icn,get_enr_failed,Getting existing enrollment failed,Het ophalen van de bestaande inschrijving is mislukt,Échec de l'obtention de l'inscription existante,Das Abrufen der vorhandenen Registrierung ist fehlgeschlagen
 icn,grouping,Grouping,Groepering,Regroupement,Gruppierung
@@ -16,9 +16,15 @@ icn,not_enrolled,The club is not enrolled yet,De club is nog niet ingeschreven,L
 icn,other_wishes,Other wishes,Andere wensen,Autres souhaits,Andere Wünsche
 icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
 icn,planning_closed,The management of the planning is currently unavailable,Het beheer van de planning is momenteel niet beschikbaar,La gestion du planning est actuellement indisponible,Die Verwaltung der Planung ist derzeit nicht verfügbar
-icn,playerlist_closed,The management of the player list is currently unavailable,Het beheer van de spelerlijst is momenteel niet beschikbaar,La gestion de la liste de force est actuellement indisponible,Die Verwaltung der Spielerliste ist derzeit nicht verfügbar
+icn,pll_assigned_elo,Currently assigned Elo,Huidige toegewezen Elo,Elo actuellement attribué,Derzeit zugewiesenes Elo
+icn,pll_closed,The management of the player list is currently unavailable,Het beheer van de spelerlijst is momenteel niet beschikbaar,La gestion de la liste de force est actuellement indisponible,Die Verwaltung der Spielerliste ist derzeit nicht verfügbar
+icn,pll_double_elo,Elo assigned to more than 1 player,Elo toegewezen aan meer dan 1 speler,Elo attribué à plus d'un joueur,Elo wird mehr als einem Spieler zugewiesen
+icn,pll_edit_assigned,Modify assigned Elo,Aanpassen toegewezen Elo,Ajuster l'Elo attribué,Anpassen den zugewiesenen Elo
+icn,pll_mindiv,Min. div.,Min. Afd.,Div. min.,Min. Abt.
+icn,pll_notit,No titular,Geen titularis,Pas de titulaire,keine Titulatur
 icn,reg_pref,Regional preferences,Regionale voorkeuren,Préférences régionales,Regionale Präferenzen
 icn,results_closed,The management of the results is currently unavailable,Het beheer van de resultaten is momenteel niet beschikbaar,La gestion des résultats est actuellement indisponible,Die Ergebnisverwaltung  ist derzeit nicht verfügbar
+icn,rounds,Rounds,Ronden,Ronden,Runden
 icn,save_enr_fail,Saving enrollment failed,Opslaan inschrijving mislukt,Enregistrément échoué,Speichern Registrierung fehlgeschlagen
 icn,save_enr_ok,Saving enrollment OK,Opslaan inschrijving OK,Inscription bien enregistré,Speichern Registrierung OK
 icn,select_club,Please select a club,Selecteer een club,Veuillez sélectionner un club,Bitte wählen Sie einen Verein aus
@@ -183,9 +189,9 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Monday,Monday,Maandag,Lundi,Montag
 ,More,More,Meer,Plus,Mehr
 ,Name,Name,Naam,Nom,Name
+,No,No,Nee,Non,Nein
 ,No incoming transfers,No incoming transfers,No incoming transfers,Aucun transfert entrant,Keine eingehenden Überweisungen
 ,No outgoing transfers,No outgoing transfers,Geen uitgaande transfers,Pas de transferts sortants,Keine ausgehenden Transfers
-,No titular,No titular,Geen titularis,Pas de titulaire,keine Titulatur
 ,Not available,Not available,Niet beschikbaar,Indisponible,Nicht verfügbar
 ,Not available yet,Not available yet,Nog niet beschikbaar,Pas encore disponible,Zurzeit nicht verfügbar
 ,Not enough titulars,Not enough titulars,Niet voldoende titularissen,Pas assez de titulaires,Nicht genügend Titularen
@@ -312,6 +318,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Wednesday,Wednesday,Woensdag,Mercredi,Mittwoch
 ,Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
 ,Wrong combination of username and password,Wrong combination of username and password,Verkeerde combinatie van gebruikersnaam en wachtwoord,Mauvaise combinaison de nom d'utilisateur et de mot de passe,Falsche Kombination aus Benutzername und Passwort
+,Yes,Yes,Ja,Oui,Ja
 ,You can no longer modify the planning of this round,You can no longer modify the planning of this round,Je kan de planning van deze ronde niet meer wijzigen,Vous ne pouvez plus modifier la planification de cette ronde,Sie können die Planung dieser Runde nicht mehr ändern
 ,You triggered a bug. Please inform the webmaster.,You triggered a bug. Please inform the webmaster.,Je hebt een bug geactiveerd. Informeer de webmaster.,Vous avez déclenché un bug. Merci d'en informer le webmaster.,Sie haben einen Fehler ausgelöst. Bitte informieren Sie den Webmaster.
 ,Youth,Youth,Jeugd,Jeunesse,Jugend

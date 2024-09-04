@@ -1,13 +1,14 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import Enrollment from '@/components/mgmtinterclubs/Enrollment'
-import Downloads from '@/components/mgmtinterclubs/Downloads'
-import { parse } from 'yaml'
+import { ref, onMounted } from "vue"
+import { useRouter } from "vue-router"
+import Enrollment from "@/components/mgmtinterclubs/Enrollment"
+import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
+import Downloads from "@/components/mgmtinterclubs/Downloads"
+import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
 import { usePersonStore } from "@/store/person"
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
 
 // communication
 const router = useRouter()
@@ -16,71 +17,69 @@ let dialogcounter = 0
 const errortext = ref(null)
 const snackbar = ref(null)
 
-
 // API backend
 const { $backend } = useNuxtApp()
 const mgmttokenstore = useMgmtTokenStore()
 const { token: idtoken } = storeToRefs(mgmttokenstore)
-const personstore = usePersonStore();
+const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 // const mgmtinterclubstore = useMgmtInterclubStore()
 // const { club } = storeToRefs(mgmtinterclubstore)
 
-
 // data model
 const tab = ref(null)
 const refenrollment = ref(null)
+const refplayerlist = ref(null)
 // const refplanning = ref(null)
-// const refplayerlist = ref(null)
 // const refresults = ref(null)
 // const refvenues = ref(null)
 const refdownloads = ref(null)
 const icdata = ref({})
 const clubs = ref([])
-const icclub = ref({})          // the icclub data
+const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
 
 // layout + header
 definePageMeta({
-  layout: 'mgmt'
+  layout: "mgmt",
 })
 useHead({
-  script: [
-    { src: 'https://accounts.google.com/gsi/client', defer: true }
-  ],
-  title: 'Management Interclubs',
+  script: [{ src: "https://accounts.google.com/gsi/client", defer: true }],
+  title: "Management Interclubs",
 })
 
 // methods alphabetically
 
 function changeDialogCounter(i) {
   dialogcounter += i
-  waitingdialog.value = (dialogcounter > 0)
+  waitingdialog.value = dialogcounter > 0
 }
 
-
 function changeTab() {
-  console.log('changeTab', tab.value)
+  console.log("changeTab", tab.value)
   switch (tab.value) {
-    case 'enrollment':
+    case "enrollment":
       refenrollment.value.setup(icclub.value, icdata.value)
       break
-    case 'downloads':
+    case "playerlist":
+      refplayerlist.value.setup(icclub.value, icdata.value)
+      break
+    case "downloads":
       refdownloads.value.setup(icclub.value)
       break
   }
 }
 
 async function checkAuth() {
-  console.log('checking if auth is already set', idtoken.value)
+  console.log("checking if auth is already set", idtoken.value)
   if (idtoken.value) return
   if (person.value.credentials.length === 0) {
     gotoLogin()
     return
   }
-  if (!person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
+  if (!person.value.email.endsWith("@frbe-kbsb-ksb.be")) {
     gotoLogin()
     return
   }
@@ -89,18 +88,16 @@ async function checkAuth() {
   // now login using the Google auth token
   try {
     reply = await $backend("accounts", "login", {
-      logintype: 'google',
+      logintype: "google",
       token: person.value.credentials,
       username: null,
       password: null,
     })
     mgmttokenstore.updateToken(reply.data)
-  }
-  catch (error) {
-    console.log('failed login to backend', error)
+  } catch (error) {
+    console.log("failed login to backend", error)
     gotoLogin()
-  }
-  finally {
+  } finally {
     changeDialogCounter(-1)
   }
 }
@@ -119,41 +116,37 @@ async function getClubs() {
     if (error.code == 401) gotoLogin()
     displaySnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     changeDialogCounter(-1)
   }
   clubs.value = reply.data
-  clubs.value.forEach(p => {
+  clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
 }
 
 async function getClubDetails() {
   let reply
-  icclub.value = { idclub: idclub.value}
+  icclub.value = { idclub: idclub.value }
   changeDialogCounter(1)
   try {
     reply = await $backend("interclub", "mgmt_getICclub", {
       idclub: idclub.value,
-      token: idtoken.value
+      token: idtoken.value,
     })
-    icclub.value = {idclib: idclub.value, ...reply.data}
-  } 
-  catch (error) {
+    icclub.value = { idclib: idclub.value, ...reply.data }
+  } catch (error) {
     if (error.code == 401) gotoLogin()
     displaySnackbar(error.message)
     return
-  } 
-  finally {
+  } finally {
     changeDialogCounter(-1)
     changeTab()
   }
 }
 
-
 async function gotoLogin() {
-  await router.push('/mgmt')
+  await router.push("/mgmt")
 }
 
 async function parseYaml(group, name) {
@@ -163,9 +156,8 @@ async function parseYaml(group, name) {
       return null
     }
     return parse(yamlcontent)
-  }
-  catch (error) {
-    console.error('cannot parse yaml', yamlcontent)
+  } catch (error) {
+    console.error("cannot parse yaml", yamlcontent)
   }
 }
 
@@ -178,21 +170,19 @@ async function processICdata() {
 
 async function readBucket(group, name) {
   try {
-    const reply = await $backend('filestore', 'anon_get_file', {
+    const reply = await $backend("filestore", "anon_get_file", {
       group,
       name,
     })
     return reply.data
-  }
-  catch (error) {
-    console.error('failed to fetch file from bucket')
+  } catch (error) {
+    console.error("failed to fetch file from bucket")
     return null
   }
 }
 
-
 function selectClub() {
-  console.log('selected', idclub.value)
+  console.log("selected", idclub.value)
   getClubDetails()
 }
 
@@ -205,9 +195,6 @@ onMounted(async () => {
   tab.value = "enrollment"
   changeTab()
 })
-
-
-
 </script>
 
 <template>
@@ -225,27 +212,37 @@ onMounted(async () => {
       <VCardText>
         <v-row>
           <v-col cols="12" sm="6">
-            <VAutocomplete v-model="idclub" :items="clubs" item-title="merged" item-value="idclub"
-              color="deep-purple" label="Club" clearable @update:model-value="selectClub">
+            <VAutocomplete
+              v-model="idclub"
+              :items="clubs"
+              item-title="merged"
+              item-value="idclub"
+              color="deep-purple"
+              label="Club"
+              clearable
+              @update:model-value="selectClub"
+            >
             </VAutocomplete>
           </v-col>
           <v-col cols="12" sm="6">
-            <VSelect v-model="round" :items="ic_rounds" label="Round"
-              @update:model-value="changeTab">
+            <VSelect
+              v-model="round"
+              :items="ic_rounds"
+              label="Round"
+              @update:model-value="changeTab"
+            >
             </VSelect>
           </v-col>
         </v-row>
       </VCardText>
     </VCard>
-    <h3 class="mt-2">
-      Selected club: {{ icclub.idclub }} {{ icclub.name }}
-    </h3>
+    <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changeTab">
         <VTab value="enrollment">Registration</VTab>
+        <VTab value="playerlist">Player lists</VTab>
         <!-- <VTab value="results">Results</VTab>
         <VTab value="venues">Venues</VTab>
-        <VTab value="playerlist">Player lists</VTab>
         <VTab value="teamforfeit">Team Forfeiting</VTab> -->
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
@@ -253,14 +250,14 @@ onMounted(async () => {
         <VWindowItem value="enrollment" :eager="true">
           <Enrollment ref="refenrollment" />
         </VWindowItem>
+        <VWindowItem value="playerlist" :eager="true">
+          <Playerlist ref="refplayerlist" />
+        </VWindowItem>
         <!-- <VWindowItem value="results" :eager="true">
           <Results ref="refresults" />
         </VWindowItem>
         <VWindowItem value="venues" :eager="true">
           <Venue ref="refvenues" />
-        </VWindowItem>
-        <VWindowItem value="playerlist" :eager="true">
-          <Playerlist ref="refplayerlist" />
         </VWindowItem>
         <VWindowItem value="teamforfeit" :eager="true">
           <Teamforfeit ref="refteamforfeit" />
@@ -273,8 +270,13 @@ onMounted(async () => {
     <VSnackbar v-model="snackbar" timeout="6000">
       {{ errortext }}
       <template v-slot:actions>
-        <v-btn color="deep-purple-lighten-2" variant="text" @click="snackbar = false" icon="mdi-close" />
+        <v-btn
+          color="deep-purple-lighten-2"
+          variant="text"
+          @click="snackbar = false"
+          icon="mdi-close"
+        />
       </template>
-    </VSnackbar>    
+    </VSnackbar>
   </VContainer>
 </template>

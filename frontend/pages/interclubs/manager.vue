@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import Enrollment from '@/components/interclubs/Enrollment.vue'
 // import Results from '@/components/interclubs/Results.vue'
 // import Planning from '@/components/interclubs/Planning.vue'
-// import Playerlist from '@/components/interclubs/Playerlist.vue'
+import Playerlist from '@/components/interclubs/Playerlist.vue'
 import Venue from '@/components/interclubs/Venue.vue'
 import { parse } from 'yaml'
 import { useIdtokenStore } from '@/store/idtoken'
@@ -58,7 +58,7 @@ function changeTab() {
       refplanning.value.setup(icclub.value, round.value)
       break
     case 'playerlist':
-      refplayerlist.value.setup(icclub.value)
+      refplayerlist.value.setup(icclub.value, icdata.value)
       break
     case 'results':
       refresults.value.setup(icclub.value, round.value)
@@ -212,6 +212,8 @@ onMounted(async () => {
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
         <v-tab value="enrollment">{{ t('icn.enr') }}</v-tab>
+        <v-tab value="playerlist">{{ t('Player list') }}</v-tab>
+        <v-tab value="venues">{{ t('Venue') }}</v-tab>
         <!-- <v-tab value="results">{{ t('Results') }}</v-tab>
         <v-tab value="planning">{{ t('Planning') }}</v-tab> -->
         <v-tab value="venues">{{ t('icn.ven_1') }}</v-tab>
@@ -222,6 +224,14 @@ onMounted(async () => {
           <Enrollment ref="refenrollment" @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter" />
         </v-window-item>
+        <v-window-item :eager="true" value="playerlist" >
+          <Playerlist ref="refplayerlist" @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter"/>
+        </v-window-item>
+        <v-window-item :eager="true" value="venues">
+          <Venue ref="refvenues" @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter" />
+        </v-window-item>
         <v-window-item :eager="true" value="results">
           <Results ref="refresults" @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter" />
@@ -229,13 +239,6 @@ onMounted(async () => {
         <v-window-item :eager="true" value="planning">
           <Planning ref="refplanning" @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter" />
-        </v-window-item>
-        <v-window-item :eager="true" value="venues">
-          <Venue ref="refvenues" @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter" />
-        </v-window-item>
-        <v-window-item :eager="true" value="playerlist">
-          <Playerlist ref="refplayerlist" />
         </v-window-item>
       </v-window>
     </div>

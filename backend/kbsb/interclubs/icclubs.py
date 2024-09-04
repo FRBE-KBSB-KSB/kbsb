@@ -4,8 +4,11 @@ import logging
 
 from typing import Any
 import openpyxl
+import datetime
+import yaml
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
+from reddevil.filestore.filestore import get_file
 
 
 from reddevil.core import (
@@ -22,16 +25,57 @@ from kbsb.interclubs import (
     ICTeam,
     DbICClub,
     DbICSeries,
-    # ICDATA,
+    PlayerlistNature,
 )
+from kbsb.interclubs.registrations import find_icregistration
+from kbsb.club import get_club_idclub
 
 
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-
 # Interclub Clubs, Playerlist and Teams
+
+ONPLAYERLIST = [
+    PlayerlistNature.ASSIGNED,
+    PlayerlistNature.IMPORTED,
+    PlayerlistNature.REQUESTEDIN,
+]
+
+# CRUD
+
+
+async def load_icdata():
+    _icd = getattr(load_icdata, "icdata", None)
+    if not _icd:
+        icdr = await get_file("data", "ic2425.yml")
+        _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
+        setattr(load_icdata, "icdata", _icd)
+    return _icd
+
+
+async def create_icclub(icclub: ICClubDB) -> str:
+    """
+    create a new InterclubClub returning its id
+    """
+    icclubdict = icclub.model_dump()
+    icclubdict.pop("id", None)
+    return await DbICClub.add(icclubdict)
+
+
+async def get_icclub(options: dict | None = {}) -> ICClubDB | None:
+    """
+    get IC club by idclub, returns None if nothing found
+    filter players for active players
+    """
+    filter = options.copy()
+    filter["_model"] = filter.get("_model", ICClubDB)
+    club = await DbICClub.find_single(filter)
+    return club
+
+
+# Business methods
 
 
 async def anon_getICteams(idclub: int, options: dict = {}) -> list[ICTeam]:
@@ -56,7 +100,7 @@ async def anon_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB 
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
     club = await DbICClub.find_single(filter)
-    club.players = [p for p in club.players if p.nature in ["assigned", "requestedin"]]
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
     return club
 
 
@@ -66,26 +110,108 @@ async def anon_getICclubs() -> list[ICClubItem] | None:
     """
     options = {
         "_model": ICClubItem,
-        "enrolled": True,
+        "registered": True,
         "_fieldlist": {i: 1 for i in ICClubItem.model_fields.keys()},
     }
     return await DbICClub.find_multiple(options)
 
 
-async def clb_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB | None:
+async def clb_getICclub(idclub: int) -> ICClubDB | None:
     """
-    get IC club by idclub, returns None if nothing found
+    get IC club by idclub
+    if the registration of the club exists but the club has no icclub record
+    the latter is created and returned,
+    returns None if nothing found
     """
-    filter = options.copy()
-    filter["_model"] = ICClubDB
-    filter["idclub"] = idclub
-    return await DbICClub.find_single(filter)
+
+    logger.info(f"clb_getICclub {idclub}")
+    # we need to check if the club is registered for interclub, and if so
+    registration = await find_icregistration(idclub)
+    logger.info(f"got registration {registration}")
+    if not registration:
+        logger.info(
+            f"No registration found for {idclub}, "
+            "creating a non registered icclub record"
+        )
+        clb = await get_club_idclub(idclub)
+        icc = ICClubDB(
+            name=clb.name_short, idclub=idclub, players=[], registered=False, teams=[]
+        )
+        await create_icclub(icc)
+        return await get_icclub({"idclub": idclub})
+    try:
+        icclub = await get_icclub({"idclub": idclub})
+    except RdNotFound:
+        icclub = None
+    logger.info(f"got icclub {icclub}")
+    if icclub and icclub.registered:
+        return icclub
+
+    # we don't have an icclub, or we didi not register the icclub
+    teams = []
+    ix = 1
+    for t in range(registration.teams1):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=1)
+        )
+        ix += 1
+    for t in range(registration.teams2):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=2)
+        )
+        ix += 1
+    for t in range(registration.teams3):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=3)
+        )
+        ix += 1
+    for t in range(registration.teams4):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=4)
+        )
+        ix += 1
+    for t in range(registration.teams5):
+        teams.append(
+            ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=5)
+        )
+        ix += 1
+    if icclub:
+        # we need to update the registration
+        logger.info("update registration of club")
+        teams_enc = [t.model_dump(exclude_unset=True) for t in teams]
+        return await DbICClub.update(
+            {"idclub": idclub},
+            {"registered": True, "teams": teams_enc},
+            {"_model": ICClubDB},
+        )
+    else:
+        # we create the icclub
+        icc = ICClubDB(
+            name=registration.name,
+            idclub=idclub,
+            players=[],
+            registered=True,
+            teams=teams,
+        )
+        logger.info(f"create icclub {icc}")
+        await create_icclub(icc)
+        return await get_icclub({"idclub": idclub})
 
 
 async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     """
-    update the the player list of a ckub
+    update the the player list of a club
     """
+    # TODO take care of PlayerPeriod
+    icdata = await load_icdata()
+    today = datetime.date.today()
+    for p in icdata["playerlist_data"]:
+        if p["start"] <= today <= p["end"]:
+            period = p["period"]
+            break
+    else:
+        logger.info("today not in playerlist periods")
+        period = "unknown"
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
@@ -94,6 +220,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     for p in newplsix.values():
+        p.period = period
         idn = p.idnumber
         if idn not in oldplsix:
             # inserts
@@ -105,11 +232,18 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             # check for modifications in transfer
             oldpl = oldplsix[idn]
             if oldpl.nature != p.nature:
-                if p.nature in ["assigned", "unassigned", "locked"]:
+                if p.nature in [
+                    PlayerlistNature.ASSIGNED,
+                    PlayerlistNature.UNASSIGNED,
+                    PlayerlistNature.LOCKED,
+                ]:
                     logger.info(f"player {p} moved to transferdeletes")
                     # the transfer is removed
                     transferdeletes.append(p)
-                if p.nature in ["confirmedout"]:
+                if p.nature in [
+                    PlayerlistNature.EXPORTED,
+                    PlayerlistNature.CONFIRMEDOUT,
+                ]:
                     transfersout.append(p)
     dictplayers = [p.model_dump() for p in players]
     await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
@@ -129,7 +263,8 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     idclubvisit=t.idclubvisit,
                     last_name=t.last_name,
                     natrating=t.natrating,
-                    nature="requestedin",
+                    nature=PlayerlistNature.IMPORTED,
+                    period=period,
                     titular=None,
                 )
             )
@@ -153,22 +288,28 @@ async def clb_validateICPlayers(
     """
     creates a list of validation errors
     """
+
+    icdata = await load_icdata()
     errors = []
-    players = [p for p in pi.players if p.nature in ["assigned", "requestedin"]]
+    players = [p for p in pi.players if p.nature in ONPLAYERLIST]
     # check for valid elo
     elos = set()
     for p in players:
-        if p.natrating is None:
+        fidenotset = False
+        natnotset = False
+        if not p.natrating:
+            natnotset = True
             p.natrating = 0
-        if p.fiderating is None:
+        if not p.fiderating:
+            fidenotset = True
             p.fiderating = 0
         if 1150 > p.natrating > 0:
             p.natrating = 1150
-        maxrating = max(p.fiderating or 0, p.natrating) + 100
+        # now we have healty values for fiderating (0 or value)
+        # and natrating is minimal 1150
+        maxrating = max(p.fiderating, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
-        if p.idnumber == 24338:
-            logger.info(f"mx mn {maxrating} {minrating} {max(1000, minrating)} ")
-        if p.assignedrating < max(1000, minrating):
+        if p.assignedrating < max(icdata["notrated_elo"]["min"], minrating):
             errors.append(
                 ICPlayerValidationError(
                     errortype="ELO",
@@ -177,8 +318,8 @@ async def clb_validateICPlayers(
                     detail=p.idnumber,
                 )
             )
-        if not p.natrating and not p.fiderating:
-            if p.assignedrating > 1600:
+        if natnotset and fidenotset:
+            if p.assignedrating > icdata["notrated_elo"]["max"]:
                 errors.append(
                     ICPlayerValidationError(
                         errortype="ELO",
@@ -207,50 +348,55 @@ async def clb_validateICPlayers(
             )
         else:
             elos.add(p.assignedrating)
-    countedTitulars = {}
-    teams = await anon_getICteams(idclub)
-    totaltitulars = 0
-    for t in teams:
-        countedTitulars[t.name] = {
+    titulars = {}
+    registration = await find_icregistration(idclub)
+    ix = 1
+    for t in range(registration.teams1):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 1,
+            "ntitulars": icdata["ntitulars"][1],
             "counter": 0,
-            "teamcount": PLAYERSPERDIVISION[t.division],
-            "name": t.name,
         }
-        totaltitulars += PLAYERSPERDIVISION[t.division]
-    sortedplayers = sorted(players, reverse=True, key=lambda x: x.assignedrating)
-    for ix, p in enumerate(sortedplayers):
-        if ix >= totaltitulars:
-            break
-        if not p.titular:
-            errors.append(
-                ICPlayerValidationError(
-                    errortype="TitularOrder",
-                    idclub=idclub,
-                    message="Titulars must be highest rated players",
-                    detail=None,
-                )
-            )
-            break
+        ix += 1
+    for t in range(registration.teams2):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 2,
+            "ntitulars": icdata["ntitulars"][2],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams3):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 3,
+            "ntitulars": icdata["ntitulars"][3],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams4):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 4,
+            "ntitulars": icdata["ntitulars"][4],
+            "counter": 0,
+        }
+        ix += 1
+    for t in range(registration.teams5):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 5,
+            "ntitulars": icdata["ntitulars"][5],
+            "counter": 0,
+        }
+        ix += 1
     for p in players:
-        if p.titular:
-            countedTitulars[p.titular]["counter"] += 1
-    for ct in countedTitulars.values():
-        if ct["counter"] < ct["teamcount"]:
-            errors.append(
-                ICPlayerValidationError(
-                    errortype="TitularCount",
-                    idclub=idclub,
-                    message="Not enough titulars",
-                    detail=ct["name"],
-                )
-            )
-        if ct["counter"] > ct["teamcount"]:
+        if p.titular and p.titular in titulars:
+            titulars[p.titular]["counter"] += 1
+    for team, tit in titulars.items():
+        if tit["counter"] > tit["ntitulars"]:
             errors.append(
                 ICPlayerValidationError(
                     errortype="TitularCount",
                     idclub=idclub,
                     message="Too many titulars",
-                    detail=ct["name"],
+                    detail=team,
                 )
             )
     return errors

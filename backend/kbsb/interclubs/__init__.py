@@ -6,7 +6,7 @@ from .md_interclubs import (
     ICROUNDS,
     DbICClub,
     DbICEnrollment,
-    DbICEnrollment2425,
+    DbICEnrollment,
     DbICSeries,
     DbICStandings,
     DbICVenue,
@@ -63,7 +63,7 @@ from .series import (
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
 )
-from .enrollments import (
+from .registrations import (
     find_icregistration,
     set_icregistration,
     xls_registrations,

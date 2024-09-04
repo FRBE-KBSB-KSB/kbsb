@@ -4,6 +4,7 @@ import logging
 from tempfile import NamedTemporaryFile
 import openpyxl
 from typing import cast, Any
+from fastapi import BackgroundTasks
 from reddevil.core import (
     RdNotFound,
     get_settings,
@@ -12,7 +13,7 @@ from reddevil.mail import MailParams
 from kbsb.interclubs import (
     ICEnrollment,
     ICEnrollmentIn,
-    DbICEnrollment2425,
+    DbICEnrollment,
     # ICDATA,
 )
 from kbsb.club import get_club_idclub, club_locale
@@ -30,41 +31,39 @@ async def create_icregistration(enr: ICEnrollmentIn) -> str:
     """
     enrdict = enr.model_dump()
     enrdict.pop("id", None)
-    return await DbICEnrollment2425.add(enrdict)
+    return await DbICEnrollment.add(enrdict)
 
 
 async def get_icregistration(id: str, options: dict = {}) -> ICEnrollment:
     """
-    get the interclub enrollment
+    get the interclub registration
     """
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICEnrollment)
     filter["id"] = id
-    return cast(ICEnrollment, await DbICEnrollment2425.find_single(filter))
+    return cast(ICEnrollment, await DbICEnrollment.find_single(filter))
 
 
 async def get_icregistrations(options: dict = {}) -> list[ICEnrollment]:
     """
-    get the interclub enrollment
+    get the interclub registration
     """
     filter = options.copy()
     filter["_model"] = filter.pop("_model", ICEnrollment)
-    return [
-        cast(ICEnrollment, x) for x in await DbICEnrollment2425.find_multiple(filter)
-    ]
+    return [cast(ICEnrollment, x) for x in await DbICEnrollment.find_multiple(filter)]
 
 
 async def update_icregistration(
     id: str, iu: ICEnrollment, options: dict[str, Any] = {}
 ) -> ICEnrollment:
     """
-    update a interclub enrollment
+    update a interclub registration
     """
     options1 = options.copy()
     options1["_model"] = options1.pop("_model", ICEnrollment)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
-    return cast(ICEnrollment, await DbICEnrollment2425.update(id, iudict, options1))
+    return cast(ICEnrollment, await DbICEnrollment.update(id, iudict, options1))
 
 
 # business methods
@@ -72,16 +71,18 @@ async def update_icregistration(
 
 async def find_icregistration(idclub: int) -> ICEnrollment | None:
     """
-    find an enrollment by idclub
+    find an registration by idclub
     """
-    logger.debug(f"find_interclubenrollment {idclub}")
+    logger.debug(f"find_interclubregistration {idclub}")
     enrs = await get_icregistrations({"idclub": idclub})
     return enrs[0] if enrs else None
 
 
-async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
+async def set_icregistration(
+    idclub: int, ie: ICEnrollmentIn, bt: BackgroundTasks
+) -> ICEnrollment:
     """
-    set enrollment (and overwrite it if it already exists)
+    set registration (and overwrite it if it already exists)
     """
     club = await get_club_idclub(idclub)
     if not club:
@@ -136,7 +137,12 @@ async def set_icregistration(idclub: int, ie: ICEnrollmentIn) -> ICEnrollment:
         subject=f"Interclubs 2024-2025 club {idclub} {ie.name}",
         template="interclub/enrollment_{locale}.md",
     )
-    sendEmail(mp, nenr.model_dump(), "interclub enrollment")
+    if bt:
+        try:
+            bt.add_task(sendEmail, mp, nenr.model_dump(), "interclub registration")
+        except Exception:
+            logger.error("sending confirmation email failed")
+            pass
     return nenr
 
 

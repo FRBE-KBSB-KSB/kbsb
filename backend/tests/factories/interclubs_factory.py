@@ -11,6 +11,7 @@ from kbsb.interclubs import (
     ICGameDetails,
     ICPlanning,
     ICPlayerUpdate,
+    ICPlayerUpdateItem,
     ICPlayerValidationError,
     ICResult,
     ICResultItem,
@@ -69,6 +70,11 @@ class IcPlanningFactory(ModelFactory[ICPlanning]):
 @register_fixture
 class IcPlayerUpdateFactory(ModelFactory[ICPlayerUpdate]):
     __model__ = ICPlayerUpdate
+
+
+@register_fixture
+class IcPlayerUpdateItemFactory(ModelFactory[ICPlayerUpdateItem]):
+    __model__ = ICPlayerUpdateItem
 
 
 @register_fixture

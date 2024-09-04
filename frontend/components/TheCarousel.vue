@@ -1,23 +1,26 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const current = ref(0)
-const interval = ref(6)
+const current = ref(0);
+const interval = ref(6);
 const items = ref([
-  { src: '/img/frame_talistro.png', name: 'talistro' },
-  { src: '/img/frame_ecu.png', name: 'ecu' },
-  { src: '/img/frame_arena.png', name: 'arena' },
-  { src: '/img/frame_boic.png', name: 'boic' },
-  { src: '/img/frame_iheb.png', name: 'iheb' },
-  { src: '/img/frame_fide.png', name: 'fide' }
-])
+  { src: "/img/frame_talistro.png", name: "talistro" },
+  { src: "/img/frame_ecu.png", name: "ecu" },
+  { src: "/img/frame_arena.png", name: "arena" },
+  { src: "/img/frame_boic.png", name: "boic" },
+  { src: "/img/frame_iheb.png", name: "iheb" },
+  { src: "/img/frame_fide.png", name: "fide" },
+]);
 
-onMounted(()=> {
-  const secCarousel = Math.floor((new Date() / 1000) % (interval.value * items.value.length))
-  current.value = Math.floor(secCarousel / items.value.length)
-  if (current.value === items.value.length) {current.value = 0 }
-
-})
+onMounted(() => {
+  const secCarousel = Math.floor(
+    (new Date() / 1000) % (interval.value * items.value.length)
+  );
+  current.value = Math.floor(secCarousel / items.value.length);
+  if (current.value === items.value.length) {
+    current.value = 0;
+  }
+});
 </script>
 
 <template>
@@ -27,15 +30,13 @@ onMounted(()=> {
     :value="current"
     height="170"
     class="adcarousel mb-2"
-    :interval="interval*1000"
+    :interval="interval * 1000"
     cycle
     continuous
   >
     <v-carousel-item v-for="item in items" :key="item.name" :src="item.src" />
   </v-carousel>
 </template>
-
-
 
 <style scoped>
 .adcarousel.v-carousel {
