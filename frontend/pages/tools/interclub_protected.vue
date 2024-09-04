@@ -59,7 +59,7 @@ function changeTab() {
       refplanning.value.setup(icclub.value, round.value)
       break
     case "playerlist":
-      refplayerlist.value.setup(icclub.value)
+      refplayerlist.value.setup(icclub.value, icdata.value)
       break
     case "results":
       refresults.value.setup(icclub.value, round.value)
@@ -227,7 +227,7 @@ definePageMeta({
         <!-- <v-tab value="results">{{ t('Results') }}</v-tab>
         <v-tab value="planning">{{ t('Planning') }}</v-tab> -->
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
-        <!-- <v-tab value="playerlist">{{ t('Player list') }}</v-tab> -->
+        <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">
         <v-window-item :eager="true" value="enrollment">

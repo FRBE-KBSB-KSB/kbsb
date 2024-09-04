@@ -1,8 +1,8 @@
 <script setup>
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useIdtokenStore } from '@/store/idtoken'
-import { storeToRefs } from 'pinia'
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { useIdtokenStore } from "@/store/idtoken"
+import { storeToRefs } from "pinia"
 
 // communication
 defineExpose({ setup })
@@ -12,8 +12,8 @@ const { $backend } = useNuxtApp()
 const { t } = useI18n()
 
 //  snackbar and loading widgets
-import ProgressLoading from '@/components/ProgressLoading.vue'
-import SnackbarMessage from '@/components/SnackbarMessage.vue'
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
 const refsnackbar = ref(null)
 let showSnackbar
 const refloading = ref(null)
@@ -32,14 +32,13 @@ const editdialog = ref(false)
 const exportalldialog = ref(false)
 const exportallvisit = ref(0)
 const exportdialog = ref(false)
-const titularchoices = [{ title: "No titular", value: "" }]
+const titularchoices = [{ title: t("icn.pll_notit"), value: "" }]
 const pll_status = ref("closed")
-let pll_period 
+let pll_period
 let pll_startdate
 let pll_enddate
 
 let icdata = {}
-
 
 // validation
 const validationdialog = ref(false)
@@ -48,75 +47,78 @@ const validationerrors = ref([])
 // data table definiton
 const headers = [
   { title: "N", key: "index" },
-  { title: t("Name"), key: 'fullname' },
-  { title: t("ID number"), key: 'idnumber', sortable: false },
+  { title: t("Name"), key: "fullname" },
+  { title: t("ID number"), key: "idnumber", sortable: false },
   { title: "ELO", key: "assignedrating" },
   { title: "F-ELO", key: "fiderating" },
   { title: "B-ELO", key: "natrating" },
   { title: "Club", key: "idcluborig" },
   { title: t("Titular"), key: "titular" },
-  { title: t("Min div"), key: "mindiv" },
+  { title: t("icn.pll_mindiv"), key: "mindiv" },
   { title: t("Actions"), key: "action" },
 ]
 const itemsPerPage = 50
 const itemsPerPageOptions = [
-  { value: 50, title: '50' },
-  { value: 150, title: '150' },
-  { value: -1, title: 'All' }
+  { value: 50, title: "50" },
+  { value: 150, title: "150" },
+  { value: -1, title: "All" },
 ]
 
 // methods alphabetically
 
 function assignPlayer(idnumber) {
-  console.log('Assigning player', idnumber)
+  console.log("Assigning player", idnumber)
   playeredit.value = { ...playersindexed[idnumber] }
   playeredit.value.nature = PLAYERSTATUS.assigned
   playerEdit2Player()
 }
 
-function calcstatus(){
+function calcstatus() {
   // we have the following status
   // - open
   // - closed
   // - noclub
   // - noaccess
-  
+
   if (!idclub.value) {
-    pll_status.value = 'noclub'
+    pll_status.value = "noclub"
     return
   }
-  pll_status.value = 'closed'
+  pll_status.value = "closed"
   const now = new Date()
-  icdata.playerlist_data.forEach(p => {
+  icdata.playerlist_data.forEach((p) => {
     let start = new Date(p.start)
     let end = new Date(p.end)
-    console.log('now', now, 'start', start, 'end', end)
+    console.log("now", now, "start", start, "end", end)
     if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = 'open'
+      pll_status.value = "open"
       pll_period = p.period
       pll_startdate = p.start
       pll_enddate = p.end
       return
     }
   })
-
 }
 
 function canAssign(idnumber) {
-  return [PLAYERSTATUS.unassigned].includes(playersindexed[idnumber].nature) &&
-    (!playersindexed[idnumber].natrating) &&
-    (!playersindexed[idnumber].fiderating)
+  return (
+    [PLAYERSTATUS.unassigned].includes(playersindexed[idnumber].nature) &&
+    !playersindexed[idnumber].natrating &&
+    !playersindexed[idnumber].fiderating
+  )
 }
 
 function canEdit(idnumber) {
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-    playersindexed[idnumber].nature)
+    playersindexed[idnumber].nature
+  )
 }
 
 function canExport(idnumber) {
   console.log("canExport", playersindexed[idnumber].nature)
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
-    playersindexed[idnumber].nature)
+    playersindexed[idnumber].nature
+  )
 }
 
 async function checkAccess() {
@@ -130,9 +132,9 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log('reply NOK', error)
-    enr_status.value = 'noaccess'
-    showSnackbar(t('icn.perm_denied'))
+    console.log("reply NOK", error)
+    enr_status.value = "noaccess"
+    showSnackbar(t("icn.perm_denied"))
     return false
   } finally {
     showLoading(false)
@@ -146,7 +148,7 @@ function doEditPlayer() {
 
 function doExportAll() {
   players.value.forEach((m) => {
-    m.nature = PLAYERSTATUS.confirmedout
+    m.nature = PLAYERSTATUS.exported
     m.idclubvisit = parseInt(exportallvisit.value) + 0
   })
   exportalldialog.value = false
@@ -169,8 +171,8 @@ function fillinPlayerList() {
   }
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
-      m.fiderating = m.fiderating || 0 
-      let calcrating = m.fiderating > 0 ? m.fiderating: m.natrating
+      m.fiderating = m.fiderating || 0
+      let calcrating = m.fiderating > 0 ? m.fiderating : m.natrating
       let newplayer = {
         assignedrating: calcrating,
         fiderating: m.fiderating,
@@ -190,14 +192,14 @@ function fillinPlayerList() {
     }
   })
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating: p.natrating
+    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating
     let mindiv = ""
     for (const [div, minelo] of Object.entries(icdata.max_elo)) {
-        if (calrating <= minelo) {
+      if (calrating <= minelo) {
         mindiv = div
       }
     }
-    p.mindiv = mindiv    
+    p.mindiv = mindiv
     p.fullname = `${p.last_name}, ${p.first_name}`
   })
 }
@@ -208,7 +210,7 @@ async function getClubMembers() {
     clubmembers.value = []
     return
   }
-  console.log('getting Club Members from signaletique')
+  console.log("getting Club Members from signaletique")
   if (idclub.value == clubmembers_id.value) {
     console.log("using cached version of members")
   }
@@ -220,7 +222,7 @@ async function getClubMembers() {
       idclub: idclub.value,
     })
   } catch (error) {
-    console.log('getClubMembers error')
+    console.log("getClubMembers error")
     showSnackbar(error.message)
     return
   } finally {
@@ -228,11 +230,10 @@ async function getClubMembers() {
   }
   clubmembers_id.value = idclub.value
   const members = reply.data
-  members.forEach(p => {
+  members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
   })
-  clubmembers.value = members.sort((a, b) =>
-    (a.last_name > b.last_name ? 1 : -1))
+  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
   fillinPlayerList()
 }
 
@@ -242,7 +243,9 @@ function maxelo(p) {
 }
 
 function minelo(p) {
-  let minrating = p.fiderating ? Math.min(p.fiderating, p.natrating) - 100 : p.natrating - 100
+  let minrating = p.fiderating
+    ? Math.min(p.fiderating, p.natrating) - 100
+    : p.natrating - 100
   return Math.max(minrating, 1000)
 }
 
@@ -288,7 +291,7 @@ function rowstyle(idnumber) {
   return {
     imported: pl.nature == "imported",
     exported: pl.nature == "exported",
-    unassigned: pl.nature == "unassigned"
+    unassigned: pl.nature == "unassigned",
   }
 }
 
@@ -304,12 +307,11 @@ async function savePlayerlist() {
   } catch (error) {
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
   validationdialog.value = false
-  showSnackbar('Playerlist saved')
+  showSnackbar("Playerlist saved")
 }
 
 function visitingclub(idnumber) {
@@ -333,44 +335,52 @@ async function validatePlayerlist() {
   } catch (error) {
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
-  console.log('reply.data', reply.data)
+  console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
     validationdialog.value = true
-  }
-  else {
+  } else {
     savePlayerlist()
   }
-
 }
 
 async function setup(icclub_, icdata_) {
-  console.log('setup playerlist', icclub_, icdata_)
+  console.log("setup playerlist", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
-  showLoading = refloading.value.showLoading  
+  showLoading = refloading.value.showLoading
   icclub.value = icclub_
   icdata = icdata_
   readICclub()
   calcstatus()
   getClubMembers()
 }
-
 </script>
 
 <template>
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <v-alert type="warning" variant="outlined" v-if="pll_status == 'closed'"
-      :text="t('icn.pll_closed')" />
-    <v-alert type="warning" variant="outlined" v-if="pll_status == 'noclub'"
-      :text="t('icn.select_club')" />
-    <v-alert type="error" variant="outlined" v-if="pll_status == 'noaccess'"
-      :text="t('icn.perm_denied')" />  
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="pll_status == 'closed'"
+      :text="t('icn.pll_closed')"
+    />
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="pll_status == 'noclub'"
+      :text="t('icn.select_club')"
+    />
+    <v-alert
+      type="error"
+      variant="outlined"
+      v-if="pll_status == 'noaccess'"
+      :text="t('icn.perm_denied')"
+    />
     <div v-if="pll_status == 'open'">
       <div v-if="!registered">
         This club is not enrolled in Interclubs 2023-24
@@ -378,9 +388,14 @@ async function setup(icclub_, icdata_) {
           Export all players
         </VBtn>
       </div>
-      <VDataTable :items="players" :headers="headers" density="compact"
-        :items-per-page="itemsPerPage" :items-per-page-options="itemsPerPageOptions"
-        :sort-by="[{ key: 'assignedrating', order: 'desc' }]">
+      <VDataTable
+        :items="players"
+        :headers="headers"
+        density="compact"
+        :items-per-page="itemsPerPage"
+        :items-per-page-options="itemsPerPageOptions"
+        :sort-by="[{ key: 'assignedrating', order: 'desc' }]"
+      >
         <template v-slot:item.index="{ item, index }">
           <span :class="rowstyle(item.idnumber)">
             {{ index + 1 }}
@@ -415,12 +430,30 @@ async function setup(icclub_, icdata_) {
           <span v-show="item.nature == 'exported'">
             <VIcon>mdi-arrow-right-bold</VIcon>{{ visitingclub(item.idnumber) }}
           </span>
-          <VBtn density="compact" color="green" icon="mdi-pencil" variant="text"
-            v-show="canEdit(item.idnumber)" @click="openEditPlayer(item.idnumber)" />
-          <VBtn density="compact" color="red" icon="mdi-arrow-right" variant="text"
-            v-show="canExport(item.idnumber)" @click="openExportPlayer(item.idnumber)" />
-          <VBtn density="compact" color="green" icon="mdi-arrow-left" variant="text"
-            v-show="canAssign(item.idnumber)" @click="assignPlayer(item.idnumber)" />
+          <VBtn
+            density="compact"
+            color="green"
+            icon="mdi-pencil"
+            variant="text"
+            v-show="canEdit(item.idnumber)"
+            @click="openEditPlayer(item.idnumber)"
+          />
+          <VBtn
+            density="compact"
+            color="red"
+            icon="mdi-arrow-right"
+            variant="text"
+            v-show="canExport(item.idnumber)"
+            @click="openExportPlayer(item.idnumber)"
+          />
+          <VBtn
+            density="compact"
+            color="green"
+            icon="mdi-arrow-left"
+            variant="text"
+            v-show="canAssign(item.idnumber)"
+            @click="assignPlayer(item.idnumber)"
+          />
         </template>
       </VDataTable>
       <div>
@@ -430,22 +463,22 @@ async function setup(icclub_, icdata_) {
     <VDialog v-model="editdialog" width="30em">
       <VCard>
         <VCardTitle>
-          {{ t('Edit') }}: {{ playeredit.fullname }}
+          {{ t("Edit") }}: {{ playeredit.fullname }}
           <v-divider class="divider" />
         </VCardTitle>
         <VCardText>
-          <h4>{{ t('Modify assigned Elo') }}</h4>
-          <div>{{ t('Current assigned rating') }}: {{ playeredit.assignedrating }} </div>
+          <h4>{{ t("icn.pll_edit_assigned") }}</h4>
+          <div>{{ t("icn.pll_assigned_elo") }}: {{ playeredit.assignedrating }}</div>
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
           <VTextField v-model="playeredit.assignedrating" label="New Elo" />
-					<h4>{{ t('Titular') }}</h4>
-						<VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
+          <h4>{{ t("Titular") }}</h4>
+          <VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doEditPlayer">{{ t('OK') }}</VBtn>
-          <VBtn @click="editdialog = false">{{ t('Cancel') }}</VBtn>
+          <VBtn @click="doEditPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="editdialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -486,15 +519,15 @@ async function setup(icclub_, icdata_) {
     <VDialog v-model="validationdialog" width="30em">
       <VCard>
         <VCardTitle>
-          {{ t('Validation of player list.') }}
+          {{ t("Validation of player list.") }}
           <VDivider />
         </VCardTitle>
         <VCardText class="markdowncontent">
-          <div>{{ t('The player list contains validation errors') }}</div>
+          <div>{{ t("The player list contains validation errors") }}</div>
           <ul>
             <li v-for="(err, ix) in validationerrors" :key="ix">
               <span v-show="err.errortype == 'ELO'">
-                {{ t('Player') }} {{ t(err.detail) }}: {{ t(err.message) }}
+                {{ t("Player") }} {{ t(err.detail) }}: {{ t(err.message) }}
               </span>
               <span v-show="err.errortype == 'TitularOrder'">
                 {{ t(err.message) }}
@@ -508,8 +541,8 @@ async function setup(icclub_, icdata_) {
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="savePlayerlist()">{{ t('Save anyhow') }}</VBtn>
-          <VBtn @click="validationdialog = false">{{ t('Cancel') }}</VBtn>
+          <VBtn @click="savePlayerlist()">{{ t("Save anyhow") }}</VBtn>
+          <VBtn @click="validationdialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -519,7 +552,7 @@ async function setup(icclub_, icdata_) {
 <style scoped>
 .divider {
   margin: 1em 0;
-  color:darkseagreen
+  color: darkseagreen;
 }
 .imported {
   color: purple;
