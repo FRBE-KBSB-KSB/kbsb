@@ -40,9 +40,10 @@ SECRETS = {
     "known-hosts": {
         "name": "known-hosts",
         "manager": "filejson",
-    },     
+    },
 }
 
+SHORTCUT_INFOMANIAKLOGIN = True
 
 LOG_CONFIG = {
     "version": 1,

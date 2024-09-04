@@ -112,6 +112,7 @@ SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", "../shared/secrets"))
 
 SHARED_PATH = Path(os.environ.get("SHARED_PATH", "../shared"))
 
+SHORTCUT_INFOMANIAKLOGIN = False
 
 TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
 

@@ -21,6 +21,14 @@ logger = logging.getLogger(__name__)
 async def mysql_login(idnumber: str, password: str):
     logger.info(f"mysqllogin {idnumber} ")
     settings = get_settings()
+    if settings.SHORTCUT_INFOMANIAKLOGIN:
+        # skip login
+        payload = {
+            "sub": idnumber,
+            "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
+        }
+        await asyncio.sleep(0)
+        return jwt_encode(payload, SALT)
     cnx = get_mysql()
     query = """
         SELECT user, password from p_user WHERE user = %(user)s
