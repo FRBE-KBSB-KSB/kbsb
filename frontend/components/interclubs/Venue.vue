@@ -127,10 +127,20 @@ function readVenues(data) {
   if (data) {
     data.venues.forEach((v) => {
       let vn = { ...empty_venue, ...v }
-      vn.rounds = vn.rounds.join(",")
-      vn.roundsel = vn.rounds.length ? "selected" : "all"
-      vn.teams = vn.teams.join(",")
-      vn.teamssel = vn.rounds.length ? "selected" : "all"
+      if (Array.isArray(vn.rounds) && vn.rounds.length) {
+        vn.rounds_s = vn.rounds.join(",")
+        vn.roundsel = "selected"
+      } else {
+        vn.rounds_s = ""
+        vn.roundsel = "all"
+      }
+      if (Array.isArray(vn.teams) && vn.teams.length) {
+        vn.teams_s = vn.teams.join(",")
+        vn.teamssel = "selected"
+      } else {
+        vn.teams_s = ""
+        vn.teamssel = "all"
+      }
       venues.value.push(vn)
     })
   }
@@ -140,9 +150,10 @@ function readVenues(data) {
 async function saveVenues() {
   let reply
   venues.value.forEach((v) => {
-    v.rounds = v.roundsel == "selected" ? v.rounds.split(",") : []
-    v.teams = v.teamssel == "selected" ? v.teams.split(",") : []
+    v.rounds = v.roundsel == "selected" ? v.rounds_s.split(",") : []
+    v.teams = v.teamssel == "selected" ? v.teams_s.split(",") : []
   })
+  console.log("venues", venues.value)
   showLoading(true)
   try {
     reply = await $backend("interclub", "set_interclubvenues", {
@@ -223,10 +234,10 @@ async function setup(icclub_, icdata_) {
                 <b>{{ t("Capacity (boards)") }}:</b> {{ v.capacity }}
               </div>
               <div>
-                <b>{{ t("Teams") }}:</b> {{ v.teams }}
+                <b>{{ t("Teams") }}:</b> {{ v.teams_s }}
               </div>
               <div>
-                <b>{{ t("Rounds") }}:</b> {{ v.rounds }}
+                <b>{{ t("Rounds") }}:</b> {{ v.rounds_s }}
               </div>
               <div>
                 <b>{{ t("icn.ven_wheelchair") }}:</b> {{ v.wheelchair }}
@@ -265,13 +276,7 @@ async function setup(icclub_, icdata_) {
           <v-card class="elevation-5">
             <v-card-title> {{ t("icn.ven_1") }}: {{ ix + 1 }} </v-card-title>
             <v-card-text>
-              <v-textarea
-                v-model="v.address"
-                :label="t('Address')"
-                rows="3"
-                @input="addEmptyVenue"
-                outlined
-              />
+              <v-textarea v-model="v.address" :label="t('Address')" rows="3" outlined />
               <v-text-field
                 v-model="v.capacity"
                 :label="t('Capacity (boards)')"
@@ -284,7 +289,7 @@ async function setup(icclub_, icdata_) {
               </v-radio-group>
               <v-text-field
                 v-show="v.roundsel == 'selected'"
-                v-model="v.rounds"
+                v-model="v.rounds_s"
                 :label="t('icn.ven_round_sel')"
               />
               <v-radio-group v-model="v.teamssel">
@@ -293,7 +298,7 @@ async function setup(icclub_, icdata_) {
               </v-radio-group>
               <v-text-field
                 v-show="v.teamssel == 'selected'"
-                v-model="v.teams"
+                v-model="v.teams_s"
                 :label="t('icn.ven_team_sel')"
               />
               <v-checkbox v-model="v.wheelchair" :label="t('icn.ven_wheelchair')" />
