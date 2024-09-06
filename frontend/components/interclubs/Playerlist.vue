@@ -238,7 +238,7 @@ async function getClubMembers() {
 }
 
 function maxelo(p) {
-  if (!p.fiderating && !p.natrating) return 1600
+  if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
   return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
 }
 
@@ -246,7 +246,7 @@ function minelo(p) {
   let minrating = p.fiderating
     ? Math.min(p.fiderating, p.natrating) - 100
     : p.natrating - 100
-  return Math.max(minrating, 1000)
+  return Math.max(minrating, icdata.notrated_elo.min)
 }
 
 function openEditPlayer(idnumber) {

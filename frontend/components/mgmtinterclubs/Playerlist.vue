@@ -1,46 +1,46 @@
 <script setup>
-import { ref } from "vue";
-import { useMgmtTokenStore } from "@/store/mgmttoken";
-import { storeToRefs } from "pinia";
+import { ref } from "vue"
+import { useMgmtTokenStore } from "@/store/mgmttoken"
+import { storeToRefs } from "pinia"
 
 // communication
-defineExpose({ setup });
-const mgmttokenstore = useMgmtTokenStore();
-const { token: idtoken } = storeToRefs(mgmttokenstore);
-const { $backend } = useNuxtApp();
+defineExpose({ setup })
+const mgmttokenstore = useMgmtTokenStore()
+const { token: idtoken } = storeToRefs(mgmttokenstore)
+const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
-import ProgressLoading from "@/components/ProgressLoading.vue";
-import SnackbarMessage from "@/components/SnackbarMessage.vue";
-const refsnackbar = ref(null);
-let showSnackbar;
-const refloading = ref(null);
-let showLoading;
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // datamodel
-const clubmembers = ref([]);
-const clubmembers_id = ref(null);
-const icclub = ref({});
-const idclub = ref(0);
-const registered = ref(null);
-let playersindexed = {};
-const players = ref([]);
-const playeredit = ref({});
-const editdialog = ref(false);
-const exportalldialog = ref(false);
-const exportallvisit = ref(0);
-const exportdialog = ref(false);
-const titularchoices = [{ title: "No titular", value: "" }];
-const pll_status = ref("closed");
-let pll_period;
-let pll_startdate;
-let pll_enddate;
+const clubmembers = ref([])
+const clubmembers_id = ref(null)
+const icclub = ref({})
+const idclub = ref(0)
+const registered = ref(null)
+let playersindexed = {}
+const players = ref([])
+const playeredit = ref({})
+const editdialog = ref(false)
+const exportalldialog = ref(false)
+const exportallvisit = ref(0)
+const exportdialog = ref(false)
+const titularchoices = [{ title: "No titular", value: "" }]
+const pll_status = ref("closed")
+let pll_period
+let pll_startdate
+let pll_enddate
 
-let icdata = {};
+let icdata = {}
 
 // validation
-const validationdialog = ref(false);
-const validationerrors = ref([]);
+const validationdialog = ref(false)
+const validationerrors = ref([])
 
 // data table definiton
 const headers = [
@@ -55,21 +55,21 @@ const headers = [
   { title: "Min div", key: "mindiv" },
   { title: "Period", key: "period" },
   { title: "Actions", key: "action" },
-];
-const itemsPerPage = 50;
+]
+const itemsPerPage = 50
 const itemsPerPageOptions = [
   { value: 50, title: "50" },
   { value: 150, title: "150" },
   { value: -1, title: "All" },
-];
+]
 
 // methods alphabetically
 
 function assignPlayer(idnumber) {
-  console.log("Assigning player", idnumber);
-  playeredit.value = { ...playersindexed[idnumber] };
-  playeredit.value.nature = PLAYERSTATUS.assigned;
-  playerEdit2Player();
+  console.log("Assigning player", idnumber)
+  playeredit.value = { ...playersindexed[idnumber] }
+  playeredit.value.nature = PLAYERSTATUS.assigned
+  playerEdit2Player()
 }
 
 function calcstatus() {
@@ -80,23 +80,23 @@ function calcstatus() {
   // - noaccess
 
   if (!idclub.value) {
-    pll_status.value = "noclub";
-    return;
+    pll_status.value = "noclub"
+    return
   }
-  pll_status.value = "closed";
-  const now = new Date();
+  pll_status.value = "closed"
+  const now = new Date()
   icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start);
-    let end = new Date(p.end);
-    console.log("now", now, "start", start, "end", end);
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    console.log("now", now, "start", start, "end", end)
     if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open";
-      pll_period = p.period;
-      pll_startdate = p.start;
-      pll_enddate = p.end;
-      return;
+      pll_status.value = "open"
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      return
     }
-  });
+  })
 }
 
 function canAssign(idnumber) {
@@ -104,74 +104,74 @@ function canAssign(idnumber) {
     [PLAYERSTATUS.unassigned].includes(playersindexed[idnumber].nature) &&
     !playersindexed[idnumber].natrating &&
     !playersindexed[idnumber].fiderating
-  );
+  )
 }
 
 function canEdit(idnumber) {
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
     playersindexed[idnumber].nature
-  );
+  )
 }
 
 function canExport(idnumber) {
-  console.log("canExport", playersindexed[idnumber].nature);
+  console.log("canExport", playersindexed[idnumber].nature)
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
     playersindexed[idnumber].nature
-  );
+  )
 }
 
 async function checkAccess() {
-  let reply;
-  showLoading(true);
+  let reply
+  showLoading(true)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.idclub,
       role: "InterclubAdmin,InterclubCaptain",
       token: idtoken.value,
-    });
-    return true;
+    })
+    return true
   } catch (error) {
-    console.log("reply NOK", error);
-    enr_status.value = "noaccess";
-    showSnackbar("Permission denied");
-    return false;
+    console.log("reply NOK", error)
+    enr_status.value = "noaccess"
+    showSnackbar("Permission denied")
+    return false
   } finally {
-    showLoading(false);
+    showLoading(false)
   }
 }
 
 function doEditPlayer() {
-  playerEdit2Player();
-  editdialog.value = false;
+  playerEdit2Player()
+  editdialog.value = false
 }
 
 function doExportAll() {
   players.value.forEach((m) => {
-    m.nature = PLAYERSTATUS.confirmedout;
-    m.idclubvisit = parseInt(exportallvisit.value) + 0;
-  });
-  exportalldialog.value = false;
+    m.nature = PLAYERSTATUS.confirmedout
+    m.idclubvisit = parseInt(exportallvisit.value) + 0
+  })
+  exportalldialog.value = false
 }
 
 function doExportPlayer() {
-  playeredit.value.nature = PLAYERSTATUS.exported;
-  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0;
-  playerEdit2Player();
-  exportdialog.value = false;
+  playeredit.value.nature = PLAYERSTATUS.exported
+  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
+  playerEdit2Player()
+  exportdialog.value = false
 }
 
 function fillinPlayerList() {
   // add new members to the playerlist
-  let pnature = PLAYERSTATUS.unassigned;
-  const now = new Date().valueOf();
+  let pnature = PLAYERSTATUS.unassigned
+  const now = new Date().valueOf()
   if (registered.value) {
     // automatically make players assigned at the start of the Interclubs
-    pnature = PLAYERSTATUS.assigned;
+    pnature = PLAYERSTATUS.assigned
   }
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
-      m.fiderating = m.fiderating || 0;
-      let calcrating = m.fiderating > 0 ? m.fiderating : m.natrating;
+      m.fiderating = m.fiderating || 0
+      let calcrating = m.fiderating > 0 ? m.fiderating : m.natrating
       let newplayer = {
         assignedrating: calcrating,
         fiderating: m.fiderating,
@@ -185,177 +185,177 @@ function fillinPlayerList() {
         nature: pnature,
         titular: "",
         transfer: null,
-      };
-      players.value.push(newplayer);
-      playersindexed[m.idnumber] = newplayer;
+      }
+      players.value.push(newplayer)
+      playersindexed[m.idnumber] = newplayer
     }
-  });
+  })
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating;
-    let mindiv = "";
+    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating
+    let mindiv = ""
     for (const [div, minelo] of Object.entries(icdata.max_elo)) {
       if (calrating <= minelo) {
-        mindiv = div;
+        mindiv = div
       }
     }
-    p.mindiv = mindiv;
-    p.fullname = `${p.last_name}, ${p.first_name}`;
-  });
+    p.mindiv = mindiv
+    p.fullname = `${p.last_name}, ${p.first_name}`
+  })
 }
 
 async function getClubMembers() {
   // get club members for member database currently on old site
   if (!idclub.value) {
-    clubmembers.value = [];
-    return;
+    clubmembers.value = []
+    return
   }
-  console.log("getting Club Members from signaletique");
+  console.log("getting Club Members from signaletique")
   if (idclub.value == clubmembers_id.value) {
-    console.log("using cached version of members");
+    console.log("using cached version of members")
   }
-  showLoading(true);
-  let reply;
-  clubmembers.value = [];
+  showLoading(true)
+  let reply
+  clubmembers.value = []
   try {
     reply = await $backend("member", "anon_getclubmembers", {
       idclub: idclub.value,
-    });
+    })
   } catch (error) {
-    console.log("getClubMembers error");
-    showSnackbar(error.message);
-    return;
+    console.log("getClubMembers error")
+    showSnackbar(error.message)
+    return
   } finally {
-    showLoading(false);
+    showLoading(false)
   }
-  clubmembers_id.value = idclub.value;
-  const members = reply.data;
+  clubmembers_id.value = idclub.value
+  const members = reply.data
   members.forEach((p) => {
-    p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`;
-  });
-  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
-  fillinPlayerList();
+    p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
+  })
+  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
+  fillinPlayerList()
 }
 
 function maxelo(p) {
-  if (!p.fiderating && !p.natrating) return 1600;
-  return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100;
+  if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
+  return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
 }
 
 function minelo(p) {
   let minrating = p.fiderating
     ? Math.min(p.fiderating, p.natrating) - 100
-    : p.natrating - 100;
-  return Math.max(minrating, 1000);
+    : p.natrating - 100
+  return Math.max(minrating, icdata.notrated_elo.min)
 }
 
 function openEditPlayer(idnumber) {
-  playeredit.value = { ...playersindexed[idnumber] };
-  editdialog.value = true;
+  playeredit.value = { ...playersindexed[idnumber] }
+  editdialog.value = true
 }
 
 function openExportAll() {
-  exportalldialog.value = true;
+  exportalldialog.value = true
 }
 
 function openExportPlayer(idnumber) {
-  playeredit.value = { ...playersindexed[idnumber] };
-  exportdialog.value = true;
+  playeredit.value = { ...playersindexed[idnumber] }
+  exportdialog.value = true
 }
 
 function playerEdit2Player() {
   // copy the data of Player Edit back to the Player
   // we splice the players array and add the playeredit to trigger a repaint of the table
-  const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber);
-  players.value.splice(aix, 1, playeredit.value);
-  playersindexed[playeredit.value.idnumber] = players.value[aix];
+  const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
+  players.value.splice(aix, 1, playeredit.value)
+  playersindexed[playeredit.value.idnumber] = players.value[aix]
 }
 
 function readICclub() {
-  idclub.value = icclub.value.idclub || 0;
-  registered.value = icclub.value.registered || false;
-  players.value = icclub.value.players ? [...icclub.value.players] : [];
-  playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]));
-  titularchoices.splice(1, titularchoices.length - 1);
+  idclub.value = icclub.value.idclub || 0
+  registered.value = icclub.value.registered || false
+  players.value = icclub.value.players ? [...icclub.value.players] : []
+  playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
+  titularchoices.splice(1, titularchoices.length - 1)
   if (icclub.value.teams) {
     icclub.value.teams.forEach((t) => {
-      titularchoices.push({ title: t.name, value: t.name });
-    });
+      titularchoices.push({ title: t.name, value: t.name })
+    })
   }
-  fillinPlayerList();
+  fillinPlayerList()
 }
 
 function rowstyle(idnumber) {
-  const pl = playersindexed[idnumber];
-  if (!pl) return {};
+  const pl = playersindexed[idnumber]
+  if (!pl) return {}
   return {
     imported: pl.nature == "imported",
     exported: pl.nature == "exported",
     unassigned: pl.nature == "unassigned",
-  };
+  }
 }
 
 async function savePlayerlist() {
-  let reply;
+  let reply
   try {
-    showLoading(true);
+    showLoading(true)
     reply = await $backend("interclub", "mgmt_setICclub", {
       token: idtoken.value,
       idclub: idclub.value,
       players: players.value,
-    });
+    })
   } catch (error) {
-    showSnackbar(error.message);
-    return;
+    showSnackbar(error.message)
+    return
   } finally {
-    showLoading(false);
+    showLoading(false)
   }
-  validationdialog.value = false;
-  showSnackbar("Playerlist saved");
+  validationdialog.value = false
+  showSnackbar("Playerlist saved")
 }
 
 function visitingclub(idnumber) {
-  const pl = playersindexed[idnumber];
-  return pl ? pl.idclubvisit : "";
+  const pl = playersindexed[idnumber]
+  return pl ? pl.idclubvisit : ""
 }
 
 async function validatePlayerlist() {
   if (!registered.value) {
-    savePlayerlist();
-    return;
+    savePlayerlist()
+    return
   }
-  let reply;
+  let reply
   try {
-    showLoading(true);
+    showLoading(true)
     reply = await $backend("interclub", "mgmt_validateICplayers", {
       token: idtoken.value,
       idclub: idclub.value,
       players: players.value,
-    });
+    })
   } catch (error) {
-    console.error("failed validate", error);
-    showSnackbar(error.message);
-    return;
+    console.error("failed validate", error)
+    showSnackbar(error.message)
+    return
   } finally {
-    showLoading(false);
+    showLoading(false)
   }
-  console.log("reply.data", reply.data);
-  validationerrors.value = reply.data;
+  console.log("reply.data", reply.data)
+  validationerrors.value = reply.data
   if (validationerrors.value.length) {
-    validationdialog.value = true;
+    validationdialog.value = true
   } else {
-    savePlayerlist();
+    savePlayerlist()
   }
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup playerlist", icclub_, icdata_);
-  showSnackbar = refsnackbar.value.showSnackbar;
-  showLoading = refloading.value.showLoading;
-  icclub.value = icclub_;
-  icdata = icdata_;
-  readICclub();
-  calcstatus();
-  getClubMembers();
+  console.log("setup playerlist", icclub_, icdata_)
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+  icclub.value = icclub_
+  icdata = icdata_
+  readICclub()
+  calcstatus()
+  getClubMembers()
 }
 </script>
 
