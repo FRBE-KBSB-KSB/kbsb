@@ -73,7 +73,7 @@ function assignPlayer(idnumber) {
   playerEdit2Player()
 }
 
-function calcstatus() {
+async function calcstatus() {
   // we have the following status
   // - open
   // - closed
@@ -84,12 +84,17 @@ function calcstatus() {
     pll_status.value = "noclub"
     return
   }
+  let access = await checkAccess()
+  console.log("access", access)
+  if (!access) {
+    pll_status.value = "noaccess"
+    return
+  }
   pll_status.value = "closed"
   const now = new Date()
   icdata.playerlist_data.forEach((p) => {
     let start = new Date(p.start)
     let end = new Date(p.end)
-    console.log("now", now, "start", start, "end", end)
     if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
       pll_status.value = "open"
       pll_period = p.period
@@ -124,16 +129,16 @@ function canExport(idnumber) {
 async function checkAccess() {
   let reply
   showLoading(true)
+  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
-      idclub: icclub.idclub,
+      idclub: icclub.value.idclub,
       role: "InterclubAdmin,InterclubCaptain",
       token: idtoken.value,
     })
     return true
   } catch (error) {
     console.log("reply NOK", error)
-    enr_status.value = "noaccess"
     showSnackbar(t("icn.perm_denied"))
     return false
   } finally {
