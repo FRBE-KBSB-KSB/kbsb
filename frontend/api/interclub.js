@@ -150,10 +150,12 @@ export default {
     )
     return resp
   },
-  mgmt_getXlsAllplayerlists: async function (options) {
+  mgmt_xls_playerlists: async function (options) {
     const { token } = options
-    const resp = await axios.get(`${prefix}/mgmt/command/xls/allplayerlist`, {
-      headers: { Authorization: "Bearer " + token },
+    const resp = await axios.get(`${prefix}/mgmt/command/xls_playerlists`, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
     })
     return resp
   },

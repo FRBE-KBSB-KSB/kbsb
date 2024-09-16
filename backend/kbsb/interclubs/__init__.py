@@ -51,7 +51,7 @@ from .icclubs import (
     clb_getICclub,
     clb_updateICplayers,
     clb_validateICPlayers,
-    mgmt_getXlsAllplayerlist,
+    mgmt_get_xlsplayerlists,
 )
 from .series import (
     anon_getICseries,

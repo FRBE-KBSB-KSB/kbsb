@@ -402,7 +402,10 @@ async def clb_validateICPlayers(
     return errors
 
 
-async def mgmt_getXlsAllplayerlist():
+async def mgmt_get_xlsplayerlists():
+    """
+    get excel file for combined playerlists of all clubs
+    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.append(
@@ -410,11 +413,11 @@ async def mgmt_getXlsAllplayerlist():
     )
     clubs = await DbICClub.find_multiple({"_model": ICClubDB})
     for c in clubs:
-        if not c.enrolled:
+        if not c.registered:
             continue
         sortedplayers = sorted(c.players, key=lambda x: x.assignedrating, reverse=True)
         for p in sortedplayers:
-            if p.nature not in ["assigned", "requestedin"]:
+            if p.nature not in ["assigned", "imported"]:
                 continue
             ws.append(
                 [
@@ -431,11 +434,8 @@ async def mgmt_getXlsAllplayerlist():
     with NamedTemporaryFile() as tmp:
         wb.save(tmp.name)
         tmp.seek(0)
-        return Response(
-            content=tmp.read(),
-            headers={"Content-Disposition": "attachment; filename=allplayerlist.xlsx"},
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+        xlscontent = tmp.read()
+    return xlscontent
 
 
 async def anon_getXlsplayerlist(idclub: int):

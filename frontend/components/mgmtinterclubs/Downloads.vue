@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
 
 // communication
 defineExpose({ setup })
@@ -10,37 +10,34 @@ const { token: idtoken } = storeToRefs(mgmttokenstore)
 const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
-import ProgressLoading from '@/components/ProgressLoading.vue'
-import SnackbarMessage from '@/components/SnackbarMessage.vue'
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
 const refsnackbar = ref(null)
 let showSnackbar
 const refloading = ref(null)
 let showLoading
-
 
 async function download_registrations() {
   let reply, xls
   showLoading(true)
   try {
     reply = await $backend("interclub", "mgmt_xls_icregistrations", {
-      token: idtoken.value
+      token: idtoken.value,
     })
     xls = reply.data.xls64
-  }
-  catch (error) {
-    console.log('download error', error)
-    showSnackbar('Download error: ' + error.detail)
-  }
-  finally {
+  } catch (error) {
+    console.log("download error", error)
+    showSnackbar("Download error: " + error.detail)
+  } finally {
     showLoading(false)
   }
-  const link = document.createElement('a')
-  link.download = 'reservations_2425.xlsx'
-  link.href = 'data:application/excel;base64,' + xls
+  const link = document.createElement("a")
+  link.download = "reservations_2425.xlsx"
+  link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  showSnackbar('Downloading reservations successful')
+  showSnackbar("Downloading registrations successful")
 }
 
 async function download_venues() {
@@ -48,24 +45,45 @@ async function download_venues() {
   showLoading(true)
   try {
     reply = await $backend("interclub", "mgmt_xls_icvenues", {
-      token: idtoken.value
+      token: idtoken.value,
     })
     xls = reply.data.xls64
-  }
-  catch (error) {
-    console.log('download error', error)
-    showSnackbar('Download error: ' + error.detail)
-  }
-  finally {
+  } catch (error) {
+    console.log("download error", error)
+    showSnackbar("Download error: " + error.detail)
+  } finally {
     showLoading(false)
   }
-  const link = document.createElement('a')
-  link.download = 'venues_2425.xlsx'
-  link.href = 'data:application/excel;base64,' + xls
+  const link = document.createElement("a")
+  link.download = "venues_2425.xlsx"
+  link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  showSnackbar('Downloading reservations successful')
+  showSnackbar("Downloading venues successful")
+}
+
+async function download_playerlists() {
+  let reply, xls
+  showLoading(true)
+  try {
+    reply = await $backend("interclub", "mgmt_xls_playerlists", {
+      token: idtoken.value,
+    })
+    xls = reply.data.xls64
+  } catch (error) {
+    console.log("download error", error)
+    showSnackbar("Download error: " + error.detail)
+  } finally {
+    showLoading(false)
+  }
+  const link = document.createElement("a")
+  link.download = "playerlists_2425.xlsx"
+  link.href = "data:application/excel;base64," + xls
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  showSnackbar("Downloading playerlists successful")
 }
 
 // async function generateBelELO() {
@@ -104,7 +122,7 @@ async function download_venues() {
 // }
 
 async function setup(icclub_, icdata_) {
-  console.log('setup Downloads', icclub_, icdata_)
+  console.log("setup Downloads", icclub_, icdata_)
 }
 
 // trigger
@@ -112,7 +130,6 @@ onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
 })
-
 </script>
 
 <template>
@@ -123,5 +140,7 @@ onMounted(() => {
     <v-btn @click="download_registrations">Download registrations</v-btn>
     <h3>Venues</h3>
     <v-btn @click="download_venues">Download venues</v-btn>
+    <h3>Playerlists</h3>
+    <v-btn @click="download_playerlists">Download playerlists</v-btn>
   </VContainer>
 </template>
