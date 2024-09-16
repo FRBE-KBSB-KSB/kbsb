@@ -44,7 +44,7 @@ from . import (
     clb_validateICPlayers,
     find_icregistration,
     getICvenues,
-    mgmt_getXlsAllplayerlist,
+    mgmt_get_xlsplayerlists,
     mgmt_saveICresults,
     mgmt_generate_penalties,
     mgmt_register_teamforfeit,
@@ -348,17 +348,18 @@ async def api_mgmt_updateICPlayers(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/mgmt/command/xls/allplayerlist", response_model=str)
-async def api_mgmt_getXlsAllplayerlist(token: str):
+@router.get("/mgmt/command/xls_playerlists")
+async def api_mgmt_get_xlsplayerlists(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    await validate_token(auth)
     try:
-        payload = jwt_getunverifiedpayload(token)
-        logger.info(f"payload {payload}")
-        assert payload["sub"].split("@")[1] == "frbe-kbsb-ksb.be"
-        return await mgmt_getXlsAllplayerlist()
+        xlsfile = await mgmt_get_xlsplayerlists()
+        return {"xls64": base64.b64encode(xlsfile)}
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call mgmt_getXlsAllplayerlist")
+        logger.exception("failed api call mgmt_get_xslplayerlists")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

@@ -43,21 +43,6 @@ test = ["anyio[trio]", "coverage[toml] (>=7)", "exceptiongroup (>=1.2.0)", "hypo
 trio = ["trio (>=0.23)"]
 
 [[package]]
-name = "asyncclick"
-version = "8.1.7.2"
-description = "Composable command line interface toolkit, async version"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "asyncclick-8.1.7.2-py3-none-any.whl", hash = "sha256:1ab940b04b22cb89b5b400725132b069d01b0c3472a9702c7a2c9d5d007ded02"},
-    {file = "asyncclick-8.1.7.2.tar.gz", hash = "sha256:219ea0f29ccdc1bb4ff43bcab7ce0769ac6d48a04f997b43ec6bee99a222daa0"},
-]
-
-[package.dependencies]
-anyio = "*"
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
-
-[[package]]
 name = "asyncio"
 version = "3.4.3"
 description = "reference implementation of PEP 3156"
@@ -2164,12 +2149,12 @@ files = [
 
 [[package]]
 name = "reddevil"
-version = "3.3.7"
+version = "3.3.8"
 description = "Reddevil python library"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "reddevil-3.3.7-py3-none-any.whl", hash = "sha256:9f6d5352351ddb7539e46d5b0ea6b8fad7d2024c43686c3f07d5f3eb147035f1"},
+    {file = "reddevil-3.3.8-py3-none-any.whl", hash = "sha256:4de1079082e919c748a4e1ec9a86f9d4f4a6538c9d1bbecaed9bf2f0c9cedcc7"},
 ]
 
 [package.dependencies]
@@ -2200,7 +2185,7 @@ weasyprint = ">=61.0,<62.0"
 
 [package.source]
 type = "file"
-url = "libs/reddevil-3.3.7-py3-none-any.whl"
+url = "libs/reddevil-3.3.8-py3-none-any.whl"
 
 [[package]]
 name = "requests"
@@ -2523,4 +2508,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "57cd4049e72bece9633ab8d2a0c6c688b47bec703c6d5b0d9f856b485bc1057f"
+content-hash = "6134e183c4c923681fa0bbe81e85fbeadfe997abc193b31c300f8dab50cba3f3"
