@@ -78,25 +78,7 @@ function calcstatus() {
   // - closed
   // - noclub
   // - noaccess
-
-  if (!idclub.value) {
-    pll_status.value = "noclub"
-    return
-  }
-  pll_status.value = "closed"
-  const now = new Date()
-  icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start)
-    let end = new Date(p.end)
-    console.log("now", now, "start", start, "end", end)
-    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
-      pll_period = p.period
-      pll_startdate = p.start
-      pll_enddate = p.end
-      return
-    }
-  })
+  pll_status.value = idclub.value ? "open" : "closed"
 }
 
 function canAssign(idnumber) {

@@ -33,7 +33,7 @@ from . import (
     anon_getICseries,
     anon_getICencounterdetails,
     anon_getICstandings,
-    anon_getXlsplayerlist,
+    anon_get_xlsplayerlist,
     calc_belg_elo,
     calc_fide_elo,
     clb_getICclub,
@@ -363,10 +363,11 @@ async def api_mgmt_get_xlsplayerlists(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/command/xls/playerlist", response_model=str)
+@router.get("/anon/command/xls_playerlist/{idclub}")
 async def api_anon_getXlsplayerlist(idclub: int):
     try:
-        return await anon_getXlsplayerlist(idclub)
+        xlsfile = await anon_get_xlsplayerlist(idclub)
+        return {"xls64": base64.b64encode(xlsfile)}
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
