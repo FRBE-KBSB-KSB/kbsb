@@ -42,8 +42,8 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      crawlLinks: false,
-      failOnError: true,
+      crawlLinks: true,
+      failOnError: false,
     }
   },
 

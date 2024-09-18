@@ -438,7 +438,10 @@ async def mgmt_get_xlsplayerlists():
     return xlscontent
 
 
-async def anon_getXlsplayerlist(idclub: int):
+async def anon_get_xlsplayerlist(idclub: int):
+    """
+    get excel file of playerlist of a club
+    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.append(
@@ -464,10 +467,5 @@ async def anon_getXlsplayerlist(idclub: int):
     with NamedTemporaryFile() as tmp:
         wb.save(tmp.name)
         tmp.seek(0)
-        return Response(
-            content=tmp.read(),
-            headers={
-                "Content-Disposition": f"attachment; filename=playerlist_{idclub}.xlsx"
-            },
-            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+        xlscontent = tmp.read()
+    return xlscontent
