@@ -47,11 +47,11 @@ from .icclubs import (
     anon_getICteams,
     anon_getICclub,
     anon_getICclubs,
-    anon_getXlsplayerlist,
+    anon_get_xlsplayerlist,
     clb_getICclub,
     clb_updateICplayers,
     clb_validateICPlayers,
-    mgmt_getXlsAllplayerlist,
+    mgmt_get_xlsplayerlists,
 )
 from .series import (
     anon_getICseries,
