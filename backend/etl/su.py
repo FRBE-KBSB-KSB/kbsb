@@ -13,7 +13,7 @@ app = FastAPI(
 )
 register_app(app=app, settingsmodule="kbsb.settings")
 
-from reddevil.account import (
+from reddevil.account import (  # noqa: E402
     add_account,
     AccountInValidator,
     LoginType,

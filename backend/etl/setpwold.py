@@ -3,8 +3,6 @@ import asyncclick as click
 from fastapi import FastAPI
 from reddevil.core import (
     register_app,
-    connect_mongodb,
-    close_mongodb,
 )
 
 app = FastAPI(
@@ -14,7 +12,7 @@ app = FastAPI(
 )
 register_app(app=app, settingsmodule="kbsb.settings")
 
-from kbsb.member import (
+from kbsb.member import (  # noqa: E402
     old_userpassword,
     OldUserPasswordValidator,
 )
