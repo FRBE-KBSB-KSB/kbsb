@@ -143,7 +143,6 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
         icclub = await get_icclub({"idclub": idclub})
     except RdNotFound:
         icclub = None
-    logger.info(f"got icclub {icclub}")
     if icclub and icclub.registered:
         return icclub
 
@@ -212,6 +211,82 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     else:
         logger.info("today not in playerlist periods")
         period = "unknown"
+    icc = await clb_getICclub(idclub)
+    players = pi.players
+    transfersout = []
+    transferdeletes = []
+    inserts = []
+    oldplsix = {p.idnumber: p for p in icc.players}
+    newplsix = {p.idnumber: p for p in players}
+    for p in newplsix.values():
+        p.period = period
+        idn = p.idnumber
+        if idn not in oldplsix:
+            # inserts
+            inserts.append(p)
+            if p.idclubvisit:
+                if p.idcluborig == idclub:
+                    transfersout.append(p)
+        else:
+            # check for modifications in transfer
+            oldpl = oldplsix[idn]
+            if oldpl.nature != p.nature:
+                if p.nature in [
+                    PlayerlistNature.ASSIGNED,
+                    PlayerlistNature.UNASSIGNED,
+                    PlayerlistNature.LOCKED,
+                ]:
+                    logger.info(f"player {p} moved to transferdeletes")
+                    # the transfer is removed
+                    transferdeletes.append(p)
+                if p.nature in [
+                    PlayerlistNature.EXPORTED,
+                    PlayerlistNature.CONFIRMEDOUT,
+                ]:
+                    transfersout.append(p)
+    dictplayers = [p.model_dump() for p in players]
+    await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
+    logger.info(f"trout {transfersout} trdel {transferdeletes}")
+    for t in transfersout:
+        receivingclub = await clb_getICclub(t.idclubvisit)
+        rcplayers = receivingclub.players
+        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]
+        if not trplayers:
+            rcplayers.append(
+                ICPlayer(
+                    assignedrating=t.assignedrating,
+                    fiderating=t.fiderating,
+                    first_name=t.first_name,
+                    idnumber=t.idnumber,
+                    idcluborig=t.idcluborig,
+                    idclubvisit=t.idclubvisit,
+                    last_name=t.last_name,
+                    natrating=t.natrating,
+                    nature=PlayerlistNature.IMPORTED,
+                    period=period,
+                    titular=None,
+                )
+            )
+            dictplayers = [p.model_dump() for p in rcplayers]
+            await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
+    for t in transferdeletes:
+        # we need to remove the transfer from the receiving club if it is existing
+        try:
+            receivingclub = await clb_getICclub(t.idclubvisit)
+            rcplayers = receivingclub.players
+            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]
+            dictplayers = [p.model_dump() for p in trplayers]
+            await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
+        except RdNotFound:
+            pass
+
+
+async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
+    """
+    update the the player list of a club
+    """
+    # TODO take care of PlayerPeriod after september
+    period = "september"
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
