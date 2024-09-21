@@ -30,7 +30,7 @@ from . import (
     anon_getICteams,
     anon_getICclub,
     anon_getICclubs,
-    anon_getICseries,
+    anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
     anon_get_xlsplayerlist,
@@ -381,7 +381,7 @@ async def api_anon_getXlsplayerlist(idclub: int):
 @router.get("/anon/icseries", response_model=List[ICSeries])
 async def api_anon_getICseries(idclub: int | None = 0, round: int | None = 0):
     try:
-        return await anon_getICseries(idclub, round)
+        return await anon_get_icseries_clubround(idclub, round)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

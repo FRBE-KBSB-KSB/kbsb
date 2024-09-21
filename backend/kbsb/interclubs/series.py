@@ -2,7 +2,7 @@
 
 import logging
 
-from typing import cast, List
+from typing import cast, Any
 from datetime import datetime, timezone, timedelta, time
 
 
@@ -23,7 +23,9 @@ from kbsb.interclubs import (
     ICResultItem,
     ICSeries,
     ICSeriesDB,
+    ICSeriesUpdate,
     ICStandingsDB,
+    ICTeam,
     ICTeamGame,
     ICTeamStanding,
     DbICSeries,
@@ -36,10 +38,62 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-# planning, results, standings
+# CRUD
 
 
-async def anon_getICseries(idclub: int, round: int) -> List[ICSeries] | None:
+async def create_icseries(division: str, index: str | None) -> str:
+    """
+    create a new InterclubSeries returning its id
+    """
+    logger.info("create icseries")
+    doc = {"division": division, "index": index or "", "teams": []}
+    logger.info("create series {doc}")
+    return await DbICSeries.add(doc)
+
+
+async def get_icseries(id: str, options: dict | None = None) -> ICSeries:
+    """
+    get the interclub series
+    """
+    logger.info("get icseries")
+    filter = dict(options or {})
+    filter["_model"] = filter.pop("_model", ICSeries)
+    filter["id"] = id
+    return cast(ICSeries, await DbICSeries.find_single(filter))
+
+
+async def get_icseries2(options: dict | None = None) -> list[ICSeries]:
+    """
+    get the interclub series
+    """
+    logger.info("get icseries2")
+    filter = dict(options or {})
+    filter["_model"] = filter.pop("_model", ICSeries)
+    return [cast(ICSeries, x) for x in await DbICSeries.find_multiple(filter)]
+
+
+async def update_icseries(
+    division: int, index: str, iu: ICSeriesUpdate, options: dict[str, Any] | None = None
+) -> ICSeries:
+    """
+    update a interclub series
+    """
+    logger.info(f"update icseries {division} {index} {iu} {options}")
+    options1 = dict(options or {})
+    options1["_model"] = options1.pop("_model", ICSeries)
+    iudict = iu.model_dump(exclude_unset=True)
+    return cast(
+        ICSeries,
+        await DbICSeries.update(
+            {"division": division, "index": index}, iudict, options1
+        ),
+    )
+
+
+# business methods
+
+
+async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries] | None:
     """
     get IC club by idclub, returns None if nothing found
     """
@@ -64,7 +118,7 @@ async def anon_getICseries(idclub: int, round: int) -> List[ICSeries] | None:
     return series
 
 
-async def clb_getICseries(idclub: int, round: int) -> List[ICSeries] | None:
+async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     """
     get IC club by idclub, returns None if nothing found
     """
@@ -88,7 +142,7 @@ async def clb_getICseries(idclub: int, round: int) -> List[ICSeries] | None:
     return series
 
 
-async def clb_saveICplanning(plannings: List[ICPlanningItem]) -> None:
+async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
     """
     save a lists of pleanning per team
     """
@@ -133,7 +187,7 @@ async def clb_saveICplanning(plannings: List[ICPlanningItem]) -> None:
         )
 
 
-async def mgmt_saveICresults(results: List[ICResultItem]) -> None:
+async def mgmt_saveICresults(results: list[ICResultItem]) -> None:
     """
     save a list of results per team
     """
@@ -179,7 +233,7 @@ async def mgmt_saveICresults(results: List[ICResultItem]) -> None:
         await calc_standings(s)
 
 
-async def clb_saveICresults(results: List[ICResultItem]) -> None:
+async def clb_saveICresults(results: list[ICResultItem]) -> None:
     """
     save a list of results per team
     """
@@ -286,7 +340,7 @@ async def anon_getICencounterdetails(
     icclub_visit: int,
     pairingnr_home: int,
     pairingnr_visit: int,
-) -> List[ICGameDetails]:
+) -> list[ICGameDetails]:
     icserie = await DbICSeries.find_single(
         {
             "_model": ICSeries,
@@ -425,7 +479,7 @@ async def calc_standings(series: ICSeries) -> ICStandingsDB:
     )
 
 
-async def anon_getICstandings(idclub: int) -> List[ICStandingsDB] | None:
+async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
     """
     get the Standings by club
     """
@@ -490,3 +544,37 @@ async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> Non
     logger.info("series updated")
     await calc_standings(series)
     logger.info("standings updated")
+
+
+async def script_addteam_icseries(
+    division: str, index: str | None, name: str, idclub: int, pairingnumber: int
+):
+    """
+    Add a team to a division
+    Does not take care of the titulars
+    """
+    logger.info(f"division: {division}, name: {name}")
+    filter = {"division": division, "index": index or ""}
+    series = await get_icseries2(filter)
+    if not series:
+        # create the series and fetch it
+        id = await create_icseries(division=division, index=index)
+        logger.info(f"id created series {id}")
+        s = await get_icseries(id)
+    else:
+        s = series[0]
+
+    for tm in s.teams:
+        if tm.pairingnumber == pairingnumber:
+            raise RdBadRequest(description="PairingnumberAlreadyAssigned")
+    logger.info(f"series s {s}")
+    s.teams.append(
+        ICTeam(
+            division=division,
+            index=index,
+            idclub=idclub,
+            pairingnumber=pairingnumber,
+            name=name,
+        )
+    )
+    await update_icseries(division, index or "", ICSeriesUpdate(teams=s.teams))

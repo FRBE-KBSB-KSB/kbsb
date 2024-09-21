@@ -31,7 +31,6 @@ class MongodbInterclubClubWriter:
         await close_mongodb()
 
     async def write(self, idclub):
-        print("setup ", idclub)
         await setup_interclubclub(idclub)
 
 
