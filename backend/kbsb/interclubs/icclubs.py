@@ -25,6 +25,7 @@ from kbsb.interclubs import (
     DbICClub,
     DbICSeries,
     PlayerlistNature,
+    load_icdata,
 )
 from kbsb.interclubs.registrations import find_icregistration
 from kbsb.club import get_club_idclub
@@ -43,15 +44,6 @@ ONPLAYERLIST = [
 ]
 
 # CRUD
-
-
-async def load_icdata():
-    _icd = getattr(load_icdata, "icdata", None)
-    if not _icd:
-        icdr = await get_file("data", "ic2425.yml")
-        _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
-        setattr(load_icdata, "icdata", _icd)
-    return _icd
 
 
 async def create_icclub(icclub: ICClubDB) -> str:
@@ -524,7 +516,7 @@ async def anon_get_xlsplayerlist(idclub: int):
     club = await DbICClub.find_single({"_model": ICClubDB, "idclub": idclub})
     sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)
     for p in sortedplayers:
-        if p.nature not in ["assigned", "requestedin"]:
+        if p.nature not in ["assigned", "imported"]:
             continue
         ws.append(
             [

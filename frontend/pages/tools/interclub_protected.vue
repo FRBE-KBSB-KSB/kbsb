@@ -3,9 +3,9 @@ import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 
-import Enrollment from "@/components/interclubs/Enrollment.vue"
+// import Enrollment from "@/components/interclubs/Enrollment.vue"
 // import Results from '@/components/interclubs/Results.vue'
-// import Planning from '@/components/interclubs/Planning.vue'
+import Planning from "@/components/interclubs/Planning.vue"
 import Playerlist from "@/components/interclubs/Playerlist.vue"
 import Venue from "@/components/interclubs/Venue.vue"
 import { parse } from "yaml"
@@ -52,11 +52,11 @@ function changeDialogCounter(i) {
 function changeTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
-    case "enrollment":
-      refenrollment.value.setup(icclub.value, icdata.value)
-      break
+    // case "enrollment":
+    //   refenrollment.value.setup(icclub.value, icdata.value)
+    //   break
     case "planning":
-      refplanning.value.setup(icclub.value, round.value)
+      refplanning.value.setup(icclub.value, round.value, icdata.value)
       break
     case "playerlist":
       refplayerlist.value.setup(icclub.value, icdata.value)
@@ -172,7 +172,7 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "enrollment"
+  tab.value = "planning"
   changeTab()
 })
 
@@ -224,8 +224,8 @@ definePageMeta({
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
         <!-- <v-tab value="enrollment">{{ t("icn.enr") }}</v-tab> -->
-        <!-- <v-tab value="results">{{ t('Results') }}</v-tab>
-        <v-tab value="planning">{{ t('Planning') }}</v-tab> -->
+        <!-- <v-tab value="results">{{ t('Results') }}</v-tab> -->
+        <v-tab value="planning">{{ t("Planning") }}</v-tab>
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
         <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       </v-tabs>

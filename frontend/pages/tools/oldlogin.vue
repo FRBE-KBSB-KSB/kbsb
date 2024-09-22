@@ -1,44 +1,51 @@
 <script setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { useIdtokenStore } from "@/store/idtoken";
-import { useIdnumberStore } from "@/store/idnumber";
-import showdown from "showdown";
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { useIdtokenStore } from "@/store/idtoken"
+import { useIdnumberStore } from "@/store/idnumber"
+import showdown from "showdown"
 
-const { locale, t } = useI18n();
-const { $backend } = useNuxtApp();
-const router = useRouter();
-const route = useRoute();
-const idstore = useIdtokenStore();
-const idnstore = useIdnumberStore();
+const { locale, t } = useI18n()
+const { $backend } = useNuxtApp()
+const router = useRouter()
+const route = useRoute()
+const idstore = useIdtokenStore()
+const idnstore = useIdnumberStore()
 
 // help dialog
-const mdConverter = new showdown.Converter();
-const helptitle = ref("");
-const helpdialog = ref(false);
-const helpcontent = ref("");
+const mdConverter = new showdown.Converter()
+const helptitle = ref("")
+const helpdialog = ref(false)
+const helpcontent = ref("")
 
-const login = ref({});
-const snackbar = ref(null);
-const errortext = ref("");
-const url = route.query.url;
+const login = ref({})
+const snackbar = ref(null)
+const errortext = ref("")
+const url = route.query.url
 
 async function dologin() {
-  const returnUrl = url ? url.replaceAll("__", "/") : "/";
-  let reply;
+  console.log("doing a login")
+  const returnUrl = url ? url.replaceAll("__", "/") : "/"
+  console.log("return URL", returnUrl)
+  let reply
   try {
     reply = await $backend("member", "login", {
       idnumber: login.value.idnumber,
       password: login.value.password,
-    });
+    })
+    console.log("did a login", reply.data)
   } catch (error) {
-    errortext.value = t(error.message);
-    snackbar.value = true;
-    return;
+    console.error("failed login", error)
+    errortext.value = t(error.message)
+    snackbar.value = true
+    return
+  } finally {
+    console.log("reached finally")
   }
-  idstore.updateToken(reply.data);
-  idnstore.updateIdnumber(login.value.idnumber);
-  router.push(returnUrl);
+  idstore.updateToken(reply.data)
+  idnstore.updateIdnumber(login.value.idnumber)
+  console.log("redirecting to ", returnUrl)
+  router.push(returnUrl)
 }
 
 async function getContent() {
@@ -46,22 +53,22 @@ async function getContent() {
     const reply = await $backend("filestore", "anon_get_file", {
       group: "pages",
       name: `help-login.md`,
-    });
-    metadata.value = useMarkdown(reply.data).metadata;
-    helptitle.value = metadata.value["title_" + locale.value];
-    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value]);
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    helptitle.value = metadata.value["title_" + locale.value]
+    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
   } catch (error) {
-    console.log("failed");
+    console.log("failed")
   }
 }
 
 onMounted(() => {
-  getContent();
-});
+  getContent()
+})
 
 definePageMeta({
   layout: "nomenu",
-});
+})
 </script>
 <template>
   <VContainer>

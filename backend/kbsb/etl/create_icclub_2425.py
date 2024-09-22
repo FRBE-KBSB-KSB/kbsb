@@ -1,5 +1,4 @@
 import asyncio
-import pandas as pd
 from fastapi import FastAPI
 from reddevil.core import (
     register_app,
@@ -9,10 +8,7 @@ from reddevil.core import (
     get_mongodb,
 )
 
-from kbsb.interclub import (
-    DbInterclubSeries,
-    InterclubSeries,
-    InterclubTeam,
+from kbsb.interclubs import (
     setup_interclubclub,
 )
 from kbsb.club import get_clubs
@@ -35,7 +31,6 @@ class MongodbInterclubClubWriter:
         await close_mongodb()
 
     async def write(self, idclub):
-        print('setup ', idclub)
         await setup_interclubclub(idclub)
 
 

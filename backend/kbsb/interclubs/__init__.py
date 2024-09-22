@@ -1,5 +1,4 @@
-import yaml
-from reddevil.core import get_settings
+# noqa
 
 from .md_interclubs import (
     PLAYERSPERDIVISION,
@@ -30,6 +29,7 @@ from .md_interclubs import (
     ICRound,
     ICSeries,
     ICSeriesDB,
+    ICSeriesUpdate,
     ICStandingsDB,
     ICTeam,
     ICTeamGame,
@@ -43,6 +43,7 @@ from .md_elo import (
     EloGame,
     EloPlayer,
 )
+from .helpers import load_icdata, ptable
 from .icclubs import (
     anon_getICteams,
     anon_getICclub,
@@ -55,7 +56,7 @@ from .icclubs import (
     mgmt_updateICplayers,
 )
 from .series import (
-    anon_getICseries,
+    anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
     clb_getICseries,

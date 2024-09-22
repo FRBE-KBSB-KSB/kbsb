@@ -1,27 +1,31 @@
 import csv
 from pathlib import Path
 
-rootpath = Path("..")
+rootdir = Path.cwd() / ".."
 
 
-def main():
-    with (rootpath / "share" / "data" / "translations - kbsb.csv").open(
-        newline=""
-    ) as csvfile:
+def process_i18n():
+    allrows = {}
+    with (rootdir / "shared" / "translations - kbsb.csv").open(newline="") as csvfile:
         reader = csv.DictReader(csvfile)
-        allrows = []
         for r in reader:
-            allrows.append(r)
-    for l in ["en", "fr", "nl", "de"]:
-        with (rootpath / "kbsb_frontend" / "lang" / f"{l}.js").open(
+            ctx = r["ctx"]
+            ctxrows = allrows.setdefault(ctx, [])
+            ctxrows.append(r)
+    for lc in ["en", "fr", "nl", "de"]:
+        with (rootdir / "frontend" / "lang" / f"{lc}.json").open(
             "w", encoding="utf8"
         ) as f:
-            f.write("export default {\n")
-            for r in allrows:
-                f.write(f'"{r["key"]}": `{r[l]}`,\n')
+            f.write("{\n")
+            for ctx, ctxrows in allrows.items():
+                for r in ctxrows:
+                    if not ctx:
+                        f.write(f'"{r["key"]}": "{r[lc]}",\n')
+                    else:
+                        f.write(f'"{ctx}.{r["key"]}": "{r[lc]}",\n')
+            f.write('"ZZZ": "ZZZ"\n')
             f.write("}\n")
-    print("i18n files written")
 
 
 if __name__ == "__main__":
-    main()
+    process_i18n()

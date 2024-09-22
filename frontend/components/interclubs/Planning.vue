@@ -1,49 +1,90 @@
 <script setup>
-import { ref, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { useIdtokenStore } from '@/store/idtoken'
-import { storeToRefs } from 'pinia'
-import { INTERCLUBS_ROUNDS, PLAYERS_DIVISION } from '@/util/interclubs'
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { useIdtokenStore } from "@/store/idtoken"
+import { storeToRefs } from "pinia"
 
 // communication
-const router = useRouter()
-const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
 defineExpose({ setup })
-
-// idtoken
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
 const { $backend } = useNuxtApp()
+const { t } = useI18n()
+
+//  snackbar and loading widgets
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // datamodel
-const idclub = ref(0)
 let playersindexed = {}
 const players = ref([])
 const icseries = ref({})
 const icclub = ref({})
-const round = ref(null)
+const idclub = ref(0)
+let round = 0
 const teamsplanning = ref({})
-const planstatus = ref("closed")
+const pln_status = ref("closed")
+let icdata = {}
 
-// i18n
-const { t } = useI18n()
+async function calcstatus() {
+  // we have the following status
+  // - open
+  // - closed
+  // - noclub
+  // - noaccess
+  // - expired
+  console.log("calcstatus", idclub.value)
+  if (!idclub.value) {
+    pln_status.value = "noclub"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  let access = await checkAccess()
+  if (!access) {
+    pln_status.value = "noaccess"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  readICclub()
+  const now = new Date()
+  const expiry = new Date(icdata.rounds[round] + "T14:00")
+  console.log("dates", now, expiry)
+  if (now.valueOf() > expiry.valueOf) {
+    pln_status.value = "expired"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  pln_status.value = "open"
+  await getICseries()
+}
 
 async function checkAccess() {
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
+  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
-      idclub: idclub.value,
+      idclub: icclub.value.idclub,
       role: "InterclubAdmin,InterclubCaptain",
       token: idtoken.value,
     })
     return true
   } catch (error) {
-    console.log('reply NOK', error)
+    console.log("reply NOK", error)
+    showSnackbar(t("icn.perm_denied"))
     return false
   } finally {
-    emit('changeDialogCounter', -1)
+    showLoading(false)
   }
 }
 
@@ -59,23 +100,23 @@ function clubLabel(pairingnr, s) {
 }
 
 async function getICseries() {
-  console.log('getICseries')
+  console.log("getICseries")
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
   try {
     reply = await $backend("interclub", "clb_getICseries", {
-      round: round.value,
+      round: round,
       idclub: idclub.value,
-      token: idtoken.value
+      token: idtoken.value,
     })
   } catch (error) {
-    console.log('NOK', error)
+    console.log("NOK", error)
     if (error.code == 401) {
       gotoLogin()
     }
     return
   } finally {
-    emit('changeDialogCounter', -1)
+    showLoading(false)
   }
   icseries.value = reply.data
   teamsplanning.value = []
@@ -83,19 +124,20 @@ async function getICseries() {
 }
 
 async function gotoLogin() {
-  await router.push('/tools/oldlogin?url=__interclubs__manager')
+  await router.push("/tools/oldlogin?url=__interclubs__manager")
 }
 
 async function readICclub() {
+  console.log("readICclub")
   players.value = []
   playersindexed.value = {}
   teamsplanning.value = {}
-  console.log('icclub', icclub.value)
+  console.log("icclub", icclub.value)
   icclub.value.players.forEach((p) => {
-    if (p.nature != "confirmedout") {
+    if (p.nature != "exported") {
       let player = {}
-      let tit = p.titular ? `:: ${t('Titular')} ${p.titular}` : ""
-      if (p.nature != "confirmedout") {
+      let tit = p.titular ? `:: ${t("Titular")} ${p.titular}` : ""
+      if (p.nature != "exported") {
         player.first_name = p.first_name
         player.last_name = p.last_name
         player.assignedrating = p.assignedrating
@@ -107,11 +149,11 @@ async function readICclub() {
       playersindexed[p.idnumber] = player
     }
   })
-  console.log('players', players.value)
+  console.log("players", players.value)
 }
 
 function readICplanning() {
-  console.log('readICplanning')
+  console.log("readICplanning")
   icseries.value.forEach((s) => {
     // fill in Teams
     s.teams.forEach((t) => {
@@ -124,8 +166,8 @@ function readICplanning() {
           index: s.index,
           pairingnumber: t.pairingnumber,
           name: t.name,
-          nrgames: PLAYERS_DIVISION[t.division],
-          round: parseInt(round.value),
+          nrgames: icdata.playerperdivision[t.division],
+          round: parseInt(round),
         }
         let avg = 0
         let allassigned = true
@@ -135,8 +177,10 @@ function readICplanning() {
             team.idclub_opponent = enc.icclub_visit
             team.name_opponent = clubLabel(enc.pairingnr_visit, s)
             team.games = enc.games
-          }
-          else if (enc.icclub_visit == idclub.value && enc.pairingnr_visit == t.pairingnumber) {
+          } else if (
+            enc.icclub_visit == idclub.value &&
+            enc.pairingnr_visit == t.pairingnumber
+          ) {
             team.playinghome = false
             team.idclub_opponent = enc.icclub_home
             team.name_opponent = clubLabel(enc.pairingnr_home, s)
@@ -156,16 +200,13 @@ function readICplanning() {
           if (team.playinghome) {
             if (!g.idnumber_home) {
               allassigned = false
-            }
-            else {
+            } else {
               avg += playersindexed[g.idnumber_home].assignedrating
             }
-          }
-          else {
+          } else {
             if (!g.idnumber_visit) {
               allassigned = false
-            }
-            else {
+            } else {
               avg += playersindexed[g.idnumber_visit].assignedrating
             }
           }
@@ -180,114 +221,117 @@ function readICplanning() {
 
 async function savePlanning() {
   let reply
-  console.log('saving planning', teamsplanning.value)
+  showLoading(true)
+  console.log("saving planning", teamsplanning.value)
   try {
-    emit('changeDialogCounter', 1)
     reply = await $backend("interclub", "clb_saveICplanning", {
       token: idtoken.value,
-      plannings: teamsplanning.value
+      plannings: teamsplanning.value,
     })
   } catch (error) {
     if (error.code == 401) gotoLogin()
-    emit('displaySnackbar', t(error.message))
+    showSnackbar(t(error.message))
     return
+  } finally {
+    showLoading(false)
   }
-  finally {
-    emit('changeDialogCounter', -1)
-  }
-  emit('displaySnackbar', t('Playerlist saved'))
+  showSnackbar(t("Planning saved"))
   getICseries()
 }
 
-async function setup(clb, rnd) {
-  console.log('setup planning', clb, rnd)
-  planstatus.value = 'closed'
-  // planstatus.value = null
-  // icclub.value = clb
-  // round.value = rnd
-  // idclub.value = clb.idclub
-  // if (!idclub.value) {
-  //   planstatus.value = 'noclub'
-  //   players.value = []
-  //   playersindexed = {}
-  //   icseries.value = {}
-  //   return
-  // }
-  // let ca = await checkAccess()
-  // console.log('ca', ca)
-  // if (!ca) {
-  //   planstatus.value = 'noaccess'
-  //   players.value = []
-  //   playersindexed = {}
-  //   icseries.value = {}
-  //   return
-  // }
-  // readICclub()
-  // const now = new Date().valueOf()
-  // const expiry = new Date(INTERCLUBS_ROUNDS[round.value] + 'T14:00').valueOf()
-  // console.log('dates', new Date(), new Date(INTERCLUBS_ROUNDS[round.value] + 'T14:00'))
-  // if (now > expiry) {
-  //   planstatus.value = 'expired'
-  //   players.value = []
-  //   playersindexed = {}
-  //   icseries.value = {} 
-  //   return   
-  // }
-  // nextTick(()=>{
-  //   getICseries()
-  // })
+async function setup(icclub_, round_, icdata_) {
+  console.log("setup planning", icclub_, round_, icdata_)
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+  icclub.value = icclub_
+  idclub.value = icclub_.idclub
+  icdata = icdata_
+  round = round_
+  await calcstatus()
 }
 
 function validatePlanning() {
   let reply
   savePlanning()
 }
-
 </script>
 <template>
   <v-container>
-    <v-alert type="warning" variant="outlined" v-if="planstatus == 'closed'"
-      :text="t('icn.planning_closed')" />
-    <v-alert type="warning" variant="outlined" v-if="planstatus == 'noclub'"
-      :text="t('icn.select_club')" />
-    <v-alert type="error" variant="outlined" v-if="planstatus == 'noaccess'"
-      :text="t('icn.perm_denied')" />
-    <v-alert type="warning" variant="outlined" v-if="planstatus == 'expired'"
-      :text="t('You can no longer modify the planning of this round')" />
-    <div v-if="planstatus == 'open'">
-      <VCard v-for="( tp, ix ) in  teamsplanning " class="my-2">
+    <SnackbarMessage ref="refsnackbar" />
+    <ProgressLoading ref="refloading" />
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="pln_status == 'closed'"
+      :text="t('icn.planning_closed')"
+    />
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="pln_status == 'noclub'"
+      :text="t('icn.select_club')"
+    />
+    <v-alert
+      type="error"
+      variant="outlined"
+      v-if="pln_status == 'noaccess'"
+      :text="t('icn.perm_denied')"
+    />
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="pln_status == 'expired'"
+      :text="t('You can no longer modify the planning of this round')"
+    />
+    <div v-if="pln_status == 'open'">
+      <VCard v-for="(tp, ix) in teamsplanning" class="my-2">
         <VCardTitle>
           {{ tp.name }}
         </VCardTitle>
         <VCardSubtitle class="d-flex">
           <div v-show="tp.playinghome" class="flex-1-1-100">
-            {{ tp.idclub }} {{ tp.name }} - {{ tp.idclub_opponent }} {{ tp.name_opponent }}
+            {{ tp.idclub }} {{ tp.name }} - {{ tp.idclub_opponent }}
+            {{ tp.name_opponent }}
           </div>
           <div v-show="!tp.playinghome" class="flex-1-1-100">
-            {{ tp.idclub_opponent }} {{ tp.name_opponent }} - {{ tp.idclub }} {{ tp.name }}
+            {{ tp.idclub_opponent }} {{ tp.name_opponent }} - {{ tp.idclub }}
+            {{ tp.name }}
           </div>
-          <div class="flex-0-0">
-            {{ t('Average ELO') }}: {{ tp.average }}
-          </div>
+          <div class="flex-0-0">{{ t("Average ELO") }}: {{ tp.average }}</div>
           <VDivider />
         </VCardSubtitle>
         <VCardText>
-          <div v-for="( g, ix ) in  tp.games ">
-            <VAutocomplete v-model="g.idnumber_home" density="compact" :items="players"
-              item-title="full" item-value="idnumber" :label="t('Player') + ' ' + (ix + 1)"
-              :hide-details="true" v-show="tp.playinghome" clearable />
-            <VAutocomplete v-model="g.idnumber_visit" density="compact" :items="players"
-              item-title="full" item-value="idnumber" :label="t('Player') + ' ' + (ix + 1)"
-              :hide-details="true" v-show="!tp.playinghome" clearable />
+          <div v-for="(g, ix) in tp.games">
+            <VAutocomplete
+              v-model="g.idnumber_home"
+              density="compact"
+              :items="players"
+              item-title="full"
+              item-value="idnumber"
+              :label="t('Player') + ' ' + (ix + 1)"
+              :hide-details="true"
+              v-show="tp.playinghome"
+              clearable
+            />
+            <VAutocomplete
+              v-model="g.idnumber_visit"
+              density="compact"
+              :items="players"
+              item-title="full"
+              item-value="idnumber"
+              :label="t('Player') + ' ' + (ix + 1)"
+              :hide-details="true"
+              v-show="!tp.playinghome"
+              clearable
+            />
           </div>
         </VCardText>
       </VCard>
       <div v-show="icseries.length">
-        <VBtn @click="validatePlanning()" color="primary">{{ t('Save') }}</VBtn>
+        <VBtn @click="validatePlanning()" color="primary">{{ t("Save") }}</VBtn>
       </div>
     </div>
   </v-container>
-
 </template>
 
 <style scoped>

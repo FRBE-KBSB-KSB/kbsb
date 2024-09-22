@@ -256,6 +256,15 @@ class ICSeries(BaseModel):
     rounds: list[ICRound] = []
 
 
+class ICSeriesUpdate(BaseModel):
+    """
+    an internal model, representation of a single IC series
+    """
+
+    teams: list[ICTeam] | None = None
+    rounds: list[ICRound] | None = None
+
+
 class ICTeamGame(BaseModel):
     """
     an internal model, representing a result of a team in a round
@@ -478,6 +487,13 @@ class ICVenueDB(BaseModel):
 
 
 class DbICSeries(DbBase):
+    COLLECTION = "interclub2425series"
+    DOCUMENTTYPE = ICSeriesDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbICSeries_Old(DbBase):
     COLLECTION = "interclub2324series"
     DOCUMENTTYPE = ICSeriesDB
     VERSION = 1
@@ -485,6 +501,13 @@ class DbICSeries(DbBase):
 
 
 class DbICStandings(DbBase):
+    COLLECTION = "interclub2425standings"
+    DOCUMENTTYPE = ICStandingsDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbICStandings_Old(DbBase):
     COLLECTION = "interclub2324standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
