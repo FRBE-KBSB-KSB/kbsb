@@ -48,6 +48,7 @@ from . import (
     mgmt_saveICresults,
     mgmt_generate_penalties,
     mgmt_register_teamforfeit,
+    mgmt_updateICplayers,
     set_icregistration,
     set_interclubvenues,
     trf_process_round,
@@ -340,7 +341,7 @@ async def api_mgmt_updateICPlayers(
 ):
     try:
         await validate_token(auth)
-        await clb_updateICplayers(idclub, players)
+        await mgmt_updateICplayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
