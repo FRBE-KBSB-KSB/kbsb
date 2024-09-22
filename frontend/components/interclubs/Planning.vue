@@ -20,15 +20,53 @@ const refloading = ref(null)
 let showLoading
 
 // datamodel
-const idclub = ref(0)
 let playersindexed = {}
 const players = ref([])
 const icseries = ref({})
 const icclub = ref({})
-const round = ref(null)
+const idclub = ref(0)
+let round = 0
 const teamsplanning = ref({})
 const pln_status = ref("closed")
 let icdata = {}
+
+async function calcstatus() {
+  // we have the following status
+  // - open
+  // - closed
+  // - noclub
+  // - noaccess
+  // - expired
+  console.log("calcstatus", idclub.value)
+  if (!idclub.value) {
+    pln_status.value = "noclub"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  let access = await checkAccess()
+  if (!access) {
+    pln_status.value = "noaccess"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  readICclub()
+  const now = new Date()
+  const expiry = new Date(icdata.rounds[round] + "T14:00")
+  console.log("dates", now, expiry)
+  if (now.valueOf() > expiry.valueOf) {
+    pln_status.value = "expired"
+    players.value = []
+    playersindexed = {}
+    icseries.value = {}
+    return
+  }
+  pln_status.value = "open"
+  await getICseries()
+}
 
 async function checkAccess() {
   let reply
@@ -67,7 +105,7 @@ async function getICseries() {
   showLoading(true)
   try {
     reply = await $backend("interclub", "clb_getICseries", {
-      round: round.value,
+      round: round,
       idclub: idclub.value,
       token: idtoken.value,
     })
@@ -90,6 +128,7 @@ async function gotoLogin() {
 }
 
 async function readICclub() {
+  console.log("readICclub")
   players.value = []
   playersindexed.value = {}
   teamsplanning.value = {}
@@ -127,8 +166,8 @@ function readICplanning() {
           index: s.index,
           pairingnumber: t.pairingnumber,
           name: t.name,
-          nrgames: PLAYERS_DIVISION[t.division],
-          round: parseInt(round.value),
+          nrgames: icdata.playerperdivision[t.division],
+          round: parseInt(round),
         }
         let avg = 0
         let allassigned = true
@@ -182,41 +221,22 @@ function readICplanning() {
 
 async function savePlanning() {
   let reply
+  showLoading(true)
   console.log("saving planning", teamsplanning.value)
   try {
-    emit("changeDialogCounter", 1)
     reply = await $backend("interclub", "clb_saveICplanning", {
       token: idtoken.value,
       plannings: teamsplanning.value,
     })
   } catch (error) {
     if (error.code == 401) gotoLogin()
-    emit("displaySnackbar", t(error.message))
+    showSnackbar(t(error.message))
     return
   } finally {
-    emit("changeDialogCounter", -1)
+    showLoading(false)
   }
-  emit("displaySnackbar", t("Playerlist saved"))
+  showSnackbar(t("Planning saved"))
   getICseries()
-}
-
-async function calcstatus() {
-  if (!idclub.value) {
-    pln_status.value = "noclub"
-    players.value = []
-    playersindexed = {}
-    icseries.value = {}
-    return
-  }
-  let ca = await checkAccess()
-  console.log("ca", ca)
-  if (!ca) {
-    pln_status.value = "noaccess"
-    players.value = []
-    playersindexed = {}
-    icseries.value = {}
-    return
-  }
 }
 
 async function setup(icclub_, round_, icdata_) {
@@ -224,24 +244,10 @@ async function setup(icclub_, round_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
+  idclub.value = icclub_.idclub
   icdata = icdata_
-  round.value = round_
+  round = round_
   await calcstatus()
-  if (!icclub.value.idclub) return
-  readICclub()
-  const now = new Date()
-  const expiry = new Date(icdata.rounds[round.value] + "T14:00")
-  console.log("dates", now, expiry)
-  if (now.valueOf() > expiry.valueOf) {
-    pln_status.value = "expired"
-    players.value = []
-    playersindexed = {}
-    icseries.value = {}
-    return
-  }
-  nextTick(() => {
-    getICseries()
-  })
 }
 
 function validatePlanning() {

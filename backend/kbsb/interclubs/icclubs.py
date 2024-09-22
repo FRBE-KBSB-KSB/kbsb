@@ -516,7 +516,7 @@ async def anon_get_xlsplayerlist(idclub: int):
     club = await DbICClub.find_single({"_model": ICClubDB, "idclub": idclub})
     sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)
     for p in sortedplayers:
-        if p.nature not in ["assigned", "requestedin"]:
+        if p.nature not in ["assigned", "imported"]:
             continue
         ws.append(
             [
