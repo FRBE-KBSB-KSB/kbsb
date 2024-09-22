@@ -12,7 +12,7 @@ from reddevil.core import (
 from dotenv import load_dotenv
 import logging
 from kbsb import ROOT_DIR
-from kbsb.interclubs.series import script_addteam_icseries
+from kbsb.interclubs.series import script_create_encounters
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",
@@ -34,20 +34,8 @@ async def lifespan(app: FastAPI):
 
 
 async def main():
-    infile = ROOT_DIR / "shared" / "db" / "icseries2425.csv"
     async with lifespan(app) as writer:
-        async with aiofiles.open(
-            infile, mode="r", encoding="utf-8", newline=""
-        ) as reader:
-            async for team in aiocsv.AsyncDictReader(reader):
-                logger.info(f"team {team}")
-                await script_addteam_icseries(
-                    division=team.get("division"),
-                    index=team.get("index"),
-                    name=team.get("team"),
-                    pairingnumber=team.get("pairingnr"),
-                    idclub=team.get("idclub"),
-                )
+        await script_create_encounters()
 
 
 if __name__ == "__main__":

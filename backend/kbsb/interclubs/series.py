@@ -1,11 +1,8 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-
 from typing import cast, Any
 from datetime import datetime, timezone, timedelta, time
-
-
 from reddevil.core import (
     RdBadRequest,
     RdNotFound,
@@ -13,7 +10,6 @@ from reddevil.core import (
     get_mongodb,
     encode_model,
 )
-
 from kbsb.interclubs import (
     ICROUNDS,
     ICEncounter,
@@ -21,6 +17,7 @@ from kbsb.interclubs import (
     ICGameDetails,
     ICPlanningItem,
     ICResultItem,
+    ICRound,
     ICSeries,
     ICSeriesDB,
     ICSeriesUpdate,
@@ -31,12 +28,14 @@ from kbsb.interclubs import (
     DbICSeries,
     DbICStandings,
     anon_getICclub,
+    load_icdata,
+    ptable,
 )
 
 logger = logging.getLogger(__name__)
 
-
 settings = get_settings()
+
 
 # CRUD
 
@@ -72,13 +71,22 @@ async def get_icseries2(options: dict | None = None) -> list[ICSeries]:
     return [cast(ICSeries, x) for x in await DbICSeries.find_multiple(filter)]
 
 
+async def get_icseries_all() -> list[ICSeries]:
+    """
+    get all the interclub series
+    """
+    return [
+        cast(ICSeries, x) for x in await DbICSeries.find_multiple({"_model": ICSeries})
+    ]
+
+
 async def update_icseries(
     division: int, index: str, iu: ICSeriesUpdate, options: dict[str, Any] | None = None
 ) -> ICSeries:
     """
     update a interclub series
     """
-    logger.info(f"update icseries {division} {index} {iu} {options}")
+    logger.info(f"update icseries {division} {index}")
     options1 = dict(options or {})
     options1["_model"] = options1.pop("_model", ICSeries)
     iudict = iu.model_dump(exclude_unset=True)
@@ -547,7 +555,7 @@ async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> Non
 
 
 async def script_addteam_icseries(
-    division: str, index: str | None, name: str, idclub: int, pairingnumber: int
+    division: int, index: str | None, name: str, idclub: int, pairingnumber: int
 ):
     """
     Add a team to a division
@@ -563,11 +571,9 @@ async def script_addteam_icseries(
         s = await get_icseries(id)
     else:
         s = series[0]
-
     for tm in s.teams:
         if tm.pairingnumber == pairingnumber:
             raise RdBadRequest(description="PairingnumberAlreadyAssigned")
-    logger.info(f"series s {s}")
     s.teams.append(
         ICTeam(
             division=division,
@@ -578,3 +584,36 @@ async def script_addteam_icseries(
         )
     )
     await update_icseries(division, index or "", ICSeriesUpdate(teams=s.teams))
+
+
+async def script_create_encounters():
+    """
+    create all encounters
+    """
+    icdata = await load_icdata()
+    ss = await get_icseries_all()
+    logger.info(f"found {len(ss)} series")
+    for s in ss:
+        rounds = []
+        if s.rounds:
+            continue
+        logger.info(f"filling series {s.division} {s.index}")
+        for r in range(11):  # adding all rounds
+            encounters = []
+            tm_indexed = {t.pairingnumber: t for t in s.teams}
+            for home, visit in ptable[r]:
+                enc = ICEncounter(
+                    icclub_home=tm_indexed[home].idclub,
+                    icclub_visit=tm_indexed[visit].idclub,
+                    pairingnr_home=home,
+                    pairingnr_visit=visit,
+                )
+                encounters.append(enc)
+            rounds.append(
+                ICRound(
+                    round=r + 1,
+                    rdate=icdata["rounds"][r + 1].isoformat()[0:10],
+                    encounters=encounters,
+                )
+            )
+        await update_icseries(s.division, s.index, ICSeriesUpdate(rounds=rounds))

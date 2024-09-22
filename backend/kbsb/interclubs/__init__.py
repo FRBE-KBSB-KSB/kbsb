@@ -43,6 +43,7 @@ from .md_elo import (
     EloGame,
     EloPlayer,
 )
+from .helpers import load_icdata, ptable
 from .icclubs import (
     anon_getICteams,
     anon_getICclub,
