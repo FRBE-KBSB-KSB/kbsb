@@ -11,6 +11,7 @@ from reddevil.core import (
     encode_model,
 )
 from kbsb.interclubs import (
+    GAMERESULT,
     ICROUNDS,
     ICEncounter,
     ICGame,

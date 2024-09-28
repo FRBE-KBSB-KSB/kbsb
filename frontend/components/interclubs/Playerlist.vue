@@ -128,6 +128,7 @@ function canExport(idnumber) {
 
 async function checkAccess() {
   let reply
+  if (!idtoken.value) return false
   showLoading(true)
   console.log("checkAccess idclub", icclub.idclub)
   try {
@@ -139,7 +140,7 @@ async function checkAccess() {
     return true
   } catch (error) {
     console.log("reply NOK", error)
-    showSnackbar(t("icn.perm_denied"))
+    pll_status.value = "noaccess"
     return false
   } finally {
     showLoading(false)

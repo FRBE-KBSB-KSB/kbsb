@@ -70,6 +70,7 @@ async function calcstatus() {
 
 async function checkAccess() {
   let reply
+  if (!idtoken.value) return false
   showLoading(true)
   console.log("checkAccess idclub", icclub.idclub)
   try {

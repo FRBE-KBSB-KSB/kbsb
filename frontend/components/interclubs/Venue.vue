@@ -67,6 +67,7 @@ function calcstatus() {
 
 async function checkAccess() {
   let reply
+  if (!idtoken.value) return false
   showLoading(true)
   try {
     reply = await $backend("club", "verify_club_access", {
@@ -103,10 +104,6 @@ async function getICVenues() {
   } finally {
     showLoading(false)
   }
-}
-
-async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__interclubs__manager")
 }
 
 async function modifyICvenues() {
@@ -165,7 +162,7 @@ async function saveVenues() {
   } catch (error) {
     console.log("NOK set_venue", error)
     if (error.code == 401) {
-      gotoLogin()
+      ven_status.value = "noaccess"
     } else {
       showSnackbar(t("icn.ven_save_fail"))
     }
