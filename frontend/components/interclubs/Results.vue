@@ -49,6 +49,7 @@ async function calcstatus() {
     players.value = []
     playersindexed = {}
     icseries.value = {}
+    console.log("rsl_status", rsl_status.value)
     return
   }
   let access = await checkAccess()
@@ -57,6 +58,7 @@ async function calcstatus() {
     players.value = []
     playersindexed = {}
     icseries.value = {}
+    console.log("rsl_status", rsl_status.value)
     return
   }
   const now = new Date().valueOf()
@@ -68,13 +70,15 @@ async function calcstatus() {
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
-    // return
+    console.log("rsl_status", rsl_status.value)
+    return
   }
   if (now > closed) {
     rsl_status.value = "closed"
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
+    console.log("rsl_status", rsl_status.value)
     return
   }
   if (!playerlist_buffer[idclub.value]) {
