@@ -106,6 +106,7 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     """
     get IC club by idclub, returns None if nothing found
     """
+    icdata = await load_icdata()
     db = get_mongodb()
     coll = db[DbICSeries.COLLECTION]
     proj = {i: 1 for i in ICSeries.model_fields.keys()}
@@ -116,7 +117,7 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     if idclub:
         filter["teams.idclub"] = idclub
     series = []
-    icdate = datetime.combine(ICROUNDS[round], time(15))
+    icdate = datetime.combine(icdata["rounds"][round], time(15))
     async for doc in coll.find(filter, proj):
         s = encode_model(doc, ICSeries)
         if datetime.now() < icdate:
