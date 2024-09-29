@@ -81,6 +81,7 @@ async function calcstatus() {
     console.log("rsl_status", rsl_status.value)
     return
   }
+  rsl_status.value = "open"
   if (!playerlist_buffer[idclub.value]) {
     getICplayerlist(icclub.value)
   }
