@@ -284,22 +284,23 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
             {"division": res.division, "index": res.index},
             {"rounds": [r.model_dump() for r in s.rounds]},
         )
-        if enc.played:
-            standings = await DbICStandings.find_single(
-                {
-                    "division": s.division,
-                    "index": s.index,
-                    "_model": ICStandingsDB,
-                }
-            )
-            if not standings.dirtytime:
-                await DbICStandings.update(
-                    {
-                        "division": s.division,
-                        "index": s.index,
-                    },
-                    {"dirtytime": datetime.now(timezone.utc)},
-                )
+        await calc_standings(s)
+        # if enc.played:
+        #     standings = await DbICStandings.find_single(
+        #         {
+        #             "division": s.division,
+        #             "index": s.index,
+        #             "_model": ICStandingsDB,
+        #         }
+        #     )
+        #     if not standings.dirtytime:
+        #         await DbICStandings.update(
+        #             {
+        #                 "division": s.division,
+        #                 "index": s.index,
+        #             },
+        #             {"dirtytime": datetime.now(timezone.utc)},
+        #         )
 
 
 def calc_points(enc: ICEncounter):
