@@ -12,7 +12,7 @@ from reddevil.core import (
 )
 from kbsb.interclubs import (
     GAMERESULT,
-    ICROUNDS,
+    # ICROUNDS,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -351,6 +351,7 @@ async def anon_getICencounterdetails(
     pairingnr_home: int,
     pairingnr_visit: int,
 ) -> list[ICGameDetails]:
+    icdata = await load_icdata()
     icserie = await DbICSeries.find_single(
         {
             "_model": ICSeries,
@@ -358,7 +359,7 @@ async def anon_getICencounterdetails(
             "index": index,
         }
     )
-    icdate = datetime.combine(ICROUNDS[round], time(15))
+    icdate = datetime.combine(icdata["rounds"][round], time(15))
     if datetime.now() < icdate:
         return []
     details = []
