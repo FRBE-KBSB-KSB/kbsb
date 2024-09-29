@@ -1,45 +1,33 @@
 <script setup>
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { INTERCLUBS_ROUNDS, PLAYERS_DIVISION } from '@/util/interclubs'
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-
-// communication with manager
-const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
+// communication
 defineExpose({ setup })
+const { t } = useI18n()
+const { $backend } = useNuxtApp()
 
-// waiting
-const waitingdialog = ref(false)
-let dialogcounter = 0
-function changeDialogCounter(i) {
-  dialogcounter += i
-  waitingdialog.value = (dialogcounter > 0)
-}
-
-// snackbar
-const errortext = ref(null)
-const snackbar = ref(null)
-function displaySnackbar(text, color) {
-  errortext.value = text
-  snackbar.value = true
-}
+// snackbar and laoding weidgets
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // datamodel
-const { t: $t } = useI18n()
-const { $backend } = useNuxtApp()
 const idclub = ref(null)
 const icclubs = ref([])
 const icseries = ref([])
 const round = ref("1")
-const ic_rounds = Object.keys(INTERCLUBS_ROUNDS).map((x) => {
-  return { value: x, title: `R${x}: ${INTERCLUBS_ROUNDS[x]}` }
-})
+let icdata = {}
+const ic_rounds = ref([])
 
 function addDetails(series, enc, games) {
-  console.log('enc', enc.icclub_home, enc.pairingnr_home, games[0].fullname_home)
+  console.log("enc", enc.icclub_home, enc.pairingnr_home, games[0].fullname_home)
   const newlines = games.map((g) => {
     return {
-      nature: 'detail',
+      nature: "detail",
       idnumber_home: g.idnumber_home,
       fullname_home: g.fullname_home,
       rating_home: g.rating_home,
@@ -50,33 +38,43 @@ function addDetails(series, enc, games) {
       overruled: g.overruled,
     }
   })
-  const avg_home = Math.round(newlines.reduce((acc, current) => acc + current.rating_home, 0) / newlines.length)
-  const avg_visit = Math.round(newlines.reduce((acc, current) => acc + current.rating_visit, 0) / newlines.length)
-  const ix = series.lines.findIndex((l) =>
-    l.idclub_home == enc.icclub_home && l.idclub_visit == enc.icclub_visit
-    && l.pairingnr_home == enc.pairingnr_home && l.pairingnr_visit == enc.pairingnr_visit
+  const avg_home = Math.round(
+    newlines.reduce((acc, current) => acc + current.rating_home, 0) / newlines.length
   )
-  console.log('ix', ix)
+  const avg_visit = Math.round(
+    newlines.reduce((acc, current) => acc + current.rating_visit, 0) / newlines.length
+  )
+  const ix = series.lines.findIndex(
+    (l) =>
+      l.idclub_home == enc.icclub_home &&
+      l.idclub_visit == enc.icclub_visit &&
+      l.pairingnr_home == enc.pairingnr_home &&
+      l.pairingnr_visit == enc.pairingnr_visit
+  )
+  console.log("ix", ix)
   if (enc.icclub_home && enc.icclub_visit && games.length) {
-    series.lines.splice(ix + 1, 0, ...newlines, { nature: 'average', avg_home, avg_visit })
+    series.lines.splice(ix + 1, 0, ...newlines, {
+      nature: "average",
+      avg_home,
+      avg_visit,
+    })
   }
 }
 
 async function getSeries() {
   let reply
-  emit('changeDialogCounter', 1)
-  console.log('getSeries', round.value, idclub.value)
+  showLoading(true)
+  console.log("getSeries", round.value, idclub.value)
   try {
     reply = await $backend("interclub", "anon_getICseries", {
       round: round.value,
-      idclub: idclub.value
+      idclub: idclub.value,
     })
   } catch (error) {
-    emit('displaySnackbar', $t(error.message))
+    showSnackbar(t(error.message))
     return
-  }
-  finally {
-    emit('changeDialogCounter', -1)
+  } finally {
+    showLoading(false)
   }
   icseries.value = reply.data
   icseries.value.forEach((s) => processSeries(s))
@@ -84,15 +82,14 @@ async function getSeries() {
 
 async function getClubs() {
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICclubs", {})
   } catch (error) {
-    emit('displaySnackbar', $t(error.message))
+    showSnackbar(t(error.message))
     return
-  }
-  finally {
-    emit('changeDialogCounter', -1)
+  } finally {
+    showLoading(false)
   }
   icclubs.value = reply.data
   icclubs.value.forEach((p) => {
@@ -102,7 +99,7 @@ async function getClubs() {
 
 async function getICencounterdetails(series, enc) {
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICencounterdetails", {
       division: series.division,
@@ -114,11 +111,10 @@ async function getICencounterdetails(series, enc) {
       pairingnr_visit: enc.pairingnr_visit,
     })
   } catch (error) {
-    emit('displaySnackbar', $t(error.message))
+    showSnackbar(t(error.message))
     return
-  }
-  finally {
-    emit('changeDialogCounter', -1)
+  } finally {
+    showLoading(false)
   }
   const details = reply.data
   addDetails(series, enc, details)
@@ -141,41 +137,52 @@ function processSeries(s) {
       name_visit: names[enc.pairingnr_visit],
       pairingnr_home: enc.pairingnr_home,
       pairingnr_visit: enc.pairingnr_visit,
-      result: `${enc.boardpoint2_home / 2} - ${enc.boardpoint2_visit / 2}`
+      result: `${enc.boardpoint2_home / 2} - ${enc.boardpoint2_visit / 2}`,
     })
   })
 }
 
-
-function setup() {
-  console.log('setup results')
+function setup(icdata_) {
+  console.log("setup results", icdata_)
+  icdata = icdata_ || {}
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+  ic_rounds.value = Object.keys(icdata.rounds || []).map((r) => {
+    return { value: r, title: `R${r}: ${icdata.rounds[r]}` }
+  })
   getClubs()
 }
 
 function updateDetails(s) {
-  console.log('updateDetails', s.showdetails)
+  console.log("updateDetails", s.showdetails)
   if (s.showdetails) {
     s.rounds[0].encounters.forEach((enc) => getICencounterdetails(s, enc))
-  }
-  else {
+  } else {
     processSeries(s)
   }
 }
-
 </script>
 
 <template>
   <v-container>
-    <h2>{{ $t('Results') }}</h2>
+    <SnackbarMessage ref="refsnackbar" />
+    <ProgressLoading ref="refloading" />
+    <h2>{{ t("Results") }}</h2>
     <v-row>
       <v-col cols="12" sm="5">
-        <VAutocomplete v-model="idclub" :items="icclubs" item-title="merged" item-value="idclub"
-          color="green" label="Club" clearable>
+        <VAutocomplete
+          v-model="idclub"
+          :items="icclubs"
+          item-title="merged"
+          item-value="idclub"
+          color="green"
+          label="Club"
+          clearable
+        >
         </VAutocomplete>
       </v-col>
       <v-col cols="8" sm="5">
-        <VSelect v-model="round" :items="ic_rounds" :label="$t('Round')">
-        </VSelect>
+        <VSelect v-model="round" :items="ic_rounds" :label="t('Round')"> </VSelect>
       </v-col>
       <v-col cols="4" sm="2">
         <VBtn icon="mdi-play" @click="getSeries"></VBtn>
@@ -184,12 +191,15 @@ function updateDetails(s) {
     <v-card v-for="s in icseries" class="my-2">
       <v-card-title>
         <div class="d-flex justify-space-between">
-          <h3>
-            {{ $t('Division') }} {{ s.division }}{{ s.index }}
-          </h3>
+          <h3>{{ t("Division") }} {{ s.division }}{{ s.index }}</h3>
           <div>
-            <VCheckbox :label="$t('Details')" v-model="s.showdetails" density="compact" hide-details
-              @update:model-value="updateDetails(s)" />
+            <VCheckbox
+              :label="t('Details')"
+              v-model="s.showdetails"
+              density="compact"
+              hide-details
+              @update:model-value="updateDetails(s)"
+            />
           </div>
         </div>
       </v-card-title>
@@ -197,12 +207,8 @@ function updateDetails(s) {
       <v-card-text>
         <div v-for="l in s.lines">
           <v-row v-show="l.nature == 'teamresult'" class="pt-2">
-            <v-col cols="5">
-              {{ l.name_home }} ({{ l.idclub_home }} )
-            </v-col>
-            <v-col cols="5">
-              {{ l.name_visit }} ({{ l.idclub_visit }})
-            </v-col>
+            <v-col cols="5"> {{ l.name_home }} ({{ l.idclub_home }} ) </v-col>
+            <v-col cols="5"> {{ l.name_visit }} ({{ l.idclub_visit }}) </v-col>
             <v-col>
               {{ l.result }}
             </v-col>
@@ -211,9 +217,7 @@ function updateDetails(s) {
             <v-col cols="5" class="ml-5">
               {{ l.fullname_home }} ({{ l.rating_home }})
             </v-col>
-            <v-col cols="5">
-              {{ l.fullname_visit }} ({{ l.rating_visit }})
-            </v-col>
+            <v-col cols="5"> {{ l.fullname_visit }} ({{ l.rating_visit }}) </v-col>
             <v-col>
               <div v-show="isOverruled(l)" class="font-weight-bold text-purple-darken-2">
                 {{ l.overruled }}
@@ -225,24 +229,21 @@ function updateDetails(s) {
           </v-row>
           <v-row v-show="l.nature == 'average'" class="bg-green-lighten-4">
             <v-col cols="5" class="ml-5">
-              {{ $t('Average ELO home') }} ({{ l.avg_home }})
+              {{ t("Average ELO home") }} ({{ l.avg_home }})
             </v-col>
-            <v-col cols="5">
-              {{ $t('Average ELO visit') }} ({{ l.avg_visit }})
-            </v-col>
+            <v-col cols="5"> {{ t("Average ELO visit") }} ({{ l.avg_visit }}) </v-col>
           </v-row>
         </div>
       </v-card-text>
     </v-card>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
-        <v-card-title>{{ $t('Loading...') }}</v-card-title>
+        <v-card-title>{{ t("Loading...") }}</v-card-title>
         <v-card-text>
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
       </v-card>
     </v-dialog>
-
   </v-container>
 </template>
 
