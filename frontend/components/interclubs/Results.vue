@@ -49,6 +49,7 @@ async function calcstatus() {
     players.value = []
     playersindexed = {}
     icseries.value = {}
+    console.log("rsl_status", rsl_status.value)
     return
   }
   let access = await checkAccess()
@@ -57,6 +58,7 @@ async function calcstatus() {
     players.value = []
     playersindexed = {}
     icseries.value = {}
+    console.log("rsl_status", rsl_status.value)
     return
   }
   const now = new Date().valueOf()
@@ -68,15 +70,19 @@ async function calcstatus() {
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
-    // return
+    console.log("rsl_status", rsl_status.value)
+    return
   }
   if (now > closed) {
     rsl_status.value = "closed"
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
+    console.log("rsl_status", rsl_status.value)
     return
   }
+  rsl_status.value = "open"
+  console.log("rsl_status", rsl_status.value)
   if (!playerlist_buffer[idclub.value]) {
     getICplayerlist(icclub.value)
   }
@@ -289,6 +295,7 @@ async function setup(icclub_, round_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
+  idclub.value = icclub.value.idclub
   round = round_
   icdata = icdata_
   idclub.value = icclub_.idclub

@@ -12,7 +12,7 @@ from reddevil.core import (
 )
 from kbsb.interclubs import (
     GAMERESULT,
-    ICROUNDS,
+    # ICROUNDS,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -284,22 +284,23 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
             {"division": res.division, "index": res.index},
             {"rounds": [r.model_dump() for r in s.rounds]},
         )
-        if enc.played:
-            standings = await DbICStandings.find_single(
-                {
-                    "division": s.division,
-                    "index": s.index,
-                    "_model": ICStandingsDB,
-                }
-            )
-            if not standings.dirtytime:
-                await DbICStandings.update(
-                    {
-                        "division": s.division,
-                        "index": s.index,
-                    },
-                    {"dirtytime": datetime.now(timezone.utc)},
-                )
+        await calc_standings(s)
+        # if enc.played:
+        #     standings = await DbICStandings.find_single(
+        #         {
+        #             "division": s.division,
+        #             "index": s.index,
+        #             "_model": ICStandingsDB,
+        #         }
+        #     )
+        #     if not standings.dirtytime:
+        #         await DbICStandings.update(
+        #             {
+        #                 "division": s.division,
+        #                 "index": s.index,
+        #             },
+        #             {"dirtytime": datetime.now(timezone.utc)},
+        #         )
 
 
 def calc_points(enc: ICEncounter):
@@ -351,6 +352,7 @@ async def anon_getICencounterdetails(
     pairingnr_home: int,
     pairingnr_visit: int,
 ) -> list[ICGameDetails]:
+    icdata = await load_icdata()
     icserie = await DbICSeries.find_single(
         {
             "_model": ICSeries,
@@ -358,7 +360,7 @@ async def anon_getICencounterdetails(
             "index": index,
         }
     )
-    icdate = datetime.combine(ICROUNDS[round], time(15))
+    icdate = datetime.combine(icdata["rounds"][round], time(15))
     if datetime.now() < icdate:
         return []
     details = []
