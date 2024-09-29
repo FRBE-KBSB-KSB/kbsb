@@ -1,14 +1,13 @@
 # noqa
 
 from .md_interclubs import (
-    PLAYERSPERDIVISION,
-    ICROUNDS,
     DbICClub,
     DbICEnrollment,
     DbICEnrollment,
     DbICSeries,
     DbICStandings,
     DbICVenue,
+    GAMERESULT,
     ICClubDB,
     ICClubItem,
     ICEncounter,
@@ -27,6 +26,7 @@ from .md_interclubs import (
     ICResult,
     ICResultItem,
     ICRound,
+    ICROUNDS,
     ICSeries,
     ICSeriesDB,
     ICSeriesUpdate,
@@ -37,6 +37,7 @@ from .md_interclubs import (
     ICVenueDB,
     ICVenueIn,
     PlayerlistNature,
+    PLAYERSPERDIVISION,
 )
 
 from .md_elo import (

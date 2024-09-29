@@ -45,7 +45,9 @@ async function dologin() {
   idstore.updateToken(reply.data)
   idnstore.updateIdnumber(login.value.idnumber)
   console.log("redirecting to ", returnUrl)
-  router.push(returnUrl)
+  await navigateTo(returnUrl)
+  // router.push(returnUrl)
+  console.log("navigated")
 }
 
 async function getContent() {

@@ -1,45 +1,36 @@
 <script setup>
-import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-// communication with manager
-const emit = defineEmits(['displaySnackbar', 'changeDialogCounter'])
+// communication
 defineExpose({ setup })
+const { t } = useI18n()
+const { $backend } = useNuxtApp()
 
-// waiting
-const waitingdialog = ref(false)
-let dialogcounter = 0
-function changeDialogCounter(i) {
-  dialogcounter += i
-  waitingdialog.value = (dialogcounter > 0)
-}
-
-// snackbar
-const errortext = ref(null)
-const snackbar = ref(null)
-function displaySnackbar(text, color) {
-  errortext.value = text
-  snackbar.value = true
-}
+// snackbar and laoding weidgets
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // datamodel
-const { t: $t } = useI18n()
-const { $backend } = useNuxtApp()
 const icstandings = ref([])
 const icclubs = ref([])
 const idclub = ref(null)
+let icdata = {}
 
 async function getClubs() {
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICclubs", {})
   } catch (error) {
-    emit('displaySnackbar', $t(error.message))
+    showSnackbar(t(error.message))
     return
-  }
-  finally {
-    emit('changeDialogCounter', -1)
+  } finally {
+    showLoading(false)
   }
   icclubs.value = reply.data
   icclubs.value.forEach((p) => {
@@ -49,35 +40,45 @@ async function getClubs() {
 
 async function getStandings() {
   let reply
-  emit('changeDialogCounter', 1)
+  showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICstandings", {
-      idclub: idclub.value
+      idclub: idclub.value,
     })
   } catch (error) {
-    emit('displaySnackbar', $t(error.message))
+    showSnackbar(t(error.message))
     return
-  }
-  finally {
-    emit('changeDialogCounter', -1)
+  } finally {
+    showLoading(false)
   }
   icstandings.value = reply.data
 }
 
-function setup() {
-  console.log('setup standings')
+function setup(icdata_) {
+  console.log("setup standings", icdata_)
+  icdata = icdata_
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
   getClubs()
 }
-
 </script>
 
 <template>
   <v-container>
-    <h2>{{ $t('Standings') }}</h2>
+    <SnackbarMessage ref="refsnackbar" />
+    <ProgressLoading ref="refloading" />
+    <h2>{{ $t("Standings") }}</h2>
     <v-row>
       <v-col cols="8">
-        <VAutocomplete v-model="idclub" :items="icclubs" item-title="merged" item-value="idclub"
-          color="green" label="Club" clearable>
+        <VAutocomplete
+          v-model="idclub"
+          :items="icclubs"
+          item-title="merged"
+          item-value="idclub"
+          color="green"
+          label="Club"
+          clearable
+        >
         </VAutocomplete>
       </v-col>
       <v-col cols="4">
@@ -86,14 +87,14 @@ function setup() {
     </v-row>
     <v-card v-for="s in icstandings" class="my-2">
       <v-card-title>
-        {{ $t('Division') }} {{ s.division }}{{ s.index }}
+        {{ $t("Division") }} {{ s.division }}{{ s.index }}
         <VDivider />
       </v-card-title>
       <v-card-text>
         <v-row>
           <v-col>#</v-col>
-          <v-col cols="6">{{ $t('Team') }}</v-col>
-          <v-col># {{ $t('Played') }}</v-col>
+          <v-col cols="6">{{ $t("Team") }}</v-col>
+          <v-col># {{ $t("Played") }}</v-col>
           <v-col><b>MP</b></v-col>
           <v-col>BP</v-col>
         </v-row>
@@ -101,14 +102,16 @@ function setup() {
           <v-col>{{ ix + 1 }}</v-col>
           <v-col cols="6">{{ t.name }} ({{ t.idclub }})</v-col>
           <v-col>{{ t.games.length }}</v-col>
-          <v-col><b>{{ t.matchpoints }}</b></v-col>
+          <v-col
+            ><b>{{ t.matchpoints }}</b></v-col
+          >
           <v-col>{{ t.boardpoints }}</v-col>
         </v-row>
       </v-card-text>
     </v-card>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
-        <v-card-title>{{ $t('Loading...') }}</v-card-title>
+        <v-card-title>{{ $t("Loading...") }}</v-card-title>
         <v-card-text>
           <v-progress-circular indeterminate color="green" />
         </v-card-text>

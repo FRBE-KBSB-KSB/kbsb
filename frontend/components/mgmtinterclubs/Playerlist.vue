@@ -78,7 +78,11 @@ function calcstatus() {
   // - closed
   // - noclub
   // - noaccess
-  pll_status.value = idclub.value ? "open" : "closed"
+  if (!icclub.idclub) {
+    pll_status.value = "noclub"
+    return
+  }
+  pll_status.value = "open"
 }
 
 function canAssign(idnumber) {
@@ -345,27 +349,16 @@ async function setup(icclub_, icdata_) {
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <v-alert
-      type="warning"
-      variant="outlined"
-      v-if="pll_status == 'closed'"
-      text="Closed"
-    />
+
     <v-alert
       type="warning"
       variant="outlined"
       v-if="pll_status == 'noclub'"
       text="Select club"
     />
-    <v-alert
-      type="error"
-      variant="outlined"
-      v-if="pll_status == 'noaccess'"
-      :text="t('icn.perm_denied')"
-    />
     <div v-if="pll_status == 'open'">
       <div v-if="!registered">
-        This club is not enrolled in Interclubs 2023-24
+        This club is not registered for Interclubs 2024-25
         <VBtn @click="openExportAll" color="primary" class="ml-8">
           Export all players
         </VBtn>

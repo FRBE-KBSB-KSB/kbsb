@@ -1,21 +1,21 @@
 <script setup>
-import { ref, computed } from "vue";
-import { useMgmtTokenStore } from "@/store/mgmttoken";
-import { storeToRefs } from "pinia";
+import { ref, computed } from "vue"
+import { useMgmtTokenStore } from "@/store/mgmttoken"
+import { storeToRefs } from "pinia"
 
 // communication
-defineExpose({ setup });
-const mgmttokenstore = useMgmtTokenStore();
-const { token: idtoken } = storeToRefs(mgmttokenstore);
-const { $backend } = useNuxtApp();
+defineExpose({ setup })
+const mgmttokenstore = useMgmtTokenStore()
+const { token: idtoken } = storeToRefs(mgmttokenstore)
+const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
-import ProgressLoading from "@/components/ProgressLoading.vue";
-import SnackbarMessage from "@/components/SnackbarMessage.vue";
-const refsnackbar = ref(null);
-let showSnackbar;
-const refloading = ref(null);
-let showLoading;
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // datamodel
 const empty_enrollment = {
@@ -25,51 +25,51 @@ const empty_enrollment = {
   teams4: 0,
   teams5: 0,
   wishes: {},
-};
-const enrollment = ref({ ...empty_enrollment });
-const enr_status = ref("open");
-const modifying = ref(false);
+}
+const enrollment = ref({ ...empty_enrollment })
+const enr_status = ref("open")
+const modifying = ref(false)
 const grouping = ref([
   { title: "No preference", value: "0" },
   { title: "1 group", value: "1" },
   { title: "2 opposite groups", value: "2" },
-]);
+])
 const splitting = ref([
   { title: "In 1 series", value: "1" },
   { title: "In multiple series", value: "2" },
-]);
+])
 
 const rules = ref({
   count20: (x) => (x && x.length <= 20) || "Max 20 characters",
-});
-let icclub = {};
-let icdata = {};
+})
+let icclub = {}
+let icdata = {}
 
 // computed
 const splittingvalue = computed(() => {
-  let sp = splitting.value[0].title;
-  const val = enrollment.value.wishes.splitting || "2";
+  let sp = splitting.value[0].title
+  const val = enrollment.value.wishes.splitting || "2"
   splitting.value.forEach((e) => {
     if (e.value == val) {
-      sp = e.title;
+      sp = e.title
     }
-  });
-  return sp;
-});
+  })
+  return sp
+})
 const groupingvalue = computed(() => {
-  let gr = grouping.value[0].title;
-  const val = enrollment.value.wishes.grouping || "0";
+  let gr = grouping.value[0].title
+  const val = enrollment.value.wishes.grouping || "0"
   grouping.value.forEach((e) => {
     if (e.value == val) {
-      gr = e.title;
+      gr = e.title
     }
-  });
-  return gr;
-});
+  })
+  return gr
+})
 
 async function cancelEnrollment() {
-  enr_status.value = "open";
-  await find_interclubenrollment();
+  enr_status.value = "open"
+  await find_interclubenrollment()
 }
 
 function calcstatus() {
@@ -78,80 +78,81 @@ function calcstatus() {
   // - noclub
   // - editing
   if (!icclub.idclub) {
-    enr_status.value = "noclub";
-    return;
+    enr_status.value = "noclub"
+    return
   }
   if (modifying.value) {
-    enr_status.value = "editing";
-    return;
+    enr_status.value = "editing"
+    return
   }
-  enr_status.value = "open";
+  // enr_status.value = "open";
+  enr_status.value = "closed"
 }
 
 async function checkAccess() {
-  return true;
+  return true
 }
 
 async function find_interclubenrollment() {
-  if (!icclub.idclub) return;
-  let reply;
-  enrollment.value = { ...empty_enrollment };
-  showLoading(true);
+  if (!icclub.idclub) return
+  let reply
+  enrollment.value = { ...empty_enrollment }
+  showLoading(true)
   try {
     reply = await $backend("interclub", "find_interclubenrollment", {
       idclub: icclub.idclub,
-    });
-    readEnrollment(reply.data);
+    })
+    readEnrollment(reply.data)
   } catch (error) {
-    console.log("NOK find_interclubenrollment", error);
+    console.log("NOK find_interclubenrollment", error)
     if (error.code == 401) {
-      gotoLogin();
+      gotoLogin()
     } else {
-      showSnackbar("Getting existing enrollment failed");
+      showSnackbar("Getting existing enrollment failed")
     }
-    return;
+    return
   } finally {
-    showLoading(false);
+    showLoading(false)
   }
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__interclubs__manager");
+  await router.push("/tools/oldlogin?url=__interclubs__manager")
 }
 
 async function modifyEnrollment() {
   if (!modifying.value) {
-    const allowed = await checkAccess();
+    const allowed = await checkAccess()
     if (allowed) {
-      modifying.value = true;
+      modifying.value = true
     }
   } else {
-    modifying.value = false;
+    modifying.value = false
   }
-  calcstatus();
+  calcstatus()
 }
 
 function readEnrollment(data) {
   if (data) {
-    enrollment.value = data;
+    enrollment.value = data
   } else {
-    enrollment.value.id = null;
+    enrollment.value.id = null
   }
   if (!enrollment.value.name || !enrollment.value.name.length) {
-    enrollment.value.name = icclub.name;
+    enrollment.value.name = icclub.name
   }
   if (!enrollment.value.wishes.grouping) {
-    enrollment.value.wishes.grouping = "0";
+    enrollment.value.wishes.grouping = "0"
   }
   if (!enrollment.value.wishes.splitting) {
-    enrollment.value.wishes.splitting = "2";
+    enrollment.value.wishes.splitting = "2"
   }
-  console.log("enr", enrollment.value);
+  console.log("enr", enrollment.value)
 }
 
 async function saveEnrollment() {
-  let reply;
-  showLoading(true);
+  let reply
+  showLoading(true)
 
   try {
     reply = await $backend("interclub", "mgmt_set_interclubenrollment", {
@@ -164,32 +165,32 @@ async function saveEnrollment() {
       teams4: enrollment.value.teams4,
       teams5: enrollment.value.teams5,
       wishes: enrollment.value.wishes,
-    });
-    modifying.value = false;
-    calcstatus();
-    showSnackbar("Save OK");
+    })
+    modifying.value = false
+    calcstatus()
+    showSnackbar("Save OK")
   } catch (error) {
-    console.log("NOK set_interclubenrollment", error);
+    console.log("NOK set_interclubenrollment", error)
     if (error.code == 401) {
-      gotoLogin();
+      gotoLogin()
     } else {
-      showSnackbar("Save failed");
+      showSnackbar("Save failed")
     }
-    return;
+    return
   } finally {
-    showLoading(false);
-    await find_interclubenrollment();
+    showLoading(false)
+    await find_interclubenrollment()
   }
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup Enrollment", icclub_, icdata_);
-  showSnackbar = refsnackbar.value.showSnackbar;
-  showLoading = refloading.value.showLoading;
-  icclub = icclub_;
-  icdata = icdata_;
-  calcstatus();
-  await find_interclubenrollment();
+  console.log("setup Enrollment", icclub_, icdata_)
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+  icclub = icclub_
+  icdata = icdata_
+  calcstatus()
+  await find_interclubenrollment()
 }
 </script>
 <template>

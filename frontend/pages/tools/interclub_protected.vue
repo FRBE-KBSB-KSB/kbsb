@@ -2,14 +2,16 @@
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
+import { useIdtokenStore } from "@/store/idtoken"
+import { useIdnumberStore } from "@/store/idnumber"
+import showdown from "showdown"
 
 // import Enrollment from "@/components/interclubs/Enrollment.vue"
-// import Results from '@/components/interclubs/Results.vue'
+import Results from "@/components/interclubs/Results.vue"
 import Planning from "@/components/interclubs/Planning.vue"
 import Playerlist from "@/components/interclubs/Playerlist.vue"
 import Venue from "@/components/interclubs/Venue.vue"
 import { parse } from "yaml"
-import { useIdtokenStore } from "@/store/idtoken"
 import { storeToRefs } from "pinia"
 
 // communication
@@ -19,6 +21,17 @@ const waitingdialog = ref(false)
 let dialogcounter = 0
 const errortext = ref(null)
 const snackbar = ref(null)
+
+// login
+const logindialog = ref(false)
+const login = ref({})
+const idnstore = useIdnumberStore()
+
+// help dialog
+const mdConverter = new showdown.Converter()
+const helptitle = ref("")
+const helpdialog = ref(false)
+const helpcontent = ref("")
 
 // locale
 const { locale, t } = useI18n()
@@ -62,7 +75,7 @@ function changeTab() {
       refplayerlist.value.setup(icclub.value, icdata.value)
       break
     case "results":
-      refresults.value.setup(icclub.value, round.value)
+      refresults.value.setup(icclub.value, round.value, icdata.value)
       break
     case "venues":
       refvenues.value.setup(icclub.value, icdata.value)
@@ -72,13 +85,36 @@ function changeTab() {
 
 function checkAuth() {
   if (!idtoken.value) {
-    gotoLogin()
+    logindialog.value = true
   }
 }
 
 function displaySnackbar(text, color) {
   errortext.value = text
   snackbar.value = true
+}
+
+async function dologin() {
+  console.log("doing a login")
+  changeDialogCounter(1)
+  let reply
+  try {
+    reply = await $backend("member", "login", {
+      idnumber: login.value.idnumber,
+      password: login.value.password,
+    })
+    console.log("did a login", reply.data)
+  } catch (error) {
+    console.error("failed login", error)
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+  }
+  idstore.updateToken(reply.data)
+  idnstore.updateIdnumber(login.value.idnumber)
+  logindialog.value = false
+  changeTab()
 }
 
 async function getClubs() {
@@ -117,6 +153,20 @@ async function getClubDetails() {
   } finally {
     changeDialogCounter(-1)
     changeTab()
+  }
+}
+
+async function getHelpContent() {
+  try {
+    const reply = await $backend("filestore", "anon_get_file", {
+      group: "pages",
+      name: `help-login.md`,
+    })
+    metadata.value = useMarkdown(reply.data).metadata
+    helptitle.value = metadata.value["title_" + locale.value]
+    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+  } catch (error) {
+    console.log("failed")
   }
 }
 
@@ -166,14 +216,16 @@ function selectClub() {
 // startup
 
 onMounted(async () => {
+  console.log("mounted")
   let l = route.query.locale
   console.log("query locale", l)
   locale.value = l ? l : "nl"
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "planning"
+  tab.value = "results"
   changeTab()
+  await getHelpContent()
 })
 
 definePageMeta({
@@ -192,6 +244,44 @@ definePageMeta({
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog width="25em" v-model="logindialog">
+      <VCard>
+        <VCardTitle>
+          <VIcon large> mdi-account </VIcon>
+          <label class="headline ml-3">{{ $t("Sign in") }}</label>
+          <VBtn
+            icon="mdi-help"
+            color="green"
+            class="float-right"
+            @click="helpdialog = true"
+          />
+        </VCardTitle>
+        <VDivider />
+        <VCardText>
+          <VTextField v-model="login.idnumber" :label="$t('ID number')" />
+          <VTextField
+            v-model="login.password"
+            xs="12"
+            lg="6"
+            :label="$t('Password')"
+            type="password"
+          />
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="dologin()">
+            {{ $t("Submit") }}
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </v-dialog>
+    <VDialog v-model="helpdialog" width="20em">
+      <VCard>
+        <VCardTitle v-html="helptitle" />
+        <VDivider />
+        <VCardText class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
+      </VCard>
+    </VDialog>
     <v-card>
       <v-card-text>
         <v-row>
@@ -224,19 +314,19 @@ definePageMeta({
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
         <!-- <v-tab value="enrollment">{{ t("icn.enr") }}</v-tab> -->
-        <!-- <v-tab value="results">{{ t('Results') }}</v-tab> -->
+        <v-tab value="results">{{ t("Results") }}</v-tab>
         <v-tab value="planning">{{ t("Planning") }}</v-tab>
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
         <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab">
-        <v-window-item :eager="true" value="enrollment">
+        <!-- <v-window-item :eager="true" value="enrollment">
           <Enrollment
             ref="refenrollment"
             @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter"
           />
-        </v-window-item>
+        </v-window-item> -->
         <v-window-item :eager="true" value="results">
           <Results
             ref="refresults"
