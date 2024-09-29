@@ -1,23 +1,17 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { INTERCLUBS_ROUNDS, PLAYERS_DIVISION, resultchoices, overrulechoices } from '@/util/interclubs'
-
-// stores
+import { ref } from "vue"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
-import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
-import { storeToRefs } from 'pinia'
-const mgmttokenstore = useMgmtTokenStore()
-const { token: mgmttoken } = storeToRefs(mgmttokenstore)
-const mgmtinterclubstore = useMgmtInterclubStore()
-const { club, round } = storeToRefs(mgmtinterclubstore)
+import { storeToRefs } from "pinia"
 
 // communication
-defineExpose({ checkStore })
+defineExpose({ setup })
+const mgmttokenstore = useMgmtTokenStore()
+const { token: idtoken } = storeToRefs(mgmttokenstore)
 const { $backend } = useNuxtApp()
 
 //  snackbar and loading widgets
-import ProgressLoading from '@/components/ProgressLoading.vue'
-import SnackbarMessage from '@/components/SnackbarMessage.vue'
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
 const refsnackbar = ref(null)
 let showSnackbar
 const refloading = ref(null)
@@ -33,6 +27,9 @@ let playersindexed = {}
 const icseries = ref([])
 const teamresults = ref([])
 const showResults = ref(false)
+let icdata = {}
+let icclub = {}
+const rsl_status = ref("noclub")
 
 // methods alphabetically
 
@@ -42,7 +39,7 @@ function calc_points(enc) {
   let allfilled = true
   let teamforfeit = false
   enc.games.forEach((g) => {
-    let result = (g.overruled && g.overruled != "NOR") ? g.overruled : g.result
+    let result = g.overruled && g.overruled != "NOR" ? g.overruled : g.result
     switch (result) {
       case "1-0":
       case "1-0 FF":
@@ -67,34 +64,32 @@ function calc_points(enc) {
         break
       case "":
         allfilled = false
-        break;
+        break
     }
   })
   enc.boardpoints = `${bphome / 2}-${bpvisit / 2}`
   if (!allfilled) {
     enc.matchpoints = ""
-  }
-  else if (teamforfeit) {
+  } else if (teamforfeit) {
     enc.matchpoints = "TFF"
-  }
-  else {
+  } else {
     if (bphome > bpvisit) enc.matchpoints = "2-0"
     if (bphome == bpvisit) enc.matchpoints = "1-1"
     if (bphome < bpvisit) enc.matchpoints = "0-2"
   }
 }
 
-async function checkStore() {
-  await nextTick()
-  if (club.value.idclub != my.idclub || round.value != my.round) {
-    teamresults.value = []
-    icseries.value = []
-    my.idclub = club.value.idclub
-    my.round = round.value ? parseInt(round.value) : 0
-    showResults.value = my.idclub && my.round
-    await getICSeries()
-    processICplayerlist()
+function calcstatus() {
+  // we have the following status
+  // - open
+  // - closed
+  // - noclub
+  // - noaccess
+  if (!icclub.idclub) {
+    rsl_status.value = "noclub"
+    return
   }
+  rsl_status.value = "open"
 }
 
 function clubLabel(pairingnr, teams) {
@@ -110,30 +105,29 @@ function clubLabel(pairingnr, teams) {
 
 async function getICclub(clb_id) {
   if (playerlist_buffer.value[clb_id]) {
-    console.log('playerlist in cache', clb_id)
+    console.log("playerlist in cache", clb_id)
     return
   }
   showLoading(true)
   try {
     let now = new Date()
     const reply = await $backend("interclub", "anon_getICclub", {
-      idclub: clb_id
+      idclub: clb_id,
     })
-    console.log('calling anon_getICclub', clb_id, 'in ms:', new Date() - now)
+    console.log("calling anon_getICclub", clb_id, "in ms:", new Date() - now)
     showLoading(false)
     processICplayerlist(clb_id, reply.data)
   } catch (error) {
-    console.error('calling anon_getICclub failed', clb_id, error)
+    console.error("calling anon_getICclub failed", clb_id, error)
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
 }
 
 async function getICSeries() {
-  // get the pairing data limited to current round and club 
+  // get the pairing data limited to current round and club
   let reply
   if (!my.idclub || !my.round) {
     console.log("Skipping get ICseries: idclub or round not set")
@@ -144,12 +138,12 @@ async function getICSeries() {
     reply = await $backend("interclub", "mgmt_getICseries", {
       round: my.round,
       idclub: my.idclub,
-      token: mgmttoken.value
+      token: idtoken.value,
     })
   } catch (error) {
-    console.log('NOK', error)
+    console.log("NOK", error)
     if (error.code == 401) {
-      await navigateTo('/mgmt')
+      await navigateTo("/mgmt")
     }
     return
   } finally {
@@ -164,7 +158,7 @@ function processICplayerlist(idclub, clubdata) {
   if (!idclub) return
   let players = []
   clubdata.players.forEach((p) => {
-    if (p.nature == "confirmedout") return
+    if (!["assigned", "imported"].includes(p.nature)) return
     p.full = `${p.idnumber} ${p.last_name}, ${p.first_name}`
     players.push(p)
     playersindexed[p.idnumber] = p
@@ -190,7 +184,7 @@ async function processICSeries() {
         icclub_visit: enc.icclub_visit,
         name_home: clubLabel(enc.pairingnr_home, s.teams),
         name_visit: clubLabel(enc.pairingnr_visit, s.teams),
-        nrgames: PLAYERS_DIVISION[division],
+        nrgames: icdata.playerperdivision[division],
         pairingnr_home: enc.pairingnr_home,
         pairingnr_visit: enc.pairingnr_visit,
         round: s.rounds[0].round,
@@ -198,7 +192,7 @@ async function processICSeries() {
     })
   })
   let tresults = [] // team results collector
-  console.log('procencs', procencs)
+  console.log("procencs", procencs)
   for (const enc of procencs) {
     await Promise.all([getICclub(enc.icclub_home), getICclub(enc.icclub_visit)])
     // fill in default games if not yet existing
@@ -206,8 +200,8 @@ async function processICSeries() {
       enc.games[i] = {
         idnumber_home: null,
         idnumber_visit: null,
-        result: "",          // NOTPLAYED 
-        overruled: "NOR",    // NOTOVERRULED
+        result: "", // NOTPLAYED
+        overruled: "NOR", // NOTOVERRULED
       }
     }
     enc.games.forEach((g) => {
@@ -217,7 +211,7 @@ async function processICSeries() {
     })
     calc_points(enc)
     tresults.push(enc)
-    teamresults.value = [...tresults.sort((a, b) => (a.division - b.division))]
+    teamresults.value = [...tresults.sort((a, b) => a.division - b.division)]
   }
 }
 
@@ -226,71 +220,102 @@ async function saveResults() {
   try {
     showLoading(true)
     reply = await $backend("interclub", "mgmt_saveICresults", {
-      token: mgmttoken.value,
-      results: teamresults.value
+      token: idtoken.value,
+      results: teamresults.value,
     })
   } catch (error) {
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
-  showSnackbar('Results saved')
+  showSnackbar("Results saved")
 }
 
-onMounted(() => {
+async function setup(icclub_, round_, icdata_) {
+  console.log("setup standings", icclub_, round_, icdata_)
+  icdata = icdata_
+  icclub = icclub_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-})
-
+  calcstatus()
+  teamresults.value = []
+  icseries.value = []
+  my.idclub = icclub_.idclub
+  my.round = round_ ? parseInt(round_) : 0
+  showResults.value = my.idclub && my.round
+  await getICSeries()
+  processICplayerlist()
+}
 </script>
 
 <template>
   <VContainer>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h2>Results</h2>
-    <p v-show="!showResults">Please select a club to view the interclubs player list</p>
-    <div v-show="showResults">
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="rsl_status == 'noclub'"
+      text="Select club"
+    />
+    <div v-if="showResults && rsl_status == 'open'">
       <VBtn color="purple" @click="saveResults">Save results</VBtn>
       <v-card v-for="tr in teamresults" class="my-2">
         <v-card-title>
-          Division {{ tr.division }}{{ tr.index }}: &nbsp;
-          {{ tr.icclub_home }} {{ tr.name_home }} -
-          {{ tr.icclub_visit }} {{ tr.name_visit }}
+          Division {{ tr.division }}{{ tr.index }}: &nbsp; {{ tr.icclub_home }}
+          {{ tr.name_home }} - {{ tr.icclub_visit }} {{ tr.name_visit }}
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row v-for="(g, ix) in tr.games" class="d-flex">
               <v-col cols="4">
-                <VAutocomplete v-model="g.idnumber_home" density="compact" clearable
-                  :items="playerlist_buffer[tr.icclub_home]" item-title="full" item-value="idnumber"
-                  :label="`Player home ${ix + 1}`" :hide-details="true" />
+                <VAutocomplete
+                  v-model="g.idnumber_home"
+                  density="compact"
+                  clearable
+                  :items="playerlist_buffer[tr.icclub_home]"
+                  item-title="full"
+                  item-value="idnumber"
+                  :label="`Player home ${ix + 1}`"
+                  :hide-details="true"
+                />
               </v-col>
               <v-col cols="2">
-                <VSelect v-model="g.result" :items="resultchoices" density="compact"
-                  :hide-details="true" @update:model-value="calc_points(tr)" />
+                <VSelect
+                  v-model="g.result"
+                  :items="resultchoices"
+                  density="compact"
+                  :hide-details="true"
+                  @update:model-value="calc_points(tr)"
+                />
               </v-col>
               <v-col col="4">
-                <VAutocomplete v-model="g.idnumber_visit" density="compact"
-                  :items="playerlist_buffer[tr.icclub_visit]" item-title="full"
-                  item-value="idnumber" :label="`Player visit ${ix + 1}`" :hide-details="true"
-                  clearable />
+                <VAutocomplete
+                  v-model="g.idnumber_visit"
+                  density="compact"
+                  :items="playerlist_buffer[tr.icclub_visit]"
+                  item-title="full"
+                  item-value="idnumber"
+                  :label="`Player visit ${ix + 1}`"
+                  :hide-details="true"
+                  clearable
+                />
               </v-col>
               <v-col cols="2">
-                <VSelect v-model="g.overruled" :items="overrulechoices" density="compact"
-                  :hide-details="true" @update:model-value="calc_points(tr)" />
+                <VSelect
+                  v-model="g.overruled"
+                  :items="overrulechoices"
+                  density="compact"
+                  :hide-details="true"
+                  @update:model-value="calc_points(tr)"
+                />
               </v-col>
             </v-row>
             <VDivider />
             <v-row class="mt-1">
-              <v-col cols="2">
-                MP: {{ tr.matchpoints }}
-              </v-col>
-              <v-col cols="2">
-                BP: {{ tr.boardpoints }}
-              </v-col>
+              <v-col cols="2"> MP: {{ tr.matchpoints }} </v-col>
+              <v-col cols="2"> BP: {{ tr.boardpoints }} </v-col>
             </v-row>
           </v-container>
         </v-card-text>

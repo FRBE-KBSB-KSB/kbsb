@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n"
 import { parse } from "yaml"
 
 import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
-// import Standings from '@/components/interclubs/Standings.vue'
+import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
 // import Dates from "@/components/interclubs/Dates.vue"
@@ -19,10 +19,10 @@ const route = useRoute()
 // datamodel
 const tab = ref(null)
 const refresults = ref(null)
-// const refstandings = ref(null)
+const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
-const refdates = ref(null)
+// const refdates = ref(null)
 const icdata = ref({})
 const ic_rounds = ref([])
 
@@ -34,9 +34,9 @@ function changeTab() {
     case "results":
       refresults.value.setup(icdata.value)
       break
-    //     case 'standings':
-    //       refstandings.value.setup()
-    //       break
+    case "standings":
+      refstandings.value.setup(icdata.value)
+      break
     case "playerlist":
       refplayerlist.value.setup()
       break
@@ -100,7 +100,7 @@ definePageMeta({
     <h1>Interclubs 2024-25</h1>
     <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
       <v-tab value="results">{{ t("Results") }}</v-tab>
-      <!-- <v-tab value="standings">{{ t('Standings') }}</v-tab> -->
+      <v-tab value="standings">{{ t("Standings") }}</v-tab>
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
       <!-- <v-tab value="dates">{{ t("Dates") }}</v-tab> -->
@@ -109,9 +109,9 @@ definePageMeta({
       <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>
-      <!-- <v-window-item :eager="true" value="standings">
+      <v-window-item :eager="true" value="standings">
         <Standings ref="refstandings" />
-      </v-window-item> -->
+      </v-window-item>
       <v-window-item :eager="true" value="playerlist">
         <PlayerlistPublic ref="refplayerlist" />
       </v-window-item>
