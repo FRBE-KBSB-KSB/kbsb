@@ -102,11 +102,24 @@ async def update_icseries(
 # business methods
 
 
-async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries] | None:
+async def isRoundOpen(round: int):
     """
-    get IC club by idclub, returns None if nothing found
+    returns True is we passed 15h of the day of the round
     """
     icdata = await load_icdata()
+    rounddate = icdata["rounds"].get(round)
+    if not rounddate:
+        return False
+    rounddatetime = datetime.combine(rounddate, time(15))
+    return datetime.now() > rounddatetime
+
+
+async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]:
+    """
+    get IC club by idclub, returns None if nothing found or round is not open yet
+    """
+    if not await isRoundOpen(round):
+        return []
     db = get_mongodb()
     coll = db[DbICSeries.COLLECTION]
     proj = {i: 1 for i in ICSeries.model_fields.keys()}
@@ -117,13 +130,8 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     if idclub:
         filter["teams.idclub"] = idclub
     series = []
-    icdate = datetime.combine(icdata["rounds"][round], time(15))
     async for doc in coll.find(filter, proj):
         s = encode_model(doc, ICSeries)
-        if datetime.now() < icdate:
-            for r in s.rounds:
-                for enc in r.encounters:
-                    enc.games = []
         series.append(s)
     return series
 
@@ -352,7 +360,8 @@ async def anon_getICencounterdetails(
     pairingnr_home: int,
     pairingnr_visit: int,
 ) -> list[ICGameDetails]:
-    icdata = await load_icdata()
+    if not await isRoundOpen(round):
+        return []
     icserie = await DbICSeries.find_single(
         {
             "_model": ICSeries,
@@ -360,9 +369,6 @@ async def anon_getICencounterdetails(
             "index": index,
         }
     )
-    icdate = datetime.combine(icdata["rounds"][round], time(15))
-    if datetime.now() < icdate:
-        return []
     details = []
     for r in icserie.rounds:
         if r.round == round:
