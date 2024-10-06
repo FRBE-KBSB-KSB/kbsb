@@ -217,14 +217,16 @@ async function getICSeries() {
     showLoading(false)
   }
   icseries.value = reply.data
-  await readICSeries()
+  console.log("aha")
+  readICSeries()
 }
 
 function isOverruled(game) {
   return game.overruled && game.overruled != "NOR"
 }
 
-async function readICSeries() {
+function readICSeries() {
+  console.log("readICSeries")
   let tra = []
   teamresults.value = []
   icseries.value.forEach((s) => {
