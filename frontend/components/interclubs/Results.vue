@@ -346,13 +346,6 @@ function sign(tr, who) {
     <ProgressLoading ref="refloading" />
     <v-alert
       type="warning"
-      v-if="rsl_status == 'closed'"
-      variant="outlined"
-      closable
-      :text="t('icn.results_closed')"
-    />
-    <v-alert
-      type="warning"
       v-if="rsl_status == 'noclub'"
       variant="outlined"
       closable
@@ -376,7 +369,7 @@ function sign(tr, who) {
       type="warning"
       variant="outlined"
       v-if="rsl_status == 'closed'"
-      `closable
+      closable
       :text="t('icn.results_closed')"
     />
     <div v-if="rsl_status == 'open'">
