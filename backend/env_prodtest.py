@@ -25,10 +25,6 @@ SECRETS = {
         "name": "kbsb-mysql-infomaniak",
         "manager": "filejson",
     },
-    "gdrive": {
-        "name": "kbsb-gdrive-prod",
-        "manager": "filejson",
-    },
     "gmail": {
         "name": "kbsb-gmail",
         "manager": "filejson",
