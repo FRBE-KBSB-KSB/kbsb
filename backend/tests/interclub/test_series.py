@@ -206,3 +206,15 @@ def test_calc_points_overrule(ic_encounter_factory, ic_game_factory):
     assert encounter1.boardpoint2_visit == 2
     assert encounter1.matchpoint_home == 1
     assert encounter1.matchpoint_visit == 1
+
+
+@patch("kbsb.interclubs.series.load_icdata")
+@pytest.mark.asyncio
+async def test_isRoundOpen(load_icdata: AsyncMock):
+    load_icdata.return_value = {"rounds": {1: date(2020, 1, 3)}}
+    with freeze_time("2020-01-03 14:50:00"):
+        assert not await isRoundOpen(1)
+    with freeze_time("2020-01-03 15:10:00"):
+        assert await isRoundOpen(1)
+    with freeze_time("2020-01-03 15:10:00"):
+        assert not await isRoundOpen(2)
