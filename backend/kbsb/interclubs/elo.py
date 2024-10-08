@@ -9,10 +9,10 @@ from reddevil.core import RdNotFound
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries
-from kbsb.member import anon_getmember
+from .helpers import load_icdata
 
 logger = logging.getLogger(__name__)
-
+icdata = None
 
 # TODO eloprocessing.csv needs to be automated !!!
 
@@ -41,12 +41,12 @@ switch_result = {
     "0-1 FF": "1-0 FF",
     "0-0 FF": "0-0 FF",
 }
-linefeed = "\x0D\x0A"
+linefeed = "\x0d\x0a"
 
 
 def replaceAt(source, index, replace):
     """
-    creates a copy of source where replace is filled in at index
+    creates a copy of source str where replace str is filled in at index
     """
     replace = replace or ""
     return source[:index] + replace + source[index + len(replace) :]
@@ -73,8 +73,8 @@ score4visit = {
 }
 
 
-def read_elo_data():
-    with open(ROOT_DIR / "shared" / "data" / "eloprocessing.csv") as ff:
+def read_elo_data(round):
+    with open(ROOT_DIR / "shared" / "cloud" / "icn" / f"bel_elo_R{round}.csv") as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
             elodata[int(fd["idnumber"])] = fd
@@ -369,7 +369,7 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         "00D Envoi par : interclubs@frbe-kbsb-ksb.be",
         "00E Envoi par le club : 998",
         "00F P={npart} R=1 S={icdate:%d/%m/%y} E={icdate:%d/%m/%y} +{won} ={drawn} -{lost}",
-        "012 Belgian Interclubs 2023 - 2024 - Round {round}",
+        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -377,7 +377,7 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         "062 {npart}",
         "102 Cornet, Luc",
     ]
-    icdate = ICROUNDS[round]
+    icdate = icdata["rounds"][round]
     ls = " " * 100
     # make line 132
     ls = replaceAt(ls, 0, "132")
@@ -470,7 +470,7 @@ def to_fide_elo(round):
     writing a list EloGame records in a Belgian ELO file
     """
     hlines = [
-        "012 Belgian Interclubs 2023 - 2024 - Round {round}",
+        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -480,14 +480,15 @@ def to_fide_elo(round):
         "082 {nteams}",
         "092 Standard Team Round Robin",
         "102 225185 Bailleul, Geert",
-        "112 205494 Cornet, Luc",
+        "112 220574 Scaillet, Timothe",
         """122 90'/40 + 30'/end + 30"/move from move 1""",
     ]
-    icdate = ICROUNDS[round]
+    icdate = icdata["rounds"][round]
+    print("round date:", icdate, type(icdate))
     ls = " " * 100
     # make line 132
     ls = replaceAt(ls, 0, "132")
-    ls = replaceAt(ls, 91, icdate.strftime("%d/%m/%y"))
+    ls = replaceAt(ls, 91, icdate.strftime("%y/%m/%d"))
     hlines.append(ls)
     for g in fidegames:
         if g.fiderating_white > 0:
@@ -497,7 +498,7 @@ def to_fide_elo(round):
         cnt["ngames"] += 1
         cnt["npart"] += 2
     cnt["nteams"] = len(tlines)
-    cnt["icdate"] = icdate
+    cnt["icdate"] = icdate.strftime("%Y/%m/%d")
     cnt["round"] = round
     with open(f"ICN_fide_R{round}.txt", "w") as f:
         for l in hlines:
@@ -536,14 +537,18 @@ def to_fide_elo(round):
 
 
 async def calc_fide_elo(round: int):
-    read_elo_data()
+    global icdata
+    icdata = await load_icdata()
+    read_elo_data(round)
     await fidegames_round(round)
     to_elo_players()
     to_fide_elo(round)
 
 
 async def calc_belg_elo(round):
-    read_elo_data()
+    global icdata
+    icdata = await load_icdata()
+    read_elo_data(round)
     games1, games2 = await belgames_round(round)
     logger.info(f"games {len(games1)} {len(games2)}")
     to_belgian_elo(games1, "part1", round)
@@ -554,7 +559,7 @@ async def trf_process_round(round):
     """
     read the results of a round and store them in the trf_report
     """
-    read_elo_data()
+    read_elo_data(round)
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
         for r in series.rounds:
             if r.round == round:
@@ -644,11 +649,11 @@ async def trf_process_round(round):
                 )
 
 
-async def trf_process_playerdetails():
+async def trf_process_playerdetails(round: int):
     """
     read the trf_report and fill in all fields but the fiderating
     """
-    read_elo_data()
+    read_elo_data(round)
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
@@ -669,12 +674,12 @@ async def trf_process_playerdetails():
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
 
 
-async def trf_process_fideratings():
+async def trf_process_fideratings(round: int):
     """
     read the trf_report and fill in all fields but the fiderating
     """
     players = {}
-    read_elo_data()
+    read_elo_data(round)
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):

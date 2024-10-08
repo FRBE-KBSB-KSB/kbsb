@@ -56,8 +56,8 @@ async function calcstatus() {
   readICclub()
   const now = new Date()
   const expiry = new Date(icdata.rounds[round] + "T14:00")
-  console.log("dates", now, expiry)
-  if (now.valueOf() > expiry.valueOf) {
+  if (now.valueOf() > expiry.valueOf()) {
+    console.log("expired  planning")
     pln_status.value = "expired"
     players.value = []
     playersindexed = {}
