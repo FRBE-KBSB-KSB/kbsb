@@ -24,4 +24,5 @@ frontend/dist
 
 # data
 shared/secrets/
+shared/fide_data
 .env
