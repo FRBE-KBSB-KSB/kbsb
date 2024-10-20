@@ -83,7 +83,3 @@ LOG_CONFIG = {
         },
     },
 }
-
-TOKEN = {
-    "nocheck": True,
-}

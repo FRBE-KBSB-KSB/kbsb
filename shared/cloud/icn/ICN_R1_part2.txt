@@ -704,11 +704,11 @@
 001  690      Tokoglu, Ata Can                     0           27373             0.0        689 b 0 
 001  691      Leyendecker, Hubert               1725           15028             0.0        692 w 0 
 001  692      Giagoulis, Dimitri                1911           97128             1.0        691 b 1 
-001  693      De Leeuw, Florent                 1685           27551             1.0        694 w 1 
+001  693      Herzet, Serge                     1875           91448             1.0        694 w 1 
 001  694      Peters, Lucas                     1582           14658             0.0        693 b 0 
 001  695      Hoffmann, Sam                     1490           19459             1.0        696 w 1 
-001  696      Demblon, Jean-Luc                 1658           65099             0.0        695 b 0 
-001  697      Dauby, Arthur                     1617           26424             1.0        698 w 1 
+001  696      Plunus, Nicolas                   1757           23398             0.0        695 b 0 
+001  697      Demblon, Jean-Luc                 1658           65099             1.0        698 w 1 
 001  698      Louvet, Dylan                        0           17634             0.0        697 b 0 
 001  699      Hilgers, Garry                    1810           10780             1.0        700 w 1 
 001  700      Collignon, Fabrice                1735           70327             0.0        699 b 0 

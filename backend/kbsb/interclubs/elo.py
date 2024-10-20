@@ -9,7 +9,6 @@ from reddevil.core import RdNotFound
 from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries
-from kbsb.member import anon_getmember
 from .helpers import load_icdata
 
 logger = logging.getLogger(__name__)
@@ -481,14 +480,15 @@ def to_fide_elo(round):
         "082 {nteams}",
         "092 Standard Team Round Robin",
         "102 225185 Bailleul, Geert",
-        "112 205494 Cornet, Luc",
+        "112 220574 Scaillet, Timothe",
         """122 90'/40 + 30'/end + 30"/move from move 1""",
     ]
     icdate = icdata["rounds"][round]
+    print("round date:", icdate, type(icdate))
     ls = " " * 100
     # make line 132
     ls = replaceAt(ls, 0, "132")
-    ls = replaceAt(ls, 91, icdate.strftime("%d/%m/%y"))
+    ls = replaceAt(ls, 91, icdate.strftime("%y/%m/%d"))
     hlines.append(ls)
     for g in fidegames:
         if g.fiderating_white > 0:
@@ -498,7 +498,7 @@ def to_fide_elo(round):
         cnt["ngames"] += 1
         cnt["npart"] += 2
     cnt["nteams"] = len(tlines)
-    cnt["icdate"] = icdate
+    cnt["icdate"] = icdate.strftime("%Y/%m/%d")
     cnt["round"] = round
     with open(f"ICN_fide_R{round}.txt", "w") as f:
         for l in hlines:
@@ -537,6 +537,8 @@ def to_fide_elo(round):
 
 
 async def calc_fide_elo(round: int):
+    global icdata
+    icdata = await load_icdata()
     read_elo_data()
     await fidegames_round(round)
     to_elo_players()
