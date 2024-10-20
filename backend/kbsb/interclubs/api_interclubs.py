@@ -511,10 +511,11 @@ async def api_calc_belg_elo(
     round: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    await validate_token(auth)
     try:
+        await validate_token(auth)
         await calc_belg_elo(round)
     except RdException as e:
+        logger.info(f"exception {e}")
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api cacl belgelo")

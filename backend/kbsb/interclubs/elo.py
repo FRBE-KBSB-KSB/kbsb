@@ -10,9 +10,10 @@ from kbsb import ROOT_DIR
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries
 from kbsb.member import anon_getmember
+from .helpers import load_icdata
 
 logger = logging.getLogger(__name__)
-
+icdata = None
 
 # TODO eloprocessing.csv needs to be automated !!!
 
@@ -41,12 +42,12 @@ switch_result = {
     "0-1 FF": "1-0 FF",
     "0-0 FF": "0-0 FF",
 }
-linefeed = "\x0D\x0A"
+linefeed = "\x0d\x0a"
 
 
 def replaceAt(source, index, replace):
     """
-    creates a copy of source where replace is filled in at index
+    creates a copy of source str where replace str is filled in at index
     """
     replace = replace or ""
     return source[:index] + replace + source[index + len(replace) :]
@@ -74,7 +75,7 @@ score4visit = {
 
 
 def read_elo_data():
-    with open(ROOT_DIR / "shared" / "data" / "eloprocessing.csv") as ff:
+    with open(ROOT_DIR / "shared" / "cloud" / "icn" / "bel_elo_202410.csv") as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
             elodata[int(fd["idnumber"])] = fd
@@ -369,7 +370,7 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         "00D Envoi par : interclubs@frbe-kbsb-ksb.be",
         "00E Envoi par le club : 998",
         "00F P={npart} R=1 S={icdate:%d/%m/%y} E={icdate:%d/%m/%y} +{won} ={drawn} -{lost}",
-        "012 Belgian Interclubs 2023 - 2024 - Round {round}",
+        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -377,7 +378,7 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         "062 {npart}",
         "102 Cornet, Luc",
     ]
-    icdate = ICROUNDS[round]
+    icdate = icdata["rounds"][round]
     ls = " " * 100
     # make line 132
     ls = replaceAt(ls, 0, "132")
@@ -470,7 +471,7 @@ def to_fide_elo(round):
     writing a list EloGame records in a Belgian ELO file
     """
     hlines = [
-        "012 Belgian Interclubs 2023 - 2024 - Round {round}",
+        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -483,7 +484,7 @@ def to_fide_elo(round):
         "112 205494 Cornet, Luc",
         """122 90'/40 + 30'/end + 30"/move from move 1""",
     ]
-    icdate = ICROUNDS[round]
+    icdate = icdata["rounds"][round]
     ls = " " * 100
     # make line 132
     ls = replaceAt(ls, 0, "132")
@@ -543,6 +544,8 @@ async def calc_fide_elo(round: int):
 
 
 async def calc_belg_elo(round):
+    global icdata
+    icdata = await load_icdata()
     read_elo_data()
     games1, games2 = await belgames_round(round)
     logger.info(f"games {len(games1)} {len(games2)}")

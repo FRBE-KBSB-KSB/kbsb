@@ -53,22 +53,17 @@ async def read_icn_round(round: int):
 
 async def read_bel_elo():
     global players
-    infile = ROOT_DIR / "shared" / "cloud" / "icn" / "bel_elo_202407.csv"
+    infile = ROOT_DIR / "shared" / "cloud" / "icn" / "bel_elo_202410.csv"
     async with aiofiles.open(infile, mode="r", encoding="utf-8", newline="") as reader:
         async for player in aiocsv.AsyncDictReader(reader):
             players[player["idbel"]] = player
-
-
-async def update_fide_elo():
-    for g in games:
-        ...
 
 
 async def main():
     async with lifespan(app) as writer:  # noqa F841
         await read_bel_elo()
         await read_icn_round(1)
-        await update_fide_elo()
+        # await update_fide_elo()
 
 
 if __name__ == "__main__":
