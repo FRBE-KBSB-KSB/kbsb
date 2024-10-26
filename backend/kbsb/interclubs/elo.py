@@ -73,8 +73,8 @@ score4visit = {
 }
 
 
-def read_elo_data():
-    with open(ROOT_DIR / "shared" / "cloud" / "icn" / "bel_elo_202410.csv") as ff:
+def read_elo_data(round):
+    with open(ROOT_DIR / "shared" / "cloud" / "icn" / f"bel_elo_R{round}.csv") as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
             elodata[int(fd["idnumber"])] = fd
@@ -539,7 +539,7 @@ def to_fide_elo(round):
 async def calc_fide_elo(round: int):
     global icdata
     icdata = await load_icdata()
-    read_elo_data()
+    read_elo_data(round)
     await fidegames_round(round)
     to_elo_players()
     to_fide_elo(round)
@@ -548,7 +548,7 @@ async def calc_fide_elo(round: int):
 async def calc_belg_elo(round):
     global icdata
     icdata = await load_icdata()
-    read_elo_data()
+    read_elo_data(round)
     games1, games2 = await belgames_round(round)
     logger.info(f"games {len(games1)} {len(games2)}")
     to_belgian_elo(games1, "part1", round)
@@ -559,7 +559,7 @@ async def trf_process_round(round):
     """
     read the results of a round and store them in the trf_report
     """
-    read_elo_data()
+    read_elo_data(round)
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
         for r in series.rounds:
             if r.round == round:
@@ -649,11 +649,11 @@ async def trf_process_round(round):
                 )
 
 
-async def trf_process_playerdetails():
+async def trf_process_playerdetails(round: int):
     """
     read the trf_report and fill in all fields but the fiderating
     """
-    read_elo_data()
+    read_elo_data(round)
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
@@ -674,12 +674,12 @@ async def trf_process_playerdetails():
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
 
 
-async def trf_process_fideratings():
+async def trf_process_fideratings(round: int):
     """
     read the trf_report and fill in all fields but the fiderating
     """
     players = {}
-    read_elo_data()
+    read_elo_data(round)
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):

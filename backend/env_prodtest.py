@@ -83,3 +83,10 @@ LOG_CONFIG = {
         },
     },
 }
+
+TOKEN = {
+    "timeout": 180,  # timeout in minutes
+    "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",
+    "algorithm": "HS256",
+    "nocheck": True,
+}
