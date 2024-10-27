@@ -1,0 +1,50 @@
+reason,division,pairingnr,boardnumber,guilty,opponent
+forfait away,3A,7,5,Pluspion Wachtebeke 2,Brasschaat 1
+forfait home,3B,2,2,Tournai 1,KISK Ieper 1
+forfait away,3B,9,5,Bredene 1,Leuze 1
+forfait home,3C,3,6,Europchess 2,Boitsfort 2
+forfait away,4A,11,2,TSM Mechelen 3,Borgerhout 4
+forfait away,4G,7,2,EDC 1,CRELEL 5
+forfait away,5D,7,1,Knokke Schaak 1,KGSRL 13
+forfait home,5J,1,1,T.A.L 3,Echiquier Mosan 3
+forfait home,5O,1,1,T.A.L 4,Echiquier Mosan 4
+forfait away,5P,8,1,Arlon 2,Pelt 2
+signature away missing,1,8,0,KBSK Brugge 1,KOSK 1
+signature home missing,2A,1,0,CREC Charleroi 1,KSK Rochade 2
+signature away missing,2B,8,0,KBSK Brugge 2,KOSK 2
+signature home too late,3B,1,0,Caïssa Europe 2,LSV-Chesspirant 2
+signature away missing,3B,8,0,KBSK Brugge 3,Dendermonde 1
+signature away missing,4E,8,0,KBSK Brugge 4,KOSK 3
+signature home too late,4F,9,0,Tielt 2,MSV 1
+signature away missing,4F,8,0,KBSK Brugge 5,Rapid Aalter 1
+signature home missing,4G,1,0,CREC Charleroi 2,Echiquier Mosan 2
+signature away missing,4G,8,0,Wavre 2,Braine Echecs 1
+signature away missing,5A,8,0,Dolle Toren Leuven 4,Brussels 4
+signature home missing,5C,6,0,KRST 2,KSGK 1
+signature home too late,5D,9,0,Tielt 3,MSV 3
+signature away missing,5D,8,0,KBSK Brugge 6,KOSK 5
+signature home missing,5E,1,0,CREC Charleroi 3,Saint-Ghislain 1
+signature home too late,5E,3,0,Caïssa Europe 4,Namur Echecs 4
+signature away missing,5E,8,0,Wavre 4,HCC Jurbise 2
+signature home missing,5F,5,0,TUSK 3,Burcht 1
+signature home missing,5G,5,0,TUSK 4,St.-Truiden 1
+signature away missing,5G,7,0,Heusden 2,Mechelen 6
+signature home too late,5J,1,0,T.A.L 3,Echiquier Mosan 3
+signature home too late,5K,1,0,Caïssa Europe 6,Dworp 2
+signature home too late,5K,3,0,Caïssa Europe 5,Namur Echecs 5
+signature home missing,5L,1,0,CREC Charleroi 4,Pont-A-Celles 1
+signature home too late,5L,3,0,Caïssa Europe 7,Namur Echecs 6
+signature home missing,5L,4,0,Leuze 3,Anderlues 4
+signature away missing,5L,7,0,Nivelles 2,Saint-Ghislain 3
+signature home too late,5N,5,0,Braine Echecs 3,Dolle Toren Leuven 5
+signature away missing,5N,8,0,Dolle Toren Leuven 5,Braine Echecs 3
+signature away missing,5N,7,0,Leuven Centraal 13,CREB Bruxelles 3
+signature home too late,5O,1,0,T.A.L 4,Echiquier Mosan 4
+signature home missing,5O,2,0,Wavre 5,ICC 9
+signature home missing,5P,4,0,Sankt Vith 1,Welkenraedt 1
+signature away missing,5P,9,0,Welkenraedt 1,Sankt Vith 1
+signature away missing,5P,8,0,Arlon 2,Pelt 2
+signature away missing,5Q,8,0,KBSK Brugge 7,Rapid Aalter 2
+signature home missing,5Q,6,0,Leuze 4,Landegem 2
+rating order not correct,4D,5,2,Zottegem 2,###
+rating order not correct,5I,4,3,Beveren 4,###

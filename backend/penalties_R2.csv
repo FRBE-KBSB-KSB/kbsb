@@ -1,0 +1,47 @@
+reason,division,pairingnr,boardnumber,guilty,opponent
+forfait away,2A,5,1,Zottegem 1,The Belgian CC 1
+forfait home,2A,11,7,Monti'Chess Club 1,Europchess 1
+forfait away,5F,7,3,Mechelen 5,Oude God 6
+forfait away,5F,7,4,Mechelen 5,Oude God 6
+forfait home,5G,8,1,St.-Truiden 1,Mechelen 6
+forfait away,5J,6,1,CRELEL 8,Arlon 1
+signature away missing,1,2,0,Borgerhout 1,KSK Rochade 1
+signature away missing,2A,2,0,Wavre 1,CREC Charleroi 1
+signature home too late,2B,9,0,Rokade Westerlo 1,KOSK 2
+signature home missing,2B,1,0,Deurne 1,Borgerhout 2
+signature away missing,3B,3,0,Waregem 1,KISK Ieper 1
+signature away missing,4A,6,0,Leuven Centraal 3,St.-Niklaas 1
+signature home missing,4A,1,0,Deurne 2,Borgerhout 4
+signature home missing,4D,8,0,Tournai 2,Jean Jaurès Gent 2
+signature away missing,4F,3,0,Wetteren 5,De Mercatel 3
+signature home missing,4G,8,0,Wavre 2,CRELEL 5
+signature home too late,4G,9,0,Anderlues 1,Braine Echecs 1
+signature away missing,4G,5,0,Braine Echecs 1,Anderlues 1
+signature home missing,4H,8,0,Wavre 3,CRELEL 6
+signature home too late,4H,9,0,Anderlues 2,HCC Jurbise 1
+signature home missing,5B,12,0,Oude God 5,Heusden 1
+signature away missing,5B,6,0,Noorderwijk 1,Geel 3
+signature home too late,5B,9,0,Rokade Westerlo 2,TUSK 2
+signature home missing,5C,10,0,KVSK Veurne 1,MSV 2
+signature away missing,5C,3,0,Waregem 2,KISK Ieper 3
+signature home missing,5C,1,0,Meense Leie Schakers 1,Izegem 2
+signature away missing,5D,3,0,Waregem 3,De Mercatel 4
+signature home missing,5D,1,0,Meense Leie Schakers 2,Izegem 3
+signature home missing,5E,8,0,Wavre 4,Renaissance Binche 1
+signature away missing,5E,6,0,Renaissance Binche 1,Wavre 4
+signature home too late,5E,9,0,Anderlues 3,HCC Jurbise 2
+signature home too late,5F,9,0,Rokade Westerlo 3,TUSK 3
+signature home missing,5F,1,0,Deurne 3,Borgerhout 5
+signature home missing,5G,8,0,St.-Truiden 1,Mechelen 6
+signature home too late,5G,9,0,Rokade Westerlo 4,TUSK 4
+signature home too late,5J,8,0,Arlon 1,CRELEL 8
+signature home missing,5J,9,0,Gaume Etalle 1,Brussels 5
+signature home missing,5K,8,0,Tournai 3,Saint-Ghislain 2
+signature home too late,5L,9,0,Anderlues 4,HCC Jurbise 3
+signature home missing,5M,10,0,De Drie Torens Gent 1,Beveren 5
+signature away missing,5N,5,0,Braine Echecs 3,The Belgian CC 3
+signature away missing,5O,2,0,Wavre 5,T.A.L 4
+signature home too late,5P,8,0,Arlon 2,CRELEL 10
+signature away missing,5Q,3,0,Waregem 4,ICC 10
+rating order not correct,5P,8,4,Arlon 2,###
+Titular played in wrong series,5K,10,1,Namur Echecs 5,###
