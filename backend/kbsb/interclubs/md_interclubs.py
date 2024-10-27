@@ -85,7 +85,6 @@ class ICTeam(BaseModel):
     index: str | None = ""
     name: str  # includes numbercat like "KOSK 1"
     pairingnumber: int | None = 0
-    playersplayed: list[int] | None = Field(default_factory=list)
     teamforfeit: bool = False
 
 

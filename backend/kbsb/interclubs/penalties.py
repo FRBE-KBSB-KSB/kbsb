@@ -4,6 +4,7 @@ import logging
 
 from datetime import datetime, timezone, timedelta, time
 from csv import DictWriter
+from reddevil.core import RdInternalServerError
 from kbsb.interclubs.md_interclubs import (
     DbICSeries,
     ICSeries,
@@ -11,20 +12,23 @@ from kbsb.interclubs.md_interclubs import (
     ICClubDB,
     ICRound,
     ICTeam,
-    # ICDATA,
 )
+from .helpers import load_icdata
 
 logger = logging.getLogger(__name__)
+icdata = None
 
 
 async def mgmt_generate_penalties(round: int):
     """
     generate penalties report
     """
+    global icdata
+    icdata = await load_icdata()
     await read_interclubseries()
     await read_interclubratings()
     check_round(round)
-    with open("penalties.csv", "w") as f:
+    with open(f"penalties_R{round}.csv", "w") as f:
         writer = DictWriter(
             f,
             fieldnames=[
@@ -43,14 +47,22 @@ async def mgmt_generate_penalties(round: int):
 allseries = {}
 issues = []
 playerratings = {}
+fideratings = {}
 playertitular = {}
-titulars = {}
 allclubs = []
 doublepairings = [
-    (174, 3, "A", 1, 12),
-    (601, 3, "D", 6, 7),
-    (601, 4, "A", 6, 7),
-    (607, 4, "A", 9, 10),
+    (401, 4, "E", 1, 12),
+    (401, 4, "F", 6, 7),
+    (401, 5, "H", 1, 2),
+    (401, 5, "M", 8, 9),
+    (230, 5, "A", 3, 10),
+    (230, 5, "O", 6, 7),
+    (607, 4, "H", 1, 12),
+    (601, 4, "H", 6, 7),
+    (601, 5, "J", 6, 7),
+    (548, 5, "J", 1, 3),
+    (436, 5, "Q", 1, 10),
+    (703, 5, "B", 1, 5),
 ]
 
 
@@ -92,11 +104,12 @@ async def read_interclubseries():
 
 async def read_interclubratings():
     logger.info("reading interclub ratings")
-    for clb in await DbICClub.find_multiple({"_model": ICClubDB, "enrolled": True}):
+    for clb in await DbICClub.find_multiple({"_model": ICClubDB, "registered": True}):
         allclubs.append(clb)
         for p in clb.players:
-            if p.nature in ["assigned", "requestedin"]:
+            if p.nature in ["assigned", "imported"]:
                 playerratings[p.idnumber] = p.assignedrating
+                fideratings[p.idnumber] = p.fiderating
                 if p.titular:
                     teamix = int(p.titular.split(" ")[-1])
                     team = getteam(clb, p.titular)
@@ -109,6 +122,8 @@ async def read_interclubratings():
 
 
 def check_round(r):
+    global issues
+    issues = []
     logger.info("checking forfaits")
     check_forfaits(r)
     logger.info("checking signatures")
@@ -117,10 +132,12 @@ def check_round(r):
     check_order_players(r)
     logger.info("checking average")
     check_average_elo(r)
-    logger.info("checking same series")
+    logger.info("checking titular")
     check_titular_ok(r)
-    logger.info("checking same division")
+    logger.info("checking reserves in single series")
     check_reserves_in_single_series(r)
+    logger.info("checking reserves elo too high")
+    check_reserves_elotoohigh(r)
     logger.info("done")
 
 
@@ -152,7 +169,7 @@ def check_forfaits(rnd: int):
 def check_signatures(rnd: int):
     for s in allseries.values():
         round = getround(s, rnd)
-        nextday = ICROUNDS[rnd] + timedelta(days=1)
+        nextday = icdata["rounds"][rnd] + timedelta(days=1)
         homesigndate = datetime.combine(nextday, time(0)).astimezone(timezone.utc)
         visitsigndate = datetime.combine(nextday, time(12)).astimezone(timezone.utc)
         for enc in round.encounters:
@@ -232,6 +249,9 @@ def check_average_elo(rnd):
                 logger.info(
                     f"We're fucked to get encounter of {t.name} in {serie.division}{serie.index}"
                 )
+                for ct in clb.teams:
+                    logger.info(f"debugging club team {ct}")
+                raise RdInternalServerError("No encounters found")
             enc = encounters[0]
             if not enc.icclub_home or not enc.icclub_visit:  # bye
                 continue
@@ -411,3 +431,45 @@ def check_reserves_in_single_series(r):
                             0,
                             f"player {g.idnumber_visit} already played in other team of series",
                         )
+
+
+def check_reserves_elotoohigh(r):
+    for s in allseries.values():
+        maxelo = icdata["max_elo"][s.division]
+        round = getround(s, r)
+        for enc in round.encounters:
+            if enc.icclub_home == 0 or enc.icclub_visit == 0:
+                continue
+            for ix, g in enumerate(enc.games):
+                # skip if player is titular for the team
+                t_home = playertitular.get(g.idnumber_home, {})
+                if (
+                    t_home
+                    and t_home["division"] == s.division
+                    and t_home["index"] == s.index
+                    and t_home["pairingnumber"] == enc.pairingnr_home
+                ):
+                    continue
+                t_visit = playertitular.get(g.idnumber_visit, {})
+                if (
+                    t_visit
+                    and t_visit["division"] == s.division
+                    and t_visit["index"] == s.index
+                    and t_visit["pairingnumber"] == enc.pairingnr_visit
+                ):
+                    continue
+                # now check the elo
+                fide_home = fideratings.get(g.idnumber_home, 0)
+                if fide_home > maxelo:
+                    report_issue(
+                        s, ix, enc.pairingnr_home, 0, "fide rating reserve too high"
+                    )
+                fide_visit = fideratings.get(g.idnumber_visit, 0)
+                if fide_home > maxelo:
+                    report_issue(
+                        s, ix, enc.pairingnr_home, 0, "fide rating reserve too high"
+                    )
+                if fide_visit > maxelo:
+                    report_issue(
+                        s, ix, enc.pairingnr_visit, 0, "fide rating reserve too high"
+                    )

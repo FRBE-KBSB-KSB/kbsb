@@ -107,6 +107,14 @@ async def anon_getICclubs() -> list[ICClubItem] | None:
     return await DbICClub.find_multiple(options)
 
 
+async def mgmt_getICclubs() -> list[ICClubDB]:
+    """
+    get IC club by idclub, returns None if nothing found
+    """
+    options = {"_model": ICClubDB}
+    return await DbICClub.find_multiple(options)
+
+
 async def clb_getICclub(idclub: int) -> ICClubDB | None:
     """
     get IC club by idclub

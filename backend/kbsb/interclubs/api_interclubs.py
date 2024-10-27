@@ -542,7 +542,7 @@ async def api_mgmt_generate_penalties(
     round: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    # await validate_token(auth)
+    await validate_token(auth)
     try:
         await mgmt_generate_penalties(round)
     except RdException as e:

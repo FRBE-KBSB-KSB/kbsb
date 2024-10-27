@@ -53,6 +53,7 @@ from .icclubs import (
     clb_getICclub,
     clb_updateICplayers,
     clb_validateICPlayers,
+    mgmt_getICclubs,
     mgmt_get_xlsplayerlists,
     mgmt_updateICplayers,
 )
