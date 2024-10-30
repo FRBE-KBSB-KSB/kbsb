@@ -37,7 +37,7 @@ const pll_status = ref("closed")
 let pll_period
 let pll_startdate
 let pll_enddate
-
+let mininmal_assignelo = 3000
 let icdata = {}
 
 // validation
@@ -70,16 +70,17 @@ function assignPlayer(idnumber) {
   console.log("Assigning player", idnumber)
   playeredit.value = { ...playersindexed[idnumber] }
   playeredit.value.nature = PLAYERSTATUS.assigned
+  playeredit.value.period = pll_period
   playerEdit2Player()
 }
 
 async function calcstatus() {
+  console.log("calcstatus")
   // we have the following status
   // - open
   // - closed
   // - noclub
   // - noaccess
-
   if (!idclub.value) {
     pll_status.value = "noclub"
     return
@@ -91,18 +92,6 @@ async function calcstatus() {
     return
   }
   pll_status.value = "closed"
-  const now = new Date()
-  icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start)
-    let end = new Date(p.end)
-    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
-      pll_period = p.period
-      pll_startdate = p.start
-      pll_enddate = p.end
-      return
-    }
-  })
 }
 
 function canAssign(idnumber) {
@@ -114,16 +103,37 @@ function canAssign(idnumber) {
 }
 
 function canEdit(idnumber) {
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-    playersindexed[idnumber].nature
-  )
+  if (pll_period == "september") {
+    return [
+      PLAYERSTATUS.assigned,
+      PLAYERSTATUS.unassigned,
+      PLAYERSTATUS.imported,
+    ].includes(playersindexed[idnumber].nature)
+  }
+  if (pll_period == "november") {
+    return (
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].period == "november"
+    )
+  }
+  if (pll_period == "january") {
+    return (
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].period == "january"
+    )
+  }
 }
 
 function canExport(idnumber) {
-  console.log("canExport", playersindexed[idnumber].nature)
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
-    playersindexed[idnumber].nature
-  )
+  if (pll_period == "september") {
+    return [
+      PLAYERSTATUS.assigned,
+      PLAYERSTATUS.unassigned,
+      PLAYERSTATUS.imported,
+    ].includes(playersindexed[idnumber].nature)
+  } else {
+    return false
+  }
 }
 
 async function checkAccess() {
@@ -168,28 +178,52 @@ function doExportPlayer() {
 }
 
 function fillinPlayerList() {
+  console.log("fillinPlayerList")
+  pll_period = "unknown"
+  const now = new Date()
+  icdata.playerlist_data.forEach((p) => {
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
+      pll_status.value = "open"
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      return
+    }
+  })
+  console.log("pll_period", pll_period)
   // add new members to the playerlist
   let pnature = PLAYERSTATUS.unassigned
-  const now = new Date().valueOf()
-  if (registered.value) {
+  mininmal_assignelo = 3000
+  if (registered.value && !players.value.length) {
     // automatically make players assigned at the start of the Interclubs
     pnature = PLAYERSTATUS.assigned
   }
+  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
+  // first fix period of already assigned players
+  players.value.forEach((p) => {
+    if (p.period == "unknown") {
+      p.period = "september"
+    }
+  })
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
-      m.fiderating = m.fiderating || 0
-      let calcrating = m.fiderating > 0 ? m.fiderating : m.natrating
+      let fiderating = m.fiderating ? m.fiderating : 0
+      let natrating = m.natrating ? m.natrating : 0
+      let calcrating = fiderating > 0 ? fiderating : natrating
       let newplayer = {
         assignedrating: calcrating,
-        fiderating: m.fiderating,
+        fiderating: fiderating,
         fullname: `${m.last_name}, ${m.first_name}`,
         first_name: m.first_name,
         idnumber: m.idnumber,
         idcluborig: m.idclub,
         idclubvisit: 0,
         last_name: m.last_name,
-        natrating: m.natrating,
+        natrating: natrating,
         nature: pnature,
+        period: pll_period,
         titular: "",
         transfer: null,
       }
@@ -207,6 +241,13 @@ function fillinPlayerList() {
     }
     p.mindiv = mindiv
     p.fullname = `${p.last_name}, ${p.first_name}`
+    if (
+      p.assignedrating > 0 &&
+      p.assignedrating < mininmal_assignelo &&
+      p.period == "september"
+    ) {
+      mininmal_assignelo = p.assignedrating
+    }
   })
 }
 
@@ -244,8 +285,12 @@ async function getClubMembers() {
 }
 
 function maxelo(p) {
-  if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
-  return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
+  if (pll_period == "september") {
+    if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
+    return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
+  } else {
+    return mininmal_assignelo - 1
+  }
 }
 
 function minelo(p) {
@@ -359,8 +404,8 @@ async function setup(icclub_, icdata_) {
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
   icdata = icdata_
-  readICclub()
   calcstatus()
+  readICclub()
   getClubMembers()
 }
 </script>
@@ -454,8 +499,8 @@ async function setup(icclub_, icdata_) {
           />
           <VBtn
             density="compact"
-            color="green"
-            icon="mdi-arrow-left"
+            color="blue"
+            icon="mdi-clipboard-arrow-down"
             variant="text"
             v-show="canAssign(item.idnumber)"
             @click="assignPlayer(item.idnumber)"
@@ -565,8 +610,11 @@ async function setup(icclub_, icdata_) {
   font-weight: 500;
 }
 
-.exported,
-.unassigned {
+.exported {
   color: rgb(186, 185, 185);
+}
+
+.unassigned {
+  color: rgb(109, 123, 183);
 }
 </style>

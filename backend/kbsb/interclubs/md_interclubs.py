@@ -69,6 +69,7 @@ class PlayerPeriod(StrEnum):
     SEPTEMBER = auto()
     NOVEMBER = auto()
     JANUARY = auto()
+    UNKNOWN = auto()
 
 
 # interclub club
