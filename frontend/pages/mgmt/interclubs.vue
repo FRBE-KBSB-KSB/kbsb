@@ -138,7 +138,7 @@ async function getClubDetails() {
       idclub: idclub.value,
       token: idtoken.value,
     })
-    icclub.value = { idclib: idclub.value, ...reply.data }
+    icclub.value = { idclub: idclub.value, ...reply.data }
   } catch (error) {
     if (error.code == 401) gotoLogin()
     displaySnackbar(error.message)

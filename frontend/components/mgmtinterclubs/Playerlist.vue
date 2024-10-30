@@ -35,7 +35,7 @@ const pll_status = ref("closed")
 let pll_period
 let pll_startdate
 let pll_enddate
-
+let mininmal_assignelo = 3000
 let icdata = {}
 
 // validation
@@ -69,16 +69,18 @@ function assignPlayer(idnumber) {
   console.log("Assigning player", idnumber)
   playeredit.value = { ...playersindexed[idnumber] }
   playeredit.value.nature = PLAYERSTATUS.assigned
+  playeredit.value.period = pll_period
   playerEdit2Player()
 }
 
 function calcstatus() {
+  console.log("calcstatus")
   // we have the following status
   // - open
   // - closed
   // - noclub
   // - noaccess
-  if (!icclub.idclub) {
+  if (!icclub.value.idclub) {
     pll_status.value = "noclub"
     return
   }
@@ -94,7 +96,7 @@ function canAssign(idnumber) {
 }
 
 function canEdit(idnumber) {
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned, PLAYERSTATUS.imported].includes(
     playersindexed[idnumber].nature
   )
 }
@@ -104,26 +106,6 @@ function canExport(idnumber) {
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
     playersindexed[idnumber].nature
   )
-}
-
-async function checkAccess() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("club", "verify_club_access", {
-      idclub: icclub.idclub,
-      role: "InterclubAdmin,InterclubCaptain",
-      token: idtoken.value,
-    })
-    return true
-  } catch (error) {
-    console.log("reply NOK", error)
-    enr_status.value = "noaccess"
-    showSnackbar("Permission denied")
-    return false
-  } finally {
-    showLoading(false)
-  }
 }
 
 function doEditPlayer() {
@@ -148,12 +130,34 @@ function doExportPlayer() {
 
 function fillinPlayerList() {
   // add new members to the playerlist
+  console.log("fillinPlayerList")
+  pll_period = "unknown"
+  const now = new Date()
+  icdata.playerlist_data.forEach((p) => {
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
+      pll_status.value = "open"
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      return
+    }
+  })
+  console.log("pll_period", pll_period)
   let pnature = PLAYERSTATUS.unassigned
-  const now = new Date().valueOf()
-  if (registered.value) {
+  mininmal_assignelo = 3000
+  if (registered.value && !players.value.length) {
     // automatically make players assigned at the start of the Interclubs
     pnature = PLAYERSTATUS.assigned
   }
+  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
+  // first fix period of already assigned players
+  players.value.forEach((p) => {
+    if (p.period == "unknown") {
+      p.period = "september"
+    }
+  })
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       m.fiderating = m.fiderating || 0
@@ -186,6 +190,13 @@ function fillinPlayerList() {
     }
     p.mindiv = mindiv
     p.fullname = `${p.last_name}, ${p.first_name}`
+    if (
+      p.assignedrating > 0 &&
+      p.assignedrating < mininmal_assignelo &&
+      p.period == "september"
+    ) {
+      mininmal_assignelo = p.assignedrating
+    }
   })
 }
 
@@ -223,8 +234,12 @@ async function getClubMembers() {
 }
 
 function maxelo(p) {
-  if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
-  return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
+  if (pll_period == "september") {
+    if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
+    return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
+  } else {
+    return mininmal_assignelo - 1
+  }
 }
 
 function minelo(p) {
@@ -339,8 +354,8 @@ async function setup(icclub_, icdata_) {
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
   icdata = icdata_
-  readICclub()
   calcstatus()
+  readICclub()
   getClubMembers()
 }
 </script>
@@ -423,8 +438,8 @@ async function setup(icclub_, icdata_) {
           />
           <VBtn
             density="compact"
-            color="green"
-            icon="mdi-arrow-left"
+            color="blue"
+            icon="mdi-clipboard-arrow-down"
             variant="text"
             v-show="canAssign(item.idnumber)"
             @click="assignPlayer(item.idnumber)"
@@ -531,8 +546,11 @@ async function setup(icclub_, icdata_) {
   font-weight: 500;
 }
 
-.exported,
-.unassigned {
+.exported {
   color: rgb(186, 185, 185);
+}
+
+.unassigned {
+  color: rgb(109, 123, 183);
 }
 </style>

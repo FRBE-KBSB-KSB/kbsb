@@ -272,21 +272,17 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     """
     update the the player list of a club
     """
-    # TODO take care of PlayerPeriod after september
-    period = "september"
+    logger.info(f"clb_updateICplayers {idclub}")
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
     transferdeletes = []
-    inserts = []
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     for p in newplsix.values():
-        p.period = period
         idn = p.idnumber
         if idn not in oldplsix:
             # inserts
-            inserts.append(p)
             if p.idclubvisit:
                 if p.idcluborig == idclub:
                     transfersout.append(p)
@@ -340,7 +336,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
-        except RdNotFound:
+        except Exception:
             pass
 
 
