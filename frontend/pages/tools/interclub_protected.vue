@@ -1,3 +1,4 @@
+b
 <script setup>
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
@@ -170,12 +171,6 @@ async function getHelpContent() {
   }
 }
 
-async function gotoLogin() {
-  await router.push(
-    "/tools/oldlogin?url=__tools__interclub_protected?locale=" + locale.value
-  )
-}
-
 async function parseYaml(group, name) {
   try {
     const yamlcontent = await readBucket(group, name)
@@ -193,6 +188,8 @@ async function processICdata() {
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
+  // november hack
+  icdata.value.playerlist_data[1].start = "2024-10-25"
 }
 
 async function readBucket(group, name) {

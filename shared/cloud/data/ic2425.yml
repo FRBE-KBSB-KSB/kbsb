@@ -1,5 +1,5 @@
 ---
-rounds: 
+rounds:
   1: 2024-09-29
   2: 2024-10-06
   3: 2024-11-03
@@ -11,7 +11,7 @@ rounds:
   9: 2025-03-16
   10: 2025-03-30
   11: 2025-04-27
-playerperdivision: 
+playerperdivision:
   1: 8
   2: 8
   3: 6
@@ -23,31 +23,28 @@ enrollmentfee:
   3: 55
   4: 30
   5: 30
-ntitulars: 
+ntitulars:
   1: 12
   2: 12
   3: 9
   4: 6
   5: 6
-max_elo: 
+max_elo:
   1: 2350
   2: 2150
   3: 2050
   4: 1900
   5: 1750
-notrated_elo: 
+notrated_elo:
   min: 1000
   max: 1800
 playerlist_data:
-  -
-    period: september
+  - period: september
     start: 2024-07-01
     end: 2024-09-16
-  -
-    period: november
+  - period: november
     start: 2024-11-01
     end: 2024-11-15
-  -
-    period: january
+  - period: january
     start: 2025-01-01
     end: 2025-01-15

@@ -200,34 +200,22 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     """
     update the the player list of a club
     """
-    # TODO take care of PlayerPeriod
-    icdata = await load_icdata()
-    today = datetime.date.today()
-    for p in icdata["playerlist_data"]:
-        if p["start"] <= today <= p["end"]:
-            period = p["period"]
-            break
-    else:
-        logger.info("today not in playerlist periods")
-        period = "unknown"
+    logger.info(f"clb_updateICplayers {idclub}")
     icc = await clb_getICclub(idclub)
     players = pi.players
     transfersout = []
     transferdeletes = []
-    inserts = []
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     for p in newplsix.values():
-        p.period = period
         idn = p.idnumber
         if idn not in oldplsix:
-            # inserts
-            inserts.append(p)
+            # player contains an insert
             if p.idclubvisit:
                 if p.idcluborig == idclub:
                     transfersout.append(p)
         else:
-            # check for modifications in transfer
+            # player already exists, check for modifications in transfer
             oldpl = oldplsix[idn]
             if oldpl.nature != p.nature:
                 if p.nature in [
@@ -262,7 +250,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     last_name=t.last_name,
                     natrating=t.natrating,
                     nature=PlayerlistNature.IMPORTED,
-                    period=period,
+                    period=t.period,
                     titular=None,
                 )
             )
@@ -276,7 +264,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
-        except RdNotFound:
+        except Exception:
             pass
 
 
