@@ -1,8 +1,5 @@
-# noqa
-
-from .md_interclubs import (
+from .md_interclubs import (  # noqa F401
     DbICClub,
-    DbICEnrollment,
     DbICEnrollment,
     DbICSeries,
     DbICStandings,
@@ -40,12 +37,12 @@ from .md_interclubs import (
     PLAYERSPERDIVISION,
 )
 
-from .md_elo import (
+from .md_elo import (  # noqa F401
     EloGame,
     EloPlayer,
 )
-from .helpers import load_icdata, ptable
-from .icclubs import (
+from .helpers import load_icdata, ptable  # noqa F401
+from .icclubs import (  # noqa F401
     anon_getICteams,
     anon_getICclub,
     anon_getICclubs,
@@ -57,7 +54,7 @@ from .icclubs import (
     mgmt_get_xlsplayerlists,
     mgmt_updateICplayers,
 )
-from .series import (
+from .series import (  # noqa F401
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
@@ -67,20 +64,22 @@ from .series import (
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
 )
-from .registrations import (
+from .registrations import (  # noqa F401
     find_icregistration,
     set_icregistration,
     xls_registrations,
 )
-from .venues import (
+from .venues import (  # noqa F401
     xls_venues,
     getICvenues,
     set_interclubvenues,
 )
-from .penalties import mgmt_generate_penalties
-from .elo import (
-    calc_belg_elo,
-    calc_fide_elo,
+from .penalties import mgmt_generate_penalties  # noqa F401
+from .elo import (  # noqa F401
+    list_eloprocessing,
+    write_belg_elo,
+    write_fide_elo,
+    write_eloprocessing,
     trf_process_round,
     trf_process_playerdetails,
     trf_process_fideratings,

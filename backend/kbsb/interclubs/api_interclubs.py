@@ -8,7 +8,6 @@ from reddevil.core import (
     validate_token,
     jwt_getunverifiedpayload,
 )
-from typing import List
 from kbsb.member import validate_membertoken
 
 
@@ -34,8 +33,6 @@ from . import (
     anon_getICencounterdetails,
     anon_getICstandings,
     anon_get_xlsplayerlist,
-    calc_belg_elo,
-    calc_fide_elo,
     clb_getICclub,
     clb_getICseries,
     clb_saveICplanning,
@@ -56,6 +53,9 @@ from . import (
     trf_process_fideratings,
     trf_process_sort,
     trf_generate,
+    write_belg_elo,
+    write_eloprocessing,
+    write_fide_elo,
     xls_registrations,
     xls_venues,
 )
@@ -217,7 +217,7 @@ async def api_clb_set_icvenues(
 # icteams and icclub
 
 
-@router.get("/anon/icteams/{idclub}", response_model=List[ICTeam])
+@router.get("/anon/icteams/{idclub}", response_model=list[ICTeam])
 async def api_anon_getICteams(idclub: int):
     try:
         return await anon_getICteams(idclub)
@@ -239,7 +239,7 @@ async def api_anon_getICclub(idclub: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/icclub", response_model=List[ICClubItem | None])
+@router.get("/anon/icclub", response_model=list[ICClubItem | None])
 async def api_anon_getICclubs():
     try:
         return await anon_getICclubs()
@@ -282,7 +282,7 @@ async def api_mgmt_getICclub(
 
 
 @router.post(
-    "/clb/icclub/{idclub}/validate", response_model=List[ICPlayerValidationError]
+    "/clb/icclub/{idclub}/validate", response_model=list[ICPlayerValidationError]
 )
 async def api_clb_validateICplayers(
     idclub: int,
@@ -300,7 +300,7 @@ async def api_clb_validateICplayers(
 
 
 @router.post(
-    "/mgmt/icclub/{idclub}/validate", response_model=List[ICPlayerValidationError]
+    "/mgmt/icclub/{idclub}/validate", response_model=list[ICPlayerValidationError]
 )
 async def api_mgmt_validateICplayers(
     idclub: int,
@@ -379,7 +379,7 @@ async def api_anon_getXlsplayerlist(idclub: int):
 # pairings end results
 
 
-@router.get("/anon/icseries", response_model=List[ICSeries])
+@router.get("/anon/icseries", response_model=list[ICSeries])
 async def api_anon_getICseries(idclub: int | None = 0, round: int | None = 0):
     try:
         return await anon_get_icseries_clubround(idclub, round)
@@ -390,7 +390,7 @@ async def api_anon_getICseries(idclub: int | None = 0, round: int | None = 0):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/clb/icseries", response_model=List[ICSeries])
+@router.get("/clb/icseries", response_model=list[ICSeries])
 async def api_clb_getICseries(
     idclub: int | None = 0,
     round: int | None = 0,
@@ -406,7 +406,7 @@ async def api_clb_getICseries(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/mgmt/icseries", response_model=List[ICSeries])
+@router.get("/mgmt/icseries", response_model=list[ICSeries])
 async def api_mgmt_getICseries(
     idclub: int | None = 0,
     round: int | None = 0,
@@ -468,7 +468,7 @@ async def api_clb_saveICresults(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/icresultdetails", response_model=List[ICGameDetails])
+@router.get("/anon/icresultdetails", response_model=list[ICGameDetails])
 async def api_anon_getICencounterdetails(
     division: int,
     index: str,
@@ -495,7 +495,7 @@ async def api_anon_getICencounterdetails(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/icstandings", response_model=List[ICStandingsDB] | None)
+@router.get("/anon/icstandings", response_model=list[ICStandingsDB] | None)
 async def api_anon_getICstandings(idclub: int | None = 0):
     try:
         return await anon_getICstandings(idclub)
@@ -504,6 +504,9 @@ async def api_anon_getICstandings(idclub: int | None = 0):
     except Exception:
         logger.exception("failed api call anon_getICstandings")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# elo processing
 
 
 @router.post("/mgmt/command/belg_elo", status_code=201)
@@ -638,4 +641,32 @@ async def api_trf_generate(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api trf_generate")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/write_eloprocessing", status_code=201)
+async def api_write_eloprocessing_view(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    await validate_token(auth)
+    try:
+        return await write_eloprocessing()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api write_eloprocessing_view")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/list_eloprocessing", response_model=list[str])
+async def api_list_eloprocessing(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    await validate_token(auth)
+    try:
+        return await list_eloprocessing()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api write_eloprocessing_view")
         raise HTTPException(status_code=500, detail="Internal Server Error")
