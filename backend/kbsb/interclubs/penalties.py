@@ -1,10 +1,17 @@
 # copyright Ruben Decrop 2012 - 2022
 
 import logging
+import asyncio
 
 from datetime import datetime, timezone, timedelta, time
 from csv import DictWriter
+from io import StringIO
 from reddevil.core import RdInternalServerError
+from reddevil.filestore.filestore import (
+    write_bucket_content,
+    read_bucket_content,
+    list_bucket_files,
+)
 from kbsb.interclubs.md_interclubs import (
     DbICSeries,
     ICSeries,
@@ -17,32 +24,6 @@ from .helpers import load_icdata
 
 logger = logging.getLogger(__name__)
 icdata = None
-
-
-async def mgmt_generate_penalties(round: int):
-    """
-    generate penalties report
-    """
-    global icdata
-    icdata = await load_icdata()
-    await read_interclubseries()
-    await read_interclubratings()
-    check_round(round)
-    with open(f"penalties_R{round}.csv", "w") as f:
-        writer = DictWriter(
-            f,
-            fieldnames=[
-                "reason",
-                "division",
-                "pairingnr",
-                "boardnumber",
-                "guilty",
-                "opponent",
-            ],
-        )
-        writer.writeheader()
-        writer.writerows(issues)
-
 
 allseries = {}
 issues = []
@@ -64,6 +45,63 @@ doublepairings = [
     (436, 5, "Q", 1, 10),
     (703, 5, "B", 1, 5),
 ]
+
+
+async def write_penalties_report(round: int):
+    """
+    endpoint to write a penalties report
+    """
+    global icdata
+    icdata = await load_icdata()
+    await read_interclubseries()
+    await read_interclubratings()
+    check_round(round)
+    f = StringIO()
+    writer = DictWriter(
+        f,
+        fieldnames=[
+            "reason",
+            "division",
+            "pairingnr",
+            "boardnumber",
+            "guilty",
+            "opponent",
+        ],
+    )
+    writer.writeheader()
+    writer.writerows(issues)
+    f.seek(0)
+    try:
+        write_bucket_content(f"icn/penalties_R{round}.txt", f)
+    except Exception as e:
+        logger.info(f"failed to FIDE file icn/penalties_R{round}.csv")
+        logger.exception(e)
+
+
+async def list_penalties_reports() -> list[str]:
+    """
+    endpoint to list the penalties reports in the cloud
+    """
+    try:
+        files = list_bucket_files("icn")
+    except Exception as e:
+        logger.info("failed to list penalties reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return [f.split("/")[1] for f in files if f.startswith("icn/penalties")]
+
+
+async def get_penalties_report(path: str) -> str:
+    """
+    get the content of a belgian elo report
+    """
+    try:
+        report = read_bucket_content(f"icn/{path}")
+    except Exception as e:
+        logger.info("failed to list penalties reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return report
 
 
 def report_issue(series, gameix, pairingnr, opp_pairingnr, reason):

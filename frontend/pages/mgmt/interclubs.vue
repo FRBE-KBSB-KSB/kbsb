@@ -4,6 +4,7 @@ import { useRouter } from "vue-router"
 import Enrollment from "@/components/mgmtinterclubs/Enrollment"
 import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
+import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
 import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
@@ -33,6 +34,7 @@ const refenrollment = ref(null)
 const refplayerlist = ref(null)
 // const refplanning = ref(null)
 const refresults = ref(null)
+const refreports = ref(null)
 // const refvenues = ref(null)
 const refdownloads = ref(null)
 const icdata = ref({})
@@ -66,6 +68,9 @@ function changeTab() {
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
+      break
+    case "reports":
+      refreports.value.setup(icclub.value, round.value, icdata.value)
       break
     case "playerlist":
       refplayerlist.value.setup(icclub.value, icdata.value)
@@ -246,8 +251,7 @@ onMounted(async () => {
         <VTab value="enrollment">Registration</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
-        <!-- <VTab value="venues">Venues</VTab>
-        <VTab value="teamforfeit">Team Forfeiting</VTab> -->
+        <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changeTab">
@@ -260,12 +264,9 @@ onMounted(async () => {
         <VWindowItem value="results" :eager="true">
           <Results ref="refresults" />
         </VWindowItem>
-        <!-- <VWindowItem value="venues" :eager="true">
-          <Venue ref="refvenues" />
+        <VWindowItem value="reports" :eager="true">
+          <Reports ref="refreports" />
         </VWindowItem>
-        <VWindowItem value="teamforfeit" :eager="true">
-          <Teamforfeit ref="refteamforfeit" />
-        </VWindowItem> -->
         <VWindowItem value="downloads" :eager="true">
           <Downloads ref="refdownloads" />
         </VWindowItem>

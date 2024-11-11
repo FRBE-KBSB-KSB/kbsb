@@ -227,30 +227,6 @@ export default {
     })
     return resp
   },
-  mgmt_generate_bel_elo: async function (options) {
-    const { token, round } = options
-    const resp = await axios.post(
-      `${prefix}/mgmt/command/belg_elo`,
-      {},
-      {
-        headers: { Authorization: "Bearer " + token },
-        params: { round },
-      }
-    )
-    return resp
-  },
-  mgmt_generate_fide_elo: async function (options) {
-    const { token, round } = options
-    const resp = await axios.post(
-      `${prefix}/mgmt/command/fide_elo`,
-      {},
-      {
-        headers: { Authorization: "Bearer " + token },
-        params: { round },
-      }
-    )
-    return resp
-  },
   mgmt_generate_penalties: async function (options) {
     const { token, round } = options
     const resp = await axios.post(
@@ -265,6 +241,124 @@ export default {
     const resp = await axios.post(
       `${prefix}/mgmt/command/teamforfeit/${division}/${index}/${name}`,
       {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  mgmt_list_eloprocessing: async function (options) {
+    const { token } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/list_eloprocessing`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  mgmt_write_eloprocessing: async function (options) {
+    const { token } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/write_eloprocessing`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  mgmt_write_bel_report: async function (options) {
+    const { token, round, path_elo } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/write_bel_report/${round}/${path_elo}`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  mgmt_write_fide_report: async function (options) {
+    const { token, round, path_elo } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/write_fide_report/${round}/${path_elo}`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  list_bel_reports: async function (options) {
+    const { token } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/list_bel_reports`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  list_fide_reports: async function (options) {
+    const { token } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/list_fide_reports`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  get_bel_report: async function (options) {
+    const { token, path } = options
+    const resp = await axios.get(
+      `${prefix}/mgmt/command/get_bel_report/${path}`,
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  get_fide_report: async function (options) {
+    const { token, path } = options
+    const resp = await axios.get(
+      `${prefix}/mgmt/command/get_fide_report/${path}`,
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  write_penalties_report: async function (options) {
+    const { token, round } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/write_penalties_report/${round}`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  list_penalties_reports: async function (options) {
+    const { token } = options
+    const resp = await axios.post(
+      `${prefix}/mgmt/command/list_penalties_reports`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    return resp
+  },
+  get_penalties_report: async function (options) {
+    const { token, path } = options
+    const resp = await axios.get(
+      `${prefix}/mgmt/command/get_penalties_report/${path}`,
       {
         headers: { Authorization: "Bearer " + token },
       }

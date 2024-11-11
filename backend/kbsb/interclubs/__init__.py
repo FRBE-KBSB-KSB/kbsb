@@ -74,11 +74,19 @@ from .venues import (  # noqa F401
     getICvenues,
     set_interclubvenues,
 )
-from .penalties import mgmt_generate_penalties  # noqa F401
+from .penalties import (  # noqa F401
+    write_penalties_report,
+    list_penalties_reports,
+    get_penalties_report,
+)
 from .elo import (  # noqa F401
+    get_bel_report,
+    get_fide_report,
     list_eloprocessing,
-    write_belg_elo,
-    write_fide_elo,
+    list_bel_reports,
+    list_fide_reports,
+    write_bel_report,
+    write_fide_report,
     write_eloprocessing,
     trf_process_round,
     trf_process_playerdetails,

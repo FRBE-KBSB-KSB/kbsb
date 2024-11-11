@@ -6,7 +6,7 @@ from typing import List
 from unidecode import unidecode
 from operator import attrgetter
 from datetime import date
-from io import StringIO
+from io import StringIO, BytesIO
 from reddevil.filestore.filestore import (
     write_bucket_content,
     read_bucket_content,
@@ -50,6 +50,7 @@ switch_result = {
     "0-0 FF": "0-0 FF",
 }
 linefeed = "\x0d\x0a"
+b_linefeed = b"\x0d\x0a"
 
 
 def replaceAt(source, index, replace):
@@ -81,11 +82,15 @@ score4visit = {
 }
 
 
+# eloprocessing views
+
+
 async def write_eloprocessing():
     """
     Reads elo data from infomaniak server and write it down in a csv file
     in the cloud
     """
+    logger.info("writing eloprocessing")
     cnx = get_mysql()
     query = """
         select `esyy_frbekbsbbe`.`signaletique`.`Matricule` AS `idnumber`,
@@ -141,7 +146,7 @@ async def write_eloprocessing():
     csvelo.seek(0)
     rd = date.today().strftime("%Y%m%d")
     try:
-        write_bucket_content(f"elorprocessing/{rd}.csv", csvelo)
+        write_bucket_content(f"eloprocessing/{rd}.csv", csvelo)
     except Exception as e:
         logger.info("failed to write test file")
         logger.exception(e)
@@ -155,13 +160,13 @@ def read_eloprocessing(path: str):
     except Exception as e:
         logger.info(f"failed to read eloprocessing/{path} from cloud")
         logger.exception(e)
-    with StringIO(elocsv) as ff:
+    with StringIO(elocsv.decode("utf-8")) as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
             elodata[int(fd["idnumber"])] = fd
 
 
-def list_eloprocessing() -> list[str]:
+async def list_eloprocessing() -> list[str]:
     """
     list the eloprocessing files in the cloud
     """
@@ -170,10 +175,14 @@ def list_eloprocessing() -> list[str]:
     except Exception as e:
         logger.info("failed to list eloprocessing files")
         logger.exception(e)
+    await asyncio.sleep(0)
     return files
 
 
-async def belgames_round(round):
+# belgian elo
+
+
+async def get_games_bel(round):
     games1 = []
     games2 = []
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
@@ -256,7 +265,7 @@ async def belgames_round(round):
     return games1, games2
 
 
-def to_belgian_elo(records: List[EloGame], label: str, round: int):
+def generate_belgian_report(records: List[EloGame], label: str, round: int):
     """
     writing a list EloGame records in a Belgian ELO file
     """
@@ -333,8 +342,7 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         glines.append(blackline)
         ngames += 1
         npart += 2
-    ff = StringIO()
-    ff.encoding = "latin1"
+    ff = BytesIO()
     headerdict = {
         "ngames": ngames,
         "npart": npart,
@@ -346,8 +354,8 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
     }
     for l in hlines:
         fl = l.format(**headerdict)
-        ff.write(fl)
-        ff.write(linefeed)
+        ff.write(fl.encode("latin-1"))
+        ff.write(b_linefeed)
     for l in glines:
         ls = " " * 100
         ls = replaceAt(ls, 0, "001")
@@ -359,27 +367,59 @@ def to_belgian_elo(records: List[EloGame], label: str, round: int):
         ls = replaceAt(ls, 91, "{:4d}".format(l["opponent"]))
         ls = replaceAt(ls, 96, "{:1s}".format(l["color"]))
         ls = replaceAt(ls, 98, "{:1s}".format(l["rs"]))
-        ff.write(ls)
-        ff.write(linefeed)
+        ff.write(ls.encode("latin-1"))
+        ff.write(b_linefeed)
     ff.seek(0)
     try:
-        write_bucket_content(f"icn/ICN_R{round}_{label}.txt", ff)
+        write_bucket_content(f"icn/ICN_bel_R{round}_{label}.txt", ff)
     except Exception:
         logger.info(f"failed to write belg file icn/ICN_R{round}_{label}.txt")
         logger.exception(e)
 
 
-async def write_belg_elo(round: int, path_elo: str):
+async def write_bel_report(round: int, path_elo: str):
+    """
+    end point to generate a belgian elo report to the cloud storage
+    """
     global icdata
     icdata = await load_icdata()
-    read_eloprocessing(round, path_elo)
-    games1, games2 = await belgames_round(round)
+    read_eloprocessing(path_elo)
+    games1, games2 = await get_games_bel(round)
     logger.info(f"games {len(games1)} {len(games2)}")
-    to_belgian_elo(games1, "part1", round)
-    to_belgian_elo(games2, "part2", round)
+    generate_belgian_report(games1, "part1", round)
+    generate_belgian_report(games2, "part2", round)
 
 
-async def fidegames_round(round):
+async def list_bel_reports() -> list[str]:
+    """
+    list the belgian elo files in the cloud
+    """
+    try:
+        files = list_bucket_files("icn")
+    except Exception as e:
+        logger.info("failed to list bel reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return [f.split("/")[1] for f in files if f.startswith("icn/ICN_bel")]
+
+
+async def get_bel_report(path: str) -> str:
+    """
+    get the content of a belgian elo report
+    """
+    try:
+        report = read_bucket_content(f"icn/{path}")
+    except Exception as e:
+        logger.info("failed to list bel reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return report
+
+
+# fide elo
+
+
+async def get_games_fide(round):
     global fidegames
     fidegames = []
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
@@ -576,11 +616,11 @@ def sort_fidegames():
         tlines[elopl[key].team].append(ix + 1)
 
 
-def to_fide_elo(round):
-    global sortedplayers
+def generate_fide_report(round: int):
     """
     writing a list EloGame records in a Belgian ELO file
     """
+    global sortedplayers
     hlines = [
         "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
@@ -646,6 +686,7 @@ def to_fide_elo(round):
             ls = replaceAt(ls, 36 + 6 * ix, "{:4d}".format(pl))
         f.write(ls)
         f.write(linefeed)
+    f.seek(0)
     try:
         write_bucket_content(f"icn/ICN_fide_R{round}.txt", f)
     except Exception as e:
@@ -653,13 +694,45 @@ def to_fide_elo(round):
         logger.exception(e)
 
 
-async def write_fide_elo(round: int, path_elo: str):
+async def write_fide_report(round: int, path_elo: str):
+    """
+    endpoint to write the fide elo report to the cloud storage
+    """
     global icdata
     icdata = await load_icdata()
-    read_eloprocessing(round, path_elo)
-    await fidegames_round(round)
+    read_eloprocessing(path_elo)
+    await get_games_fide(round)
     sort_fidegames()
-    to_fide_elo(round)
+    generate_fide_report(round)
+
+
+async def list_fide_reports() -> list[str]:
+    """
+    list the belgian elo files in the cloud
+    """
+    try:
+        files = list_bucket_files("icn")
+    except Exception as e:
+        logger.info("failed to list bel reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return [f.split("/")[1] for f in files if f.startswith("icn/ICN_fide")]
+
+
+async def get_fide_report(path: str) -> str:
+    """
+    get the content of a fide elo report
+    """
+    try:
+        report = read_bucket_content(f"icn/{path}")
+    except Exception as e:
+        logger.info("failed to list fide reports")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    return report
+
+
+# trf processing
 
 
 async def trf_process_round(round):
@@ -897,6 +970,9 @@ async def trf_generate(round: int = 0) -> None:
         f.write(linefeed)
     with open("icn_trf.txt", "w") as trff:
         trff.write(f.getvalue())
+
+
+# helper
 
 
 def get_elotable() -> str:
