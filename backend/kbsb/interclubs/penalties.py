@@ -258,7 +258,9 @@ def check_order_players(rnd):
             for ix, g in enumerate(enc.games):
                 if not g.idnumber_home or not g.idnumber_visit:
                     continue
-                newhome = playerratings[g.idnumber_home]
+                newhome = playerratings.get(g.idnumber_home, None)
+                if newhome is None:
+                    logger.info(f"rating not found for {g.idnumber_home}")
                 newvisit = playerratings[g.idnumber_visit]
                 if newhome > rhome:
                     report_issue(

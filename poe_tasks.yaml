@@ -1,0 +1,5 @@
+tasks:
+  init:
+    cmd: gcloud config configurations activate kbsbprod
+    help: Activate the gcloud kbsbprod configuration
+  
