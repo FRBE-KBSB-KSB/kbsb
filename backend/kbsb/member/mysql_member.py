@@ -179,7 +179,7 @@ async def mysql_anon_getmember(idnumber: int) -> AnonMember:
             signaletique.NatFIDE as nationalityfide,
             {elotable}.Elo as natrating
         FROM signaletique
-        INNER JOIN {elotable} ON  signaletique.Matricule = {elotable}.Matricule
+        LEFT JOIN {elotable} ON  signaletique.Matricule = {elotable}.Matricule
         LEFT JOIN fide on {elotable}.Fide = fide.ID_NUMBER
         WHERE signaletique.Matricule = %(idnumber)s
     """

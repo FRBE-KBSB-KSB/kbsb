@@ -1,5 +1,40 @@
 tasks:
-  init:
+  be_run:
+    cmd: poetry run uvicorn kbsb.main:app --reload
+    help: run the backend uvicorn server
+  deploy:
+    shell: |
+      pushd backend
+      gcloud app deploy --quiet
+      popd
+    help: deploy app on google cloud
+  fe_build:
+    shell: | 
+      pushd frontend
+      yarn
+      popd
+    help: update frontend installation    
+  fe_generate:
+    shell: | 
+      pushd frontend
+      API_URL=https://www.frbe-kbsb-ksb.be yarn generate
+      popd
+    help: generate static frontend    
+  fe_run:
+    shell: | 
+      pushd frontend
+      yarn dev
+      popd
+    help: run yarn dev in frontend
+  gcp_auth:
+    cmd: gcloud auth application-default login
+    help: activate application default credentials
+  gcp_init:
     cmd: gcloud config configurations activate kbsbprod
-    help: Activate the gcloud kbsbprod configuration
-  
+    help: activate the gcloud kbsbprod configuration
+  i18n:
+    shell: |
+      pushd backend
+      python -m kbsb.scripts.i18n
+      popd
+    help: regenerate i18n files
