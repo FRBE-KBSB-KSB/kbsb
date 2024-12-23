@@ -108,9 +108,9 @@ SECRETS = {
     },
 }
 
-SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", "../shared/secrets"))
+SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 
-SHARED_PATH = Path(os.environ.get("SHARED_PATH", "../shared"))
+SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
 
 SHORTCUT_INFOMANIAKLOGIN = False
 

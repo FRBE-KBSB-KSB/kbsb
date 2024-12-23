@@ -14,19 +14,19 @@ from reddevil.core import register_app, get_settings, connect_mongodb, close_mon
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    connect_mongodb()
-    yield
-    close_mongodb()
+   connect_mongodb()
+   yield
+   close_mongodb()
 
 
 from . import version
 
 # register app
 app = FastAPI(
-    title="FRBE-KBSB-KSB",
-    description="Website Belgian Chess federation FRBE KBSB KSB",
-    version=version,
-    lifespan=lifespan,
+   title="FRBE-KBSB-KSB",
+   description="Website Belgian Chess federation FRBE KBSB KSB",
+   version=version,
+   lifespan=lifespan,
 )
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
@@ -36,11 +36,11 @@ logger.info(f"Starting website KBSB {version}")
 
 # add CORS middleware for dev only
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+   CORSMiddleware,
+   allow_origins=["http://localhost:3000"],
+   allow_credentials=True,
+   allow_methods=["*"],
+   allow_headers=["*"],
 )
 
 # import api endpoints
@@ -82,13 +82,14 @@ logger.info("Api's loaded")
 
 
 # static files
-app.mount("/css", StaticFiles(directory="public/css"), name="css")
-app.mount("/img", StaticFiles(directory="public/img"), name="img")
-app.mount("/docs", StaticFiles(directory="public/docs"), name="docs")
+if settings.KBSB_MODE != "production":
+   app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
+   app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
+   logger.info("static dirs loaded")
 
 for route in app.routes:
-    if isinstance(route, APIRoute):
-        route.operation_id = route.name[4:]
+   if isinstance(route, APIRoute):
+      route.operation_id = route.name[4:]
 
 # importing test endpoints
-import kbsb.tst_endpoints
+import kbsb.tst_endpoints  # noqa
