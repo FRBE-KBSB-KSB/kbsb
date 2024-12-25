@@ -1,8 +1,0 @@
-# build the core container with all dependencies
-FROM node:21
-WORKDIR /app
-COPY frontend frontend
-COPY shared shared
-WORKDIR /app/frontend
-RUN yarn install
-CMD ["yarn", "dev"] 

@@ -1,14 +1,34 @@
 runtime: python311
 entrypoint: gunicorn kbsb.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
-service: kbsb-api
+
 
 env_variables:
   ACTIVE_ENV: prod
   FILESTORE_BUCKET: website-kbsb-prod.appspot.com
   GOOGLE_PROJECT_ID: website-kbsb-prod
-  GOOGLE_CLIENT_ID: "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com"
+  GOOGLE_CLIENT_ID: 658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com
 
 handlers:
-  - url: /.*
+  - url: /api/.*
     script: auto
+    secure: always
+
+  - url: /(.*\..+)$
+    static_files: dist/\1
+    upload: dist/(.*\..+)$
+    secure: always
+
+  - url: /
+    static_files: dist/index.html
+    secure: always
+    upload: dist/index.html
+
+  - url: /([^\.]*)$
+    static_files: dist/\1/index.html
+    upload: dist/([^\.]*)/index.html
+    secure: always
+
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
     secure: always
