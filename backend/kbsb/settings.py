@@ -123,29 +123,23 @@ TOKEN = {
     "nocheck": False,
 }
 
-print("KBSB_MODE", KBSB_MODE)
-ls = "No local settings loaded"
 
 if KBSB_MODE == "local":
-    ls = "importing local settings"
     from env_local import *  # noqa F403
 
 
 if KBSB_MODE == "prodtest":
-    ls = "importing prodtest settings"
     from env_prodtest import *  # noqa F403
 
-
-if KBSB_MODE == "docker":
-    ls = "importing prodtest settings"
-    from env_docker import *
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
 
-# with open(BOARDROLES_PATH) as file:
-#     BOARDROLES = yaml.load(file, Loader=yaml.FullLoader)["boardroles"]
-
 logging.config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
-logger.info(ls)
+
+settings_message = {
+    "local": "env_local settings loaded",
+    "prodtest": "env_prodtest settings loaded",
+}
+logger.info(settings_message.get(KBSB_MODE, "no local settings loaded"))
