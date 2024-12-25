@@ -5,7 +5,7 @@ import asyncio
 
 from datetime import datetime, timezone, timedelta, time
 from csv import DictWriter
-from io import StringIO
+from io import StringIO, BytesIO
 from reddevil.core import RdInternalServerError
 from reddevil.filestore.filestore import (
     write_bucket_content,
@@ -52,6 +52,7 @@ async def write_penalties_report(round: int):
     endpoint to write a penalties report
     """
     global icdata
+    logger.debug(f"writing penalties report for round {round}")
     icdata = await load_icdata()
     await read_interclubseries()
     await read_interclubratings()
@@ -70,12 +71,17 @@ async def write_penalties_report(round: int):
     )
     writer.writeheader()
     writer.writerows(issues)
-    f.seek(0)
+    report = f.getvalue()
+    logger.debug(f"report: {len(report)}")
     try:
-        write_bucket_content(f"icn/penalties_R{round}.txt", f)
+        write_bucket_content(
+            f"icn/penalties_R{round}.txt", BytesIO(report.encode("utf-8"))
+        )
+        logger.info(f"icn/penalties_R{round}.csv report created")
     except Exception as e:
-        logger.info(f"failed to FIDE file icn/penalties_R{round}.csv")
+        logger.info(f"failed to write FIDE file icn/penalties_R{round}.csv")
         logger.exception(e)
+        raise RdInternalServerError("Failed to write penalties report")
 
 
 async def list_penalties_reports() -> list[str]:
