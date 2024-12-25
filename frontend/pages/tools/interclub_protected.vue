@@ -316,7 +316,7 @@ definePageMeta({
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
         <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       </v-tabs>
-      <v-window v-model="tab" @update:modelValue="changeTab">
+      <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
         <!-- <v-window-item :eager="true" value="enrollment">
           <Enrollment
             ref="refenrollment"

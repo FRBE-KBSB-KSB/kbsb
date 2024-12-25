@@ -105,7 +105,7 @@ definePageMeta({
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
       <!-- <v-tab value="dates">{{ t("Dates") }}</v-tab> -->
     </v-tabs>
-    <v-window v-model="tab" @update:modelValue="changeTab">
+    <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
       <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>

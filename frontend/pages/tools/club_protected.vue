@@ -1,161 +1,161 @@
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
-import { useI18n } from "vue-i18n";
-import Details from "@/components/club/Details.vue";
-import Board from "@/components/club/Board.vue";
-import Access from "@/components/club/Access.vue";
+import { ref, onMounted, nextTick } from "vue"
+import { useI18n } from "vue-i18n"
+import Details from "@/components/club/Details.vue"
+import Board from "@/components/club/Board.vue"
+import Access from "@/components/club/Access.vue"
 
-import { EMPTY_CLUB } from "@/util/club";
-import { useIdtokenStore } from "@/store/idtoken";
-import { storeToRefs } from "pinia";
+import { EMPTY_CLUB } from "@/util/club"
+import { useIdtokenStore } from "@/store/idtoken"
+import { storeToRefs } from "pinia"
 
-const { locale, t } = useI18n();
-const router = useRouter();
-const route = useRoute();
-const { $backend } = useNuxtApp();
-const idstore = useIdtokenStore();
-const { token: idtoken } = storeToRefs(idstore);
+const { locale, t } = useI18n()
+const router = useRouter()
+const route = useRoute()
+const { $backend } = useNuxtApp()
+const idstore = useIdtokenStore()
+const { token: idtoken } = storeToRefs(idstore)
 
-const clubmembers = ref(null);
-const clubmembers_id = ref(0);
-const club = ref(EMPTY_CLUB);
-const clubs = ref([]);
-const idclub = ref(null);
-const waitingdialog = ref(false);
-let dialogcounter = 0;
-const board = ref(null);
-const detail = ref(null);
-const access = ref(null);
-const tab = ref(null);
-const errortext = ref(null);
-const snackbar = ref(null);
+const clubmembers = ref(null)
+const clubmembers_id = ref(0)
+const club = ref(EMPTY_CLUB)
+const clubs = ref([])
+const idclub = ref(null)
+const waitingdialog = ref(false)
+let dialogcounter = 0
+const board = ref(null)
+const detail = ref(null)
+const access = ref(null)
+const tab = ref(null)
+const errortext = ref(null)
+const snackbar = ref(null)
 
 function checkAuth() {
   if (!idtoken.value) {
-    gotoLogin();
+    gotoLogin()
   }
 }
 
 function changeDialogCounter(i) {
-  dialogcounter += i;
-  waitingdialog.value = dialogcounter > 0;
+  dialogcounter += i
+  waitingdialog.value = dialogcounter > 0
 }
 
 async function getClubs() {
-  let reply;
-  changeDialogCounter(1);
+  let reply
+  changeDialogCounter(1)
   try {
-    reply = await $backend("club", "anon_get_clubs", {});
+    reply = await $backend("club", "anon_get_clubs", {})
   } catch (error) {
-    if (error.code == 401) gotoLogin();
-    displaySnackbar(t(error.message));
-    return;
+    if (error.code == 401) gotoLogin()
+    displaySnackbar(t(error.message))
+    return
   } finally {
-    changeDialogCounter(-1);
+    changeDialogCounter(-1)
   }
-  clubs.value = reply.data;
+  clubs.value = reply.data
   clubs.value.forEach((p) => {
-    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`;
-  });
+    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
+  })
 }
 
 async function getClubDetails() {
-  let reply;
-  club.value = EMPTY_CLUB;
+  let reply
+  club.value = EMPTY_CLUB
   if (idclub.value) {
-    changeDialogCounter(1);
+    changeDialogCounter(1)
     try {
       reply = await $backend("club", "verify_club_access", {
         idclub: idclub.value,
         role: "ClubAdmin",
         token: idtoken.value,
-      });
+      })
     } catch (error) {
-      if (error.code == 401) gotoLogin();
-      displaySnackbar(t(error.message));
-      return;
+      if (error.code == 401) gotoLogin()
+      displaySnackbar(t(error.message))
+      return
     } finally {
-      changeDialogCounter(-1);
+      changeDialogCounter(-1)
     }
-    changeDialogCounter(1);
+    changeDialogCounter(1)
     try {
       reply = await $backend("club", "clb_get_club", {
         idclub: idclub.value,
         token: idtoken.value,
-      });
+      })
     } catch (error) {
-      if (error.code == 401) gotoLogin();
-      displaySnackbar(t(t(error.message)));
-      return;
+      if (error.code == 401) gotoLogin()
+      displaySnackbar(t(t(error.message)))
+      return
     } finally {
-      changeDialogCounter(-1);
+      changeDialogCounter(-1)
     }
-    club.value = reply.data;
+    club.value = reply.data
   }
   nextTick(() => {
-    detail.value.readClubDetails();
-    board.value.readClubDetails();
-    access.value.readClubDetails();
-  });
+    detail.value.readClubDetails()
+    board.value.readClubDetails()
+    access.value.readClubDetails()
+  })
 }
 
 async function getClubMembers() {
   // get club members for member database currently on old site
-  if (!idclub.value) return;
-  if (idclub.value == clubmembers_id.value) return; // it is already read in
-  changeDialogCounter(1);
-  let reply;
-  clubmembers.value = null;
+  if (!idclub.value) return
+  if (idclub.value == clubmembers_id.value) return // it is already read in
+  changeDialogCounter(1)
+  let reply
+  clubmembers.value = null
   try {
     reply = await $backend("member", "anon_getclubmembers", {
       idclub: idclub.value,
-    });
+    })
   } catch (error) {
-    if (error.code == 401) gotoLogin();
-    displaySnackbar(t(error.message));
-    return;
+    if (error.code == 401) gotoLogin()
+    displaySnackbar(t(error.message))
+    return
   } finally {
-    changeDialogCounter(-1);
+    changeDialogCounter(-1)
   }
-  clubmembers_id.value = idclub.value;
-  const members = reply.data;
+  clubmembers_id.value = idclub.value
+  const members = reply.data
   members.forEach((p) => {
-    p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`;
-  });
-  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
+    p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
+  })
+  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
   nextTick(() => {
-    board.value.readClubMembers();
-    access.value.readClubMembers();
-  });
+    board.value.readClubMembers()
+    access.value.readClubMembers()
+  })
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value);
+  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value)
 }
 
 function displaySnackbar(text, color) {
-  errortext.value = text;
-  snackbar.value = true;
+  errortext.value = text
+  snackbar.value = true
 }
 
 async function selectClub() {
-  await getClubDetails();
-  await getClubMembers();
+  await getClubDetails()
+  await getClubMembers()
 }
 
 // setup
 
 onMounted(() => {
-  let l = route.query.locale;
-  console.log("query locale", l);
-  locale.value = l ? l : "nl";
-  checkAuth();
-  getClubs();
-});
+  let l = route.query.locale
+  console.log("query locale", l)
+  locale.value = l ? l : "nl"
+  checkAuth()
+  getClubs()
+})
 
 definePageMeta({
   layout: "nomenu",
-});
+})
 </script>
 
 <template>
@@ -195,7 +195,7 @@ definePageMeta({
         <v-tab>{{ $t("Access Rights") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab">
-        <v-window-item :eager="true">
+        <v-window-item :eager="true" :touch="false">
           <Details
             :club="club"
             ref="detail"
