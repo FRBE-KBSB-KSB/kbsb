@@ -98,12 +98,12 @@ SECRETS = {
         "name": "kbsb-gmail",
         "manager": "googlejson",
     },
-    "statamic": {
-        "name": "statamic-server",
-        "manager": "googlejson",
-    },
     "known-hosts": {
         "name": "known-hosts",
+        "manager": "googlejson",
+    },
+    "S_001": {
+        "name": "S_001",
         "manager": "googlejson",
     },
 }
