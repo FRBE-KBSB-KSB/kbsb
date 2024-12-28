@@ -169,7 +169,11 @@ async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
         if not curround:
             raise RdBadRequest(description="InvalidRound")
         for enc in curround.encounters:
-            if plan.playinghome and (enc.icclub_home == plan.idclub):
+            if (
+                plan.playinghome
+                and (enc.icclub_home == plan.idclub)
+                and (plan.pairingnumber == enc.pairingnr_home)
+            ):
                 if enc.games:
                     for ix, g in enumerate(enc.games):
                         g.idnumber_home = plan.games[ix].idnumber_home or 0
@@ -181,7 +185,11 @@ async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
                         )
                         for g in plan.games
                     ]
-            if not plan.playinghome and (enc.icclub_visit == plan.idclub):
+            if (
+                not plan.playinghome
+                and (enc.icclub_visit == plan.idclub)
+                and (plan.pairingnumber == enc.pairingnr_visit)
+            ):
                 if enc.games:
                     for ix, g in enumerate(enc.games):
                         g.idnumber_visit = plan.games[ix].idnumber_visit or 0
