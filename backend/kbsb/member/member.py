@@ -4,14 +4,17 @@
 import logging
 from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
+from datetime import datetime, timedelta, timezone
 from typing import List
 
 from reddevil.core import (
     RdNotAuthorized,
     RdBadRequest,
+    get_secret,
     get_settings,
     jwt_getunverifiedpayload,
     jwt_verify,
+    jwt_encode,
 )
 from kbsb.member import (
     LoginValidator,
@@ -38,11 +41,32 @@ from kbsb.member.mongo_member import (
     mongodb_mgmt_getclubmembers,
     mongodb_anon_belid_from_fideid,
     mongodb_anon_getfidemember,
-    mongodb_old_userpassword,
+    # mongodb_old_userpassword,
 )
 
 
 logger = logging.getLogger(__name__)
+
+
+async def superuser_login(superid: str, password: str) -> str:
+    """
+    Performs a superuser login with the password stored in GCP secret manager
+    returns a JWT token
+    """
+    settings = get_settings()
+    try:
+        su = get_secret(superid)
+        logger.info(f"su {su}")
+        if su.get("password") != password:
+            raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
+    except Exception:
+        raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
+    payload = {
+        "sub": superid,
+        "exp": datetime.now(tz=timezone.utc)
+        + timedelta(minutes=settings.TOKEN["timeout"]),
+    }
+    return jwt_encode(payload, SALT)
 
 
 async def login(ol: LoginValidator) -> str:
@@ -51,6 +75,8 @@ async def login(ol: LoginValidator) -> str:
     return a JWT token
     """
     settings = get_settings()
+    if ol.idnumber.startswith("S_"):
+        return await superuser_login(ol.idnumber, ol.password)
     if settings.MEMBERDB == "oldmysql":
         return await mysql_login(ol.idnumber, ol.password)
     elif settings.MEMBERDB == "mongodb":
@@ -58,13 +84,14 @@ async def login(ol: LoginValidator) -> str:
     raise NotImplementedError
 
 
-def validate_membertoken(auth: HTTPAuthorizationCredentials) -> int:
+def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     """
     checks a JWT token for validity
-    return an idnumber if the token is correctly validated
+    return an str with the if of the member if the token is correctly validated,
     if token is not valid the function :
         - either returns None
         - either raise RdNotAuthorized if raising is set
+
     """
     settings = get_settings()
     token = auth.credentials if auth else None
