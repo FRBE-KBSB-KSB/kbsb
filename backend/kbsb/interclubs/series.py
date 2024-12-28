@@ -45,9 +45,9 @@ async def create_icseries(division: str, index: str | None) -> str:
     """
     create a new InterclubSeries returning its id
     """
-    logger.info("create icseries")
+    logger.debug("create icseries")
     doc = {"division": division, "index": index or "", "teams": []}
-    logger.info("create series {doc}")
+    logger.debug("create series {doc}")
     return await DbICSeries.add(doc)
 
 
@@ -55,7 +55,7 @@ async def get_icseries(id: str, options: dict | None = None) -> ICSeries:
     """
     get the interclub series
     """
-    logger.info("get icseries")
+    logger.debug("get icseries")
     filter = dict(options or {})
     filter["_model"] = filter.pop("_model", ICSeries)
     filter["id"] = id
@@ -66,7 +66,7 @@ async def get_icseries2(options: dict | None = None) -> list[ICSeries]:
     """
     get the interclub series
     """
-    logger.info("get icseries2")
+    logger.debug("get icseries2")
     filter = dict(options or {})
     filter["_model"] = filter.pop("_model", ICSeries)
     return [cast(ICSeries, x) for x in await DbICSeries.find_multiple(filter)]
@@ -125,7 +125,6 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     proj = {i: 1 for i in ICSeries.model_fields.keys()}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
-    logger.info(f"proj {proj}")
     filter = {}
     if idclub:
         filter["teams.idclub"] = idclub
@@ -145,18 +144,13 @@ async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     proj = {i: 1 for i in ICSeries.model_fields.keys()}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
-    logger.info(f"proj {proj}")
     filter = {}
     if idclub:
         filter["teams.idclub"] = idclub
     series = []
     cursor = coll.find(filter, proj)
-    ### changed
-    for doc in await cursor.to_list(length=50):
-        logger.info(f'ICseries {doc.get("division")} {doc.get("index")}')
+    for doc in await cursor.to_list(length=100):
         series.append(encode_model(doc, ICSeries))
-    # async for doc in coll.find(filter, proj):
-    #     series.append(encode_model(doc, ICSeries))
     return series
 
 
@@ -293,22 +287,6 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
             {"rounds": [r.model_dump() for r in s.rounds]},
         )
         await calc_standings(s)
-        # if enc.played:
-        #     standings = await DbICStandings.find_single(
-        #         {
-        #             "division": s.division,
-        #             "index": s.index,
-        #             "_model": ICStandingsDB,
-        #         }
-        #     )
-        #     if not standings.dirtytime:
-        #         await DbICStandings.update(
-        #             {
-        #                 "division": s.division,
-        #                 "index": s.index,
-        #             },
-        #             {"dirtytime": datetime.now(timezone.utc)},
-        #         )
 
 
 def calc_points(enc: ICEncounter):

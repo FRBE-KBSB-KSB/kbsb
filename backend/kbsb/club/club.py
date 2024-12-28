@@ -3,8 +3,6 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
-
 from typing import cast, Optional, List
 import io
 import csv
@@ -12,7 +10,12 @@ import openpyxl
 from tempfile import NamedTemporaryFile
 from fastapi.responses import Response
 
-from reddevil.core import encode_model, RdNotFound, get_settings, RdBadRequest
+from reddevil.core import (
+    encode_model,
+    RdNotFound,
+    get_settings,
+    RdBadRequest,
+)
 from reddevil.mail import sendEmail, MailParams
 
 from fastapi import BackgroundTasks
@@ -25,6 +28,7 @@ from .md_club import (
 )
 from kbsb.core import RdForbidden
 
+logger = logging.getLogger(__name__)
 
 CLUB_EMAIL = "admin@frbe-kbsb-ksb.be"
 
@@ -131,14 +135,19 @@ async def get_csv_clubs(options: dict = {}) -> io.StringIO:
     return stream
 
 
-async def verify_club_access(idclub: int, idnumber: int, role: str) -> bool:
+async def verify_club_access(idclub: int, idmember: str, role: str) -> bool:
     """
-    checks if the person identified by idnumber belongs to the memberlist
+    checks if the person identified by idmember belongs to the memberlist
     of role inside a club, identified by idclub (an int) or id (a str),
     if check fails.
     """
-    logger.info(f"XYZ login {idclub} {idnumber} {role}")
-    idnumber = int(idnumber)
+    # check for superuser
+    if idmember.startswith("S_") and len(idmember) == 5:
+        return True
+    try:
+        idnumber = int(idmember)
+    except ValueError:
+        raise RdForbidden
     roles = role.split(",")
     allowedroles = [e.value for e in ClubRoleNature]
     for r in roles:
@@ -146,14 +155,12 @@ async def verify_club_access(idclub: int, idnumber: int, role: str) -> bool:
             raise RdBadRequest(description="InvalidRole")
     club = await get_club({"idclub": idclub})
     if not club:
-        logger.info(f"XYZ club {idnumber} not found")
         raise RdForbidden
     logger.info(f"club {club.clubroles}")
     for r in roles:
+        # looking for a single matching role
         for cr in club.clubroles:
-            logger.info(f"XYZ checking {r} {cr.nature.value}")
             if r == cr.nature.value:
-                logger.info(f"XYZ checking {idnumber} {cr.memberlist}")
                 if idnumber in cr.memberlist:
                     return True
     raise RdForbidden

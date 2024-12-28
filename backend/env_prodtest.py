@@ -37,6 +37,10 @@ SECRETS = {
         "name": "known-hosts",
         "manager": "filejson",
     },
+    "S_001": {
+        "name": "S_001",
+        "manager": "filejson",
+    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = True
@@ -90,5 +94,5 @@ TOKEN = {
     "timeout": 180,  # timeout in minutes
     "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",
     "algorithm": "HS256",
-    "nocheck": True,
+    "nocheck": False,
 }

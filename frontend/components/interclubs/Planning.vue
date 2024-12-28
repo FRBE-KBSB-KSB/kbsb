@@ -70,9 +70,9 @@ async function calcstatus() {
 
 async function checkAccess() {
   let reply
+  console.log("checkAccess idclub", icclub.value.idclub, idtoken.value)
   if (!idtoken.value) return false
   showLoading(true)
-  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
@@ -241,7 +241,7 @@ async function savePlanning() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup planning", icclub_, round_, icdata_)
+  console.log("setup planning icclub", icclub_, "round", round_, "icdata", icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_

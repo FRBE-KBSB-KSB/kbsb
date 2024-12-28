@@ -1,7 +1,7 @@
 import logging
 import hashlib
 import asyncio
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from typing import List
 from kbsb.core.db import get_mysql
 from reddevil.core import (
@@ -25,7 +25,8 @@ async def mysql_login(idnumber: str, password: str):
         # skip login
         payload = {
             "sub": idnumber,
-            "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
+            "exp": datetime.now(tz=timezone.utc)
+            + timedelta(minutes=settings.TOKEN["timeout"]),
         }
         await asyncio.sleep(0)
         return jwt_encode(payload, SALT)
@@ -53,7 +54,8 @@ async def mysql_login(idnumber: str, password: str):
     if dbpassword == pwcheck:
         payload = {
             "sub": idnumber,
-            "exp": datetime.utcnow() + timedelta(minutes=settings.TOKEN["timeout"]),
+            "exp": datetime.now(tz=timezone.utc)
+            + timedelta(minutes=settings.TOKEN["timeout"]),
         }
         await asyncio.sleep(0)
         return jwt_encode(payload, SALT)
