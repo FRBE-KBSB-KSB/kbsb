@@ -157,7 +157,6 @@ export default {
     )
     return resp
   },
-
   mgmt_xls_playerlists: async function (options) {
     const { token } = options
     const resp = await axios.get(`${prefix}/mgmt/command/xls_playerlists`, {
@@ -247,6 +246,8 @@ export default {
     )
     return resp
   },
+
+  // elo and penalties reporting
   mgmt_list_eloprocessing: async function (options) {
     const { token } = options
     const resp = await axios.post(
