@@ -17,6 +17,10 @@ handlers:
     script: auto
     secure: always
 
+  - url: /openapi.json
+    script: auto
+    secure: always
+
   - url: /(.*\..+)$
     static_files: dist/\1
     upload: dist/(.*\..+)$
