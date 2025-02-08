@@ -20,8 +20,8 @@ tasks:
   fe_generate:
     shell: | 
       cd frontend
-      API_URL=https://www.frbe-kbsb-ksb.be yarn generate
-      cd
+      API_URL=https://www.frbe-kbsb-ksb.be/ yarn generate
+      cd ..
     help: generate static frontend    
   fe_run:
     shell: | 
@@ -29,11 +29,10 @@ tasks:
       yarn dev
       cd ..
     help: run yarn dev in frontend
-  gcp_auth:
-    cmd: gcloud auth application-default login
-    help: activate application default credentials
   gcp_init:
-    cmd: gcloud config configurations activate kbsbprod
+    shell: |
+      gcloud config configurations activate kbsbprod
+      gcloud auth application-default login
     help: activate the gcloud kbsbprod configuration
   i18n:
     shell: |
