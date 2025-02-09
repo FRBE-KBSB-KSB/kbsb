@@ -264,20 +264,32 @@ def check_order_players(rnd):
             for ix, g in enumerate(enc.games):
                 if not g.idnumber_home or not g.idnumber_visit:
                     continue
-                newhome = playerratings.get(g.idnumber_home, None)
+                newhome = playerratings.get(g.idnumber_home)
+                newvisit = playerratings.get(g.idnumber_visit)
                 if newhome is None:
-                    logger.info(f"rating not found for {g.idnumber_home}")
-                newvisit = playerratings[g.idnumber_visit]
-                if newhome > rhome:
                     report_issue(
-                        s, ix, enc.pairingnr_home, 0, "rating order not correct"
+                        s, ix, enc.pairingnr_home, 0, "home player is not in playerlist"
                     )
-                if newvisit > rvisit:
+                else:
+                    if newhome > rhome:
+                        report_issue(
+                            s, ix, enc.pairingnr_home, 0, "rating order not correct"
+                        )
+                    rhome = newhome
+                if newvisit is None:
                     report_issue(
-                        s, ix, enc.pairingnr_visit, 0, "rating order not correct"
+                        s,
+                        ix,
+                        enc.pairingnr_visit,
+                        0,
+                        "visit player is not in playerlist",
                     )
-                rhome = newhome
-                rvisit = newvisit
+                else:
+                    if newvisit > rvisit:
+                        report_issue(
+                            s, ix, enc.pairingnr_visit, 0, "rating order not correct"
+                        )
+                    rvisit = newvisit
 
 
 def check_average_elo(rnd):
@@ -305,13 +317,15 @@ def check_average_elo(rnd):
                 continue
             if t.pairingnumber == enc.pairingnr_home:
                 ratings = [
-                    playerratings[g.idnumber_home] for g in enc.games if g.idnumber_home
+                    playerratings[g.idnumber_home]
+                    for g in enc.games
+                    if g.idnumber_home and playerratings.get(g.idnumber_home)
                 ]
             if t.pairingnumber == enc.pairingnr_visit:
                 ratings = [
                     playerratings[g.idnumber_visit]
                     for g in enc.games
-                    if g.idnumber_visit
+                    if g.idnumber_visit and playerratings.get(g.idnumber_visit)
                 ]
             avgdiv = avgdivs.setdefault(serie.division, [])
             if ratings:
