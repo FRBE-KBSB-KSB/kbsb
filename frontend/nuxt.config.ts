@@ -31,8 +31,13 @@ export default defineNuxtConfig({
     payloadExtraction: false,
   },
 
+  googleSignIn: {
+    clientId: '658290412135-ti3t11ovj5q2g10t4mla66r4m8orc2ev.apps.googleusercontent.com',
+  },
+
   modules: [
     '@pinia/nuxt',
+    'nuxt-vue3-google-signin',
     async (options, nuxt) => {
       nuxt.hooks.hook('vite:extendConfig',
         config => config.plugins.push(vuetify())

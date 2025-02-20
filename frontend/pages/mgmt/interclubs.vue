@@ -85,10 +85,12 @@ async function checkAuth() {
   console.log("checking if auth is already set", idtoken.value)
   if (idtoken.value) return
   if (person.value.credentials.length === 0) {
+    console.log("person no credentials")
     gotoLogin()
     return
   }
   if (!person.value.email.endsWith("@frbe-kbsb-ksb.be")) {
+    console.log("person no valid emial address")
     gotoLogin()
     return
   }

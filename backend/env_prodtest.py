@@ -11,10 +11,6 @@ FILESTORE = {
     "bucket": "website-kbsb-prod.appspot.com",
 }
 
-GOOGLE_CLIENT_ID = (
-    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
-)
-
 
 SECRETS = {
     "mongodb": {
@@ -72,7 +68,7 @@ LOG_CONFIG = {
         },
         "reddevil": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": False,
         },
         "fastapi": {

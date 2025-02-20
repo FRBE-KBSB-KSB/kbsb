@@ -29,7 +29,8 @@ FILESTORE = {
 # login details
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",
-    "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
+    "658290412135-ti3t11ovj5q2g10t4mla66r4m8orc2ev.apps.googleusercontent.com",
+    # "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")

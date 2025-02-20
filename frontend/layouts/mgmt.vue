@@ -2,7 +2,7 @@
 import { ref } from "vue"
 
 const router = useRouter()
-const drawer = ref(false);
+const drawer = ref(false)
 
 async function goto(section) {
   const url = `/mgmt/${section}`
@@ -10,12 +10,8 @@ async function goto(section) {
 }
 
 useHead({
-  script: [
-    { src: 'https://accounts.google.com/gsi/client', defer: true }
-  ],
+  script: [{ src: "https://accounts.google.com/gsi/client", defer: true }],
 })
-
-
 </script>
 
 <template>
@@ -25,10 +21,7 @@ useHead({
         <VToolbarTitle>Menu</VToolbarTitle>
       </VToolbar>
       <VList class="bg-deep-purple-lighten-1 text-white">
-        <VListItem @click="goto('overview')" title="Overview" />
-        <VListItem @click="goto('pages')" title="Pages" />
-        <VListItem @click="goto('articles')" title="Articles" />
-        <!-- <VListItem @click="goto('reports')" title="Reports" /> -->
+        <VListItem @click="goto('')" title="Overview" />
         <VListItem @click="goto('clubs')" title="Clubs" />
         <VListItem @click="goto('interclubs')" title="Interclubs" />
         <VListItem @click="goto('mailing')" title="Mailing" />

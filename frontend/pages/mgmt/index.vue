@@ -1,83 +1,56 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import * as jose from 'jose'
+import { ref, onMounted } from "vue"
+import * as jose from "jose"
 import { usePersonStore } from "@/store/person"
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
+import { useOneTap } from "vue3-google-signin"
 
 // stores
-const personstore = usePersonStore();
+const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 
-// datamodel
-const wrong_domain = ref(false)
+// model
+const authenticated = ref(false)
 
-function checkAuth() {
-  console.log('checking if auth is present so we can go to overview')
-  if (person.value.credentials.length > 0) {
-    if (person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
-      navigateTo('/mgmt/overview')
-    }
-    else {
-      wrong_domain.value = true
-    }
-  }
-}
-
-function handleGoogle(resp) {
-  console.log('handling google')
-  wrong_domain.value = false
-  const payload = jose.decodeJwt(resp.credential)
-  console.log('decoded', payload)
-  personstore.updatePerson({
-    credentials: resp.credential,
-    user: payload.given_name,
-    email: payload.email
-  })
-  checkAuth()
-}
-
-function setupGoogle() {
-  console.log('Setup google sign in')
-  const reply = google.accounts.id.initialize({
-    client_id: '658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com',
-    callback: handleGoogle,
-    prompt_parent_id: 'parent_id'
-  })
-  console.log("initialize:", reply)
-  const prompt = google.accounts.id.prompt((notif) => {
-    console.log('notif', notif)
-    if (notif.isNotDisplayed() || notif.isSkippedMoment()) {
-      document.cookie = `g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
-      google.accounts.id.prompt()
-    }
-  })
-  console.log("prompt", prompt)
-  console.log('Setup google sign in completed')
-}
+// google one tap
+useOneTap({
+  onSuccess: (resp) => {
+    console.log("Success:", resp)
+    const payload = jose.decodeJwt(resp.credential)
+    personstore.updatePerson({
+      credentials: resp.credential,
+      user: payload.name,
+      email: payload.email,
+    })
+    authenticated.value = true
+  },
+  onError: () => console.error("Error with One Tap Login"),
+})
 
 useHead({
-  title: 'Management Login',
+  title: "Management Login",
 })
 
 definePageMeta({
-  layout: 'mgmt',
+  layout: "mgmt",
 })
-
-onMounted(() => {
-  checkAuth()
-  setupGoogle()
-})
-
 </script>
 
 <template>
-  <VContainer>
-    <p>Management FRBE KBSB KSB</p>
-    <p>
-      This part of the site is only accessible for people with a valid
-      @frbe-kbsb-ksb.be email address
-    </p>
-    <div id="parent_id" />
-    <v-alert error v-show="wrong_domain">Invalid domain</v-alert>
-  </VContainer>
+  <v-container class="markdowncontent">
+    <h1>Management FRBE-KBSB-KSB</h1>
+    <div v-if="!authenticated">
+      <p>Waiting for authorization</p>
+    </div>
+    <ul v-if="authenticated">
+      <li>Admin part <NuxtLink to="/mgmt/clubs">Clubs Manager</NuxtLink></li>
+      <li>Admin part <NuxtLink to="/mgmt/interclubs">Interclubs Manager</NuxtLink></li>
+      <li>
+        Getting the <NuxtLink to="/mgmt/mailing">Mailing Lists</NuxtLink> for all clubs
+      </li>
+      <li>
+        <NuxtLink to="/mgmt/logout">Logout</NuxtLink>
+      </li>
+    </ul>
+  </v-container>
 </template>
