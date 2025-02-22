@@ -123,7 +123,6 @@ async def write_eloprocessing():
         raise RdInternalServerError(description="MySQLError")
     finally:
         cnx.close()
-    logger.info(f"players {len(players)}")
     csvelo = StringIO()
     fields = [
         "idnumber",
@@ -142,13 +141,23 @@ async def write_eloprocessing():
     ]
     writer = DictWriter(csvelo, fields, restval="NULL")
     writer.writeheader()
+    for p in players:
+        p["first_name"] = p["first_name"].encode("utf8")
+        p["last_name"] = p["last_name"].encode("utf8")
     writer.writerows(players)
     csvelo.seek(0)
-    fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
-    logger.info(f"writing {fname}")
-    with open(fname, "w") as f:
-        f.write(csvelo.read())
-    logger.info("eloprocessing.csv written")
+    rd = date.today().strftime("%Y%m%d")
+    try:
+        write_bucket_content(f"eloprocessing/{rd}.csv", csvelo)
+    except Exception as e:
+        logger.info("failed to write test file")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    # fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
+    # logger.info(f"writing {fname}")
+    # with open(fname, "w") as f:
+    #     f.write(csvelo.read())
+    logger.info(f"eloprocessing/{rd}.csv written")
 
 
 # async def write_eloprocessing():
@@ -1012,7 +1021,7 @@ async def trf_generate(round: int = 0) -> None:
     for k in range(len(players_dict)):
         pl = players_dict[k + 1]
         if not pl:
-            logger.info(f"Cannot access player at index {k+1}")
+            logger.info(f"Cannot access player at index {k + 1}")
         if not pl.fullname:
             pl.fullname = f"*** {pl.idbel} ***"
         ls = " " * (90 + 10 * 11)
