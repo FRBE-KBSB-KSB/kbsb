@@ -226,6 +226,13 @@ export default {
     })
     return resp
   },
+  anon_getICStandingsArchive: async function (options) {
+    const { season } = options
+    const resp = await axios.get(`${prefix}/anon/icstandingsarchive`, {
+      params: { season },
+    })
+    return resp
+  },
   mgmt_generate_penalties: async function (options) {
     const { token, round } = options
     const resp = await axios.post(

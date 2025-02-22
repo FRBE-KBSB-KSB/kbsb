@@ -28,6 +28,7 @@ from kbsb.interclubs import (
     ICTeamStanding,
     DbICSeries,
     DbICStandings,
+    DbICStandings2324,
     anon_getICclub,
     load_icdata,
     ptable,
@@ -500,6 +501,18 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
             )
             docs[ix] = await calc_standings(series)
     return docs
+
+
+dbseasons = {"2324": DbICStandings2324}
+
+
+async def anon_getICstandingsArchive(season: str) -> list[ICStandingsDB] | None:
+    """
+    get the Standings by club
+    """
+    options = {"_model": ICStandingsDB}
+    dbseason = dbseasons[season]
+    return await dbseason.find_multiple(options)
 
 
 async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> None:

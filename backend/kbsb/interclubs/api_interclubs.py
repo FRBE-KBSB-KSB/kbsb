@@ -32,6 +32,7 @@ from . import (
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
+    anon_getICstandingsArchive,
     anon_get_xlsplayerlist,
     clb_getICclub,
     clb_getICseries,
@@ -506,6 +507,18 @@ async def api_anon_getICencounterdetails(
 async def api_anon_getICstandings(idclub: int | None = 0):
     try:
         return await anon_getICstandings(idclub)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICstandings")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/anon/icstandingsarchive", response_model=list[ICStandingsDB] | None)
+async def api_anon_getICstandingsArchive(season: str):
+    try:
+        logger.info(f"get standings archive {season}")
+        return await anon_getICstandingsArchive(season)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

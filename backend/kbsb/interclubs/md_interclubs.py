@@ -507,7 +507,7 @@ class DbICStandings(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICStandings_Old(DbBase):
+class DbICStandings2324(DbBase):
     COLLECTION = "interclub2324standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
