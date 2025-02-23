@@ -123,7 +123,6 @@ async def write_eloprocessing():
         raise RdInternalServerError(description="MySQLError")
     finally:
         cnx.close()
-    logger.info(f"players {len(players)}")
     csvelo = StringIO()
     fields = [
         "idnumber",
@@ -142,81 +141,23 @@ async def write_eloprocessing():
     ]
     writer = DictWriter(csvelo, fields, restval="NULL")
     writer.writeheader()
+    for p in players:
+        p["first_name"] = p["first_name"].encode("utf8")
+        p["last_name"] = p["last_name"].encode("utf8")
     writer.writerows(players)
     csvelo.seek(0)
-    fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
-    logger.info(f"writing {fname}")
-    with open(fname, "w") as f:
-        f.write(csvelo.read())
-    logger.info("eloprocessing.csv written")
-
-
-# async def write_eloprocessing():
-#     """
-#     Reads elo data from infomaniak server and write it down in a csv file
-#     in the cloud
-#     """
-#     logger.info("writing eloprocessing")
-#     cnx = get_mysql()
-#     query = """
-#         select `esyy_frbekbsbbe`.`signaletique`.`Matricule` AS `idnumber`,
-#                `esyy_frbekbsbbe`.`signaletique`.`Nom`       AS `last_name`,
-#                `esyy_frbekbsbbe`.`signaletique`.`Prenom`    AS `first_name`,
-#                `esyy_frbekbsbbe`.`signaletique`.`MatFIDE`   AS `idfide`,
-#                `esyy_frbekbsbbe`.`signaletique`.`NatFIDE`   AS `natfide`,
-#                `esyy_frbekbsbbe`.`signaletique`.`Dnaiss`    AS `birthday`,
-#                `esyy_frbekbsbbe`.`fide`.`NAME`              AS `fullname`,
-#                `esyy_frbekbsbbe`.`fide`.`TITLE`             AS `title`,
-#                `esyy_frbekbsbbe`.`fide`.`ELO`               AS `fiderating`,
-#                `esyy_frbekbsbbe`.`fide`.`SEX`               AS `gender`,
-#                `esyy_frbekbsbbe`.`signaletique`.`Sexe`      AS `gender2`,
-#                `esyy_frbekbsbbe`.`signaletique`.`Club`      AS `idclub`,
-#                `esyy_frbekbsbbe`.`{elotable}`.`Elo`     AS `belrating`
-#         from ((`esyy_frbekbsbbe`.`signaletique` left join `esyy_frbekbsbbe`.`fide`
-#                on ((`esyy_frbekbsbbe`.`signaletique`.`MatFIDE` =
-#                     `esyy_frbekbsbbe`.`fide`.`ID_NUMBER`))) left join `esyy_frbekbsbbe`.`{elotable}`
-#               on ((`esyy_frbekbsbbe`.`signaletique`.`Matricule` = `esyy_frbekbsbbe`.`{elotable}`.`Matricule`)))
-#         where (`esyy_frbekbsbbe`.`signaletique`.`AnneeAffilie` >= 2025);
-
-#     """
-#     try:
-#         cursor = cnx.cursor(dictionary=True)
-#         qf = query.format(elotable=get_elotable())
-#         cursor.execute(qf)
-#         players = cursor.fetchall()
-#     except Exception as e:
-#         logger.exception("Cannot get players from Infomaniak")
-#         raise RdInternalServerError(description="MySQLError")
-#     finally:
-#         cnx.close()
-#     logger.info(f"players {len(players)}")
-#     csvelo = StringIO()
-#     fields = [
-#         "idnumber",
-#         "last_name",
-#         "first_name",
-#         "idfide",
-#         "natfide",
-#         "birthday",
-#         "fullname",
-#         "title",
-#         "fiderating",
-#         "gender",
-#         "gender2",
-#         "idclub",
-#         "belrating",
-#     ]
-#     writer = DictWriter(csvelo, fields, restval="NULL")
-#     writer.writeheader()
-#     writer.writerows(players)
-#     csvelo.seek(0)
-#     rd = date.today().strftime("%Y%m%d")
-#     try:
-#         write_bucket_content(f"eloprocessing/{rd}.csv", csvelo)
-#     except Exception as e:
-#         logger.info("failed to write test file")
-#         logger.exception(e)
-#     await asyncio.sleep(0)
+    rd = date.today().strftime("%Y%m%d")
+    try:
+        write_bucket_content(f"eloprocessing/{rd}.csv", csvelo)
+    except Exception as e:
+        logger.info("failed to write test file")
+        logger.exception(e)
+    await asyncio.sleep(0)
+    # fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
+    # logger.info(f"writing {fname}")
+    # with open(fname, "w") as f:
+    #     f.write(csvelo.read())
+    logger.info(f"eloprocessing/{rd}.csv written")
 
 
 def read_eloprocessing(path: str):
@@ -1012,7 +953,7 @@ async def trf_generate(round: int = 0) -> None:
     for k in range(len(players_dict)):
         pl = players_dict[k + 1]
         if not pl:
-            logger.info(f"Cannot access player at index {k+1}")
+            logger.info(f"Cannot access player at index {k + 1}")
         if not pl.fullname:
             pl.fullname = f"*** {pl.idbel} ***"
         ls = " " * (90 + 10 * 11)
