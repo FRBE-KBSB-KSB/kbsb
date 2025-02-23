@@ -24,6 +24,7 @@ from . import (
     ICPlayerValidationError,
     ICResult,
     ICSeries,
+    ICSeriesDB,
     ICStandingsDB,
     ICTeam,
     anon_getICteams,
@@ -32,6 +33,8 @@ from . import (
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
+    anon_getICstandingsArchive,
+    anon_getICresultsArchive,
     anon_get_xlsplayerlist,
     clb_getICclub,
     clb_getICseries,
@@ -510,6 +513,30 @@ async def api_anon_getICstandings(idclub: int | None = 0):
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call anon_getICstandings")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/anon/icstandingsarchive", response_model=list[ICStandingsDB] | None)
+async def api_anon_getICstandingsArchive(season: str):
+    try:
+        logger.info(f"get standings archive {season}")
+        return await anon_getICstandingsArchive(season)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICstandings")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/anon/icresultsarchive", response_model=list[ICSeriesDB] | None)
+async def api_anon_getICresultsArchive(season: str, round: int):
+    try:
+        logger.info(f"get results archive {season} {round}")
+        return await anon_getICresultsArchive(season, round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICresultsarchive")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

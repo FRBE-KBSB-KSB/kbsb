@@ -27,7 +27,9 @@ from kbsb.interclubs import (
     ICTeamGame,
     ICTeamStanding,
     DbICSeries,
+    DbICSeries2324,
     DbICStandings,
+    DbICStandings2324,
     anon_getICclub,
     load_icdata,
     ptable,
@@ -500,6 +502,42 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
             )
             docs[ix] = await calc_standings(series)
     return docs
+
+
+dbseasons = {"2324": DbICStandings2324}
+dbseries = {"2324": DbICSeries2324}
+
+
+async def anon_getICstandingsArchive(season: str) -> list[ICStandingsDB] | None:
+    """
+    get the Standings by club
+    """
+    options = {"_model": ICStandingsDB}
+    dbseason = dbseasons[season]
+    return await dbseason.find_multiple(options)
+
+
+async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
+    """
+    get IC results from a season for a round
+    """
+    dbresult = dbseries[season]
+    db = get_mongodb()
+    coll = db[dbresult.COLLECTION]
+    logger.info(f"coll {coll}")
+    proj = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj["rounds"] = {"$elemMatch": {"round": round}}
+    logger.info(f"proj {proj}")
+    series = []
+    async for doc in coll.find({}, proj):
+        try:
+            doc["id"] = str(doc["_id"])
+            s = encode_model(doc, ICSeriesDB)
+        except Exception as e:
+            logger.error(f"encoding ICSeriesDB {doc}")
+            continue
+        series.append(s)
+    return series
 
 
 async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> None:
