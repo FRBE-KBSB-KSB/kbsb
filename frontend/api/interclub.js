@@ -3,7 +3,7 @@ import axios from "axios"
 const prefix = "/api/v1/interclubs"
 
 export default {
-  // enrollemnts
+  // registrations
   find_interclubenrollment: async function (options) {
     const { idclub } = options
     const resp = await axios.get(`${prefix}/anon/enrollment/${idclub}`)
@@ -230,6 +230,14 @@ export default {
     const { season } = options
     const resp = await axios.get(`${prefix}/anon/icstandingsarchive`, {
       params: { season },
+    })
+    return resp
+  },
+  anon_getICResultsArchive: async function (options) {
+    const { season, round } = options
+    console.log("api anon_getICResultsArchive", season, round)
+    const resp = await axios.get(`${prefix}/anon/icresultsarchive`, {
+      params: { season, round },
     })
     return resp
   },

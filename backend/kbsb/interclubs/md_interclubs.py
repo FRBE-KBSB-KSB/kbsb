@@ -239,9 +239,9 @@ class ICSeriesDB(BaseModel):
     """
 
     division: int
-    index: str
+    index: str = ""
     id: str
-    teams: list[ICTeam]
+    teams: list[ICTeam] = []
     rounds: list[ICRound] = []
 
 
@@ -493,7 +493,7 @@ class DbICSeries(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICSeries_Old(DbBase):
+class DbICSeries2324(DbBase):
     COLLECTION = "interclub2324series"
     DOCUMENTTYPE = ICSeriesDB
     VERSION = 1
