@@ -99,7 +99,7 @@ async def list_penalties_reports() -> list[str]:
 
 async def get_penalties_report(path: str) -> str:
     """
-    get the content of a belgian elo report
+    get the content of a penalties report
     """
     try:
         report = read_bucket_content(f"icn/{path}")
@@ -249,7 +249,7 @@ def check_signatures(rnd: int):
                     -1,
                     enc.pairingnr_visit,
                     enc.pairingnr_home,
-                    "signature home too late",
+                    "signature away too late",
                 )
 
 
