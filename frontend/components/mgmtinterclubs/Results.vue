@@ -111,14 +111,15 @@ async function getICclub(clb_id) {
   showLoading(true)
   try {
     let now = new Date()
-    const reply = await $backend("interclub", "anon_getICclub", {
+    const reply = await $backend("interclub", "mgmt_getICclub", {
+      token: idtoken.value,
       idclub: clb_id,
     })
-    console.log("calling anon_getICclub", clb_id, "in ms:", new Date() - now)
+    console.log("calling mgmt_getICclub", clb_id, "in ms:", new Date() - now)
     showLoading(false)
     processICplayerlist(clb_id, reply.data)
   } catch (error) {
-    console.error("calling anon_getICclub failed", clb_id, error)
+    console.error("calling mgmt_getICclub failed", clb_id, error)
     showSnackbar(error.message)
     return
   } finally {
@@ -158,7 +159,7 @@ function processICplayerlist(idclub, clubdata) {
   if (!idclub) return
   let players = []
   clubdata.players.forEach((p) => {
-    if (!["assigned", "imported"].includes(p.nature)) return
+    if (!["assigned", "imported", "unassigned"].includes(p.nature)) return
     p.full = `${p.idnumber} ${p.last_name}, ${p.first_name}`
     players.push(p)
     playersindexed[p.idnumber] = p

@@ -98,7 +98,7 @@ async function write_penalties_report() {
       token: token.value,
       round: round,
     })
-    showSnackbar("BEL elo rapport created")
+    showSnackbar("Penalties rapport created")
   } catch (error) {
     showSnackbar(error.message)
   } finally {
