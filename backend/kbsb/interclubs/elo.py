@@ -142,8 +142,8 @@ async def write_eloprocessing():
     writer = DictWriter(csvelo, fields, restval="NULL")
     writer.writeheader()
     for p in players:
-        p["first_name"] = p["first_name"].encode("utf8")
-        p["last_name"] = p["last_name"].encode("utf8")
+        p["first_name"] = unidecode(p["first_name"])
+        p["last_name"] = unidecode(p["last_name"])
     writer.writerows(players)
     csvelo.seek(0)
     rd = date.today().strftime("%Y%m%d")
@@ -449,7 +449,7 @@ async def get_games_fide(round):
                 fidev = elodata.get(idnv, None)
                 if not fideh or not fidev:
                     logger.info(
-                        "failed fidev or fideh, updateing eloprocessin.csv might help"
+                        "failed fidev or fideh, updateing eloprocessing.csv might help"
                     )
                 if ix % 2:
                     idbel_white, idbel_black = idnv, idnh
@@ -709,6 +709,7 @@ async def write_fide_report(round: int, path_elo: str):
     icdata = await load_icdata()
     read_eloprocessing(path_elo)
     await get_games_fide(round)
+    logger.info(f"info cardoen {elodata[27438]}")
     sort_fidegames()
     generate_fide_report(round)
 
