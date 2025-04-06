@@ -628,6 +628,13 @@ def generate_fide_report(round: int):
     writing a list EloGame records in a Belgian ELO file
     """
     global sortedplayers
+    cnt["won"] = 0
+    cnt["drawn"] = 0
+    cnt["lost"] = 0
+    cnt["npart"] = 0
+    cnt["ngames"] = 0
+    cnt["nrated"] = 0
+    cnt["mteams"] = 0.0
     hlines = [
         "012 Belgian Interclubs 2024 - 2025 - Round {round}",
         "022 Various locations in Belgian Clubs",
