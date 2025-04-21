@@ -166,11 +166,13 @@ async def mysql_mgmt_getclubmembers(idclub: int, active: bool = True) -> List[Me
 
 
 async def mysql_anon_getmember(idnumber: int) -> AnonMember:
+    logger.info(f"getbel {idnumber}")
     cnx = get_mysql()
     query = """
         SELECT
             signaletique.Dnaiss as birthdate,
             fide.Elo as fiderating,
+            fide.Title as chesstitle,
             signaletique.Prenom as first_name,
             signaletique.Sexe as gender,
             signaletique.Club as idclub,
@@ -269,7 +271,6 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
         cnx.close()
     if not member:
         raise RdNotFound(description="MemberNotFound")
-    logger.info("member", member)
     await asyncio.sleep(0)
     nparts = member["fullname"].split(", ")
     am = AnonMember(
@@ -288,6 +289,7 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
 
 
 async def mysql_anon_belid_from_fideid(idfide) -> int:
+    logger.info(f"belid from fideid {idfide}")
     cnx = get_mysql()
     query = """
         SELECT Matricule as idbel
