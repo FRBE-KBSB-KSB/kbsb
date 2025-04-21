@@ -2,6 +2,7 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
+from async_lru import alru_cache
 from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, timezone
@@ -155,6 +156,7 @@ async def anon_getclubmembers(idclub: int, active: bool) -> List[AnonMember]:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_getmember(idbel: int) -> AnonMember:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":
@@ -164,6 +166,7 @@ async def anon_getmember(idbel: int) -> AnonMember:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_getfidemember(idfide: int) -> AnonMember:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":
@@ -173,6 +176,7 @@ async def anon_getfidemember(idfide: int) -> AnonMember:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_belid_from_fideid(idfide: int) -> int:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":

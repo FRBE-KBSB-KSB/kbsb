@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kbsb"
-version = "2.11.4"
+version = "2.11.5"
 description = "API Website FRBE-KBSB-KSB"
 authors = ["Ruben Decrop <ruben.decrop@frbe-kbsb-ksb.be>"]
 license = "GPLv2"
@@ -36,6 +36,7 @@ aiocsv = "^1.3.2"
 asyncclick = "^8.1.7.2"
 ruff = "^0.7.3"
 reddevil = {path = "backend/libs/reddevil-3.4.0-py3-none-any.whl"}
+async-lru = "^2.0.5"
 
 [tool.poetry.group.dev.dependencies]
 asyncio = "^3.4.3"
