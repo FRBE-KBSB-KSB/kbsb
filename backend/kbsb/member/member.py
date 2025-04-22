@@ -3,7 +3,6 @@
 
 import logging
 from async_lru import alru_cache
-
 from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, timezone

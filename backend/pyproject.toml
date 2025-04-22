@@ -36,6 +36,7 @@ toml = "^0.10.2"
 unidecode = "^1.3.7"
 uvicorn = "^0.27.1"
 reddevil = {path = "backend/libs/reddevil-3.4.0-py3-none-any.whl"}
+async-lru = "^2.0.5"
 
 [tool.poetry.group.dev.dependencies]
 asyncio = "^3.4.3"
