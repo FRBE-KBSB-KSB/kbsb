@@ -2,7 +2,6 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
-
 from async_lru import alru_cache
 
 from jose import JWTError, ExpiredSignatureError
