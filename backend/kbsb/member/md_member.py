@@ -11,6 +11,8 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
+SALT = "OLDSITE"
+
 
 class LoginValidator(BaseModel):
     """

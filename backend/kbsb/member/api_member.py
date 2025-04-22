@@ -9,7 +9,7 @@ from fastapi import HTTPException, APIRouter, Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, APIKeyHeader
 from reddevil.core import RdException, bearer_schema, validate_token, get_settings
 from typing import List
-from kbsb.member import (
+from . import (
     AnonMember,
     LoginValidator,
     Member,
