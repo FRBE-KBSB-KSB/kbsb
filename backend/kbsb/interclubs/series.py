@@ -10,7 +10,7 @@ from reddevil.core import (
     get_mongodb,
     encode_model,
 )
-from kbsb.interclubs import (
+from . import (
     GAMERESULT,
     # ICROUNDS,
     ICEncounter,

@@ -12,7 +12,7 @@ from reddevil.filestore.filestore import (
     read_bucket_content,
     list_bucket_files,
 )
-from kbsb.interclubs.md_interclubs import (
+from .md_interclubs import (
     DbICSeries,
     ICSeries,
     DbICClub,

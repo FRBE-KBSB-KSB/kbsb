@@ -6,10 +6,7 @@ from reddevil.core import (
     RdException,
     bearer_schema,
     validate_token,
-    jwt_getunverifiedpayload,
 )
-from kbsb.member import validate_membertoken
-
 
 from . import (
     ICEnrollment,
@@ -46,7 +43,6 @@ from . import (
     getICvenues,
     get_bel_report,
     get_fide_report,
-    get_penalties_report,
     list_eloprocessing,
     list_bel_reports,
     list_fide_reports,
@@ -99,6 +95,8 @@ async def api_clb_set_enrollment(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await set_icregistration(idclub, ie, bt)
@@ -148,6 +146,8 @@ async def api_set_enrollment(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         # TODO check club autorization
@@ -214,6 +214,8 @@ async def api_clb_set_icvenues(
     ivi: ICVenueIn,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await set_interclubvenues(idclub, ivi)
@@ -265,6 +267,8 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     logger.info(f"api_clb_getICclub {idclub} {auth}")
     try:
         validate_membertoken(auth)
@@ -299,6 +303,8 @@ async def api_clb_validateICplayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await clb_validateICPlayers(idclub, players)
@@ -333,6 +339,8 @@ async def api_clb_updateICPlayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         await clb_updateICplayers(idclub, players)
@@ -406,6 +414,8 @@ async def api_clb_getICseries(
     round: int | None = 0,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await clb_getICseries(idclub, round)
@@ -437,6 +447,8 @@ async def api_clb_saveICplanning(
     icpi: ICPlanning,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         await clb_saveICplanning(icpi.plannings)
@@ -467,6 +479,8 @@ async def api_clb_saveICresults(
     icri: ICResult,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         logger.info("hi")
         validate_membertoken(auth)

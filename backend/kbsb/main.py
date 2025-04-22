@@ -2,7 +2,7 @@
 # copyright Chessdevil Consulting 2015 - 2024
 
 import logging, logging.config
-
+import os
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,19 +14,19 @@ from reddevil.core import register_app, get_settings, connect_mongodb, close_mon
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-   connect_mongodb()
-   yield
-   close_mongodb()
+    connect_mongodb()
+    yield
+    close_mongodb()
 
 
 from . import version
 
 # register app
 app = FastAPI(
-   title="FRBE-KBSB-KSB",
-   description="Website Belgian Chess federation FRBE KBSB KSB",
-   version=version,
-   lifespan=lifespan,
+    title="FRBE-KBSB-KSB",
+    description="Website Belgian Chess federation FRBE KBSB KSB",
+    version=version,
+    lifespan=lifespan,
 )
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
@@ -36,11 +36,11 @@ logger.info(f"Starting website KBSB {version}")
 
 # add CORS middleware for dev only
 app.add_middleware(
-   CORSMiddleware,
-   allow_origins=["http://localhost:3000"],
-   allow_credentials=True,
-   allow_methods=["*"],
-   allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # import api endpoints
@@ -62,12 +62,6 @@ from kbsb.member import api_member
 logger.info("loading api_page")
 from kbsb.page import api_page
 
-logger.info("loading api_report")
-from kbsb.report import api_report
-
-logger.info("loading api_statamic")
-from kbsb.statamic import api_statamic
-
 
 app.include_router(api_account.router)
 app.include_router(api_club.router)
@@ -75,21 +69,19 @@ app.include_router(api_filestore.router)
 app.include_router(api_interclubs.router)
 app.include_router(api_member.router)
 app.include_router(api_page.router)
-app.include_router(api_report.router)
-app.include_router(api_statamic.router)
+
 
 logger.info("Api's loaded")
 
-
 # static files
 if settings.KBSB_MODE != "production":
-   app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
-   app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
-   logger.info("static dirs loaded")
+    app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
+    app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
+    logger.info("static dirs loaded")
 
 for route in app.routes:
-   if isinstance(route, APIRoute):
-      route.operation_id = route.name[4:]
+    if isinstance(route, APIRoute):
+        route.operation_id = route.name[4:]
 
 # importing test endpoints
 import kbsb.tst_endpoints  # noqa
