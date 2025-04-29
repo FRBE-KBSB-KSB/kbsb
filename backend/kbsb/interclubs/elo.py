@@ -208,6 +208,8 @@ async def get_games_bel(round):
                 idnv = g.idnumber_visit
                 if not idnh or not idnv:
                     continue
+                if g.result not in switch_result:
+                    continue
                 elodatah = elodata[idnh]
                 elodatav = elodata[idnv]
                 if ix % 2:
@@ -445,6 +447,8 @@ async def get_games_fide(round):
                 idnv = g.idnumber_visit
                 if not idnh or not idnv:
                     continue
+                if g.result not in switch_result:
+                    continue
                 fideh = elodata.get(idnh, None)
                 fidev = elodata.get(idnv, None)
                 if not fideh or not fidev:
@@ -486,7 +490,8 @@ async def get_games_fide(round):
                     )
                     team_white = teams[enc.pairingnr_visit].name
                     team_black = teams[enc.pairingnr_home].name
-                    result = switch_result[g.result]
+                    if g.result not in switch_result:
+                        logger.info(f"game with unknonw result: {g} {enc}")
                 else:
                     idbel_white, idbel_black = idnh, idnv
                     idfide_white, idfide_black = (
@@ -716,7 +721,6 @@ async def write_fide_report(round: int, path_elo: str):
     icdata = await load_icdata()
     read_eloprocessing(path_elo)
     await get_games_fide(round)
-    logger.info(f"info cardoen {elodata[27438]}")
     sort_fidegames()
     generate_fide_report(round)
 
