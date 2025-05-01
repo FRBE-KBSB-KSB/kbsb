@@ -490,8 +490,7 @@ async def get_games_fide(round):
                     )
                     team_white = teams[enc.pairingnr_visit].name
                     team_black = teams[enc.pairingnr_home].name
-                    if g.result not in switch_result:
-                        logger.info(f"game with unknonw result: {g} {enc}")
+                    result = switch_result[g.result]
                 else:
                     idbel_white, idbel_black = idnh, idnv
                     idfide_white, idfide_black = (
