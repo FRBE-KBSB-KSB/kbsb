@@ -256,6 +256,7 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
             Elo as fiderating,
             Country as nationalityfide,            
             Sex as gender,
+            Title as chesstitle,
             Birthday as birthday
         FROM fide
         WHERE ID_number = %(idnumber)s
@@ -277,6 +278,7 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
         idclub=0,
         idnumber=0,
         idfide=idfide,
+        chesstitle=member["chesstitle"],
         first_name=nparts[1],
         fiderating=member["fiderating"],
         gender=member["gender"],
