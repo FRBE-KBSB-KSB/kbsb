@@ -11,34 +11,6 @@ FILESTORE = {
     "bucket": "website-kbsb-prod.appspot.com",
 }
 
-
-SECRETS = {
-    "mongodb": {
-        "name": "kbsb-mongodb-prod",
-        "manager": "filejson",
-    },
-    "mysql": {
-        "name": "kbsb-mysql-infomaniak",
-        "manager": "filejson",
-    },
-    "gmail": {
-        "name": "kbsb-gmail",
-        "manager": "filejson",
-    },
-    "statamic": {
-        "name": "statamic-server",
-        "manager": "filejson",
-    },
-    "known-hosts": {
-        "name": "known-hosts",
-        "manager": "filejson",
-    },
-    "S_001": {
-        "name": "S_001",
-        "manager": "filejson",
-    },
-}
-
 SHORTCUT_INFOMANIAKLOGIN = True
 
 LOG_CONFIG = {

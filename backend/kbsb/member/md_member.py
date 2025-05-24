@@ -6,7 +6,7 @@
 import logging
 
 from datetime import date
-from typing import dict, Any, List
+from typing import Any
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)

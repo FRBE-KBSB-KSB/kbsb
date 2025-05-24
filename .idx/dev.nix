@@ -2,7 +2,7 @@
 # see: https://developers.google.com/idx/guides/customize-idx-env
 { pkgs, ... }: {
   # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
+  channel = "stable-24.11"; # or "unstable"
 
   # Use https://search.nixos.org/packages to find packages
   packages = [
@@ -35,7 +35,7 @@
           manager = "web";
           env = {
             PORT = "$PORT";
-            API_URL = "https://8000-idx-cocoon-1739970435563.cluster-6yqpn75caneccvva7hjo4uejgk.cloudworkstations.dev/";
+            API_URL = "https://8000--1739970435563.cluster-6yqpn75caneccvva7hjo4uejgk.cloudworkstations.dev/";
           };
         };
       };
