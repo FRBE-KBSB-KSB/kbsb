@@ -752,12 +752,13 @@ async def get_fide_report(path: str) -> str:
 
 # trf processing
 
+trfdata_2425 = {"startround": "20240930.csv", "endround": "20250429.csv"}
+
 
 async def trf_process_round(round):
     """
     read the results of a round and store them in the trf_report
     """
-    read_elo_data(round)
     for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
         for r in series.rounds:
             if r.round == round:
@@ -783,7 +784,7 @@ async def trf_process_round(round):
                     )
                 except RdNotFound:
                     await DbICTrfRecord.add(
-                        {"idbel": idnh, "rounds": [], "event": "ic2324"}
+                        {"idbel": idnh, "rounds": [], "event": "ic2425"}
                     )
                     ph = await DbICTrfRecord.find_single(
                         {"idbel": idnh, "_model": DbICTrfRecord.DOCUMENTTYPE}
@@ -818,7 +819,7 @@ async def trf_process_round(round):
                     )
                 except RdNotFound:
                     await DbICTrfRecord.add(
-                        {"idbel": idnv, "rounds": [], "event": "ic2324"}
+                        {"idbel": idnv, "rounds": [], "event": "ic2425"}
                     )
                     pv = await DbICTrfRecord.find_single(
                         {"idbel": idnv, "_model": DbICTrfRecord.DOCUMENTTYPE}
@@ -847,11 +848,10 @@ async def trf_process_round(round):
                 )
 
 
-async def trf_process_playerdetails(round: int):
+async def trf_process_playerdetails():
     """
     read the trf_report and fill in all fields but the fiderating
     """
-    read_elo_data(round)
     for trf in await DbICTrfRecord.find_multiple(
         {"_model": DbICTrfRecord.DOCUMENTTYPE}
     ):
@@ -866,49 +866,10 @@ async def trf_process_playerdetails(round: int):
             "fullname": details["fullname"],
             "federation": details["natfide"],
             "idfide": details["idfide"],
-            "fiderating": details["fiderating"],
+            "fiderating": 0,
             "idclub": details["idclub"],
         }
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
-
-
-async def trf_process_fideratings(round: int):
-    """
-    read the trf_report and fill in all fields but the fiderating
-    """
-    players = {}
-    read_elo_data(round)
-    for trf in await DbICTrfRecord.find_multiple(
-        {"_model": DbICTrfRecord.DOCUMENTTYPE}
-    ):
-        players[str(trf.idfide)] = trf  # force str index
-    logger.info(f"trf records read # {len(players)}")
-    with open(ROOT_DIR / "shared" / "data" / "standard_sep23frl.txt") as ff:
-        ff.readline()  # skip first line
-        i = 1
-        while line := ff.readline():
-            id = line[0:11].strip()  # force str
-            if id in players:
-                try:
-                    pl = players[id]
-                    rating = int(line[113:118].strip())
-                except Exception:
-                    logger.error(f"failed to read rating {line[113:118]}")
-                    continue
-                logger.info(f"update rating for {id} to {rating}")
-                try:
-                    await DbICTrfRecord.update(
-                        {"idbel": pl.idbel},
-                        {
-                            "fiderating": rating,
-                            "idfide": str(id),
-                        },
-                    )
-                except RdNotFound:
-                    logger.error(f"Could not find fideid {id} in TrfRecord")
-                    logger.info(f"pl {pl}")
-            i += 1
-    logger.info(f"processed {i} lines")
 
 
 async def trf_process_sort():
@@ -950,7 +911,7 @@ async def trf_process_sort():
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
 
 
-async def trf_generate(round: int = 0) -> None:
+async def trf_generate() -> None:
     """
     generate a TRF file, round is specified only for that round
     """
@@ -990,7 +951,39 @@ async def trf_generate(round: int = 0) -> None:
         trff.write(f.getvalue())
 
 
-# helper
+async def trf_fide_ratings():
+    """
+    update the fide ratings in the trf report
+    """
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
+        if not trf.idfide:
+            continue
+        try:
+            fide = elodata[trf.idbel]
+            trf.fiderating = fide["fiderating"]
+        except KeyError:
+            logger.error(f"no elodata for {trf.idbel}")
+            continue
+        await DbICTrfRecord.update({"idbel": trf.idbel}, {"fiderating": trf.fiderating})
+
+
+async def trf_report():
+    """
+    generate the trf report
+    """
+    logger.info("trf_report")
+    read_eloprocessing(trfdata_2425["startround"])
+    for round in range(1, 10):
+        logger.info(f"processing round {round}")
+        await trf_process_round(round)
+    await trf_process_playerdetails()
+    read_eloprocessing(trfdata_2425["endround"])
+    await trf_fide_ratings()
+
+
+# helpers
 
 
 def get_elotable() -> str:
