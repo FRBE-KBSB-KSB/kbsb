@@ -53,11 +53,8 @@ from . import (
     mgmt_updateICplayers,
     set_icregistration,
     set_interclubvenues,
-    trf_process_round,
-    trf_process_playerdetails,
-    trf_process_fideratings,
-    trf_process_sort,
-    trf_generate,
+    trf_report_phase2,
+    trf_report_phase1,
     write_bel_report,
     write_eloprocessing,
     write_fide_report,
@@ -577,14 +574,13 @@ async def api_mgmt_register_teamforfeit(
 # trf processing
 
 
-@router.post("/mgmt/command/trf/{round}", status_code=201)
-async def api_trf_process_round(
-    round: int,
+@router.post("/mgmt/command/trf/phase1", status_code=201)
+async def api_trf_phase1(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     # await validate_token(auth)
     try:
-        await trf_process_round(round)
+        await trf_report_phase1()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -592,60 +588,17 @@ async def api_trf_process_round(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/command/trfplayerdetails", status_code=201)
-async def api_trf_process_playerdetails(
+@router.post("/mgmt/command/trf/phase2", status_code=201)
+async def api_trf_phase2(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     # await validate_token(auth)
     try:
-        await trf_process_playerdetails()
+        await trf_report_phase2()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api trf_process_playerdetails")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trffideratings", status_code=201)
-async def api_trf_process_fideratings(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        await trf_process_fideratings()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_fideratings")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trf_sort", status_code=201)
-async def api_trf_process_sort(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        await trf_process_sort()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_sort")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trf_generate/{round}", status_code=201)
-async def api_trf_generate(
-    round: int = 0,
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        return await trf_generate(round=round)
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_generate")
+        logger.exception("failed api trf_process_round")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
