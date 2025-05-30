@@ -55,6 +55,7 @@ class TrfRound(BaseModel):
     """
     the scorecard of a player for a specific round
     """
+
     round: int | None = None
     color: str | None = None
     opponent_ix: int | None = None
@@ -87,7 +88,7 @@ class TrfRecord(BaseModel):
 
 
 class DbICTrfRecord(DbBase):
-    COLLECTION = "ic2324trf"
+    COLLECTION = "ic2425trf"
     DOCUMENTTYPE = TrfRecord
     VERSION = 1
     IDGENERATOR = "uuid"
