@@ -53,7 +53,8 @@ from . import (
     mgmt_updateICplayers,
     set_icregistration,
     set_interclubvenues,
-    trf_report,
+    trf_report_phase2,
+    trf_report_phase1,
     write_bel_report,
     write_eloprocessing,
     write_fide_report,
@@ -573,14 +574,27 @@ async def api_mgmt_register_teamforfeit(
 # trf processing
 
 
-@router.post("/mgmt/command/trf/report", status_code=201)
-async def api_trf_report(
-    round: int,
+@router.post("/mgmt/command/trf/phase1", status_code=201)
+async def api_trf_phase1(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     # await validate_token(auth)
     try:
-        await trf_report()
+        await trf_report_phase1()
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api trf_process_round")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mgmt/command/trf/phase2", status_code=201)
+async def api_trf_phase2(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    # await validate_token(auth)
+    try:
+        await trf_report_phase2()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

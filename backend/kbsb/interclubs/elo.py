@@ -13,7 +13,6 @@ from reddevil.filestore.filestore import (
     list_bucket_files,
 )
 from reddevil.core import RdNotFound, RdInternalServerError
-from kbsb import ROOT_DIR
 from kbsb.core.db import get_mysql
 from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
 from .md_interclubs import DbICSeries
@@ -118,7 +117,7 @@ async def write_eloprocessing():
         qf = query.format(elotable=get_elotable())
         cursor.execute(qf)
         players = cursor.fetchall()
-    except Exception as e:
+    except Exception as e:  # noqa E741
         logger.exception("Cannot get players from Infomaniak")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -170,7 +169,10 @@ def read_eloprocessing(path: str):
     with StringIO(elocsv.decode("utf-8")) as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
-            elodata[int(fd["idnumber"])] = fd
+            idbel = int(fd["idnumber"])
+            if idbel == 13815:
+                logger.info(f"found idbel 13815 {fd}")
+            elodata[idbel] = fd
 
 
 async def list_eloprocessing() -> list[str]:
@@ -361,27 +363,27 @@ def generate_belgian_report(records: List[EloGame], label: str, round: int):
         "round": round,
         "icdate": icdate,
     }
-    for l in hlines:
-        fl = l.format(**headerdict)
+    for ln in hlines:
+        fl = ln.format(**headerdict)
         ff.write(fl.encode("latin-1"))
         ff.write(b_linefeed)
-    for l in glines:
+    for ln in glines:
         ls = " " * 100
         ls = replaceAt(ls, 0, "001")
-        ls = replaceAt(ls, 4, "{:4d}".format(l["n"]))
-        ls = replaceAt(ls, 14, "{:32s}".format(l["name"]))
-        ls = replaceAt(ls, 48, "{:4d}".format(l["elo"]))
-        ls = replaceAt(ls, 63, "{:5d}".format(l["idn"]))
-        ls = replaceAt(ls, 81, "{:3.1f}".format(l["score"]))
-        ls = replaceAt(ls, 91, "{:4d}".format(l["opponent"]))
-        ls = replaceAt(ls, 96, "{:1s}".format(l["color"]))
-        ls = replaceAt(ls, 98, "{:1s}".format(l["rs"]))
+        ls = replaceAt(ls, 4, "{:4d}".format(ln["n"]))
+        ls = replaceAt(ls, 14, "{:32s}".format(ln["name"]))
+        ls = replaceAt(ls, 48, "{:4d}".format(ln["elo"]))
+        ls = replaceAt(ls, 63, "{:5d}".format(ln["idn"]))
+        ls = replaceAt(ls, 81, "{:3.1f}".format(ln["score"]))
+        ls = replaceAt(ls, 91, "{:4d}".format(ln["opponent"]))
+        ls = replaceAt(ls, 96, "{:1s}".format(ln["color"]))
+        ls = replaceAt(ls, 98, "{:1s}".format(ln["rs"]))
         ff.write(ls.encode("latin-1"))
         ff.write(b_linefeed)
     ff.seek(0)
     try:
         write_bucket_content(f"icn/ICN_bel_R{round}_{label}.txt", ff)
-    except Exception:
+    except Exception as e:
         logger.info(f"failed to write belg file icn/ICN_R{round}_{label}.txt")
         logger.exception(e)
 
@@ -552,10 +554,8 @@ async def get_games_fide(round):
 def sort_fidegames():
     global sortedplayers
     for g in fidegames:
-        wt = tlines.setdefault(unidecode(g.team_white), [])
-        bt = tlines.setdefault(unidecode(g.team_black), [])
-        wopp = ""
-        bopp = ""
+        tlines.setdefault(unidecode(g.team_white), [])
+        tlines.setdefault(unidecode(g.team_black), [])
         if g.result == "1-0":
             wsc1 = 1.0
             bsc1 = 0.0
@@ -574,17 +574,13 @@ def sort_fidegames():
         if g.result == "1-0 FF":
             wsc1 = 1.0
             wsc2 = "+"
-            wopp = "0000"
             bsc1 = 0.0
             bsc2 = "-"
-            bopp = "0000"
         if g.result == "0-1 FF":
             wsc1 = 0.0
             wsc2 = "-"
-            wopp = "0000"
             bsc1 = 1.0
             bsc2 = "+"
-            bopp = "0000"
         white = EloPlayer(
             idbel=g.idbel_white,
             idfide=g.idfide_white,
@@ -671,8 +667,8 @@ def generate_fide_report(round: int):
     cnt["icdate"] = icdate.strftime("%Y/%m/%d")
     cnt["round"] = round
     f = StringIO()
-    for l in hlines:
-        fl = l.format(**cnt)
+    for ln in hlines:
+        fl = ln.format(**cnt)
         f.write(fl)
         f.write(linefeed)
     for key in sortedplayers:
@@ -752,7 +748,7 @@ async def get_fide_report(path: str) -> str:
 
 # trf processing
 
-trfdata_2425 = {"startround": "20240930.csv", "endround": "20250429.csv"}
+trfdata_2425 = {"startround": "20240930.csv", "endround": "20250525.csv"}
 
 
 async def trf_process_round(round):
@@ -776,7 +772,8 @@ async def trf_process_round(round):
                 idnv = g.idnumber_visit
                 if not idnh or not idnv:
                     continue
-
+                if not g.result:
+                    continue
                 # home player
                 try:
                     ph = await DbICTrfRecord.find_single(
@@ -848,7 +845,7 @@ async def trf_process_round(round):
                 )
 
 
-async def trf_process_playerdetails():
+async def trf_process_playerdetails1():
     """
     read the trf_report and fill in all fields but the fiderating
     """
@@ -857,7 +854,7 @@ async def trf_process_playerdetails():
     ):
         details = elodata.get(trf.idbel)
         if not details:
-            logger.error(f"no elodata for {trf.idbel}")
+            logger.info(f"no elodata for {trf.idbel}")
             continue
         upd = {
             "birthdate": details["birthday"],
@@ -869,6 +866,35 @@ async def trf_process_playerdetails():
             "fiderating": 0,
             "idclub": details["idclub"],
         }
+        await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
+
+
+async def trf_process_playerdetails2():
+    """
+    read the trf_report
+    if the record is filled in, update the record with the fiderating
+    else fill in the record with the elodata
+    """
+    for trf in await DbICTrfRecord.find_multiple(
+        {"_model": DbICTrfRecord.DOCUMENTTYPE}
+    ):
+        details = elodata.get(trf.idbel)
+        if not details:
+            logger.error(f"no elodata for {trf.idbel}")
+            break
+        if trf.idbel == 29099:
+            logger.info(f"29099 {trf} \ndetails {details}")
+        upd = {"fiderating": details["fiderating"]}
+        if not trf.fullname or trf.fullname == "":
+            upd = upd | {
+                "birthdate": details["birthday"],
+                "gender": details["gender"],
+                "chesstitle": details["title"],
+                "fullname": details["fullname"],
+                "federation": details["natfide"],
+                "idfide": details["idfide"],
+                "idclub": details["idclub"],
+            }
         await DbICTrfRecord.update({"idbel": trf.idbel}, upd)
 
 
@@ -969,18 +995,27 @@ async def trf_fide_ratings():
         await DbICTrfRecord.update({"idbel": trf.idbel}, {"fiderating": trf.fiderating})
 
 
-async def trf_report():
+async def trf_report_phase1():
     """
     generate the trf report
     """
-    logger.info("trf_report")
+    logger.info("trf report phase 1")
     read_eloprocessing(trfdata_2425["startround"])
-    for round in range(1, 10):
+    for round in range(11, 12):
         logger.info(f"processing round {round}")
         await trf_process_round(round)
-    await trf_process_playerdetails()
+    await trf_process_playerdetails1()
+
+
+async def trf_report_phase2():
+    """
+    sort the players and write the report
+    """
+    logger.info("trf report phase 2")
     read_eloprocessing(trfdata_2425["endround"])
-    await trf_fide_ratings()
+    await trf_process_playerdetails2()
+    await trf_process_sort()
+    await trf_generate()
 
 
 # helpers

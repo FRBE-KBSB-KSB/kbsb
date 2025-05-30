@@ -93,7 +93,8 @@ from .elo import (  # noqa F401
     write_bel_report,
     write_fide_report,
     write_eloprocessing,
-    trf_report,
+    trf_report_phase1,
+    trf_report_phase2,
 )
 
 import kbsb.interclubs.api_interclubs  # noqa: F401, E402
@@ -179,5 +180,6 @@ __all__ = [
     "write_bel_report",
     "write_fide_report",
     "write_eloprocessing",
-    "trf_report",
+    "trf_report_phase1",
+    "trf_report_phase2",
 ]
