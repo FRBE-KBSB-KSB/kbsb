@@ -3,7 +3,6 @@
 # all models in the service level exposed to the API
 # we are using pydantic as tool
 
-import logging
 from datetime import datetime
 from pydantic import BaseModel
 from enum import StrEnum, auto
@@ -23,27 +22,33 @@ class OrganizerKind(StrEnum):
     LEAGUE = auto()
     OTHER = auto()
 
+
 class Gender(StrEnum):
     M = auto()
     F = auto()
     X = auto()  # yep we are a bit woke
+
 
 class EloPrecedence(StrEnum):
     FIDE = auto()
     BEL = auto()
     MAX = auto()  # max rating of the player, used in some tournaments
 
+
 class TrnPlayer(BaseModel):
-    birthyear: int
+    birthdate: str  # date in ISO format
     chesstitle: str  # chesstitle at the start of the tournament
-    extra: dict  # all non essential fiields clubid, shoe size
-    first_name: str
+    extra: dict  # all non essential fields like clubid, shoe size
+    fidenationlity: str  # the nationlity of the player, as defined by FIDE
+    first_name: str  # if a player has a middle name, it is included in the first_name
     gender: Gender
-    idbel: str  # as one cannot do maths with IDs, IDs are strings by nature
-    idfide: str  # as one cannot do maths with IDs, IDs are strings by nature
+    # as one cannot do maths with IDs, IDs are strings by nature, even we only allow digits
+    idbel: str
+    idfide: str
     last_name: str
     ratingbel: int  # rating at the start of tournament
     ratingfide: int  # rating at the start of tournament
+
 
 class TrnTeam(BaseModel):
     players: list[TrnPlayer]
@@ -57,11 +62,12 @@ class TrnSystem(StrEnum):
     DOUBLEROUNDROBIN = auto()
     LOOSEGAMES = auto()
 
+
 class TrnRound(BaseModel):
     nround: int
-    play_datetime: datetime 
+    play_datetime: datetime
     all_played: bool
-    all_eloprocessed: bool 
+    all_eloprocessed: bool
 
 
 class Tournament(BaseModel):
@@ -70,9 +76,10 @@ class Tournament(BaseModel):
     """
 
     name: str
-    start_date: date
-    end_date: date
-    rounds: 
+    start_date: str  # date in ISO format
+    end_date: str  # date in ISO format
+    description: str
+    rounds: int
     status: TrnStatus
     id: str
     organizer: int
@@ -87,4 +94,3 @@ class Tournament(BaseModel):
     venue: str
     players: list[TrnPlayer]
     teams: list[TrnTeam]
-
