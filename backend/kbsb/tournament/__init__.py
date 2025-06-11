@@ -7,6 +7,7 @@ from .md_tournament import (
     TrnTeam,
     TrnSystem,
     Tournament,
+    TournamentItem,
 )
 from .md_swar import (
     SwarDateItem,
@@ -28,6 +29,7 @@ __all__ = [
     "TrnTeam",
     "TrnSystem",
     "Tournament",
+    "TournamentItem",
     "SwarDateItem",
     "SwarTBType",
     "SwarTrnDescription",

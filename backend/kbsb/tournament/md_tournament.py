@@ -94,3 +94,20 @@ class Tournament(BaseModel):
     venue: str
     players: list[TrnPlayer]
     teams: list[TrnTeam]
+
+
+class TournamentItem(BaseModel):
+    """
+    Model as retuned in a list of tournaments
+    """
+
+    id: str
+    end_date: str  # date in ISO format
+    name: str
+    organizer_name: str
+    organizer_kind: OrganizerKind
+    rounds: int
+    start_date: str  # date in ISO format
+    status: TrnStatus
+    team_event: bool
+    trn_sysem: TrnSystem
