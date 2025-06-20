@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kbsb"
-version = "2.11.10"
+version = "2.11.11"
 description = "API Website FRBE-KBSB-KSB"
 authors = ["Ruben Decrop <ruben.decrop@frbe-kbsb-ksb.be>"]
 license = "GPLv2"
