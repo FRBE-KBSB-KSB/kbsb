@@ -22,7 +22,6 @@ from kbsb.club import (
     get_csv_clubs,
     get_club_idclub,
     mgmt_mailinglist,
-    update_club,
     set_club,
     verify_club_access,
     Club,
@@ -31,9 +30,10 @@ from kbsb.club import (
     ClubRoleNature,
     ClubUpdate,
 )
-from kbsb.member import validate_membertoken
+
 
 logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/v1/clubs")
 
 # mgmt calls
@@ -106,6 +106,8 @@ async def api_update_club(
 async def api_clb_get_club(
     idclub: int, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         idnumber = validate_membertoken(auth)
         await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)
@@ -124,6 +126,8 @@ async def api_clb_update_club(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         idnumber = validate_membertoken(auth)
         await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)
@@ -188,6 +192,8 @@ async def api_verify_club_access(
     """
     verifies if a user identified by token has access to a club role
     """
+    from kbsb.member import validate_membertoken
+
     try:
         idmember = validate_membertoken(auth)
         logger.info(f"api verify_club_access idmember: {idmember}")

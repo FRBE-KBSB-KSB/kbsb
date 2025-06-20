@@ -11,6 +11,8 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
+SALT = "OLDSITE"
+
 
 class LoginValidator(BaseModel):
     """
@@ -79,6 +81,7 @@ old_role_mapping = {
 
 class AnonMember(BaseModel):
     birthyear: int = 0
+    chesstitle: str | None = ""
     fiderating: int | None = 0
     first_name: str
     gender: str

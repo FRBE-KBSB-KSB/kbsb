@@ -6,10 +6,7 @@ from reddevil.core import (
     RdException,
     bearer_schema,
     validate_token,
-    jwt_getunverifiedpayload,
 )
-from kbsb.member import validate_membertoken
-
 
 from . import (
     ICEnrollment,
@@ -24,6 +21,7 @@ from . import (
     ICPlayerValidationError,
     ICResult,
     ICSeries,
+    ICSeriesDB,
     ICStandingsDB,
     ICTeam,
     anon_getICteams,
@@ -32,6 +30,8 @@ from . import (
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICstandings,
+    anon_getICstandingsArchive,
+    anon_getICresultsArchive,
     anon_get_xlsplayerlist,
     clb_getICclub,
     clb_getICseries,
@@ -43,7 +43,6 @@ from . import (
     getICvenues,
     get_bel_report,
     get_fide_report,
-    get_penalties_report,
     list_eloprocessing,
     list_bel_reports,
     list_fide_reports,
@@ -54,11 +53,8 @@ from . import (
     mgmt_updateICplayers,
     set_icregistration,
     set_interclubvenues,
-    trf_process_round,
-    trf_process_playerdetails,
-    trf_process_fideratings,
-    trf_process_sort,
-    trf_generate,
+    trf_report_phase2,
+    trf_report_phase1,
     write_bel_report,
     write_eloprocessing,
     write_fide_report,
@@ -96,6 +92,8 @@ async def api_clb_set_enrollment(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await set_icregistration(idclub, ie, bt)
@@ -145,6 +143,8 @@ async def api_set_enrollment(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         # TODO check club autorization
@@ -211,6 +211,8 @@ async def api_clb_set_icvenues(
     ivi: ICVenueIn,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await set_interclubvenues(idclub, ivi)
@@ -262,6 +264,8 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     logger.info(f"api_clb_getICclub {idclub} {auth}")
     try:
         validate_membertoken(auth)
@@ -296,6 +300,8 @@ async def api_clb_validateICplayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await clb_validateICPlayers(idclub, players)
@@ -330,6 +336,8 @@ async def api_clb_updateICPlayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         await clb_updateICplayers(idclub, players)
@@ -403,6 +411,8 @@ async def api_clb_getICseries(
     round: int | None = 0,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         return await clb_getICseries(idclub, round)
@@ -434,6 +444,8 @@ async def api_clb_saveICplanning(
     icpi: ICPlanning,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         validate_membertoken(auth)
         await clb_saveICplanning(icpi.plannings)
@@ -464,6 +476,8 @@ async def api_clb_saveICresults(
     icri: ICResult,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
+    from kbsb.member import validate_membertoken
+
     try:
         logger.info("hi")
         validate_membertoken(auth)
@@ -513,6 +527,30 @@ async def api_anon_getICstandings(idclub: int | None = 0):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.get("/anon/icstandingsarchive", response_model=list[ICStandingsDB] | None)
+async def api_anon_getICstandingsArchive(season: str):
+    try:
+        logger.info(f"get standings archive {season}")
+        return await anon_getICstandingsArchive(season)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICstandings")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/anon/icresultsarchive", response_model=list[ICSeriesDB] | None)
+async def api_anon_getICresultsArchive(season: str, round: int):
+    try:
+        logger.info(f"get results archive {season} {round}")
+        return await anon_getICresultsArchive(season, round)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICresultsarchive")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 # tean forfait
 
 
@@ -536,14 +574,13 @@ async def api_mgmt_register_teamforfeit(
 # trf processing
 
 
-@router.post("/mgmt/command/trf/{round}", status_code=201)
-async def api_trf_process_round(
-    round: int,
+@router.post("/mgmt/command/trf/phase1", status_code=201)
+async def api_trf_phase1(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     # await validate_token(auth)
     try:
-        await trf_process_round(round)
+        await trf_report_phase1()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -551,60 +588,17 @@ async def api_trf_process_round(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/command/trfplayerdetails", status_code=201)
-async def api_trf_process_playerdetails(
+@router.post("/mgmt/command/trf/phase2", status_code=201)
+async def api_trf_phase2(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     # await validate_token(auth)
     try:
-        await trf_process_playerdetails()
+        await trf_report_phase2()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api trf_process_playerdetails")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trffideratings", status_code=201)
-async def api_trf_process_fideratings(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        await trf_process_fideratings()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_fideratings")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trf_sort", status_code=201)
-async def api_trf_process_sort(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        await trf_process_sort()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_sort")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/trf_generate/{round}", status_code=201)
-async def api_trf_generate(
-    round: int = 0,
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    # await validate_token(auth)
-    try:
-        return await trf_generate(round=round)
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_generate")
+        logger.exception("failed api trf_process_round")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
