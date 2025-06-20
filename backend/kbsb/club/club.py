@@ -19,6 +19,7 @@ from reddevil.core import (
 from reddevil.mail import sendEmail, MailParams
 
 from fastapi import BackgroundTasks
+
 from .md_club import (
     Club,
     ClubIn,
@@ -184,9 +185,6 @@ async def set_club(idclub: int, c: Club, user: str, bt: BackgroundTasks = None) 
     return clb
 
 
-from kbsb.member import anon_getmember
-
-
 def club_locale(club: Club):
     """
     returns the locale of a club, return "nl" if unknown, as this is most common
@@ -201,6 +199,8 @@ def club_locale(club: Club):
 
 
 async def sendnotification(clb: Club):
+    from kbsb.member import anon_getmember
+
     settings = get_settings()
     receiver = [clb.email_main, CLUB_EMAIL] if clb.email_main else [CLUB_EMAIL]
     locale = club_locale(clb)

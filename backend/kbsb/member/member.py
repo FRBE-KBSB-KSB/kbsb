@@ -2,10 +2,10 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
+from async_lru import alru_cache
 from jose import JWTError, ExpiredSignatureError
 from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, timezone
-from typing import List
 
 from reddevil.core import (
     RdNotAuthorized,
@@ -16,14 +16,16 @@ from reddevil.core import (
     jwt_verify,
     jwt_encode,
 )
-from kbsb.member import (
+
+from . import (
     LoginValidator,
     Member,
     AnonMember,
     SALT,
     OldUserPasswordValidator,
 )
-from kbsb.member.mysql_member import (
+
+from .mysql_member import (
     mysql_login,
     mysql_anon_getmember,
     mysql_mgmt_getmember,
@@ -33,7 +35,8 @@ from kbsb.member.mysql_member import (
     mysql_anon_getfidemember,
     mysql_old_userpassword,
 )
-from kbsb.member.mongo_member import (
+
+from .mongo_member import (
     mongodb_login,
     mongodb_anon_getmember,
     mongodb_mgmt_getmember,
@@ -129,7 +132,7 @@ async def mgmt_getmember(idbel: str | int) -> Member:
     raise NotImplementedError
 
 
-async def mgmt_getclubmembers(idclub: int, active: bool) -> List[Member]:
+async def mgmt_getclubmembers(idclub: int, active: bool) -> list[Member]:
     """
     find all members of a club
     """
@@ -143,7 +146,7 @@ async def mgmt_getclubmembers(idclub: int, active: bool) -> List[Member]:
     raise NotImplementedError
 
 
-async def anon_getclubmembers(idclub: int, active: bool) -> List[AnonMember]:
+async def anon_getclubmembers(idclub: int, active: bool) -> list[AnonMember]:
     """
     find all members of a club
     """
@@ -155,6 +158,7 @@ async def anon_getclubmembers(idclub: int, active: bool) -> List[AnonMember]:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_getmember(idbel: int) -> AnonMember:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":
@@ -164,6 +168,7 @@ async def anon_getmember(idbel: int) -> AnonMember:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_getfidemember(idfide: int) -> AnonMember:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":
@@ -173,6 +178,7 @@ async def anon_getfidemember(idfide: int) -> AnonMember:
     raise NotImplementedError
 
 
+@alru_cache(maxsize=30, ttl=60)
 async def anon_belid_from_fideid(idfide: int) -> int:
     settings = get_settings()
     if settings.MEMBERDB == "oldmysql":

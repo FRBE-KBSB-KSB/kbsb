@@ -4,10 +4,7 @@ import logging
 
 from typing import Any
 import openpyxl
-import datetime
-import yaml
 from tempfile import NamedTemporaryFile
-from reddevil.filestore.filestore import get_file
 
 
 from reddevil.core import (
