@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import Enrollment from "@/components/mgmtinterclubs/Enrollment"
+import Registration from "@/components/mgmtinterclubs/Registration"
 import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
@@ -30,7 +30,7 @@ const { person } = storeToRefs(personstore)
 
 // data model
 const tab = ref(null)
-const refenrollment = ref(null)
+const refregistration = ref(null)
 const refplayerlist = ref(null)
 // const refplanning = ref(null)
 const refresults = ref(null)
@@ -63,8 +63,8 @@ function changeDialogCounter(i) {
 function changeTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
-    case "enrollment":
-      refenrollment.value.setup(icclub.value, icdata.value)
+    case "registration":
+      refregistration.value.setup(icclub.value, icdata.value)
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
@@ -173,7 +173,7 @@ async function parseYaml(group, name) {
 }
 
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2425.yml")
+  icdata.value = await parseYaml("data", "ic2526.yml")
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
@@ -203,7 +203,7 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "enrollment"
+  tab.value = "registration"
   changeTab()
 })
 </script>
@@ -250,15 +250,15 @@ onMounted(async () => {
     <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changeTab">
-        <VTab value="enrollment">Registration</VTab>
+        <VTab value="registration">Registration</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changeTab">
-        <VWindowItem value="enrollment" :eager="true">
-          <Enrollment ref="refenrollment" />
+        <VWindowItem value="registration" :eager="true">
+          <Registration ref="refregistration" />
         </VWindowItem>
         <VWindowItem value="playerlist" :eager="true">
           <Playerlist ref="refplayerlist" />

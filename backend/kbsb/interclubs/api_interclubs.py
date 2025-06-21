@@ -8,9 +8,11 @@ from reddevil.core import (
     validate_token,
 )
 
+from kbsb.member import validate_membertoken
+
 from . import (
-    ICEnrollment,
-    ICEnrollmentIn,
+    ICRegistration,
+    ICRegistrationIn,
     ICVenueIn,
     ICVenueDB,
     ICClubDB,
@@ -67,33 +69,31 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/interclubs")
 
-# enrollments
+# registrations
 
 
-@router.get("/anon/enrollment/{idclub}", response_model=ICEnrollment | None)
-async def api_find_interclubenrollment(idclub: int):
+@router.get("/anon/registration/{idclub}", response_model=ICRegistration | None)
+async def api_find_icregistration(idclub: int):
     """
-    return an enrollment by idclub
+    return an registration by idclub
     """
-    logger.debug(f"api_find_interclubenrollment {idclub}")
+    logger.debug(f"api_find_icregistration {idclub}")
     try:
         return await find_icregistration(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call find_interclubenrollment")
+        logger.exception("failed api call find_icregistration")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_clb_set_enrollment(
+@router.post("/clb/registration/{idclub}", response_model=ICRegistration)
+async def api_clb_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await set_icregistration(idclub, ie, bt)
@@ -104,10 +104,10 @@ async def api_clb_set_enrollment(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_mgmt_set_enrollment(
+@router.post("/mgmt/registration/{idclub}", response_model=ICRegistration)
+async def api_mgmt_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
@@ -117,7 +117,7 @@ async def api_mgmt_set_enrollment(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call mgmt_set_enrollment")
+        logger.exception("failed api call mgmt_set_registration")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -136,10 +136,10 @@ async def api_xls_registrations(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_set_enrollment(
+@router.post("/clb/registration/{idclub}", response_model=ICRegistration)
+async def api_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):

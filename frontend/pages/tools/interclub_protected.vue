@@ -7,7 +7,7 @@ import { useIdtokenStore } from "@/store/idtoken"
 import { useIdnumberStore } from "@/store/idnumber"
 import showdown from "showdown"
 
-// import Enrollment from "@/components/interclubs/Enrollment.vue"
+import Registration from "~/components/interclubs/Registration.vue"
 import Results from "@/components/interclubs/Results.vue"
 import Planning from "@/components/interclubs/Planning.vue"
 import Playerlist from "@/components/interclubs/Playerlist.vue"
@@ -43,8 +43,8 @@ const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
 
 // data model
-const tab = ref(null)
-const refenrollment = ref(null)
+const tab = ref("registration")
+const refregistration = ref(null)
 const refplanning = ref(null)
 const refplayerlist = ref(null)
 const refresults = ref(null)
@@ -55,6 +55,7 @@ const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
+let registration_phase = false
 
 // methods alphabetically
 
@@ -66,17 +67,17 @@ function changeDialogCounter(i) {
 function changeTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
-    // case "enrollment":
-    //   refenrollment.value.setup(icclub.value, icdata.value)
+    // case "planning":
+    //   refplanning.value.setup(icclub.value, round.value, icdata.value)
     //   break
-    case "planning":
-      refplanning.value.setup(icclub.value, round.value, icdata.value)
-      break
-    case "playerlist":
-      refplayerlist.value.setup(icclub.value, icdata.value)
-      break
-    case "results":
-      refresults.value.setup(icclub.value, round.value, icdata.value)
+    // case "playerlist":
+    //   refplayerlist.value.setup(icclub.value, icdata.value)
+    //   break
+    // case "results":
+    //   refresults.value.setup(icclub.value, round.value, icdata.value)
+    //   break
+    case "registration":
+      refregistration.value.setup(icclub.value, icdata.value)
       break
     case "venues":
       refvenues.value.setup(icclub.value, icdata.value)
@@ -160,7 +161,7 @@ async function getClubDetails() {
 async function getHelpContent() {
   try {
     const reply = await $backend("filestore", "anon_get_file", {
-      group: "pages",
+      group: "data",
       name: `help-login.md`,
     })
     metadata.value = useMarkdown(reply.data).metadata
@@ -184,12 +185,12 @@ async function parseYaml(group, name) {
 }
 
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2425.yml")
+  icdata.value = await parseYaml("data", "ic2526.yml")
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
-  // november hack
-  icdata.value.playerlist_data[1].start = "2024-10-25"
+  registration_phase =
+    icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
 }
 
 async function readBucket(group, name) {
@@ -220,7 +221,6 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "results"
   changeTab()
   await getHelpContent()
 })
@@ -232,7 +232,7 @@ definePageMeta({
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2024-25</h1>
+    <h1>Interclubs Manager 2025-26</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ t("Loading...") }}</v-card-title>
@@ -310,21 +310,14 @@ definePageMeta({
     <h3 class="my-2">{{ t("Selected club") }}: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
-        <!-- <v-tab value="enrollment">{{ t("icn.enr") }}</v-tab> -->
-        <v-tab value="results">{{ t("Results") }}</v-tab>
+        <!-- <v-tab value="results">{{ t("Results") }}</v-tab>
         <v-tab value="planning">{{ t("Planning") }}</v-tab>
+        <v-tab value="playerlist">{{ t("Player list") }}</v-tab> -->
+        <v-tab value="registration">{{ t("icn.enr") }}</v-tab>
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
-        <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
-        <!-- <v-window-item :eager="true" value="enrollment">
-          <Enrollment
-            ref="refenrollment"
-            @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter"
-          />
-        </v-window-item> -->
-        <v-window-item :eager="true" value="results">
+        <!-- <v-window-item :eager="true" value="results">
           <Results
             ref="refresults"
             @snackbar="displaySnackbar"
@@ -338,15 +331,22 @@ definePageMeta({
             @changeDialogCounter="changeDialogCounter"
           />
         </v-window-item>
+        <v-window-item :eager="true" value="playerlist">
+          <Playerlist ref="refplayerlist" />
+        </v-window-item> -->
+        <v-window-item :eager="true" value="registration">
+          <Registration
+            ref="refregistration"
+            @snackbar="displaySnackbar"
+            @changeDialogCounter="changeDialogCounter"
+          />
+        </v-window-item>
         <v-window-item :eager="true" value="venues">
           <Venue
             ref="refvenues"
             @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter"
           />
-        </v-window-item>
-        <v-window-item :eager="true" value="playerlist">
-          <Playerlist ref="refplayerlist" />
         </v-window-item>
       </v-window>
     </div>

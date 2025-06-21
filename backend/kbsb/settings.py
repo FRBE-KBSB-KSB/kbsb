@@ -115,7 +115,7 @@ SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
 
 SHORTCUT_INFOMANIAKLOGIN = False
 
-TEMPLATES_PATH = os.environ.get("TEMPLATES_PATH", "./kbsb/templates")
+TEMPLATES_MODULE = "kbsb"
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
