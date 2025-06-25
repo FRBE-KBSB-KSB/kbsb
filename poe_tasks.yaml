@@ -1,15 +1,21 @@
 tasks:
   be_build:
-    cmd: poetry install
+    shell: |
+      cd backend
+      poetry install
+      cd ..
     help: install the backend  
   be_run:
-    cmd: poetry run uvicorn kbsb.main:app --reload
+    shell: |
+      cd backend
+      poetry run uvicorn kbsb.main:app --reload
+      cd ..
     help: run the backend uvicorn server
   deploy:
     shell: |
       cd backend
       gcloud app deploy --quiet
-      cd
+      cd ..
     help: deploy app on google cloud
   fe_build:
     shell: | 
