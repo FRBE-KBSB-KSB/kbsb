@@ -70,8 +70,8 @@ logger.info("Api's loaded")
 
 # static files
 if settings.KBSB_MODE != "production":
-    app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
-    app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
+    app.mount("/css", StaticFiles(directory="../frontend/public/css"), name="css")
+    app.mount("/img", StaticFiles(directory="../frontend/public/img"), name="img")
     logger.info("static dirs loaded")
 
 for route in app.routes:
