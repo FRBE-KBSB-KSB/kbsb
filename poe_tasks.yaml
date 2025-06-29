@@ -15,7 +15,7 @@ tasks:
     shell: |
       cd backend
       gcloud app deploy --quiet
-      cd
+      cd ..
     help: deploy app on google cloud
   fe_build:
     shell: | 
