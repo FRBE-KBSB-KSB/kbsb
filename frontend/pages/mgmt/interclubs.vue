@@ -6,6 +6,7 @@ import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
+import Venues from "@/components/mgmtinterclubs/Venues.vue"
 import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
@@ -35,7 +36,7 @@ const refplayerlist = ref(null)
 // const refplanning = ref(null)
 const refresults = ref(null)
 const refreports = ref(null)
-// const refvenues = ref(null)
+const refvenues = ref(null)
 const refdownloads = ref(null)
 const icdata = ref({})
 const clubs = ref([])
@@ -65,6 +66,9 @@ function changeTab() {
   switch (tab.value) {
     case "registration":
       refregistration.value.setup(icclub.value, icdata.value)
+      break
+    case "venues":
+      refvenues.value.setup(icclub.value, icdata.value)
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
@@ -251,6 +255,7 @@ onMounted(async () => {
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changeTab">
         <VTab value="registration">Registration</VTab>
+        <VTab value="venues">Venues</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
         <VTab value="reports">Reports</VTab>
@@ -259,6 +264,9 @@ onMounted(async () => {
       <VWindow v-model="tab" @update:modelValue="changeTab">
         <VWindowItem value="registration" :eager="true">
           <Registration ref="refregistration" />
+        </VWindowItem>
+        <VWindowItem value="venues" :eager="true">
+          <Venues ref="refvenues" />
         </VWindowItem>
         <VWindowItem value="playerlist" :eager="true">
           <Playerlist ref="refplayerlist" />

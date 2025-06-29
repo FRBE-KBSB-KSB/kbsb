@@ -1,15 +1,14 @@
 <script setup>
 import { ref, computed } from "vue"
-import { useI18n } from "vue-i18n"
-import { useIdtokenStore } from "@/store/idtoken"
+import { useMgmtTokenStore } from "@/store/mgmttoken"
+import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
 import { storeToRefs } from "pinia"
 
-// communication
+// communication with manager
 defineExpose({ setup })
-const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
+const mgmttokenstore = useMgmtTokenStore()
+const { token: idtoken } = storeToRefs(mgmttokenstore)
 const { $backend } = useNuxtApp()
-const { t } = useI18n()
 
 //  snackbar and loading widgets
 import ProgressLoading from "@/components/ProgressLoading.vue"
@@ -30,12 +29,13 @@ const empty_venue = {
   teams: "",
   wheelchair: true,
 }
-const venues = ref([])
-const ven_status = ref("closed")
-const modifying = ref(false)
 let icclub = {}
 let icdata = {}
+const modifying = ref(false)
+const ven_status = ref("open")
+const venues = ref([])
 
+// methods
 function addVenue() {
   venues.value.push({ ...empty_venue })
 }
@@ -47,11 +47,11 @@ async function cancel() {
 }
 
 function calcstatus() {
+  console.log("calcstatus")
   // we have the following status
   // - open
   // - closed
   // - noclub
-  // - editing
   // - noaccess
   if (!icclub.idclub) {
     ven_status.value = "noclub"
@@ -62,27 +62,6 @@ function calcstatus() {
     return
   }
   ven_status.value = "open"
-}
-
-async function checkAccess() {
-  let reply
-  if (!idtoken.value) return false
-  showLoading(true)
-  try {
-    reply = await $backend("club", "verify_club_access", {
-      idclub: icclub.idclub,
-      role: "InterclubAdmin,InterclubCaptain",
-      token: idtoken.value,
-    })
-    return true
-  } catch (error) {
-    console.log("reply NOK", error)
-    ven_status.value = "noaccess"
-    showSnackbar(t("icn.perm_denied"))
-    return false
-  } finally {
-    showLoading(false)
-  }
 }
 
 function deleteVenue(ix) {
@@ -98,22 +77,15 @@ async function getICVenues() {
     })
     readVenues(reply.data)
   } catch (error) {
-    showSnackbar(t(error.message))
+    showSnackbar(error.message)
     return
   } finally {
     showLoading(false)
   }
 }
 
-async function modifyICvenues() {
-  if (!modifying.value) {
-    const allowed = await checkAccess()
-    if (allowed) {
-      modifying.value = true
-    }
-  } else {
-    modifying.value = false
-  }
+function modifyICvenues() {
+  modifying.value = true
   calcstatus()
 }
 
@@ -152,18 +124,18 @@ async function saveVenues() {
   console.log("venues", venues.value)
   showLoading(true)
   try {
-    reply = await $backend("interclub", "set_interclubvenues", {
+    reply = await $backend("interclub", "mgmt_set_interclubvenues", {
       token: idtoken.value,
       idclub: icclub.idclub,
       venues: venues.value,
     })
-    showSnackbar(t("icn.ven_save_ok"))
+    showSnackbar("Venues saved successfully")
   } catch (error) {
     console.log("NOK set_venue", error)
     if (error.code == 401) {
       ven_status.value = "noaccess"
     } else {
-      showSnackbar(t("icn.ven_save_fail"))
+      showSnackbar("Saving venues failed: " + error.message)
     }
     return
   } finally {
@@ -173,7 +145,7 @@ async function saveVenues() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup Venue", icclub_, icdata_)
+  console.log("setup venues", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = icclub_
@@ -182,132 +154,89 @@ async function setup(icclub_, icdata_) {
   await getICVenues()
 }
 </script>
+
 <template>
-  <v-container>
+  <VContainer>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <v-alert
-      type="warning"
-      variant="outlined"
-      v-if="ven_status == 'closed'"
-      :text="t('icn.ven_closed')"
-    />
-    <v-alert
-      type="warning"
-      variant="outlined"
-      v-if="ven_status == 'noclub'"
-      :text="t('icn.select_club')"
-    />
-    <v-alert
-      type="error"
-      variant="outlined"
-      v-if="ven_status == 'noaccess'"
-      :text="t('icn.perm_denied')"
-    />
+    <h2>Interclub venues</h2>
+    <p v-if="ven_status == 'noclub'">
+      Please select a club to view the interclubs player list
+    </p>
     <div v-if="ven_status == 'open'">
       <v-row v-show="!venues.length">
         <v-col cols="12" sm="6" md="4" xl="3">
           <v-card class="elevation-5">
-            <v-card-title class="card-title">
-              {{ t("icn.ven_2") }}
-            </v-card-title>
-            <v-card-text>
-              {{ t("icn.ven_notdefined") }}
-            </v-card-text>
+            <v-card-title class="card-title"> Venues </v-card-title>
+            <v-card-text> No interclub venue is defined </v-card-text>
           </v-card>
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" sm="6" v-for="(v, ix) in venues" :key="ix">
+        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in venues" :key="ix">
           <v-card class="elevation-5">
-            <v-card-title> {{ t("icn.ven_1") }}: {{ ix + 1 }} </v-card-title>
+            <v-card-title> Venue: {{ ix + 1 }} </v-card-title>
             <v-card-text>
               <div>
-                <b>{{ t("Address") }}:</b> <br />
+                <b>Address:</b> <br />
                 <span v-html="v.address.split('\n').join('<br />')"></span>
               </div>
-              <div>
-                <b>{{ t("Capacity (boards)") }}:</b> {{ v.capacity }}
-              </div>
-              <div>
-                <b>{{ t("Teams") }}:</b> {{ v.teams_s }}
-              </div>
-              <div>
-                <b>{{ t("Rounds") }}:</b> {{ v.rounds_s }}
-              </div>
-              <div>
-                <b>{{ t("icn.ven_wheelchair") }}:</b> {{ v.wheelchair }}
-              </div>
-              <p>{{ t("Optional") }}</p>
-              <div>
-                <b>{{ t("Email address") }} {{ t("icn.ven_1") }}:</b> {{ v.email }}
-              </div>
-              <div>
-                <b>{{ t("Telephone number") }} {{ t("icn.ven_1") }}:</b> {{ v.phone }}
-              </div>
+              <div><b>Capacity in boards:</b> {{ v.capacity }}</div>
+              <div><b>Teams:</b> {{ v.teams_s }}</div>
+              <div><b>Rounds:</b> {{ v.rounds_s }}</div>
+              <div><b>Accessible for wheelchair:</b> {{ v.wheelchair }}</div>
+              <p>Optional</p>
+              <div><b>Email address venue:</b> {{ v.email }}</div>
+              <div><b>Telephone number venue:</b> {{ v.phone }}</div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
       <v-row>
-        <v-btn @click="modifyICvenues">
-          {{ t("Edit") }}
-        </v-btn>
+        <v-btn @click="modifyICvenues"> Edit </v-btn>
       </v-row>
     </div>
     <div v-if="ven_status == 'editing'">
       <v-row class="my-2">
-        <v-btn @click="addVenue()">
-          {{ t("icn.ven_add") }}
-        </v-btn>
-        <v-btn @click="saveVenues" class="ml-2">
-          {{ t("icn.ven_save") }}
-        </v-btn>
-        <v-btn @click="cancel" class="ml-2">
-          {{ t("Cancel") }}
-        </v-btn>
+        <v-btn @click="addVenue"> Add Venue </v-btn>
+        <v-btn @click="saveVenues" class="ml-2"> Save Venues </v-btn>
+        <v-btn @click="cancel" class="ml-2"> Cancel </v-btn>
       </v-row>
       <v-row>
-        <v-col cols="12" sm="6" v-for="(v, ix) in venues" :key="ix">
+        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in venues" :key="ix">
           <v-card class="elevation-5">
-            <v-card-title> {{ t("icn.ven_1") }}: {{ ix + 1 }} </v-card-title>
+            <v-card-title> Venue: {{ ix + 1 }} </v-card-title>
             <v-card-text>
-              <v-textarea v-model="v.address" :label="t('Address')" rows="3" outlined />
+              <v-textarea v-model="v.address" label="Address" rows="3" outlined />
               <v-text-field
                 v-model="v.capacity"
-                :label="t('Capacity (boards)')"
+                label="Capacity (boards)"
                 type="number"
               />
-              <h4>{{ t("Availability") }}</h4>
+              <h4>Availability</h4>
               <v-radio-group v-model="v.roundsel">
-                <v-radio value="all" :label="t('All rounds')" />
-                <v-radio value="selected" :label="t('icn.ven_round_avail')" />
+                <v-radio value="all" label="All rounds" />
+                <v-radio value="selected" label="Available for rounds" />
               </v-radio-group>
               <v-text-field
                 v-show="v.roundsel == 'selected'"
                 v-model="v.rounds_s"
-                :label="t('icn.ven_round_sel')"
+                label="Rounds"
               />
               <v-radio-group v-model="v.teamssel">
-                <v-radio value="all" :label="t('All teams')" />
-                <v-radio value="selected" :label="t('icn.ven_teams_avail')" />
+                <v-radio value="all" label="All teams" />
+                <v-radio value="selected" label="Available for teams" />
               </v-radio-group>
               <v-text-field
                 v-show="v.teamssel == 'selected'"
                 v-model="v.teams_s"
-                :label="t('icn.ven_team_sel')"
+                label="Teams"
               />
-              <v-checkbox v-model="v.wheelchair" :label="t('icn.ven_wheelchair')" />
-              <p class="fieldname">{{ t("Optionally") }}</p>
-              <v-text-field
-                v-model="v.email"
-                :label="`${t('Email address')} ${t('icn.ven_1')}`"
-              />
-              <v-text-field
-                v-model="v.phone"
-                :label="`${t('Telephone number')} ${t('icn.ven_1')}`"
-              />
-              <v-textarea v-model="v.remarks" :label="t('Remarks')" />
+              <v-checkbox v-model="v.wheelchair" label="Accessible for wheelchair" />
+              <p class="fieldname">Optionally</p>
+              <v-text-field v-model="v.email" label="Email address venue" />
+              <v-text-field v-model="v.phone" label="Telephone number venue" />
+              <v-textarea v-model="v.remarks" label="Remarks" />
             </v-card-text>
             <v-card-actions>
               <v-btn fab small @click="deleteVenue(ix)">
@@ -318,5 +247,5 @@ async function setup(icclub_, icdata_) {
         </v-col>
       </v-row>
     </div>
-  </v-container>
+  </VContainer>
 </template>

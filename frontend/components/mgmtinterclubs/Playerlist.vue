@@ -373,7 +373,7 @@ async function setup(icclub_, icdata_) {
     />
     <div v-if="pll_status == 'open'">
       <div v-if="!registered">
-        This club is not registered for Interclubs 2024-25
+        This club is not registered for Interclubs 2025-26
         <VBtn @click="openExportAll" color="primary" class="ml-8">
           Export all players
         </VBtn>
