@@ -5,92 +5,70 @@ from fastapi.testclient import TestClient
 from fastapi.encoders import jsonable_encoder
 
 from kbsb.main import app
-from kbsb.interclubs.md_interclubs import ICEnrollmentIn
+from kbsb.interclubs.md_interclubs import ICRegistrationIn
 
 
-@patch("kbsb.interclubs.api_interclubs.find_interclubenrollment")
-def test_find_interclubenrollment(
-    find_interclubenrollment: AsyncMock, ic_enrollment_factory
-):
+@patch("kbsb.interclubs.api_interclubs.find_icregistration")
+def test_find_icregistration(find_icregistration: AsyncMock, ic_registration_factory):
     client = TestClient(app)
-    find_interclubenrollment.return_value = ic_enrollment_factory.build()
-    resp = client.get("/api/v1/interclubs/anon/enrollment/123")
+    find_icregistration.return_value = ic_registration_factory.build()
+    resp = client.get("/api/v1/interclubs/anon/registration/123")
     assert resp.status_code == 200
-    find_interclubenrollment.assert_awaited_with(123)
-
-
-@patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
-def test_mgmt_set_enrollment(
-    set_interclubenrollment: AsyncMock,
-    vt: AsyncMock,
-    ic_enrollment_in_factory,
-    ic_enrollment_factory,
-):
-    client = TestClient(app)
-    set_interclubenrollment.return_value = ic_enrollment_factory.build()
-    enr_in = ic_enrollment_in_factory.build()
-    resp = client.post(
-        "/api/v1/interclubs/mgmt/enrollment/123", json=jsonable_encoder(enr_in)
-    )
-    assert resp.status_code == 200
-    set_interclubenrollment.assert_awaited()
-    callargs = set_interclubenrollment.await_args[0]
-    assert callargs[0] == 123
-    assert isinstance(callargs[1], ICEnrollmentIn)
+    find_icregistration.assert_awaited_with(123)
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
-@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
-def test_clb_set_enrollment(
-    set_interclubenrollment: AsyncMock,
+@patch("kbsb.interclubs.api_interclubs.set_icregistration")
+def test_clb_set_registration(
+    set_icregistration: AsyncMock,
     vmt: MagicMock,
-    ic_enrollment_in_factory,
-    ic_enrollment_factory,
+    ic_registration_in_factory,
+    ic_registration_factory,
 ):
     client = TestClient(app)
-    set_interclubenrollment.return_value = ic_enrollment_factory.build()
-    enr_in = ic_enrollment_in_factory.build()
+    set_icregistration.return_value = ic_registration_factory.build()
+    enr_in = ic_registration_in_factory.build()
     resp = client.post(
-        "/api/v1/interclubs/clb/enrollment/123", json=jsonable_encoder(enr_in)
+        "/api/v1/interclubs/clb/registration/123", json=jsonable_encoder(enr_in)
     )
     assert resp.status_code == 200
-    set_interclubenrollment.assert_awaited()
-    callargs = set_interclubenrollment.await_args[0]
+    set_icregistration.assert_awaited()
+    callargs = set_icregistration.await_args[0]
     assert callargs[0] == 123
-    assert isinstance(callargs[1], ICEnrollmentIn)
+    assert isinstance(callargs[1], ICRegistrationIn)
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.csv_ICenrollments")
-def test_csv_interclubenrollments(csv_ICenrollments: AsyncMock, vt):
-    client = TestClient(app)
-    csv_ICenrollments.return_value = "csvcontent"
-    resp = client.get("/api/v1/interclubs/mgmt/command/exportenrollments?format=csv")
-    assert resp.status_code == 200
-    csv_ICenrollments.assert_awaited()
-    assert resp.content == b'"csvcontent"'
-
-
-@patch("kbsb.interclubs.api_interclubs.validate_membertoken")
-@patch("kbsb.interclubs.api_interclubs.set_interclubenrollment")
-def test_clb_set_enrollment(
-    set_interclubenrollment: AsyncMock,
+@patch("kbsb.interclubs.api_interclubs.set_icregistration")
+def test_mgmt_set_registration(
+    set_icregistration: AsyncMock,
     vt: AsyncMock,
-    ic_enrollment_in_factory,
-    ic_enrollment_factory,
+    ic_registration_in_factory,
+    ic_registration_factory,
 ):
     client = TestClient(app)
-    set_interclubenrollment.return_value = ic_enrollment_factory.build()
-    enr_in = ic_enrollment_in_factory.build()
+    set_icregistration.return_value = ic_registration_factory.build()
+    enr_in = ic_registration_in_factory.build()
     resp = client.post(
-        "/api/v1/interclubs/clb/enrollment/123", json=jsonable_encoder(enr_in)
+        "/api/v1/interclubs/mgmt/registration/123", json=jsonable_encoder(enr_in)
     )
     assert resp.status_code == 200
-    set_interclubenrollment.assert_awaited()
-    callargs = set_interclubenrollment.await_args[0]
+    set_icregistration.assert_awaited()
+    callargs = set_icregistration.await_args[0]
     assert callargs[0] == 123
-    assert isinstance(callargs[1], ICEnrollmentIn)
+    assert isinstance(callargs[1], ICRegistrationIn)
+
+
+@pytest.mark.skip("No Excel")
+@patch("kbsb.interclubs.api_interclubs.validate_token")
+@patch("kbsb.interclubs.api_interclubs.xls_registrations")
+def test_xls_registrations(xls_registrations: AsyncMock, vt):
+    client = TestClient(app)
+    xls_registrations.return_value = "xls_content"
+    resp = client.get("/api/v1/interclubs/mgmt/command/xls_registrations")
+    xls_registrations.assert_awaited()
+    assert resp.status_code == 200
+    assert resp.content == b'"xls_content"'
 
 
 @patch("kbsb.interclubs.api_interclubs.anon_getICteams")

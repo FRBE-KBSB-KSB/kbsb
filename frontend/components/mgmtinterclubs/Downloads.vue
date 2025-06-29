@@ -38,7 +38,7 @@ async function download_registrations() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "reservations_2425.xlsx"
+  link.download = "reservations_2526.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -61,7 +61,7 @@ async function download_venues() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "venues_2425.xlsx"
+  link.download = "venues_2426.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -84,7 +84,7 @@ async function download_playerlists() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "playerlists_2425.xlsx"
+  link.download = "playerlists_2526.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()

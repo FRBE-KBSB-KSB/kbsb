@@ -4,16 +4,16 @@ const prefix = "/api/v1/interclubs"
 
 export default {
   // registrations
-  find_interclubenrollment: async function (options) {
+  find_interclubregistration: async function (options) {
     const { idclub } = options
-    const resp = await axios.get(`${prefix}/anon/enrollment/${idclub}`)
+    const resp = await axios.get(`${prefix}/anon/registration/${idclub}`)
     return resp
   },
-  set_interclubenrollment: async function (options) {
-    const { token, idclub, ...enrollment } = options
+  set_interclubregistration: async function (options) {
+    const { token, idclub, ...registration } = options
     const resp = await axios.post(
-      `${prefix}/clb/enrollment/${idclub}`,
-      enrollment,
+      `${prefix}/clb/registration/${idclub}`,
+      registration,
       {
         headers: {
           Authorization: "Bearer " + token,
@@ -22,11 +22,11 @@ export default {
     )
     return resp
   },
-  mgmt_set_interclubenrollment: async function (options) {
-    const { token, idclub, ...enrollment } = options
+  mgmt_set_interclubregistration: async function (options) {
+    const { token, idclub, ...registration } = options
     const resp = await axios.post(
-      `${prefix}/mgmt/enrollment/${idclub}`,
-      enrollment,
+      `${prefix}/mgmt/registration/${idclub}`,
+      registration,
       {
         headers: {
           Authorization: "Bearer " + token,

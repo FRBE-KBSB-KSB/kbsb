@@ -53,7 +53,6 @@ function calcstatus() {
   // - noclub
   // - editing
   // - noaccess
-  ven_status.value = "closed"
   if (!icclub.idclub) {
     ven_status.value = "noclub"
     return

@@ -7,7 +7,7 @@ tasks:
     help: install the backend  
   be_run:
     shell: |
-      cd backend
+      cd backend 
       poetry run uvicorn kbsb.main:app --reload
       cd ..
     help: run the backend uvicorn server

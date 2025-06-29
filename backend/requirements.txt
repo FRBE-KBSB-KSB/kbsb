@@ -21,4 +21,4 @@ requests==2.31.0
 unidecode==1.3.7
 uvicorn==0.27.1
 toml==0.10.2
-libs/reddevil-3.4.0-py3-none-any.whl
+libs/reddevil-3.4.4-py3-none-any.whl

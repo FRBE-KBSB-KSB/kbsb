@@ -7,7 +7,6 @@ import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
 import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
-// import Dates from "@/components/interclubs/Dates.vue"
 
 // locale
 const { locale, t } = useI18n()
@@ -22,7 +21,6 @@ const refresults = ref(null)
 const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
-// const refdates = ref(null)
 const icdata = ref({})
 const ic_rounds = ref([])
 
@@ -31,6 +29,9 @@ const ic_rounds = ref([])
 function changeTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
+    case "registration":
+      refregistration.value.setup(icdata.value)
+      break
     case "results":
       refresults.value.setup(icdata.value)
       break
@@ -43,9 +44,6 @@ function changeTab() {
     case "venues":
       refvenues.value.setup()
       break
-    // case "dates":
-    //   refdates.value.setup()
-    //   break
   }
 }
 
@@ -62,7 +60,7 @@ async function parseYaml(group, name) {
 }
 
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2425.yml")
+  icdata.value = await parseYaml("data", "ic2526.yml")
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
@@ -97,15 +95,21 @@ definePageMeta({
 
 <template>
   <v-container>
-    <h1>Interclubs 2024-25</h1>
+    <h1>Interclubs 2025-26</h1>
     <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
+      <v-tab value="registration">{{ t("Registration") }}</v-tab>
       <v-tab value="results">{{ t("Results") }}</v-tab>
       <v-tab value="standings">{{ t("Standings") }}</v-tab>
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
-      <!-- <v-tab value="dates">{{ t("Dates") }}</v-tab> -->
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
+      <v-window-item :eager="true" value="registration">
+        <Registration ref="refregistration" />
+      </v-window-item>
+      <v-window-item :eager="true" value="venues">
+        <VenuePublic ref="refvenues" />
+      </v-window-item>
       <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>
@@ -115,12 +119,6 @@ definePageMeta({
       <v-window-item :eager="true" value="playerlist">
         <PlayerlistPublic ref="refplayerlist" />
       </v-window-item>
-      <v-window-item :eager="true" value="venues">
-        <VenuePublic ref="refvenues" />
-      </v-window-item>
-      <!-- <v-window-item :eager="true" value="dates">
-        <Dates ref="refdates" />
-      </v-window-item> -->
     </v-window>
   </v-container>
 </template>
