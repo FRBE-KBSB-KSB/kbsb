@@ -14,16 +14,17 @@ const route = useRoute()
 const tab = ref(null)
 const refresults = ref(null)
 const refstandings = ref(null)
+const season = ref("2425") // default season
 
 // methods alphabetically
 
 function changeTab() {
   switch (tab.value) {
     case "standings":
-      refstandings.value.setup("2324")
+      refstandings.value.setup(season.value)
       break
     case "results":
-      refresults.value.setup("2324")
+      refresults.value.setup(season.value)
       break
   }
 }
@@ -42,7 +43,14 @@ definePageMeta({
 
 <template>
   <v-container>
-    <h1>Interclubs 2023-24</h1>
+    <h1>Interclubs Archive</h1>
+    <v-select
+      v-model="season"
+      label="Season"
+      :items="['2425', '2324']"
+      width="10em"
+      v-on:update:modelValue="changeTab()"
+    ></v-select>
     <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
       <v-tab value="standings">{{ t("Standings") }}</v-tab>
       <v-tab value="results">{{ t("Results") }}</v-tab>
