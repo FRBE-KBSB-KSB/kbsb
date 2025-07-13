@@ -1,34 +1,32 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { CLUB_STATUS, EMPTY_CLUB } from '@/util/club'
+import { ref, computed, nextTick } from "vue"
+import { useI18n } from "vue-i18n"
+import { CLUB_STATUS, EMPTY_CLUB } from "@/util/club"
 
-import { useIdtokenStore } from '@/store/idtoken'
-import { storeToRefs } from 'pinia'
-import showdown from 'showdown'
-
+import { useIdtokenStore } from "@/store/idtoken"
+import { storeToRefs } from "pinia"
+import showdown from "showdown"
 
 const { locale, t } = useI18n()
 const router = useRouter()
 const { $backend } = useNuxtApp()
 
-// help dialog 
+// help dialog
 const mdConverter = new showdown.Converter()
 const helptitle = ref("")
 const helpdialog = ref(false)
 const helpcontent = ref("")
 
-
 // model
-const props = defineProps(['club'])
+const props = defineProps(["club"])
 const clubdetails = ref(EMPTY_CLUB)
 const statuscm = ref(CLUB_STATUS.CONSULTING)
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
-const status_consulting = computed(() => (statuscm.value == CLUB_STATUS.CONSULTING))
-const status_modifying = computed(() => (statuscm.value == CLUB_STATUS.MODIFYING))
+const status_consulting = computed(() => statuscm.value == CLUB_STATUS.CONSULTING)
+const status_modifying = computed(() => statuscm.value == CLUB_STATUS.MODIFYING)
 let copyclubdetails = null
-const emit = defineEmits(['displaySnackbar', 'updateClub'])
+const emit = defineEmits(["displaySnackbar", "updateClub"])
 
 function md(s) {
   return mdConverter.makeHtml(s)
@@ -36,12 +34,11 @@ function md(s) {
 
 function cancelClub() {
   statuscm.value = CLUB_STATUS.CONSULTING
-  emit('updateClub')
+  emit("updateClub")
 }
 
-
 function gotoLogin() {
-  router.push('/tools/login?url=__clubs__manager')
+  router.push("/tools/login?url=__clubs__manager")
 }
 
 async function modifyClub() {
@@ -49,7 +46,7 @@ async function modifyClub() {
 }
 
 function readClubDetails() {
-  console.log('details.clubdetails', props.club)
+  console.log("details.clubdetails", props.club)
   clubdetails.value = { ...EMPTY_CLUB, ...props.club }
   copyclubdetails = JSON.parse(JSON.stringify(props.club))
 }
@@ -69,27 +66,26 @@ async function saveClub() {
       token: idtoken.value,
     })
     statuscm.value = CLUB_STATUS.CONSULTING
-    emit('displaySnackbar', t('Club saved'))
-    emit('updateClub')
+    emit("displaySnackbar", t("Club saved"))
+    emit("updateClub")
   } catch (error) {
     if (error.code == 401) gotoLogin()
-    emit('displaySnackbar', t(error.message))
+    emit("displaySnackbar", t(error.message))
     return
   }
 }
 
 async function getContent() {
   try {
-    const reply = await $backend('filestore', 'anon_get_file', {
-      group: 'pages',
-      name: `help-club-contact.md`
+    const reply = await $backend("filestore", "anon_get_file", {
+      group: "pages",
+      name: `help-club-contact.md`,
     })
     metadata.value = useMarkdown(reply.data).metadata
     helptitle.value = metadata.value["title_" + locale.value]
     helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-  }
-  catch (error) {
-    console.log('failed')
+  } catch (error) {
+    console.log("failed")
   }
 }
 
@@ -98,55 +94,55 @@ defineExpose({ readClubDetails })
 onMounted(() => {
   getContent()
 })
-
-
-
-
 </script>
-
 
 <template>
   <v-container>
-    <p v-if="!club.idclub">{{ $t('Select a club to view the club details') }}</p>
+    <p v-if="!club.idclub">{{ $t("Select a club to view the club details") }}</p>
     <div v-if="club.idclub">
       <v-container v-show="status_consulting">
-        <h2>{{ $t('Consulting club details') }}</h2>
+        <h2>{{ $t("Consulting club details") }}</h2>
         <v-row>
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title>
-                {{ $t('Club details') }}
+                {{ $t("Club details") }}
               </v-card-title>
               <v-card-text>
-                <div><span class="fieldname">{{ $t('Long name') }}</span>: {{ clubdetails.name_long
-                  }}
+                <div>
+                  <span class="fieldname">{{ $t("Long name") }}</span
+                  >: {{ clubdetails.name_long }}
                 </div>
-                <div><span class="fieldname">{{ $t('Short name') }}</span>: {{
-      clubdetails.name_short }}
+                <div>
+                  <span class="fieldname">{{ $t("Short name") }}</span
+                  >: {{ clubdetails.name_short }}
                 </div>
-                <div><span class="fieldname">{{ $t('Federation') }}</span>: {{
-      clubdetails.federation }}
+                <div>
+                  <span class="fieldname">{{ $t("Federation") }}</span
+                  >: {{ clubdetails.federation }}
                 </div>
-                <div><span class="fieldname">{{ $t('Website') }}</span>: {{ clubdetails.website }}
+                <div>
+                  <span class="fieldname">{{ $t("Website") }}</span
+                  >: {{ clubdetails.website }}
                 </div>
               </v-card-text>
             </v-card>
           </v-col>
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
-              <v-card-title>{{ $t('Bank details') }}</v-card-title>
+              <v-card-title>{{ $t("Bank details") }}</v-card-title>
               <v-card-text>
-                <div><span class="fieldname">{{ $t('Bank account name') }}</span>: {{
-      clubdetails.bankaccount_name
-    }}
+                <div>
+                  <span class="fieldname">{{ $t("Bank account name") }}</span
+                  >: {{ clubdetails.bankaccount_name }}
                 </div>
-                <div><span class="fieldname">{{ $t('Bank account IBAN') }}</span>: {{
-      clubdetails.bankaccount_iban
-    }}
+                <div>
+                  <span class="fieldname">{{ $t("Bank account IBAN") }}</span
+                  >: {{ clubdetails.bankaccount_iban }}
                 </div>
-                <div><span class="fieldname">{{ $t('Bank account BIC') }}</span>: {{
-      clubdetails.bankaccount_bic
-    }}
+                <div>
+                  <span class="fieldname">{{ $t("Bank account BIC") }}</span
+                  >: {{ clubdetails.bankaccount_bic }}
                 </div>
               </v-card-text>
             </v-card>
@@ -154,27 +150,36 @@ onMounted(() => {
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title class="mt-2">
-                <v-btn icon="mdi-help" color="green" size="small" class="float-right"
-                  @click="helpdialog = true" />
-                <h4>{{ $t('Contact') }}</h4>
+                <v-btn
+                  icon="mdi-help"
+                  color="green"
+                  size="small"
+                  class="float-right"
+                  @click="helpdialog = true"
+                />
+                <h4>{{ $t("Contact") }}</h4>
               </v-card-title>
               <v-card-text>
-                <div><span class="fieldname">{{ $t('Main email address') }}</span>: {{
-      clubdetails.email_main
-    }}
+                <div>
+                  <span class="fieldname">{{ $t("Main email address") }}</span
+                  >: {{ clubdetails.email_main }}
                 </div>
-                <div><span class="fieldname">{{ $t('Email address Interclub') }}</span>: {{
-      clubdetails.email_interclub
-    }}</div>
-                <div><span class="fieldname">{{ $t('Email address administration') }}</span>: {{
-      clubdetails.email_admin
-    }}</div>
-                <div><span class="fieldname">{{ $t('Email address finance') }}</span>: {{
-      clubdetails.email_finance
-    }}
+                <div>
+                  <span class="fieldname">{{ $t("Email address Interclub") }}</span
+                  >: {{ clubdetails.email_interclub }}
                 </div>
-                <div><span class="fieldname">{{ $t('Postal address') }}</span>:<br />
-                  <span v-html='clubdetails.address.replaceAll("\n", "<br />")'></span>
+                <div>
+                  <span class="fieldname">{{ $t("Email address administration") }}</span
+                  >: {{ clubdetails.email_admin }}
+                </div>
+                <div>
+                  <span class="fieldname">{{ $t("Email address finance") }}</span
+                  >: {{ clubdetails.email_finance }}
+                </div>
+                <div>
+                  <span class="fieldname">{{ $t("Postal address") }}</span
+                  >:<br />
+                  <span v-html="clubdetails.address.replaceAll('\n', '<br />')"></span>
                 </div>
               </v-card-text>
             </v-card>
@@ -182,16 +187,19 @@ onMounted(() => {
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title>
-                {{ $t('Playing details') }}
+                {{ $t("Playing details") }}
               </v-card-title>
               <v-card-text>
-                <div><span class="fieldname">{{ $t('Club venue') }}</span>:<br />
-                  <span v-html='clubdetails.venue.replaceAll("\n", "<br />")'></span>
+                <div>
+                  <span class="fieldname">{{ $t("Club venue") }}</span
+                  >:<br />
+                  <span v-html="clubdetails.venue.replaceAll('\n', '<br />')"></span>
                 </div>
-                <h4>{{ $t('Playing hours') }}</h4>
+                <h4>{{ $t("Playing hours") }}</h4>
                 <div v-for="(h, d) in clubdetails.openinghours" :key="d">
                   <div v-show="h.length">
-                    <span class="fieldname">{{ $t(d) }}</span>: {{ h }}
+                    <span class="fieldname">{{ $t(d) }}</span
+                    >: {{ h }}
                   </div>
                 </div>
               </v-card-text>
@@ -199,21 +207,24 @@ onMounted(() => {
           </v-col>
         </v-row>
         <v-row class="mt-2">
-          <v-btn @click="modifyClub">{{ $t('Modify') }}</v-btn>
+          <v-btn @click="modifyClub">{{ $t("Modify") }}</v-btn>
         </v-row>
       </v-container>
       <v-container v-show="status_modifying">
-        <h2>{{ $t('Modify club details') }}</h2>
+        <h2>{{ $t("Modify club details") }}</h2>
         <v-row>
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card class="elevation-5">
               <v-card-title>
-                {{ $t('Club details') }}
+                {{ $t("Club details") }}
               </v-card-title>
               <v-card-text>
                 <v-text-field v-model="clubdetails.name_long" :label="$t('Long name')" />
-                <v-text-field v-model="clubdetails.name_short" :label="$t('Short name')" />
-                <p>{{ $t('Federation') }}: {{ clubdetails.federation }}</p>
+                <v-text-field
+                  v-model="clubdetails.name_short"
+                  :label="$t('Short name')"
+                />
+                <p>{{ $t("Federation") }}: {{ clubdetails.federation }}</p>
                 <v-text-field v-model="clubdetails.website" label="Website" />
               </v-card-text>
             </v-card>
@@ -221,58 +232,101 @@ onMounted(() => {
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card class="elevation-5">
               <v-card-title>
-                {{ $t('Contact') }}
+                {{ $t("Contact") }}
               </v-card-title>
               <v-card-text>
-                <v-text-field v-model="clubdetails.email_main" :label="$t('Main email address')" />
-                <v-text-field v-model="clubdetails.email_interclub"
-                  :label="$t('Email address Interclub')" />
-                <v-text-field v-model="clubdetails.email_admin"
-                  :label="$t('Email address administration')" />
-                <v-text-field v-model="clubdetails.email_finance"
-                  :label="$t('Email address finance')" />
-                <v-textarea rows="3" v-model="clubdetails.address" :label="$t('Postal address')" />
+                <v-text-field
+                  v-model="clubdetails.email_main"
+                  :label="$t('Main email address')"
+                />
+                <v-text-field
+                  v-model="clubdetails.email_interclub"
+                  :label="$t('Email address Interclub')"
+                />
+                <v-text-field
+                  v-model="clubdetails.email_admin"
+                  :label="$t('Email address administration')"
+                />
+                <v-text-field
+                  v-model="clubdetails.email_finance"
+                  :label="$t('Email address finance')"
+                />
+                <v-textarea
+                  rows="3"
+                  v-model="clubdetails.address"
+                  :label="$t('Postal address')"
+                />
               </v-card-text>
             </v-card>
           </v-col>
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card class="elevation-5">
               <v-card-title>
-                {{ $t('Bank details') }}
+                {{ $t("Bank details") }}
               </v-card-title>
               <v-card-text>
-                <v-text-field v-model="clubdetails.bankacount_name"
-                  :label="$t('Bank account name')" />
-                <v-text-field v-model="clubdetails.bankaccount_iban"
-                  :label="$t('Bank account IBAN')" />
-                <v-text-field v-model="clubdetails.bankaccount_bic"
-                  :label="$t('Bank account BIC')" />
+                <v-text-field
+                  v-model="clubdetails.bankaccount_name"
+                  :label="$t('Bank account name')"
+                />
+                <v-text-field
+                  v-model="clubdetails.bankaccount_iban"
+                  :label="$t('Bank account IBAN')"
+                />
+                <v-text-field
+                  v-model="clubdetails.bankaccount_bic"
+                  :label="$t('Bank account BIC')"
+                />
               </v-card-text>
             </v-card>
           </v-col>
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title>
-                {{ $t('Playing details') }}
+                {{ $t("Playing details") }}
               </v-card-title>
               <v-card-text>
-                <v-textarea rows="3" v-model="clubdetails.venue" :label="$t('Club venue')" />
-                <h4>{{ $t('Playing hours') }}</h4>
-                <v-text-field v-model="clubdetails.openinghours.Monday" :label="$t('Monday')" />
-                <v-text-field v-model="clubdetails.openinghours.Tuesday" :label="$t('Tuesday')" />
-                <v-text-field v-model="clubdetails.openinghours.Wednesday"
-                  :label="$t('Wednesday')" />
-                <v-text-field v-model="clubdetails.openinghours.Thursday" :label="$t('Thursday')" />
-                <v-text-field v-model="clubdetails.openinghours.Friday" :label="$t('Friday')" />
-                <v-text-field v-model="clubdetails.openinghours.Saturday" :label="$t('Saturday')" />
-                <v-text-field v-model="clubdetails.openinghours.Sunday" :label="$t('Sunday')" />
+                <v-textarea
+                  rows="3"
+                  v-model="clubdetails.venue"
+                  :label="$t('Club venue')"
+                />
+                <h4>{{ $t("Playing hours") }}</h4>
+                <v-text-field
+                  v-model="clubdetails.openinghours.Monday"
+                  :label="$t('Monday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Tuesday"
+                  :label="$t('Tuesday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Wednesday"
+                  :label="$t('Wednesday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Thursday"
+                  :label="$t('Thursday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Friday"
+                  :label="$t('Friday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Saturday"
+                  :label="$t('Saturday')"
+                />
+                <v-text-field
+                  v-model="clubdetails.openinghours.Sunday"
+                  :label="$t('Sunday')"
+                />
               </v-card-text>
             </v-card>
           </v-col>
         </v-row>
         <v-row class="ma-2">
-          <v-btn @click="saveClub">{{ $t('Save') }}</v-btn>
-          <v-btn @click="cancelClub">{{ $t('Cancel') }}</v-btn>
+          <v-btn @click="saveClub">{{ $t("Save") }}</v-btn>
+          <v-btn @click="cancelClub">{{ $t("Cancel") }}</v-btn>
         </v-row>
       </v-container>
     </div>

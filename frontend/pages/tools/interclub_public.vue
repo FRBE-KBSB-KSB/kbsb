@@ -29,9 +29,6 @@ const ic_rounds = ref([])
 function changeTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
-    case "registration":
-      refregistration.value.setup(icdata.value)
-      break
     case "results":
       refresults.value.setup(icdata.value)
       break
@@ -97,16 +94,12 @@ definePageMeta({
   <v-container>
     <h1>Interclubs 2025-26</h1>
     <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
-      <v-tab value="registration">{{ t("Registration") }}</v-tab>
       <v-tab value="results">{{ t("Results") }}</v-tab>
       <v-tab value="standings">{{ t("Standings") }}</v-tab>
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
-      <v-window-item :eager="true" value="registration">
-        <Registration ref="refregistration" />
-      </v-window-item>
       <v-window-item :eager="true" value="venues">
         <VenuePublic ref="refvenues" />
       </v-window-item>
