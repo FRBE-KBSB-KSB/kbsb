@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kbsb"
-version = "3.1.0"
+version = "3.1.1"
 
 description = "API Website FRBE-KBSB-KSB"
 authors = ["Ruben Decrop <ruben.decrop@frbe-kbsb-ksb.be>"]
@@ -50,6 +50,4 @@ ruff = "^0.7.3"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-
 
