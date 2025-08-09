@@ -5,7 +5,7 @@ from reddevil.filestore.filestore import get_file
 async def load_icdata():
     _icd = getattr(load_icdata, "icdata", None)
     if not _icd:
-        icdr = await get_file("data", "ic2425.yml")
+        icdr = await get_file("data", "ic2526.yml")
         _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
         setattr(load_icdata, "icdata", _icd)
     return _icd

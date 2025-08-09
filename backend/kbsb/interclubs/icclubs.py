@@ -410,6 +410,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 1,
             "ntitulars": icdata["ntitulars"][1],
+            "maxtitulars": icdata["maxtitulars"][1],
             "counter": 0,
         }
         ix += 1
@@ -417,6 +418,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 2,
             "ntitulars": icdata["ntitulars"][2],
+            "maxtitulars": icdata["maxtitulars"][2],
             "counter": 0,
         }
         ix += 1
@@ -424,6 +426,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 3,
             "ntitulars": icdata["ntitulars"][3],
+            "maxtitulars": icdata["maxtitulars"][3],
             "counter": 0,
         }
         ix += 1
@@ -431,6 +434,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 4,
             "ntitulars": icdata["ntitulars"][4],
+            "maxtitulars": icdata["maxtitulars"][4],
             "counter": 0,
         }
         ix += 1
@@ -438,6 +442,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 5,
             "ntitulars": icdata["ntitulars"][5],
+            "maxtitulars": icdata["maxtitulars"][5],
             "counter": 0,
         }
         ix += 1
@@ -445,7 +450,7 @@ async def clb_validateICPlayers(
         if p.titular and p.titular in titulars:
             titulars[p.titular]["counter"] += 1
     for team, tit in titulars.items():
-        if tit["counter"] > tit["ntitulars"]:
+        if tit["counter"] > tit["maxtitulars"]:
             errors.append(
                 ICPlayerValidationError(
                     errortype="TitularCount",
@@ -454,6 +459,16 @@ async def clb_validateICPlayers(
                     detail=team,
                 )
             )
+        if tit["counter"] < tit["ntitulars"]:
+            errors.append(
+                ICPlayerValidationError(
+                    errortype="TitularCount",
+                    idclub=idclub,
+                    message="Not enough titulars",
+                    detail=team,
+                )
+            )
+
     return errors
 
 
