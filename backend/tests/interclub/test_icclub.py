@@ -52,7 +52,7 @@ async def test_validate_players_elotoolow(
     fiderating,
     natrating,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
     pl = ic_player_update_item_factory.build(
         assignedrating=assignedrating,
@@ -61,7 +61,7 @@ async def test_validate_players_elotoolow(
         nature="assigned",
     )
     pu = ICPlayerUpdate(players=[pl])
-    find_registration.return_value = ic_enrollment_factory.build(
+    find_registration.return_value = ic_registration_factory.build(
         teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
     )
     errors = await clb_validateICPlayers(123, pu)
@@ -72,9 +72,39 @@ async def test_validate_players_elotoolow(
 
 @patch("kbsb.interclubs.icclubs.find_icregistration")
 @pytest.mark.parametrize(
+    "nbtitulars",
+    [4, 5, 6],
+)
+@pytest.mark.asyncio
+async def test_validate_players_OK(
+    find_registration: AsyncMock,
+    nbtitulars,
+    ic_player_update_item_factory,
+    ic_registration_factory,
+):
+    pls = ic_player_update_item_factory.batch(
+        nbtitulars,
+        assignedrating=1500,
+        fiderating=1500,
+        natrating=1500,
+        nature="assigned",
+        titular="C 1",
+    )
+    for ix, pl in enumerate(pls):
+        pl.assignedrating = pl.fiderating + ix
+    pu = ICPlayerUpdate(players=pls)
+    find_registration.return_value = ic_registration_factory.build(
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+    )
+    errors = await clb_validateICPlayers(123, pu)
+    assert not errors
+
+
+@patch("kbsb.interclubs.icclubs.find_icregistration")
+@pytest.mark.parametrize(
     "assignedrating,fiderating,natrating",
     [
-        (1601, 0, 0),
+        (1801, 0, 0),
         (1901, 1800, 1601),
         (1901, 1601, 1800),
     ],
@@ -86,50 +116,27 @@ async def test_validate_players_elotoohigh(
     fiderating,
     natrating,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
-    pl = ic_player_update_item_factory.build(
+    pls = ic_player_update_item_factory.batch(
+        4,
         assignedrating=assignedrating,
         fiderating=fiderating,
         natrating=natrating,
         nature="assigned",
+        titular="C 1",
     )
-    pu = ICPlayerUpdate(players=[pl])
-    find_registration.return_value = ic_enrollment_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
+    for ix, pl in enumerate(pls):
+        pl.assignedrating = pl.assignedrating + ix
+    pu = ICPlayerUpdate(players=pls)
+    find_registration.return_value = ic_registration_factory.build(
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
     )
     errors = await clb_validateICPlayers(123, pu)
+    print("errors:", errors)
     assert len(errors)
     ve = errors[0]
     assert ve.message == "Elo too high"
-
-
-@patch("kbsb.interclubs.icclubs.find_icregistration")
-@pytest.mark.parametrize(
-    "assignedrating,fiderating,natrating",
-    [(1600, 0, 0), (1000, 0, 0)],
-)
-@pytest.mark.asyncio
-async def test_validate_players_elook(
-    find_registration: AsyncMock,
-    assignedrating,
-    fiderating,
-    natrating,
-    ic_player_update_item_factory,
-    ic_enrollment_factory,
-):
-    pl = ic_player_update_item_factory.build(
-        assignedrating=assignedrating,
-        fiderating=fiderating,
-        natrating=natrating,
-        nature="assigned",
-    )
-    pu = ICPlayerUpdate(players=[pl])
-    find_registration.return_value = ic_enrollment_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
-    )
-    errors = await clb_validateICPlayers(123, pu)
-    assert not errors
 
 
 @patch("kbsb.interclubs.icclubs.find_icregistration")
@@ -137,7 +144,7 @@ async def test_validate_players_elook(
 async def test_validate_players_doubleelo(
     find_registration: AsyncMock,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
     pl1 = ic_player_update_item_factory.build(
         assignedrating=1500,
@@ -151,7 +158,7 @@ async def test_validate_players_doubleelo(
         natrating=1501,
         nature="assigned",
     )
-    find_registration.return_value = ic_enrollment_factory.build(
+    find_registration.return_value = ic_registration_factory.build(
         teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
     )
     pu = ICPlayerUpdate(players=[pl1, pl2])
@@ -166,7 +173,7 @@ async def test_validate_players_doubleelo(
 async def test_validate_players_titulartoomany(
     find_registration: AsyncMock,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
     pls = ic_player_update_item_factory.batch(
         7,
@@ -177,7 +184,7 @@ async def test_validate_players_titulartoomany(
     for ix, pl in enumerate(pls):
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
-    find_registration.return_value = ic_enrollment_factory.build(
+    find_registration.return_value = ic_registration_factory.build(
         teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
     )
     pu = ICPlayerUpdate(players=pls)
@@ -192,7 +199,7 @@ async def test_validate_players_titulartoomany(
 async def test_validate_players_titularnotenough(
     find_registration: AsyncMock,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
     pls = ic_player_update_item_factory.batch(
         3,
@@ -203,7 +210,7 @@ async def test_validate_players_titularnotenough(
     for ix, pl in enumerate(pls):
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
-    find_registration.return_value = ic_enrollment_factory.build(
+    find_registration.return_value = ic_registration_factory.build(
         teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
     )
     pu = ICPlayerUpdate(players=pls)
@@ -218,7 +225,7 @@ async def test_validate_players_titularnotenough(
 async def test_validate_players_titularok(
     find_registration: AsyncMock,
     ic_player_update_item_factory,
-    ic_enrollment_factory,
+    ic_registration_factory,
 ):
     pls = ic_player_update_item_factory.batch(
         6,
@@ -229,7 +236,7 @@ async def test_validate_players_titularok(
     for ix, pl in enumerate(pls):
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
-    find_registration.return_value = ic_enrollment_factory.build(
+    find_registration.return_value = ic_registration_factory.build(
         teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
     )
     pu = ICPlayerUpdate(players=pls)

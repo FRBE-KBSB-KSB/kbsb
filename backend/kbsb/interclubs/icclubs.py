@@ -360,7 +360,7 @@ async def clb_validateICPlayers(
             p.fiderating = 0
         if 1150 > p.natrating > 0:
             p.natrating = 1150
-        # now we have healty values for fiderating (0 or value)
+        # now we have healthy values for fiderating (0 or value)
         # and natrating is minimal 1150
         maxrating = max(p.fiderating, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
