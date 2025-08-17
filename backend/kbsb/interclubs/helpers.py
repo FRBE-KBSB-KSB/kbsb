@@ -1,5 +1,12 @@
+import logging
 import yaml
 from reddevil.filestore.filestore import get_file
+from .md_interclubs import (
+    ICClubDB,
+    DbICClub,
+)
+
+logger = logging.getLogger(__name__)
 
 
 async def load_icdata():
@@ -9,6 +16,21 @@ async def load_icdata():
         _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
         setattr(load_icdata, "icdata", _icd)
     return _icd
+
+
+async def load_playerratings():
+    _prt = getattr(load_playerratings, "playerratings", None)
+    if not _prt:
+        logger.info("reading interclub ratings")
+        _prt = {}
+        for clb in await DbICClub.find_multiple(
+            {"_model": ICClubDB, "registered": True}
+        ):
+            for p in clb.players:
+                if p.nature in ["assigned", "imported"]:
+                    _prt[p.id] = p.rating
+        setattr(load_playerratings, "playerratings", _prt)
+    return _prt
 
 
 ptable = (

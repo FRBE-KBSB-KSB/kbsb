@@ -312,6 +312,22 @@ class ICPlanning(BaseModel):
     plannings: list[ICPlanningItem]
 
 
+class ICValidationError(BaseModel):
+    """
+    an error for a planning validation
+    """
+
+    division: int
+    errormessage: str
+    index: str
+    icclub_offender: int
+    icclub_opponent: int
+    name: str
+    name_opponent: str
+    pnr_offender: int
+    round: int
+
+
 class ICResultItem(BaseModel):
     """
     a submodel for the incoming results of a single team in a club
