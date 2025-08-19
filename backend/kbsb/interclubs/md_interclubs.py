@@ -317,6 +317,7 @@ class ICValidationError(BaseModel):
     an error for a planning validation
     """
 
+    boardnr: int | None = None
     division: int
     errormessage: str
     index: str

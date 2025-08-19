@@ -1,6 +1,7 @@
 import logging
 import yaml
 from reddevil.filestore.filestore import get_file
+from reddevil.core import RdInternalServerError
 from .md_interclubs import (
     ICClubDB,
     DbICClub,
@@ -18,19 +19,46 @@ async def load_icdata():
     return _icd
 
 
-async def load_playerratings():
-    _prt = getattr(load_playerratings, "playerratings", None)
-    if not _prt:
+async def load_clubinfo():
+    playerratings = getattr(load_clubinfo, "playerratings", None)
+    clubs = getattr(load_clubinfo, "clubs", None)
+    titulars = getattr(load_clubinfo, "titulars", None)
+    fideratings = getattr(load_clubinfo, "fideratings", None)
+    if not playerratings:
         logger.info("reading interclub ratings")
-        _prt = {}
+        playerratings = {}
+        clubs = []
+        titulars = {}
+        fideratings = {}
         for clb in await DbICClub.find_multiple(
             {"_model": ICClubDB, "registered": True}
         ):
+            clubs.append(clb)
             for p in clb.players:
                 if p.nature in ["assigned", "imported"]:
-                    _prt[p.id] = p.rating
-        setattr(load_playerratings, "playerratings", _prt)
-    return _prt
+                    playerratings[p.idnumber] = p.rating
+                    fideratings[p.idnumber] = p.fiderating
+                    if p.titular:
+                        teamix = int(p.titular.split(" ")[-1])
+                        for t in clb.teams:
+                            if t.name == p.titular:
+                                break
+                        else:
+                            logger.error(
+                                f"Team {p.titular} not found in club {clb.name}"
+                            )
+                            raise RdInternalServerError("Fucked")
+                        titulars[p.idnumber] = {
+                            "team": teamix,
+                            "division": t.division,
+                            "index": t.index,
+                            "pairingnumber": t.pairingnumber,
+                        }
+            setattr(load_clubinfo, "playerratings", playerratings)
+            setattr(load_clubinfo, "fideratings", fideratings)
+            setattr(load_clubinfo, "clubs", clubs)
+            setattr(load_clubinfo, "titulars", titulars)
+    return (playerratings, clubs, titulars, fideratings)
 
 
 ptable = (
