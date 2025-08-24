@@ -381,4 +381,8 @@ export default {
     )
     return resp
   },
+  icdata: async function (options) {
+    const resp = await axios.get(`${prefix}/icdata`)
+    return resp
+  }
 }

@@ -64,20 +64,20 @@ function changeDialogCounter(i) {
   waitingdialog.value = dialogcounter > 0
 }
 
-function changeTab() {
-  console.log("changeTab", tab.value)
+function changedTab() {
+  console.log("changedTab", tab.value)
   switch (tab.value) {
-    // case "planning":
-    //   refplanning.value.setup(icclub.value, round.value, icdata.value)
-    //   break
-    // case "playerlist":
-    //   refplayerlist.value.setup(icclub.value, icdata.value)
-    //   break
-    // case "results":
-    //   refresults.value.setup(icclub.value, round.value, icdata.value)
-    //   break
+    case "planning":
+      refplanning.value.setup(icclub.value, round.value, icdata.value)
+      break
+    case "playerlist":
+      refplayerlist.value.setup(icclub.value, icdata.value)
+      break
     case "registration":
       refregistration.value.setup(icclub.value, icdata.value)
+      break
+    case "results":
+      refresults.value.setup(icclub.value, round.value, icdata.value)
       break
     case "venues":
       refvenues.value.setup(icclub.value, icdata.value)
@@ -116,7 +116,7 @@ async function dologin() {
   idstore.updateToken(reply.data)
   idnstore.updateIdnumber(login.value.idnumber)
   logindialog.value = false
-  changeTab()
+  changedTab()
 }
 
 async function getClubs() {
@@ -154,75 +154,59 @@ async function getClubDetails() {
     return
   } finally {
     changeDialogCounter(-1)
-    changeTab()
+    changedTab()
   }
 }
 
-async function getHelpContent() {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group: "data",
-      name: `help-login.md`,
-    })
-    metadata.value = useMarkdown(reply.data).metadata
-    helptitle.value = metadata.value["title_" + locale.value]
-    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-  } catch (error) {
-    console.log("failed")
-  }
-}
-
-async function parseYaml(group, name) {
-  try {
-    const yamlcontent = await readBucket(group, name)
-    if (!yamlcontent) {
-      return null
-    }
-    return parse(yamlcontent)
-  } catch (error) {
-    console.error("cannot parse yaml", yamlcontent)
-  }
-}
+// async function getHelpContent() {
+//   try {
+//     const reply = await $backend("filestore", "anon_get_file", {
+//       group: "data",
+//       name: `help-login.md`,
+//     })
+//     metadata.value = useMarkdown(reply.data).metadata
+//     helptitle.value = metadata.value["title_" + locale.value]
+//     helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+//   } catch (error) {
+//     console.log("failed")
+//   }
+// }
 
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2526.yml")
+  let reply
+  changeDialogCounter(1)
+  try {
+    reply = await $backend("interclub", "icdata", {})
+  } catch (error) {
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+  }
+  icdata.value = reply.data
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
   registration_phase =
     icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
+  changedTab()
 }
 
-async function readBucket(group, name) {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group,
-      name,
-    })
-    return reply.data
-  } catch (error) {
-    console.error("failed to fetch file from bucket")
-    return null
-  }
-}
-
-function selectClub() {
+async function selectClub() {
   console.log("selected", idclub.value)
-  getClubDetails()
+  await getClubDetails()
 }
 
 // startup
 
 onMounted(async () => {
   console.log("mounted")
-  let l = route.query.locale
-  console.log("query locale", l)
-  locale.value = l ? l : "nl"
+  // locale.value = l ? l : "nl"
   checkAuth()
   await processICdata()
   getClubs()
-  changeTab()
-  await getHelpContent()
+  changedTab()
+  // await getHelpContent()
 })
 
 definePageMeta({
@@ -300,7 +284,7 @@ definePageMeta({
               v-model="round"
               :items="ic_rounds"
               :label="t('Round')"
-              @update:model-value="changeTab"
+              @update:model-value="changedTab"
             >
             </VSelect>
           </v-col>
@@ -309,14 +293,17 @@ definePageMeta({
     </v-card>
     <h3 class="my-2">{{ t("Selected club") }}: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
-      <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
+      <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
+        <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
         <!-- <v-tab value="results">{{ t("Results") }}</v-tab>
-        <v-tab value="planning">{{ t("Planning") }}</v-tab>
-        <v-tab value="playerlist">{{ t("Player list") }}</v-tab> -->
-        <v-tab value="registration">{{ t("icn.enr") }}</v-tab>
+        <v-tab value="planning">{{ t("Planning") }}</v-tab> -->
+        <!-- <v-tab value="registration">{{ t("icn.enr") }}</v-tab> -->
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
       </v-tabs>
-      <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
+      <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
+        <v-window-item :eager="true" value="playerlist">
+          <Playerlist ref="refplayerlist" />
+        </v-window-item>
         <!-- <v-window-item :eager="true" value="results">
           <Results
             ref="refresults"
@@ -330,17 +317,14 @@ definePageMeta({
             @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter"
           />
-        </v-window-item>
-        <v-window-item :eager="true" value="playerlist">
-          <Playerlist ref="refplayerlist" />
         </v-window-item> -->
-        <v-window-item :eager="true" value="registration">
+        <!-- <v-window-item :eager="true" value="registration">
           <Registration
             ref="refregistration"
             @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter"
           />
-        </v-window-item>
+        </v-window-item> -->
         <v-window-item :eager="true" value="venues">
           <Venue
             ref="refvenues"

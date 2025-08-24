@@ -41,7 +41,8 @@ class PlayerlistNature(StrEnum):
     IMPORTED = auto()
     EXPORTED = auto()
     LOCKED = auto()
-    # older
+    REMOVED = auto()
+    # deprecated
     REQUESTEDIN = auto()
     CONFIRMEDOUT = auto()
 
@@ -138,8 +139,8 @@ class ICClubDB(BaseModel):
     name: str | None = ""
     id: str | None = None
     idclub: int
-    teams: list[ICTeam] | None = Field(default_factory=list)
-    players: list[ICPlayer] | None = Field(default_factory=list)
+    teams: list[ICTeam] | None = []
+    players: list[ICPlayer] | None = []
     registered: bool | None = False
 
 

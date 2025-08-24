@@ -2,7 +2,7 @@
 
 import logging
 
-from typing import Any
+from typing import Any, cast
 import openpyxl
 from tempfile import NamedTemporaryFile
 
@@ -52,15 +52,32 @@ async def create_icclub(icclub: ICClubDB) -> str:
     return await DbICClub.add(icclubdict)
 
 
-async def get_icclub(options: dict | None = {}) -> ICClubDB | None:
+async def get_icclub(options: dict | None = None) -> ICClubDB | None:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
     """
-    filter = options.copy()
+    filter = options.copy() if options else {}
     filter["_model"] = filter.get("_model", ICClubDB)
+    logger.info(f"get icclub {filter}")
     club = await DbICClub.find_single(filter)
     return club
+
+
+async def update_icclub(
+    iu: ICClubDB, options: dict[str, Any] | None = None
+) -> ICClubDB:
+    """
+    update a interclub club
+    """
+    logger.info(f"update icclub {iu.idclub}")
+    options1 = options.copy() if options else {}
+    options1["_model"] = options1.pop("_model", ICClubDB)
+    iudict = iu.model_dump(exclude_unset=True)
+    return cast(
+        ICClubDB,
+        await DbICClub.update({"idclub": iu.idclub}, iudict, options1),
+    )
 
 
 # Business methods

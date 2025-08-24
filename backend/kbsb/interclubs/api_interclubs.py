@@ -49,6 +49,7 @@ from . import (
     list_bel_reports,
     list_fide_reports,
     list_penalties_reports,
+    load_icdata,
     mgmt_get_xlsplayerlists,
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
@@ -766,3 +767,14 @@ async def api_get_penalties_report(
     except Exception:
         logger.exception("failed api get penalties report")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# icdata
+
+
+@router.get("/icdata", response_model=dict)
+async def api_icdata():
+    """
+    return the icdata
+    """
+    return await load_icdata()
