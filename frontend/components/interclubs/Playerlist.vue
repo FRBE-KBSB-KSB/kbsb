@@ -37,6 +37,7 @@ const pll_status = ref("closed")
 let pll_period
 let pll_startdate
 let pll_enddate
+let pll = false
 let mininmal_assignelo = 3000
 let icdata = { playerlist_data: [] }
 
@@ -76,14 +77,15 @@ function assignPlayer(idnumber) {
 
 function calc_period() {
   const now = new Date()
+  pll_period = "unknown"
   icdata.playerlist_data.forEach((p) => {
     let start = new Date(p.start)
     let end = new Date(p.end)
     if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
       pll_period = p.period
       pll_startdate = p.start
       pll_enddate = p.end
+      pll = true
       return
     }
   })
@@ -107,7 +109,7 @@ async function calc_status() {
     console.log("calc_status noaccess")
     return
   }
-  pll_status.value = "closed"
+  pll_status.value = pll ? "open" : "closed"
   console.log("calc_status closed")
 }
 
@@ -404,10 +406,11 @@ async function setup(icclub_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
+  idclub.value = icclub_.idclub || 0
   if (icdata_.playerlist_data) {
     icdata = icdata_
-    await calc_status()
     calc_period()
+    await calc_status()
     readICclub()
     await getClubMembers()
   }
