@@ -529,6 +529,22 @@ class DbICClub(DbBase):
     HISTORY = True
 
 
+class DbICClub2324(DbBase):
+    COLLECTION = "ic_2324_club"
+    DOCUMENTTYPE = ICClubDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = False
+
+
+class DbICClub2425(DbBase):
+    COLLECTION = "ic_2425_club"
+    DOCUMENTTYPE = ICClubDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = False
+
+
 class DbICRegistration(DbBase):
     COLLECTION = "ic_2526_registration"
     DOCUMENTTYPE = ICRegistrationDB
