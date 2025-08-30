@@ -10,6 +10,7 @@ from reddevil.core import (
     get_mongodb,
     encode_model,
 )
+import pymongo
 from . import (
     GAMERESULT,
     ICEncounter,
@@ -32,6 +33,7 @@ from . import (
     DbICStandings2324,
     DbICStandings2425,
     anon_getICclub,
+    anon_getICclub_archive,
     load_icdata,
     ptable,
 )
@@ -519,7 +521,10 @@ async def anon_getICstandingsArchive(season: str) -> list[ICStandingsDB] | None:
     """
     get the Standings by club
     """
-    options = {"_model": ICStandingsDB}
+    options = {
+        "_model": ICStandingsDB,
+        "_sort": [("division", pymongo.ASCENDING), ("index", pymongo.ASCENDING)],
+    }
     dbseason = dbseasons[season]
     return await dbseason.find_multiple(options)
 
@@ -536,7 +541,9 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
     proj["rounds"] = {"$elemMatch": {"round": round}}
     logger.info(f"proj {proj}")
     series = []
-    async for doc in coll.find({}, proj):
+    async for doc in coll.find(
+        {}, proj, sort=[("division", pymongo.ASCENDING), ("index", pymongo.ASCENDING)]
+    ):
         try:
             doc["id"] = str(doc["_id"])
             s = encode_model(doc, ICSeriesDB)
@@ -545,6 +552,60 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
             continue
         series.append(s)
     return series
+
+
+async def anon_getICencounterdetails_archive(
+    season: str,
+    round: int,
+    division: int,
+    index: str,
+    icclub_home: int,
+    icclub_visit: int,
+    pairingnr_home: int,
+    pairingnr_visit: int,
+) -> list[ICGameDetails]:
+    dbresult = dbseries[season]
+    icserie = await dbresult.find_single(
+        {
+            "_model": ICSeries,
+            "division": division,
+            "index": index,
+        }
+    )
+    details = []
+    for r in icserie.rounds:
+        if r.round == round:
+            for enc in r.encounters:
+                if not enc.icclub_home or not enc.icclub_visit:
+                    continue
+                if (
+                    enc.icclub_home == icclub_home
+                    and enc.icclub_visit == icclub_visit
+                    and enc.pairingnr_home == pairingnr_home
+                    and enc.pairingnr_visit == pairingnr_visit
+                ):
+                    homeclub = await anon_getICclub_archive(season, icclub_home)
+                    homeplayers = {p.idnumber: p for p in homeclub.players}
+                    visitclub = await anon_getICclub_archive(season, icclub_visit)
+                    visitplayers = {p.idnumber: p for p in visitclub.players}
+                    for g in enc.games:
+                        if not g.idnumber_home or not g.idnumber_visit:
+                            continue
+                        hpl = homeplayers[g.idnumber_home]
+                        vpl = visitplayers[g.idnumber_visit]
+                        details.append(
+                            ICGameDetails(
+                                idnumber_home=g.idnumber_home,
+                                fullname_home=f"{hpl.last_name}, {hpl.first_name}",
+                                rating_home=hpl.assignedrating,
+                                idnumber_visit=g.idnumber_visit,
+                                fullname_visit=f"{vpl.last_name}, {vpl.first_name}",
+                                rating_visit=vpl.assignedrating,
+                                result=g.result,
+                                overruled=g.overruled,
+                            )
+                        )
+    return details
 
 
 async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> None:
