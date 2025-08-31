@@ -1,103 +1,110 @@
 <script setup>
-import { ref, computed, nextTick } from "vue"
+import { ref, computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { CLUB_STATUS, EMPTY_CLUB } from "@/util/club"
-
 import { useIdtokenStore } from "@/store/idtoken"
 import { storeToRefs } from "pinia"
-import showdown from "showdown"
 
-const { locale, t } = useI18n()
-const router = useRouter()
+// communication
+defineExpose({ setup })
+const idstore = useIdtokenStore()
+const { token } = storeToRefs(idstore)
 const { $backend } = useNuxtApp()
+const { t } = useI18n()
 
 // help dialog
-const mdConverter = new showdown.Converter()
-const helptitle = ref("")
-const helpdialog = ref(false)
-const helpcontent = ref("")
+// const mdConverter = new showdown.Converter()
+// const helptitle = ref("")
+// const helpdialog = ref(false)
+// const helpcontent = ref("")
+
+//  snackbar and loading widgets
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+const refsnackbar = ref(null)
+let showSnackbar
+const refloading = ref(null)
+let showLoading
 
 // model
-const props = defineProps(["club"])
-const clubdetails = ref(EMPTY_CLUB)
+const club = ref(EMPTY_CLUB)
+const clubmembers = ref([])
 const statuscm = ref(CLUB_STATUS.CONSULTING)
-const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
 const status_consulting = computed(() => statuscm.value == CLUB_STATUS.CONSULTING)
 const status_modifying = computed(() => statuscm.value == CLUB_STATUS.MODIFYING)
-let copyclubdetails = null
-const emit = defineEmits(["displaySnackbar", "updateClub"])
+let copyclub = null
 
-function md(s) {
-  return mdConverter.makeHtml(s)
-}
+// function md(s) {
+//   return mdConverter.makeHtml(s)
+// }
 
 function cancelClub() {
   statuscm.value = CLUB_STATUS.CONSULTING
-  emit("updateClub")
+  club.value = copyclub
 }
 
 function gotoLogin() {
-  router.push("/tools/login?url=__clubs__manager")
+  console.log("login in details")
 }
 
 async function modifyClub() {
   statuscm.value = CLUB_STATUS.MODIFYING
 }
 
-function readClubDetails() {
-  console.log("details.clubdetails", props.club)
-  clubdetails.value = { ...EMPTY_CLUB, ...props.club }
-  copyclubdetails = JSON.parse(JSON.stringify(props.club))
-}
-
 async function saveClub() {
-  // build a a diff between clubdetails and its cooy
+  // build a a diff between club and its cooy
   let update = {}
-  for (const [key, value] of Object.entries(clubdetails.value)) {
-    if (value != copyclubdetails[key]) {
+  for (const [key, value] of Object.entries(club.value)) {
+    if (value != copyclub[key]) {
       update[key] = value
     }
   }
+  showLoading(true)
   try {
     const reply = await $backend("club", "clb_update_club", {
       ...update,
-      idclub: props.club.idclub,
-      token: idtoken.value,
+      idclub: club.value.idclub,
+      token: token.value,
     })
     statuscm.value = CLUB_STATUS.CONSULTING
-    emit("displaySnackbar", t("Club saved"))
-    emit("updateClub")
+    showSnackbar(t("Club saved"))
   } catch (error) {
     if (error.code == 401) gotoLogin()
-    emit("displaySnackbar", t(error.message))
-    return
+    showSnackbar(t("Saving club failed"))
+  } finally {
+    showLoading(false)
   }
 }
 
-async function getContent() {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group: "pages",
-      name: `help-club-contact.md`,
-    })
-    metadata.value = useMarkdown(reply.data).metadata
-    helptitle.value = metadata.value["title_" + locale.value]
-    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-  } catch (error) {
-    console.log("failed")
-  }
+// async function getContent() {
+//   try {
+//     const reply = await $backend("filestore", "anon_get_file", {
+//       group: "pages",
+//       name: `help-club-contact.md`,
+//     })
+//     metadata.value = useMarkdown(reply.data).metadata
+//     helptitle.value = metadata.value["title_" + locale.value]
+//     helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
+//   } catch (error) {
+//     console.log("failed")
+//   }
+// }
+
+function setup(club_) {
+  console.log("setup details", club_)
+  showSnackbar = refsnackbar.value.showSnackbar
+  showLoading = refloading.value.showLoading
+  club.value = { ...EMPTY_CLUB, ...club_ }
+  console.log("club", club.value)
+  copyclub = JSON.parse(JSON.stringify(club_))
+  // getContent()
 }
-
-defineExpose({ readClubDetails })
-
-onMounted(() => {
-  getContent()
-})
 </script>
 
 <template>
   <v-container>
+    <SnackbarMessage ref="refsnackbar" />
+    <ProgressLoading ref="refloading" />
     <p v-if="!club.idclub">{{ $t("Select a club to view the club details") }}</p>
     <div v-if="club.idclub">
       <v-container v-show="status_consulting">
@@ -111,19 +118,19 @@ onMounted(() => {
               <v-card-text>
                 <div>
                   <span class="fieldname">{{ $t("Long name") }}</span
-                  >: {{ clubdetails.name_long }}
+                  >: {{ club.name_long }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Short name") }}</span
-                  >: {{ clubdetails.name_short }}
+                  >: {{ club.name_short }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Federation") }}</span
-                  >: {{ clubdetails.federation }}
+                  >: {{ club.federation }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Website") }}</span
-                  >: {{ clubdetails.website }}
+                  >: {{ club.website }}
                 </div>
               </v-card-text>
             </v-card>
@@ -134,15 +141,15 @@ onMounted(() => {
               <v-card-text>
                 <div>
                   <span class="fieldname">{{ $t("Bank account name") }}</span
-                  >: {{ clubdetails.bankaccount_name }}
+                  >: {{ club.bankaccount_name }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Bank account IBAN") }}</span
-                  >: {{ clubdetails.bankaccount_iban }}
+                  >: {{ club.bankaccount_iban }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Bank account BIC") }}</span
-                  >: {{ clubdetails.bankaccount_bic }}
+                  >: {{ club.bankaccount_bic }}
                 </div>
               </v-card-text>
             </v-card>
@@ -162,24 +169,24 @@ onMounted(() => {
               <v-card-text>
                 <div>
                   <span class="fieldname">{{ $t("Main email address") }}</span
-                  >: {{ clubdetails.email_main }}
+                  >: {{ club.email_main }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Email address Interclub") }}</span
-                  >: {{ clubdetails.email_interclub }}
+                  >: {{ club.email_interclub }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Email address administration") }}</span
-                  >: {{ clubdetails.email_admin }}
+                  >: {{ club.email_admin }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Email address finance") }}</span
-                  >: {{ clubdetails.email_finance }}
+                  >: {{ club.email_finance }}
                 </div>
                 <div>
                   <span class="fieldname">{{ $t("Postal address") }}</span
                   >:<br />
-                  <span v-html="clubdetails.address.replaceAll('\n', '<br />')"></span>
+                  <span v-html="club.address.replaceAll('\n', '<br />')"></span>
                 </div>
               </v-card-text>
             </v-card>
@@ -193,10 +200,10 @@ onMounted(() => {
                 <div>
                   <span class="fieldname">{{ $t("Club venue") }}</span
                   >:<br />
-                  <span v-html="clubdetails.venue.replaceAll('\n', '<br />')"></span>
+                  <span v-html="club.venue.replaceAll('\n', '<br />')"></span>
                 </div>
                 <h4>{{ $t("Playing hours") }}</h4>
-                <div v-for="(h, d) in clubdetails.openinghours" :key="d">
+                <div v-for="(h, d) in club.openinghours" :key="d">
                   <div v-show="h.length">
                     <span class="fieldname">{{ $t(d) }}</span
                     >: {{ h }}
@@ -219,13 +226,10 @@ onMounted(() => {
                 {{ $t("Club details") }}
               </v-card-title>
               <v-card-text>
-                <v-text-field v-model="clubdetails.name_long" :label="$t('Long name')" />
-                <v-text-field
-                  v-model="clubdetails.name_short"
-                  :label="$t('Short name')"
-                />
-                <p>{{ $t("Federation") }}: {{ clubdetails.federation }}</p>
-                <v-text-field v-model="clubdetails.website" label="Website" />
+                <v-text-field v-model="club.name_long" :label="$t('Long name')" />
+                <v-text-field v-model="club.name_short" :label="$t('Short name')" />
+                <p>{{ $t("Federation") }}: {{ club.federation }}</p>
+                <v-text-field v-model="club.website" label="Website" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -236,24 +240,24 @@ onMounted(() => {
               </v-card-title>
               <v-card-text>
                 <v-text-field
-                  v-model="clubdetails.email_main"
+                  v-model="club.email_main"
                   :label="$t('Main email address')"
                 />
                 <v-text-field
-                  v-model="clubdetails.email_interclub"
+                  v-model="club.email_interclub"
                   :label="$t('Email address Interclub')"
                 />
                 <v-text-field
-                  v-model="clubdetails.email_admin"
+                  v-model="club.email_admin"
                   :label="$t('Email address administration')"
                 />
                 <v-text-field
-                  v-model="clubdetails.email_finance"
+                  v-model="club.email_finance"
                   :label="$t('Email address finance')"
                 />
                 <v-textarea
                   rows="3"
-                  v-model="clubdetails.address"
+                  v-model="club.address"
                   :label="$t('Postal address')"
                 />
               </v-card-text>
@@ -266,15 +270,15 @@ onMounted(() => {
               </v-card-title>
               <v-card-text>
                 <v-text-field
-                  v-model="clubdetails.bankaccount_name"
+                  v-model="club.bankaccount_name"
                   :label="$t('Bank account name')"
                 />
                 <v-text-field
-                  v-model="clubdetails.bankaccount_iban"
+                  v-model="club.bankaccount_iban"
                   :label="$t('Bank account IBAN')"
                 />
                 <v-text-field
-                  v-model="clubdetails.bankaccount_bic"
+                  v-model="club.bankaccount_bic"
                   :label="$t('Bank account BIC')"
                 />
               </v-card-text>
@@ -286,40 +290,27 @@ onMounted(() => {
                 {{ $t("Playing details") }}
               </v-card-title>
               <v-card-text>
-                <v-textarea
-                  rows="3"
-                  v-model="clubdetails.venue"
-                  :label="$t('Club venue')"
-                />
+                <v-textarea rows="3" v-model="club.venue" :label="$t('Club venue')" />
                 <h4>{{ $t("Playing hours") }}</h4>
+                <v-text-field v-model="club.openinghours.Monday" :label="$t('Monday')" />
                 <v-text-field
-                  v-model="clubdetails.openinghours.Monday"
-                  :label="$t('Monday')"
-                />
-                <v-text-field
-                  v-model="clubdetails.openinghours.Tuesday"
+                  v-model="club.openinghours.Tuesday"
                   :label="$t('Tuesday')"
                 />
                 <v-text-field
-                  v-model="clubdetails.openinghours.Wednesday"
+                  v-model="club.openinghours.Wednesday"
                   :label="$t('Wednesday')"
                 />
                 <v-text-field
-                  v-model="clubdetails.openinghours.Thursday"
+                  v-model="club.openinghours.Thursday"
                   :label="$t('Thursday')"
                 />
+                <v-text-field v-model="club.openinghours.Friday" :label="$t('Friday')" />
                 <v-text-field
-                  v-model="clubdetails.openinghours.Friday"
-                  :label="$t('Friday')"
-                />
-                <v-text-field
-                  v-model="clubdetails.openinghours.Saturday"
+                  v-model="club.openinghours.Saturday"
                   :label="$t('Saturday')"
                 />
-                <v-text-field
-                  v-model="clubdetails.openinghours.Sunday"
-                  :label="$t('Sunday')"
-                />
+                <v-text-field v-model="club.openinghours.Sunday" :label="$t('Sunday')" />
               </v-card-text>
             </v-card>
           </v-col>
