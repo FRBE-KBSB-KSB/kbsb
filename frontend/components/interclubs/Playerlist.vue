@@ -756,6 +756,6 @@ async function setup(icclub_, icdata_) {
 }
 
 .unassigned {
-  color: rgb(191, 192, 195);
+  color: rgb(195, 195, 195);
 }
 </style>

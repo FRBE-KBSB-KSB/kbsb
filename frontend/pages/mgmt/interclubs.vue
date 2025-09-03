@@ -44,6 +44,7 @@ const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
+let registration_phase = false
 
 // layout + header
 definePageMeta({
@@ -61,7 +62,7 @@ function changeDialogCounter(i) {
   waitingdialog.value = dialogcounter > 0
 }
 
-function changeTab() {
+function changedTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
     case "registration":
@@ -158,7 +159,7 @@ async function getClubDetails() {
     return
   } finally {
     changeDialogCounter(-1)
-    changeTab()
+    changedTab()
   }
 }
 
@@ -166,36 +167,24 @@ async function gotoLogin() {
   await router.push("/mgmt")
 }
 
-async function parseYaml(group, name) {
-  try {
-    const yamlcontent = await readBucket(group, name)
-    if (!yamlcontent) {
-      return null
-    }
-    return parse(yamlcontent)
-  } catch (error) {
-    console.error("cannot parse yaml", yamlcontent)
-  }
-}
-
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2526.yml")
+  let reply
+  changeDialogCounter(1)
+  try {
+    reply = await $backend("interclub", "icdata", {})
+  } catch (error) {
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+  }
+  icdata.value = reply.data
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
-}
-
-async function readBucket(group, name) {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group,
-      name,
-    })
-    return reply.data
-  } catch (error) {
-    console.error("failed to fetch file from bucket")
-    return null
-  }
+  registration_phase =
+    icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
+  changedTab()
 }
 
 function selectClub() {
@@ -210,7 +199,7 @@ onMounted(async () => {
   await processICdata()
   getClubs()
   tab.value = "registration"
-  changeTab()
+  changedTab()
 })
 </script>
 
@@ -246,7 +235,7 @@ onMounted(async () => {
               v-model="round"
               :items="ic_rounds"
               label="Round"
-              @update:model-value="changeTab"
+              @update:model-value="changedTab"
             >
             </VSelect>
           </v-col>
@@ -255,7 +244,7 @@ onMounted(async () => {
     </VCard>
     <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
-      <VTabs v-model="tab" color="purple" @update:modelValue="changeTab">
+      <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
         <VTab value="registration">Registration</VTab>
         <VTab value="venues">Venues</VTab>
         <VTab value="playerlist">Player lists</VTab>
@@ -263,7 +252,7 @@ onMounted(async () => {
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
-      <VWindow v-model="tab" @update:modelValue="changeTab">
+      <VWindow v-model="tab" @update:modelValue="changedTab">
         <VWindowItem value="registration" :eager="true">
           <Registration ref="refregistration" />
         </VWindowItem>
