@@ -1,14 +1,72 @@
+import logging
 import yaml
 from reddevil.filestore.filestore import get_file
+from reddevil.core import RdInternalServerError, get_settings
+from .md_interclubs import (
+    ICClubDB,
+    DbICClub,
+)
+from kbsb import ROOT_DIR
+
+logger = logging.getLogger(__name__)
 
 
 async def load_icdata():
-    _icd = getattr(load_icdata, "icdata", None)
-    if not _icd:
-        icdr = await get_file("data", "ic2526.yml")
-        _icd = yaml.load(icdr.body, Loader=yaml.SafeLoader)
-        setattr(load_icdata, "icdata", _icd)
-    return _icd
+    icdata = getattr(load_icdata, "icdata", None)
+    if not icdata:
+        settings = get_settings()
+        if settings.ICDATA == "cloud":
+            icdr = await get_file("data", "ic2526.yml")
+            icdata = yaml.load(icdr.body, Loader=yaml.SafeLoader)
+            logger.info("loaded icdata from cloud")
+        if settings.ICDATA == "local":
+            icdata_path = ROOT_DIR / "shared" / "cloud" / "data" / "ic2526.yml"
+            icdata = yaml.load(icdata_path.read_text(), Loader=yaml.SafeLoader)
+            logger.info("loaded icdata from local")
+        setattr(load_icdata, "icdata", icdata)
+    return icdata
+
+
+async def load_clubinfo():
+    playerratings = getattr(load_clubinfo, "playerratings", None)
+    clubs = getattr(load_clubinfo, "clubs", None)
+    titulars = getattr(load_clubinfo, "titulars", None)
+    fideratings = getattr(load_clubinfo, "fideratings", None)
+    if not playerratings:
+        logger.info("reading interclub ratings")
+        playerratings = {}
+        clubs = []
+        titulars = {}
+        fideratings = {}
+        for clb in await DbICClub.find_multiple(
+            {"_model": ICClubDB, "registered": True}
+        ):
+            clubs.append(clb)
+            for p in clb.players:
+                if p.nature in ["assigned", "imported"]:
+                    playerratings[p.idnumber] = p.rating
+                    fideratings[p.idnumber] = p.fiderating
+                    if p.titular:
+                        teamix = int(p.titular.split(" ")[-1])
+                        for t in clb.teams:
+                            if t.name == p.titular:
+                                break
+                        else:
+                            logger.error(
+                                f"Team {p.titular} not found in club {clb.name}"
+                            )
+                            raise RdInternalServerError("Fucked")
+                        titulars[p.idnumber] = {
+                            "team": teamix,
+                            "division": t.division,
+                            "index": t.index,
+                            "pairingnumber": t.pairingnumber,
+                        }
+            setattr(load_clubinfo, "playerratings", playerratings)
+            setattr(load_clubinfo, "fideratings", fideratings)
+            setattr(load_clubinfo, "clubs", clubs)
+            setattr(load_clubinfo, "titulars", titulars)
+    return (playerratings, clubs, titulars, fideratings)
 
 
 ptable = (

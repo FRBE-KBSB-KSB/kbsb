@@ -37,8 +37,9 @@ const pll_status = ref("closed")
 let pll_period
 let pll_startdate
 let pll_enddate
+let pll = false
 let mininmal_assignelo = 3000
-let icdata = {}
+let icdata = { playerlist_data: [] }
 
 // validation
 const validationdialog = ref(false)
@@ -74,8 +75,24 @@ function assignPlayer(idnumber) {
   playerEdit2Player()
 }
 
-async function calcstatus() {
-  console.log("calcstatus")
+function calc_period() {
+  const now = new Date()
+  pll_period = "unknown"
+  icdata.playerlist_data.forEach((p) => {
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      pll = true
+      return
+    }
+  })
+  console.log("pll_period", pll_period)
+}
+
+async function calc_status() {
   // we have the following status
   // - open
   // - closed
@@ -83,15 +100,17 @@ async function calcstatus() {
   // - noaccess
   if (!idclub.value) {
     pll_status.value = "noclub"
+    console.log("calc_status noclub")
     return
   }
   let access = await checkAccess()
-  console.log("access", access)
   if (!access) {
     pll_status.value = "noaccess"
+    console.log("calc_status noaccess")
     return
   }
-  pll_status.value = "closed"
+  pll_status.value = pll ? "open" : "closed"
+  console.log("calc_status closed")
 }
 
 function canAssign(idnumber) {
@@ -179,20 +198,6 @@ function doExportPlayer() {
 
 function fillinPlayerList() {
   console.log("fillinPlayerList")
-  pll_period = "unknown"
-  const now = new Date()
-  icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start)
-    let end = new Date(p.end)
-    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
-      pll_period = p.period
-      pll_startdate = p.start
-      pll_enddate = p.end
-      return
-    }
-  })
-  console.log("pll_period", pll_period)
   // add new members to the playerlist
   let pnature = PLAYERSTATUS.unassigned
   mininmal_assignelo = 3000
@@ -281,7 +286,6 @@ async function getClubMembers() {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
   })
   clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
-  fillinPlayerList()
 }
 
 function maxelo(p) {
@@ -333,7 +337,6 @@ function readICclub() {
       titularchoices.push({ title: t.name, value: t.name })
     })
   }
-  fillinPlayerList()
 }
 
 function rowstyle(idnumber) {
@@ -403,10 +406,14 @@ async function setup(icclub_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
-  icdata = icdata_
-  calcstatus()
-  readICclub()
-  getClubMembers()
+  idclub.value = icclub_.idclub || 0
+  if (icdata_.playerlist_data) {
+    icdata = icdata_
+    calc_period()
+    await calc_status()
+    readICclub()
+    await getClubMembers()
+  }
 }
 </script>
 
@@ -434,9 +441,15 @@ async function setup(icclub_, icdata_) {
     />
     <div v-if="pll_status == 'open'">
       <div v-if="!registered">
-        This club is not enrolled in Interclubs 2023-24
+        This club is not enrolled in Interclubs 2025-26
         <VBtn @click="openExportAll" color="primary" class="ml-8">
           Export all players
+        </VBtn>
+      </div>
+      <div v-if="!players.length" class="mb-3">
+        The current playerlist is empty. Do you want to import the club members?
+        <VBtn @click="fillinPlayerList" color="primary" class="ml-8">
+          Import members
         </VBtn>
       </div>
       <VDataTable
@@ -455,7 +468,7 @@ async function setup(icclub_, icdata_) {
 
         <template v-slot:item.fullname="{ item }">
           <span :class="rowstyle(item.idnumber)">
-            {{ item.fullname }}
+            {{ item.last_name }}, {{ item.first_name }}
           </span>
         </template>
 
@@ -536,7 +549,7 @@ async function setup(icclub_, icdata_) {
     <VDialog v-model="exportdialog" width="30em">
       <VCard>
         <VCardTitle>
-          Export: {{ playeredit.fullname }}
+          Export: {{ playeredit.last_name }}, {{ playeredit.first_name }}
           <VDivider />
         </VCardTitle>
         <VCardText>

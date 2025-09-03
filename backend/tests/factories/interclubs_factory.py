@@ -10,6 +10,7 @@ from kbsb.interclubs import (
     ICGame,
     ICGameDetails,
     ICPlanning,
+    ICPlayer,
     ICPlayerUpdate,
     ICPlayerUpdateItem,
     ICPlayerValidationError,
@@ -110,3 +111,8 @@ class IcStandingsDbFactory(ModelFactory[ICStandingsDB]):
 @register_fixture
 class IcTeamFactory(ModelFactory[ICTeam]):
     __model__ = ICTeam
+
+
+@register_fixture
+class IcPlayerFactory(ModelFactory[ICPlayer]):
+    __model__ = ICPlayer

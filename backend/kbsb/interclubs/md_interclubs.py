@@ -41,7 +41,8 @@ class PlayerlistNature(StrEnum):
     IMPORTED = auto()
     EXPORTED = auto()
     LOCKED = auto()
-    # older
+    REMOVED = auto()
+    # deprecated
     REQUESTEDIN = auto()
     CONFIRMEDOUT = auto()
 
@@ -138,8 +139,8 @@ class ICClubDB(BaseModel):
     name: str | None = ""
     id: str | None = None
     idclub: int
-    teams: list[ICTeam] | None = Field(default_factory=list)
-    players: list[ICPlayer] | None = Field(default_factory=list)
+    teams: list[ICTeam] | None = []
+    players: list[ICPlayer] | None = []
     registered: bool | None = False
 
 
@@ -310,6 +311,23 @@ class ICPlanning(BaseModel):
     """
 
     plannings: list[ICPlanningItem]
+
+
+class ICValidationError(BaseModel):
+    """
+    an error for a planning validation
+    """
+
+    boardnr: int | None = None
+    division: int
+    errormessage: str
+    index: str
+    icclub_offender: int
+    icclub_opponent: int
+    name: str
+    name_opponent: str
+    pnr_offender: int
+    round: int
 
 
 class ICResultItem(BaseModel):
