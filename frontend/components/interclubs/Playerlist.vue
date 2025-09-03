@@ -19,20 +19,25 @@ let showSnackbar
 const refloading = ref(null)
 let showLoading
 
+// dialog
+const assigndialog = ref(false)
+const editelodialog = ref(false)
+const edittitulardialog = ref(false)
+const transferalldialog = ref(false)
+const transferdialog = ref(false)
+const unassigndialog = ref(false)
+
 // datamodel
 const clubmembers = ref([])
-const clubmembers_id = ref(null)
 const icclub = ref({})
 const idclub = ref(0)
 const registered = ref(null)
 let playersindexed = {}
 const players = ref([])
 const playeredit = ref({})
-const editdialog = ref(false)
-const exportalldialog = ref(false)
 const exportallvisit = ref(0)
-const exportdialog = ref(false)
-const titularchoices = [{ title: t("icn.pll_notit"), value: "" }]
+const titnotit = ref("notit")
+const titularchoices = []
 const pll_status = ref("closed")
 let pll_period
 let pll_startdate
@@ -40,6 +45,7 @@ let pll_enddate
 let pll = false
 let mininmal_assignelo = 3000
 let icdata = { playerlist_data: [] }
+let clubmembers_cache_idclub = null
 
 // validation
 const validationdialog = ref(false)
@@ -66,14 +72,6 @@ const itemsPerPageOptions = [
 ]
 
 // methods alphabetically
-
-function assignPlayer(idnumber) {
-  console.log("Assigning player", idnumber)
-  playeredit.value = { ...playersindexed[idnumber] }
-  playeredit.value.nature = PLAYERSTATUS.assigned
-  playeredit.value.period = pll_period
-  playerEdit2Player()
-}
 
 function calc_period() {
   const now = new Date()
@@ -114,20 +112,16 @@ async function calc_status() {
 }
 
 function canAssign(idnumber) {
-  return (
-    [PLAYERSTATUS.unassigned].includes(playersindexed[idnumber].nature) &&
-    !playersindexed[idnumber].natrating &&
-    !playersindexed[idnumber].fiderating
+  return [PLAYERSTATUS.unassigned, PLAYERSTATUS.exported].includes(
+    playersindexed[idnumber].nature
   )
 }
 
-function canEdit(idnumber) {
+function canEditElo(idnumber) {
   if (pll_period == "september") {
-    return [
-      PLAYERSTATUS.assigned,
-      PLAYERSTATUS.unassigned,
-      PLAYERSTATUS.imported,
-    ].includes(playersindexed[idnumber].nature)
+    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+      playersindexed[idnumber].nature
+    )
   }
   if (pll_period == "november") {
     return (
@@ -145,14 +139,28 @@ function canEdit(idnumber) {
 
 function canExport(idnumber) {
   if (pll_period == "september") {
-    return [
-      PLAYERSTATUS.assigned,
-      PLAYERSTATUS.unassigned,
-      PLAYERSTATUS.imported,
-    ].includes(playersindexed[idnumber].nature)
+    return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
+      playersindexed[idnumber].nature
+    )
   } else {
     return false
   }
+}
+
+function canEditTitular(idnumber) {
+  if (pll_period == "september") {
+    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+      playersindexed[idnumber].nature
+    )
+  } else {
+    return false
+  }
+}
+
+function canUnassign(idnumber) {
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+    playersindexed[idnumber].nature
+  )
 }
 
 async function checkAccess() {
@@ -174,26 +182,6 @@ async function checkAccess() {
   } finally {
     showLoading(false)
   }
-}
-
-function doEditPlayer() {
-  playerEdit2Player()
-  editdialog.value = false
-}
-
-function doExportAll() {
-  players.value.forEach((m) => {
-    m.nature = PLAYERSTATUS.exported
-    m.idclubvisit = parseInt(exportallvisit.value) + 0
-  })
-  exportalldialog.value = false
-}
-
-function doExportPlayer() {
-  playeredit.value.nature = PLAYERSTATUS.exported
-  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
-  playerEdit2Player()
-  exportdialog.value = false
 }
 
 function fillinPlayerList() {
@@ -263,8 +251,9 @@ async function getClubMembers() {
     return
   }
   console.log("getting Club Members from signaletique")
-  if (idclub.value == clubmembers_id.value) {
+  if (idclub.value == clubmembers_cache_idclub) {
     console.log("using cached version of members")
+    return
   }
   showLoading(true)
   let reply
@@ -280,7 +269,7 @@ async function getClubMembers() {
   } finally {
     showLoading(false)
   }
-  clubmembers_id.value = idclub.value
+  clubmembers_cache_idclub = idclub.value
   const members = reply.data
   members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
@@ -304,18 +293,34 @@ function minelo(p) {
   return Math.max(minrating, icdata.notrated_elo.min)
 }
 
-function openEditPlayer(idnumber) {
+function openAssignPlayer(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  editdialog.value = true
+  assigndialog.value = true
 }
 
-function openExportAll() {
-  exportalldialog.value = true
+function openEditElo(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  editelodialog.value = true
 }
 
-function openExportPlayer(idnumber) {
+function openEditTitular(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  exportdialog.value = true
+  titnotit.value = playeredit.value.titular ? "tit" : "notit"
+  edittitulardialog.value = true
+}
+
+function openTransferAll() {
+  transferalldialog.value = true
+}
+
+function openTransferPlayer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  transferdialog.value = true
+}
+
+function openUnassignPlayer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  unassigndialog.value = true
 }
 
 function playerEdit2Player() {
@@ -324,6 +329,47 @@ function playerEdit2Player() {
   const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
   players.value.splice(aix, 1, playeredit.value)
   playersindexed[playeredit.value.idnumber] = players.value[aix]
+}
+
+function processAssignPlayer(idnumber) {
+  playeredit.value.nature = PLAYERSTATUS.assigned
+  playeredit.value.period = pll_period
+  playerEdit2Player()
+  assigndialog.value = false
+}
+
+function processEditElo() {
+  playerEdit2Player()
+  editelodialog.value = false
+}
+
+function processEditTitular() {
+  if (titnotit.value == "notit") {
+    playeredit.value.titular = ""
+  }
+  playerEdit2Player()
+  edittitulardialog.value = false
+}
+
+function processTransferAll() {
+  players.value.forEach((m) => {
+    m.nature = PLAYERSTATUS.exported
+    m.idclubvisit = parseInt(exportallvisit.value) + 0
+  })
+  transferalldialog.value = false
+}
+
+function processTransferPlayer() {
+  playeredit.value.nature = PLAYERSTATUS.exported
+  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
+  playerEdit2Player()
+  transferdialog.value = false
+}
+
+function processUnassignPlayer() {
+  playeredit.value.nature = PLAYERSTATUS.unassigned
+  playerEdit2Player()
+  unassigndialog.value = false
 }
 
 function readICclub() {
@@ -442,7 +488,7 @@ async function setup(icclub_, icdata_) {
     <div v-if="pll_status == 'open'">
       <div v-if="!registered">
         This club is not enrolled in Interclubs 2025-26
-        <VBtn @click="openExportAll" color="primary" class="ml-8">
+        <VBtn @click="openTransferAll" color="primary" class="ml-8">
           Export all players
         </VBtn>
       </div>
@@ -453,6 +499,7 @@ async function setup(icclub_, icdata_) {
         </VBtn>
       </div>
       <VDataTable
+        class="playerlist"
         :items="players"
         :headers="headers"
         density="compact"
@@ -491,43 +538,80 @@ async function setup(icclub_, icdata_) {
         </template>
 
         <template v-slot:item.action="{ item }">
-          <span v-show="item.nature == 'exported'">
-            <VIcon>mdi-arrow-right-bold</VIcon>{{ visitingclub(item.idnumber) }}
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <VBtn
+                density="compact"
+                icon="mdi-dots-vertical"
+                variant="text"
+                v-bind="props"
+              />
+            </template>
+            <v-list>
+              <v-list-item
+                @click="openEditElo(item.idnumber)"
+                v-show="canEditElo(item.idnumber)"
+              >
+                <v-list-item-title>Edit Elo</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openEditTitular(item.idnumber)"
+                v-show="canEditTitular(item.idnumber)"
+              >
+                <v-list-item-title>Edit Titular</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openUnassignPlayer(item.idnumber)"
+                v-show="canUnassign(item.idnumber)"
+                ><v-list-item-title
+                  >Remove from playerlist</v-list-item-title
+                ></v-list-item
+              >
+              <v-list-item
+                @click="openAssignPlayer(item.idnumber)"
+                v-show="canAssign(item.idnumber)"
+              >
+                <v-list-item-title>Add to playerlist</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openTransferPlayer(item.idnumber)"
+                v-show="canExport(item.idnumber)"
+                ><v-list-item-title>Transfer</v-list-item-title></v-list-item
+              >
+            </v-list>
+          </v-menu>
+          <span class="red" v-show="item.nature == 'exported'">
+            <v-icon icon="mdi-arrow-right" />
+            {{ item.idclubvisit }}
           </span>
-          <VBtn
-            density="compact"
-            color="green"
-            icon="mdi-pencil"
-            variant="text"
-            v-show="canEdit(item.idnumber)"
-            @click="openEditPlayer(item.idnumber)"
-          />
-          <VBtn
-            density="compact"
-            color="red"
-            icon="mdi-arrow-right"
-            variant="text"
-            v-show="canExport(item.idnumber)"
-            @click="openExportPlayer(item.idnumber)"
-          />
-          <VBtn
-            density="compact"
-            color="blue"
-            icon="mdi-clipboard-arrow-down"
-            variant="text"
-            v-show="canAssign(item.idnumber)"
-            @click="assignPlayer(item.idnumber)"
-          />
         </template>
       </VDataTable>
       <div>
         <VBtn @click="validatePlayerlist()" color="primary">Save</VBtn>
       </div>
     </div>
-    <VDialog v-model="editdialog" width="30em">
+
+    <VDialog v-model="assigndialog" width="30em">
       <VCard>
         <VCardTitle>
-          {{ t("Edit") }}: {{ playeredit.fullname }}
+          {{ playeredit.last_name }}, {{ playeredit.first_name }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>Assign a player to the playerlist</p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processAssignPlayer">OK</VBtn>
+          <VBtn @click="assigndialog = false">Cancel</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="editelodialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("Edit") }}: {{ playeredit.first_name }} {{ playeredit.last_name }}
           <v-divider class="divider" />
         </VCardTitle>
         <VCardText>
@@ -536,17 +620,42 @@ async function setup(icclub_, icdata_) {
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
           <VTextField v-model="playeredit.assignedrating" label="New Elo" />
-          <h4>{{ t("Titular") }}</h4>
-          <VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doEditPlayer">{{ t("OK") }}</VBtn>
-          <VBtn @click="editdialog = false">{{ t("Cancel") }}</VBtn>
+          <VBtn @click="processEditElo">{{ t("OK") }}</VBtn>
+          <VBtn @click="editelodialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
-    <VDialog v-model="exportdialog" width="30em">
+
+    <VDialog v-model="edittitulardialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("Edit") }}: {{ playeredit.first_name }} {{ playeredit.last_name }}
+          <v-divider class="divider" />
+        </VCardTitle>
+        <VCardText>
+          <h4>{{ t("Titular") }}</h4>
+          <v-radio-group v-model="titnotit">
+            <v-radio :label="t('icn.pll_notit')" value="notit"></v-radio>
+            <v-radio :label="t('icn.pll_tit')" value="tit"></v-radio>
+          </v-radio-group>
+          <VSelect
+            :items="titularchoices"
+            v-model="playeredit.titular"
+            v-show="titnotit == 'tit'"
+          ></VSelect>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processEditTitular">{{ t("OK") }}</VBtn>
+          <VBtn @click="edittitulardialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="transferdialog" width="30em">
       <VCard>
         <VCardTitle>
           Export: {{ playeredit.last_name }}, {{ playeredit.first_name }}
@@ -558,12 +667,30 @@ async function setup(icclub_, icdata_) {
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doExportPlayer">OK</VBtn>
-          <VBtn @click="exportdialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferPlayer">OK</VBtn>
+          <VBtn @click="transferdialog = false">Cancel</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
-    <VDialog v-model="exportalldialog" width="30em">
+
+    <VDialog v-model="unassigndialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ playeredit.last_name }}, {{ playeredit.first_name }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>Removing a player from the playerlist</p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processUnassignPlayer">OK</VBtn>
+          <VBtn @click="unassigndialog = false">Cancel</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="transferalldialog" width="30em">
       <VCard>
         <VCardTitle>
           Export all players
@@ -575,11 +702,12 @@ async function setup(icclub_, icdata_) {
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doExportAll">OK</VBtn>
-          <VBtn @click="exportalldialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferAll">OK</VBtn>
+          <VBtn @click="transferalldialog = false">Cancel</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
+
     <VDialog v-model="validationdialog" width="30em">
       <VCard>
         <VCardTitle>
@@ -628,6 +756,6 @@ async function setup(icclub_, icdata_) {
 }
 
 .unassigned {
-  color: rgb(109, 123, 183);
+  color: rgb(191, 192, 195);
 }
 </style>

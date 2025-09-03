@@ -23,7 +23,7 @@ const snackbar = ref(null)
 // API backend
 const { $backend } = useNuxtApp()
 const mgmttokenstore = useMgmtTokenStore()
-const { token: idtoken } = storeToRefs(mgmttokenstore)
+const { token: mgmttoken } = storeToRefs(mgmttokenstore)
 const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 // const mgmtinterclubstore = useMgmtInterclubStore()
@@ -86,8 +86,8 @@ function changeTab() {
 }
 
 async function checkAuth() {
-  console.log("checking if auth is already set", idtoken.value)
-  if (idtoken.value) return
+  console.log("checking if auth is already set", mgmttoken.value)
+  if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
     console.log("person no credentials")
     gotoLogin()
@@ -145,10 +145,12 @@ async function getClubDetails() {
   icclub.value = { idclub: idclub.value }
   changeDialogCounter(1)
   try {
+    console.log(1, mgmttoken.value)
     reply = await $backend("interclub", "mgmt_getICclub", {
       idclub: idclub.value,
-      token: idtoken.value,
+      token: mgmttoken.value,
     })
+    console.log(2)
     icclub.value = { idclub: idclub.value, ...reply.data }
   } catch (error) {
     if (error.code == 401) gotoLogin()

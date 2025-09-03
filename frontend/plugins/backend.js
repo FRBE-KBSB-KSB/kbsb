@@ -75,6 +75,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         if (!f) {
           console.log("$backend method not existing", fact, method)
         }
+        console.log("calling $backend", fact, method, options)
         return await f(options)
       },
     },
