@@ -20,6 +20,8 @@ from kbsb.interclubs import (
     ICPlayerValidationError,
     ICTeam,
     DbICClub,
+    DbICClub2324,
+    DbICClub2425,
     DbICSeries,
     PlayerlistNature,
     load_icdata,
@@ -39,6 +41,12 @@ ONPLAYERLIST = [
     PlayerlistNature.IMPORTED,
     PlayerlistNature.REQUESTEDIN,
 ]
+
+# archive
+dbclubs = {
+    "2324": DbICClub2324,
+    "2425": DbICClub2425,
+}
 
 # CRUD
 
@@ -105,6 +113,22 @@ async def anon_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB 
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
     club = await DbICClub.find_single(filter)
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
+    return club
+
+
+async def anon_getICclub_archive(
+    season: str, idclub: int, options: dict[str, Any] | None = None
+) -> ICClubDB | None:
+    """
+    get IC club by idclub, returns None if nothing found
+    filter players for active players
+    """
+    dbclub = dbclubs[season]
+    filter = options.copy() if options else {}
+    filter["_model"] = ICClubDB
+    filter["idclub"] = idclub
+    club = await dbclub.find_single(filter)
     club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
     return club
 
