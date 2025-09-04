@@ -391,7 +391,7 @@ division,index,pairingnr,input,idclub,name,sub1,sub2,sub3,sub4,teamnumber
 5,R,6,548 Caissa Europe 8,548,Caissa Europe 8,13,15,Caissa Europe@8,14,8
 5,R,7,549 Saint-Ghislain 3,549,Saint-Ghislain 3,15,16,Saint-Ghislain@3,15,3
 5,R,8,514 MCC 4,514,MCC 4,4,5,MCC@4,4,4
-5,R,9,518 Soignies 1,518,Soignies 1,9,10,Soignies@1,9,1
+5,R,9,Bye 5R,0,5R,2,2,Err,Err,0
 5,R,10,902 CES 3,902,CES 3,4,5,CES@3,4,3
 5,R,11,547 Ren. Binchoise 1,547,Ren. Binchoise 1,14,16,Ren. Binchoise@1,15,1
 5,R,12,953 Nivelles 2,953,Nivelles 2,9,10,Nivelles@2,9,2
