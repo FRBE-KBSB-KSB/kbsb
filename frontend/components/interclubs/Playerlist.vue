@@ -26,6 +26,7 @@ const edittitulardialog = ref(false)
 const transferalldialog = ref(false)
 const transferdialog = ref(false)
 const unassigndialog = ref(false)
+const undotransferdialog = ref(false)
 
 // datamodel
 const clubmembers = ref([])
@@ -39,6 +40,7 @@ const exportallvisit = ref(0)
 const titnotit = ref("notit")
 const titularchoices = []
 const pll_status = ref("closed")
+const importavailable = ref(false)
 let pll_period
 let pll_startdate
 let pll_enddate
@@ -112,9 +114,7 @@ async function calc_status() {
 }
 
 function canAssign(idnumber) {
-  return [PLAYERSTATUS.unassigned, PLAYERSTATUS.exported].includes(
-    playersindexed[idnumber].nature
-  )
+  return playersindexed[idnumber].nature == PLAYERSTATUS.unassigned
 }
 
 function canEditElo(idnumber) {
@@ -125,41 +125,45 @@ function canEditElo(idnumber) {
   }
   if (pll_period == "november") {
     return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
       playersindexed[idnumber].period == "november"
     )
   }
   if (pll_period == "january") {
     return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
       playersindexed[idnumber].period == "january"
     )
   }
 }
 
 function canExport(idnumber) {
-  if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
+  return (
+    pll_period == "september" &&
+    [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
       playersindexed[idnumber].nature
     )
-  } else {
-    return false
-  }
+  )
 }
 
 function canEditTitular(idnumber) {
-  if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+  return (
+    pll_period == "september" &&
+    [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
       playersindexed[idnumber].nature
     )
-  } else {
-    return false
-  }
+  )
 }
 
 function canUnassign(idnumber) {
   return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
     playersindexed[idnumber].nature
+  )
+}
+
+function canUndoTransfer(idnumber) {
+  return (
+    pll_period == "september" && playersindexed[idnumber].nature == PLAYERSTATUS.exported
   )
 }
 
@@ -184,22 +188,20 @@ async function checkAccess() {
   }
 }
 
-function fillinPlayerList() {
-  console.log("fillinPlayerList")
-  // add new members to the playerlist
-  let pnature = PLAYERSTATUS.unassigned
-  mininmal_assignelo = 3000
-  if (registered.value && !players.value.length) {
-    // automatically make players assigned at the start of the Interclubs
-    pnature = PLAYERSTATUS.assigned
-  }
-  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
-  // first fix period of already assigned players
-  players.value.forEach((p) => {
-    if (p.period == "unknown") {
-      p.period = "september"
+function checkImport() {
+  importavailable.value = false
+  clubmembers.value.forEach((m) => {
+    if (!playersindexed[m.idnumber]) {
+      importavailable.value = true
     }
   })
+}
+
+function fillinPlayerList(nature) {
+  console.log("fillinPlayerList nature", nature)
+  // add new members to the playerlist
+  mininmal_assignelo = 3000
+  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       let fiderating = m.fiderating ? m.fiderating : 0
@@ -215,7 +217,7 @@ function fillinPlayerList() {
         idclubvisit: 0,
         last_name: m.last_name,
         natrating: natrating,
-        nature: pnature,
+        nature: nature,
         period: pll_period,
         titular: "",
         transfer: null,
@@ -242,6 +244,7 @@ function fillinPlayerList() {
       mininmal_assignelo = p.assignedrating
     }
   })
+  importavailable.value = false
 }
 
 async function getClubMembers() {
@@ -273,6 +276,9 @@ async function getClubMembers() {
   const members = reply.data
   members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
+    if (!playersindexed.hasOwnProperty(p.idnumber)) {
+      importavailable.value = true
+    }
   })
   clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
 }
@@ -321,6 +327,11 @@ function openTransferPlayer(idnumber) {
 function openUnassignPlayer(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
   unassigndialog.value = true
+}
+
+function openUndoTransfer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  undotransferdialog.value = true
 }
 
 function playerEdit2Player() {
@@ -372,6 +383,12 @@ function processUnassignPlayer() {
   unassigndialog.value = false
 }
 
+function processUndoTransfer() {
+  playeredit.value.nature = PLAYERSTATUS.unassigned
+  playerEdit2Player()
+  undotransferdialog.value = false
+}
+
 function readICclub() {
   idclub.value = icclub.value.idclub || 0
   registered.value = icclub.value.registered || false
@@ -414,11 +431,6 @@ async function savePlayerlist() {
   showSnackbar("Playerlist saved")
 }
 
-function visitingclub(idnumber) {
-  const pl = playersindexed[idnumber]
-  return pl ? pl.idclubvisit : ""
-}
-
 async function validatePlayerlist() {
   if (!registered.value) {
     savePlayerlist()
@@ -459,6 +471,7 @@ async function setup(icclub_, icdata_) {
     await calc_status()
     readICclub()
     await getClubMembers()
+    checkImport()
   }
 }
 </script>
@@ -486,16 +499,45 @@ async function setup(icclub_, icdata_) {
       :text="t('icn.perm_denied')"
     />
     <div v-if="pll_status == 'open'">
-      <div v-if="!registered">
-        This club is not enrolled in Interclubs 2025-26
+      <div v-if="!registered && importavailable" class="mb-3">
+        <p>
+          This club is not registered for Interclubs 2025-26, so your playerlist can only
+          contain transfers to another club, that is registered. You can transfer all the
+          members at once to one club. Or you can just import the members and transfer
+          them individually in a 2nd stage. Until the closing of the playerlist, you can
+          do and undo any transfers.
+        </p>
         <VBtn @click="openTransferAll" color="primary" class="ml-8">
-          Export all players
+          Transfer all members
+        </VBtn>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
+          color="primary"
+          class="ml-8"
+        >
+          Import
         </VBtn>
       </div>
-      <div v-if="!players.length" class="mb-3">
-        The current playerlist is empty. Do you want to import the club members?
-        <VBtn @click="fillinPlayerList" color="primary" class="ml-8">
-          Import members
+      <div v-if="registered && importavailable" class="mb-3">
+        <p>
+          There are members of your club that are not yet on this playerlist. You can
+          import these members and assign them as a player for Interclubs or you can
+          import them and leave them unassigned. You can always assign or unassign members
+          until the closing of the playerlist.
+        </p>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.assigned)"
+          color="primary"
+          class="ml-8"
+        >
+          Import and assign
+        </VBtn>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
+          color="primary"
+          class="ml-8"
+        >
+          Import only
         </VBtn>
       </div>
       <VDataTable
@@ -577,6 +619,11 @@ async function setup(icclub_, icdata_) {
                 @click="openTransferPlayer(item.idnumber)"
                 v-show="canExport(item.idnumber)"
                 ><v-list-item-title>Transfer</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openUndoTransfer(item.idnumber)"
+                v-show="canUndoTransfer(item.idnumber)"
+                ><v-list-item-title>Undo Transfer</v-list-item-title></v-list-item
               >
             </v-list>
           </v-menu>
@@ -708,6 +755,23 @@ async function setup(icclub_, icdata_) {
       </VCard>
     </VDialog>
 
+    <VDialog v-model="undotransferdialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          Undo transfer: {{ playeredit.last_name }}, {{ playeredit.first_name }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>Undo transfer: {{ playeredit.idclubvisit }}</p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processUndoTransfer">OK</VBtn>
+          <VBtn @click="undotransferdialog = false">Cancel</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
     <VDialog v-model="validationdialog" width="30em">
       <VCard>
         <VCardTitle>
@@ -757,5 +821,9 @@ async function setup(icclub_, icdata_) {
 
 .unassigned {
   color: rgb(195, 195, 195);
+}
+
+.v-card-title .v-divider {
+  margin: 0.5em 0;
 }
 </style>

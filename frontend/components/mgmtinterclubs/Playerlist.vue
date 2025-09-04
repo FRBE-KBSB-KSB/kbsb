@@ -467,7 +467,7 @@ async function setup(icclub_, icdata_) {
           Export all players
         </VBtn>
       </div>
-      <div v-if="!players.length" class="mb-3">
+      <div v-if="registered && !players.length" class="mb-3">
         The current playerlist is empty. Do you want to import the club members?
         <VBtn @click="fillinPlayerList" color="primary" class="ml-8">
           Import members
