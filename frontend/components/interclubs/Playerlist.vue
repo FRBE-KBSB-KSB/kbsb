@@ -501,43 +501,34 @@ async function setup(icclub_, icdata_) {
     <div v-if="pll_status == 'open'">
       <div v-if="!registered && importavailable" class="mb-3">
         <p>
-          This club is not registered for Interclubs 2025-26, so your playerlist can only
-          contain transfers to another club, that is registered. You can transfer all the
-          members at once to one club. Or you can just import the members and transfer
-          them individually in a 2nd stage. Until the closing of the playerlist, you can
-          do and undo any transfers.
+          {{ t("icn.pll_notregistered") }}
         </p>
         <VBtn @click="openTransferAll" color="primary" class="ml-8">
-          Transfer all members
+          {{ t("icn.pll_transferall") }}
         </VBtn>
         <VBtn
           @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
           color="primary"
           class="ml-8"
         >
-          Import
+          {{ t("icn.pll_import") }}
         </VBtn>
       </div>
       <div v-if="registered && importavailable" class="mb-3">
-        <p>
-          There are members of your club that are not yet on this playerlist. You can
-          import these members and assign them as a player for Interclubs or you can
-          import them and leave them unassigned. You can always assign or unassign members
-          until the closing of the playerlist.
-        </p>
+        <p>{{ t("icn.pll_import_available") }}</p>
         <VBtn
           @click="fillinPlayerList(PLAYERSTATUS.assigned)"
           color="primary"
           class="ml-8"
         >
-          Import and assign
+          {{ t("icn.pll_import_assign") }}
         </VBtn>
         <VBtn
           @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
           color="primary"
           class="ml-8"
         >
-          Import only
+          {{ t("icn.pll_import_only") }}
         </VBtn>
       </div>
       <VDataTable
@@ -594,36 +585,44 @@ async function setup(icclub_, icdata_) {
                 @click="openEditElo(item.idnumber)"
                 v-show="canEditElo(item.idnumber)"
               >
-                <v-list-item-title>Edit Elo</v-list-item-title></v-list-item
+                <v-list-item-title>{{
+                  t("icn.pll_edit_elo")
+                }}</v-list-item-title></v-list-item
               >
               <v-list-item
                 @click="openEditTitular(item.idnumber)"
                 v-show="canEditTitular(item.idnumber)"
               >
-                <v-list-item-title>Edit Titular</v-list-item-title></v-list-item
+                <v-list-item-title>{{
+                  t("icn.pll_edit_titular")
+                }}</v-list-item-title></v-list-item
               >
               <v-list-item
                 @click="openUnassignPlayer(item.idnumber)"
                 v-show="canUnassign(item.idnumber)"
-                ><v-list-item-title
-                  >Remove from playerlist</v-list-item-title
-                ></v-list-item
+                ><v-list-item-title>{{
+                  t("icn.pll_unassign")
+                }}</v-list-item-title></v-list-item
               >
               <v-list-item
                 @click="openAssignPlayer(item.idnumber)"
                 v-show="canAssign(item.idnumber)"
               >
-                <v-list-item-title>Add to playerlist</v-list-item-title></v-list-item
+                <v-list-item-title>{{ t("icn.pll_add") }}</v-list-item-title></v-list-item
               >
               <v-list-item
                 @click="openTransferPlayer(item.idnumber)"
                 v-show="canExport(item.idnumber)"
-                ><v-list-item-title>Transfer</v-list-item-title></v-list-item
+                ><v-list-item-title>{{
+                  t("icn.pll_transfer")
+                }}</v-list-item-title></v-list-item
               >
               <v-list-item
                 @click="openUndoTransfer(item.idnumber)"
                 v-show="canUndoTransfer(item.idnumber)"
-                ><v-list-item-title>Undo Transfer</v-list-item-title></v-list-item
+                ><v-list-item-title>{{
+                  t("icn.pll_undo_transfer")
+                }}</v-list-item-title></v-list-item
               >
             </v-list>
           </v-menu>
@@ -634,7 +633,7 @@ async function setup(icclub_, icdata_) {
         </template>
       </VDataTable>
       <div>
-        <VBtn @click="validatePlayerlist()" color="primary">Save</VBtn>
+        <VBtn @click="validatePlayerlist()" color="primary">{{ t("Save") }}</VBtn>
       </div>
     </div>
 
@@ -645,12 +644,15 @@ async function setup(icclub_, icdata_) {
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Assign a player to the playerlist</p>
+          <p>
+            {{ t("icn.pll_assign") }}: {{ playeredit.last_name }},
+            {{ playeredit.first_name }}
+          </p>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="processAssignPlayer">OK</VBtn>
-          <VBtn @click="assigndialog = false">Cancel</VBtn>
+          <VBtn @click="processAssignPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="assigndialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -662,7 +664,7 @@ async function setup(icclub_, icdata_) {
           <v-divider class="divider" />
         </VCardTitle>
         <VCardText>
-          <h4>{{ t("icn.pll_edit_assigned") }}</h4>
+          <h4>{{ t("icn.pll_edit_elo") }}</h4>
           <div>{{ t("icn.pll_assigned_elo") }}: {{ playeredit.assignedrating }}</div>
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
@@ -709,13 +711,13 @@ async function setup(icclub_, icdata_) {
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Exporting a player to another club</p>
+          <p>{{ t("icn.pll_transfer_pl") }}</p>
           <VTextField label="Club number" v-model="playeredit.idclubvisit" />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="processTransferPlayer">OK</VBtn>
-          <VBtn @click="transferdialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="transferdialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -727,12 +729,15 @@ async function setup(icclub_, icdata_) {
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Removing a player from the playerlist</p>
+          <p>
+            {{ t("icn.pll_unassigning") }}: {{ playeredit.last_name }},
+            {{ playeredit.first_name }}
+          </p>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="processUnassignPlayer">OK</VBtn>
-          <VBtn @click="unassigndialog = false">Cancel</VBtn>
+          <VBtn @click="processUnassignPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="unassigndialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
@@ -740,17 +745,17 @@ async function setup(icclub_, icdata_) {
     <VDialog v-model="transferalldialog" width="30em">
       <VCard>
         <VCardTitle>
-          Export all players
+          {{ t("icn.pll_transfer") }}
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Exporting all players to another club</p>
+          <p>{{ t("icn.pll_transferall") }}</p>
           <VTextField label="Club number" v-model="exportallvisit" />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="processTransferAll">OK</VBtn>
-          <VBtn @click="transferalldialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferAll">{{ t("OK") }}</VBtn>
+          <VBtn @click="transferalldialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

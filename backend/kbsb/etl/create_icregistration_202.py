@@ -7,12 +7,8 @@ from reddevil.core import (
     get_settings,
     connect_mongodb,
     close_mongodb,
-    get_mongodb,
 )
-from kbsb.interclubs.registrations import get_icregistrations
-from kbsb.interclubs.icclubs import create_icclub
-from kbsb.interclubs.md_interclubs import ICClubDB
-from kbsb.club import get_clubs, Club
+from kbsb.interclubs.registrations import create_icregistration, ICRegistration
 from dotenv import load_dotenv
 
 app = FastAPI(
@@ -36,17 +32,17 @@ async def lifespan(app: FastAPI):
 
 async def main():
     async with lifespan(app) as _:
-        clubs = await get_clubs({"_class": Club})
-        regs = {r.idclub: r for r in await get_icregistrations()}
-        for c in clubs:
-            if c.idclub in regs:
-                await create_icclub(
-                    ICClubDB(
-                        name=regs[c.idclub].name,
-                        idclub=c.idclub,
-                        registered=True,
-                    )
-                )
+        await create_icregistration(
+            ICRegistration(
+                name="Woluwe 1200",
+                idclub=202,
+                teams1=0,
+                teams2=0,
+                teams3=0,
+                teams4=0,
+                teams5=1,
+            )
+        )
 
 
 if __name__ == "__main__":
