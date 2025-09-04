@@ -663,6 +663,8 @@ async def script_addteam_icseries(
     Add a team to a division
     Does not take care of the titulars
     """
+    from kbsb.interclubs.icclubs import get_icclub, update_icclub, ICClubDB
+
     logger.info(f"division: {division}, name: {name}")
     filter = {"division": division, "index": index or ""}
     series = await get_icseries2(filter)
@@ -676,16 +678,23 @@ async def script_addteam_icseries(
     for tm in s.teams:
         if tm.pairingnumber == pairingnumber:
             raise RdBadRequest(description="PairingnumberAlreadyAssigned")
-    s.teams.append(
-        ICTeam(
-            division=division,
-            index=index,
-            idclub=idclub,
-            pairingnumber=pairingnumber,
-            name=name,
-        )
+    team = ICTeam(
+        division=division,
+        index=index,
+        idclub=idclub,
+        pairingnumber=pairingnumber,
+        name=name,
     )
+    s.teams.append(team)
     await update_icseries(division, index or "", ICSeriesUpdate(teams=s.teams))
+    if idclub != 0:
+        icclub = await get_icclub({"idclub": idclub})
+        for t in icclub.teams:
+            if t.name == name:
+                break
+        else:
+            icclub.teams.append(team)
+            await update_icclub(ICClubDB(idclub=idclub, teams=icclub.teams))
 
 
 async def script_create_encounters():

@@ -100,7 +100,7 @@ def test_anon_getICclubs(anon_getICclubs: AsyncMock, ic_club_item_factory):
 
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_getICclub")
-def test_clb_getICclub(clb_getICclub: AsyncMock, vmt: AsyncMock, ic_club_db_factory):
+def test_clb_getICclub(clb_getICclub: AsyncMock, vmt: MagicMock, ic_club_db_factory):
     client = TestClient(app)
     clb_getICclub.return_value = ic_club_db_factory.build()
     resp = client.get("/api/v1/interclubs/clb/icclub/123")
@@ -122,7 +122,7 @@ def test_mgmt_getICclub(mgmt_getICclub: AsyncMock, vt: AsyncMock, ic_club_db_fac
 @patch("kbsb.interclubs.api_interclubs.clb_validateICPlayers")
 def test_clb_validateICPlayers(
     clb_validateICPlayers: AsyncMock,
-    vmt: AsyncMock,
+    vmt: MagicMock,
     ic_player_update_factory,
     ic_player_validation_error_factory,
 ):
@@ -169,9 +169,9 @@ def test_clb_updateICPlayers(
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.clb_updateICplayers")
+@patch("kbsb.interclubs.api_interclubs.mgmt_updateICplayers")
 def test_mgmt_updateICPlayers(
-    clb_updateICPlayers: AsyncMock,
+    mgmt_updateICplayers: AsyncMock,
     vt: AsyncMock,
     ic_player_update_factory,
 ):
@@ -179,44 +179,43 @@ def test_mgmt_updateICPlayers(
     pu = ic_player_update_factory.build()
     resp = client.put("/api/v1/interclubs/mgmt/icclub/123", json=jsonable_encoder(pu))
     assert resp.status_code == 204
-    clb_updateICPlayers.assert_awaited()
+    mgmt_updateICplayers.assert_awaited()
 
 
-@patch("kbsb.interclubs.api_interclubs.jwt_getunverifiedpayload")
-@patch("kbsb.interclubs.api_interclubs.mgmt_getXlsAllplayerlist")
+@patch("kbsb.interclubs.api_interclubs.validate_token")
+@patch("kbsb.interclubs.api_interclubs.mgmt_get_xlsplayerlists")
 def test_mgmt_getXlsAllplayerlist(
-    mgmt_getXlsAllplayerlist: AsyncMock,
-    jwt_getunverifiedpayload: MagicMock,
+    mgmt_get_xlsplayerlists: AsyncMock,
+    validate_token: AsyncMock,
 ):
     client = TestClient(app)
-    jwt_getunverifiedpayload.return_value = {"sub": "jimi@frbe-kbsb-ksb.be"}
-    mgmt_getXlsAllplayerlist.return_value = "a"
-    resp = client.get("/api/v1/interclubs/mgmt/command/xls/allplayerlist?token=abc")
+    mgmt_get_xlsplayerlists.return_value = b"a"
+    resp = client.get("/api/v1/interclubs/mgmt/command/xls_playerlists")
     assert resp.status_code == 200
-    mgmt_getXlsAllplayerlist.assert_awaited()
+    mgmt_get_xlsplayerlists.assert_awaited()
 
 
-@patch("kbsb.interclubs.api_interclubs.anon_getXlsplayerlist")
+@patch("kbsb.interclubs.api_interclubs.anon_get_xlsplayerlist")
 def test_anon_getXlsplayerlist(
-    anon_getXlsplayerlist: AsyncMock,
+    anon_get_xlsplayerlist: AsyncMock,
 ):
     client = TestClient(app)
-    anon_getXlsplayerlist.return_value = "a"
-    resp = client.get("/api/v1/interclubs/anon/command/xls/playerlist?idclub=123")
+    anon_get_xlsplayerlist.return_value = b"a"
+    resp = client.get("/api/v1/interclubs/anon/command/xls_playerlist/123")
     assert resp.status_code == 200
-    anon_getXlsplayerlist.assert_awaited()
+    anon_get_xlsplayerlist.assert_awaited()
 
 
-@patch("kbsb.interclubs.api_interclubs.anon_getICseries")
+@patch("kbsb.interclubs.api_interclubs.anon_get_icseries_clubround")
 def test_anon_getICseries(
-    anon_getICseries: AsyncMock,
+    anon_get_icseries_clubround: AsyncMock,
     ic_series_factory,
 ):
     client = TestClient(app)
-    anon_getICseries.return_value = ic_series_factory.batch(size=3)
+    anon_get_icseries_clubround.return_value = ic_series_factory.batch(size=3)
     resp = client.get("/api/v1/interclubs/anon/icseries?idclub=123&round=2")
     assert resp.status_code == 200
-    anon_getICseries.assert_awaited()
+    anon_get_icseries_clubround.assert_awaited()
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
@@ -324,48 +323,38 @@ def test_anon_getICstandings(
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.calc_belg_elo")
+@patch("kbsb.interclubs.api_interclubs.write_bel_report")
 def test_calc_belg_elo(
-    calc_belg_elo: AsyncMock,
+    write_bel_report: AsyncMock,
     vt: AsyncMock,
 ):
     client = TestClient(app)
-    resp = client.post("/api/v1/interclubs/mgmt/command/belg_elo?round=2")
+    resp = client.post("/api/v1/interclubs/mgmt/command/write_bel_report/2/p")
     assert resp.status_code == 201
-    calc_belg_elo.assert_awaited()
+    write_bel_report.assert_awaited()
+    write_bel_report.call_args == (2, "p")
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.calc_belg_elo")
-def test_calc_belg_elo(
-    calc_belg_elo: AsyncMock,
+@patch("kbsb.interclubs.api_interclubs.write_fide_report")
+def test_write_fide_report(
+    write_fide_report: AsyncMock,
     vt: AsyncMock,
 ):
     client = TestClient(app)
-    resp = client.post("/api/v1/interclubs/mgmt/command/belg_elo?round=2")
+    resp = client.post("/api/v1/interclubs/mgmt/command/write_fide_report/2/p")
     assert resp.status_code == 201
-    calc_belg_elo.assert_awaited()
+    write_fide_report.assert_awaited()
+    write_fide_report.call_args == (2, "p")
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.calc_fide_elo")
-def test_calc_fide_elo(
-    calc_fide_elo: AsyncMock,
-    vt: AsyncMock,
-):
-    client = TestClient(app)
-    resp = client.post("/api/v1/interclubs/mgmt/command/fide_elo?round=2")
-    assert resp.status_code == 201
-    calc_fide_elo.assert_awaited()
-
-
-@patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.mgmt_generate_penalties")
+@patch("kbsb.interclubs.api_interclubs.write_penalties_report")
 def test_mgmt_generate_penalties(
-    mgmt_generate_penalties: AsyncMock,
+    write_pen_rpt: AsyncMock,
     vt: AsyncMock,
 ):
     client = TestClient(app)
-    resp = client.post("/api/v1/interclubs/mgmt/command/penalties/2")
+    resp = client.post("/api/v1/interclubs/mgmt/command/write_penalties_report/2")
     assert resp.status_code == 201
-    mgmt_generate_penalties.assert_awaited()
+    write_pen_rpt.assert_awaited()

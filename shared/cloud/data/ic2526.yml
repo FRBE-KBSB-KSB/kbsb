@@ -17,6 +17,12 @@ playerperdivision:
   3: 6
   4: 4
   5: 4
+maxtitulars:
+  1: 12
+  2: 12
+  3: 9
+  4: 6
+  5: 6
 enrollmentfee:
   1: 305
   2: 80
@@ -40,7 +46,7 @@ notrated_elo:
   max: 1800
 playerlist_data:
   - period: september
-    start: 2025-09-04
+    start: 2025-08-04
     end: 2025-09-15
   - period: november
     start: 2025-11-01

@@ -96,6 +96,7 @@ export default {
     return resp
   },
   mgmt_getICclub: async function (options) {
+    console.log("api mgmt_getICclub", options)
     const { token, idclub } = options
     const resp = await axios.get(`${prefix}/mgmt/icclub/${idclub}`, {
       headers: {
@@ -368,4 +369,8 @@ export default {
     })
     return resp
   },
+  icdata: async function (options) {
+    const resp = await axios.get(`${prefix}/icdata`)
+    return resp
+  }
 }

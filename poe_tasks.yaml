@@ -2,13 +2,13 @@ tasks:
   be_build:
     shell: |
       cd backend
-      poetry install
+      uv install
       cd ..
-    help: install the backend  
+    help: install the backend
   be_run:
     shell: |
       cd backend 
-      poetry run uvicorn kbsb.main:app --reload
+      uv run uvicorn kbsb.main:app --reload
       cd ..
     help: run the backend uvicorn server
   deploy:
@@ -18,19 +18,19 @@ tasks:
       cd ..
     help: deploy app on google cloud
   fe_build:
-    shell: | 
+    shell: |
       cd frontend
       yarn
       cd ..
-    help: update frontend installation    
+    help: update frontend installation
   fe_generate:
-    shell: | 
+    shell: |
       cd frontend
       API_URL=https://www.frbe-kbsb-ksb.be/ yarn generate
       cd ..
-    help: generate static frontend    
+    help: generate static frontend
   fe_run:
-    shell: | 
+    shell: |
       cd frontend
       yarn dev
       cd ..
@@ -43,6 +43,6 @@ tasks:
   i18n:
     shell: |
       cd backend
-      python -m kbsb.scripts.i18n
+      uv run python kbsb.scripts.i18n
       cd ..
     help: regenerate i18n files

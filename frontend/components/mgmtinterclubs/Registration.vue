@@ -192,6 +192,7 @@ async function setup(icclub_, icdata_) {
   calcstatus()
   await find_interclubregistration()
 }
+
 </script>
 <template>
   <v-container>

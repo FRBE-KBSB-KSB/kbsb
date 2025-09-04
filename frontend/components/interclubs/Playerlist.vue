@@ -19,26 +19,35 @@ let showSnackbar
 const refloading = ref(null)
 let showLoading
 
+// dialog
+const assigndialog = ref(false)
+const editelodialog = ref(false)
+const edittitulardialog = ref(false)
+const transferalldialog = ref(false)
+const transferdialog = ref(false)
+const unassigndialog = ref(false)
+const undotransferdialog = ref(false)
+
 // datamodel
 const clubmembers = ref([])
-const clubmembers_id = ref(null)
 const icclub = ref({})
 const idclub = ref(0)
 const registered = ref(null)
 let playersindexed = {}
 const players = ref([])
 const playeredit = ref({})
-const editdialog = ref(false)
-const exportalldialog = ref(false)
 const exportallvisit = ref(0)
-const exportdialog = ref(false)
-const titularchoices = [{ title: t("icn.pll_notit"), value: "" }]
+const titnotit = ref("notit")
+const titularchoices = []
 const pll_status = ref("closed")
+const importavailable = ref(false)
 let pll_period
 let pll_startdate
 let pll_enddate
+let pll = false
 let mininmal_assignelo = 3000
-let icdata = {}
+let icdata = { playerlist_data: [] }
+let clubmembers_cache_idclub = null
 
 // validation
 const validationdialog = ref(false)
@@ -66,16 +75,24 @@ const itemsPerPageOptions = [
 
 // methods alphabetically
 
-function assignPlayer(idnumber) {
-  console.log("Assigning player", idnumber)
-  playeredit.value = { ...playersindexed[idnumber] }
-  playeredit.value.nature = PLAYERSTATUS.assigned
-  playeredit.value.period = pll_period
-  playerEdit2Player()
+function calc_period() {
+  const now = new Date()
+  pll_period = "unknown"
+  icdata.playerlist_data.forEach((p) => {
+    let start = new Date(p.start)
+    let end = new Date(p.end)
+    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
+      pll_period = p.period
+      pll_startdate = p.start
+      pll_enddate = p.end
+      pll = true
+      return
+    }
+  })
+  console.log("pll_period", pll_period)
 }
 
-async function calcstatus() {
-  console.log("calcstatus")
+async function calc_status() {
   // we have the following status
   // - open
   // - closed
@@ -83,57 +100,71 @@ async function calcstatus() {
   // - noaccess
   if (!idclub.value) {
     pll_status.value = "noclub"
+    console.log("calc_status noclub")
     return
   }
   let access = await checkAccess()
-  console.log("access", access)
   if (!access) {
     pll_status.value = "noaccess"
+    console.log("calc_status noaccess")
     return
   }
-  pll_status.value = "closed"
+  pll_status.value = pll ? "open" : "closed"
+  console.log("calc_status closed")
 }
 
 function canAssign(idnumber) {
-  return (
-    [PLAYERSTATUS.unassigned].includes(playersindexed[idnumber].nature) &&
-    !playersindexed[idnumber].natrating &&
-    !playersindexed[idnumber].fiderating
-  )
+  return playersindexed[idnumber].nature == PLAYERSTATUS.unassigned
 }
 
-function canEdit(idnumber) {
+function canEditElo(idnumber) {
   if (pll_period == "september") {
-    return [
-      PLAYERSTATUS.assigned,
-      PLAYERSTATUS.unassigned,
-      PLAYERSTATUS.imported,
-    ].includes(playersindexed[idnumber].nature)
+    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+      playersindexed[idnumber].nature
+    )
   }
   if (pll_period == "november") {
     return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
       playersindexed[idnumber].period == "november"
     )
   }
   if (pll_period == "january") {
     return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
       playersindexed[idnumber].period == "january"
     )
   }
 }
 
 function canExport(idnumber) {
-  if (pll_period == "september") {
-    return [
-      PLAYERSTATUS.assigned,
-      PLAYERSTATUS.unassigned,
-      PLAYERSTATUS.imported,
-    ].includes(playersindexed[idnumber].nature)
-  } else {
-    return false
-  }
+  return (
+    pll_period == "september" &&
+    [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
+      playersindexed[idnumber].nature
+    )
+  )
+}
+
+function canEditTitular(idnumber) {
+  return (
+    pll_period == "september" &&
+    [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+      playersindexed[idnumber].nature
+    )
+  )
+}
+
+function canUnassign(idnumber) {
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+    playersindexed[idnumber].nature
+  )
+}
+
+function canUndoTransfer(idnumber) {
+  return (
+    pll_period == "september" && playersindexed[idnumber].nature == PLAYERSTATUS.exported
+  )
 }
 
 async function checkAccess() {
@@ -157,56 +188,20 @@ async function checkAccess() {
   }
 }
 
-function doEditPlayer() {
-  playerEdit2Player()
-  editdialog.value = false
-}
-
-function doExportAll() {
-  players.value.forEach((m) => {
-    m.nature = PLAYERSTATUS.exported
-    m.idclubvisit = parseInt(exportallvisit.value) + 0
-  })
-  exportalldialog.value = false
-}
-
-function doExportPlayer() {
-  playeredit.value.nature = PLAYERSTATUS.exported
-  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
-  playerEdit2Player()
-  exportdialog.value = false
-}
-
-function fillinPlayerList() {
-  console.log("fillinPlayerList")
-  pll_period = "unknown"
-  const now = new Date()
-  icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start)
-    let end = new Date(p.end)
-    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
-      pll_period = p.period
-      pll_startdate = p.start
-      pll_enddate = p.end
-      return
+function checkImport() {
+  importavailable.value = false
+  clubmembers.value.forEach((m) => {
+    if (!playersindexed[m.idnumber]) {
+      importavailable.value = true
     }
   })
-  console.log("pll_period", pll_period)
+}
+
+function fillinPlayerList(nature) {
+  console.log("fillinPlayerList nature", nature)
   // add new members to the playerlist
-  let pnature = PLAYERSTATUS.unassigned
   mininmal_assignelo = 3000
-  if (registered.value && !players.value.length) {
-    // automatically make players assigned at the start of the Interclubs
-    pnature = PLAYERSTATUS.assigned
-  }
   console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
-  // first fix period of already assigned players
-  players.value.forEach((p) => {
-    if (p.period == "unknown") {
-      p.period = "september"
-    }
-  })
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       let fiderating = m.fiderating ? m.fiderating : 0
@@ -222,7 +217,7 @@ function fillinPlayerList() {
         idclubvisit: 0,
         last_name: m.last_name,
         natrating: natrating,
-        nature: pnature,
+        nature: nature,
         period: pll_period,
         titular: "",
         transfer: null,
@@ -249,6 +244,7 @@ function fillinPlayerList() {
       mininmal_assignelo = p.assignedrating
     }
   })
+  importavailable.value = false
 }
 
 async function getClubMembers() {
@@ -258,8 +254,9 @@ async function getClubMembers() {
     return
   }
   console.log("getting Club Members from signaletique")
-  if (idclub.value == clubmembers_id.value) {
+  if (idclub.value == clubmembers_cache_idclub) {
     console.log("using cached version of members")
+    return
   }
   showLoading(true)
   let reply
@@ -275,13 +272,15 @@ async function getClubMembers() {
   } finally {
     showLoading(false)
   }
-  clubmembers_id.value = idclub.value
+  clubmembers_cache_idclub = idclub.value
   const members = reply.data
   members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
+    if (!playersindexed.hasOwnProperty(p.idnumber)) {
+      importavailable.value = true
+    }
   })
   clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
-  fillinPlayerList()
 }
 
 function maxelo(p) {
@@ -300,18 +299,39 @@ function minelo(p) {
   return Math.max(minrating, icdata.notrated_elo.min)
 }
 
-function openEditPlayer(idnumber) {
+function openAssignPlayer(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  editdialog.value = true
+  assigndialog.value = true
 }
 
-function openExportAll() {
-  exportalldialog.value = true
+function openEditElo(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  editelodialog.value = true
 }
 
-function openExportPlayer(idnumber) {
+function openEditTitular(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  exportdialog.value = true
+  titnotit.value = playeredit.value.titular ? "tit" : "notit"
+  edittitulardialog.value = true
+}
+
+function openTransferAll() {
+  transferalldialog.value = true
+}
+
+function openTransferPlayer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  transferdialog.value = true
+}
+
+function openUnassignPlayer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  unassigndialog.value = true
+}
+
+function openUndoTransfer(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  undotransferdialog.value = true
 }
 
 function playerEdit2Player() {
@@ -320,6 +340,53 @@ function playerEdit2Player() {
   const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
   players.value.splice(aix, 1, playeredit.value)
   playersindexed[playeredit.value.idnumber] = players.value[aix]
+}
+
+function processAssignPlayer(idnumber) {
+  playeredit.value.nature = PLAYERSTATUS.assigned
+  playeredit.value.period = pll_period
+  playerEdit2Player()
+  assigndialog.value = false
+}
+
+function processEditElo() {
+  playerEdit2Player()
+  editelodialog.value = false
+}
+
+function processEditTitular() {
+  if (titnotit.value == "notit") {
+    playeredit.value.titular = ""
+  }
+  playerEdit2Player()
+  edittitulardialog.value = false
+}
+
+function processTransferAll() {
+  players.value.forEach((m) => {
+    m.nature = PLAYERSTATUS.exported
+    m.idclubvisit = parseInt(exportallvisit.value) + 0
+  })
+  transferalldialog.value = false
+}
+
+function processTransferPlayer() {
+  playeredit.value.nature = PLAYERSTATUS.exported
+  playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
+  playerEdit2Player()
+  transferdialog.value = false
+}
+
+function processUnassignPlayer() {
+  playeredit.value.nature = PLAYERSTATUS.unassigned
+  playerEdit2Player()
+  unassigndialog.value = false
+}
+
+function processUndoTransfer() {
+  playeredit.value.nature = PLAYERSTATUS.unassigned
+  playerEdit2Player()
+  undotransferdialog.value = false
 }
 
 function readICclub() {
@@ -333,7 +400,6 @@ function readICclub() {
       titularchoices.push({ title: t.name, value: t.name })
     })
   }
-  fillinPlayerList()
 }
 
 function rowstyle(idnumber) {
@@ -363,11 +429,6 @@ async function savePlayerlist() {
   }
   validationdialog.value = false
   showSnackbar("Playerlist saved")
-}
-
-function visitingclub(idnumber) {
-  const pl = playersindexed[idnumber]
-  return pl ? pl.idclubvisit : ""
 }
 
 async function validatePlayerlist() {
@@ -403,10 +464,15 @@ async function setup(icclub_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
-  icdata = icdata_
-  calcstatus()
-  readICclub()
-  getClubMembers()
+  idclub.value = icclub_.idclub || 0
+  if (icdata_.playerlist_data) {
+    icdata = icdata_
+    calc_period()
+    await calc_status()
+    readICclub()
+    await getClubMembers()
+    checkImport()
+  }
 }
 </script>
 
@@ -433,13 +499,40 @@ async function setup(icclub_, icdata_) {
       :text="t('icn.perm_denied')"
     />
     <div v-if="pll_status == 'open'">
-      <div v-if="!registered">
-        This club is not enrolled in Interclubs 2023-24
-        <VBtn @click="openExportAll" color="primary" class="ml-8">
-          Export all players
+      <div v-if="!registered && importavailable" class="mb-3">
+        <p>
+          {{ t("icn.pll_notregistered") }}
+        </p>
+        <VBtn @click="openTransferAll" color="primary" class="ml-8">
+          {{ t("icn.pll_transferall") }}
+        </VBtn>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
+          color="primary"
+          class="ml-8"
+        >
+          {{ t("icn.pll_import") }}
+        </VBtn>
+      </div>
+      <div v-if="registered && importavailable" class="mb-3">
+        <p>{{ t("icn.pll_import_available") }}</p>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.assigned)"
+          color="primary"
+          class="ml-8"
+        >
+          {{ t("icn.pll_import_assign") }}
+        </VBtn>
+        <VBtn
+          @click="fillinPlayerList(PLAYERSTATUS.unassigned)"
+          color="primary"
+          class="ml-8"
+        >
+          {{ t("icn.pll_import_only") }}
         </VBtn>
       </div>
       <VDataTable
+        class="playerlist"
         :items="players"
         :headers="headers"
         density="compact"
@@ -455,7 +548,7 @@ async function setup(icclub_, icdata_) {
 
         <template v-slot:item.fullname="{ item }">
           <span :class="rowstyle(item.idnumber)">
-            {{ item.fullname }}
+            {{ item.last_name }}, {{ item.first_name }}
           </span>
         </template>
 
@@ -478,95 +571,212 @@ async function setup(icclub_, icdata_) {
         </template>
 
         <template v-slot:item.action="{ item }">
-          <span v-show="item.nature == 'exported'">
-            <VIcon>mdi-arrow-right-bold</VIcon>{{ visitingclub(item.idnumber) }}
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <VBtn
+                density="compact"
+                icon="mdi-dots-vertical"
+                variant="text"
+                v-bind="props"
+              />
+            </template>
+            <v-list>
+              <v-list-item
+                @click="openEditElo(item.idnumber)"
+                v-show="canEditElo(item.idnumber)"
+              >
+                <v-list-item-title>{{
+                  t("icn.pll_edit_elo")
+                }}</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openEditTitular(item.idnumber)"
+                v-show="canEditTitular(item.idnumber)"
+              >
+                <v-list-item-title>{{
+                  t("icn.pll_edit_titular")
+                }}</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openUnassignPlayer(item.idnumber)"
+                v-show="canUnassign(item.idnumber)"
+                ><v-list-item-title>{{
+                  t("icn.pll_unassign")
+                }}</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openAssignPlayer(item.idnumber)"
+                v-show="canAssign(item.idnumber)"
+              >
+                <v-list-item-title>{{ t("icn.pll_add") }}</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openTransferPlayer(item.idnumber)"
+                v-show="canExport(item.idnumber)"
+                ><v-list-item-title>{{
+                  t("icn.pll_transfer")
+                }}</v-list-item-title></v-list-item
+              >
+              <v-list-item
+                @click="openUndoTransfer(item.idnumber)"
+                v-show="canUndoTransfer(item.idnumber)"
+                ><v-list-item-title>{{
+                  t("icn.pll_undo_transfer")
+                }}</v-list-item-title></v-list-item
+              >
+            </v-list>
+          </v-menu>
+          <span class="red" v-show="item.nature == 'exported'">
+            <v-icon icon="mdi-arrow-right" />
+            {{ item.idclubvisit }}
           </span>
-          <VBtn
-            density="compact"
-            color="green"
-            icon="mdi-pencil"
-            variant="text"
-            v-show="canEdit(item.idnumber)"
-            @click="openEditPlayer(item.idnumber)"
-          />
-          <VBtn
-            density="compact"
-            color="red"
-            icon="mdi-arrow-right"
-            variant="text"
-            v-show="canExport(item.idnumber)"
-            @click="openExportPlayer(item.idnumber)"
-          />
-          <VBtn
-            density="compact"
-            color="blue"
-            icon="mdi-clipboard-arrow-down"
-            variant="text"
-            v-show="canAssign(item.idnumber)"
-            @click="assignPlayer(item.idnumber)"
-          />
         </template>
       </VDataTable>
       <div>
-        <VBtn @click="validatePlayerlist()" color="primary">Save</VBtn>
+        <VBtn @click="validatePlayerlist()" color="primary">{{ t("Save") }}</VBtn>
       </div>
     </div>
-    <VDialog v-model="editdialog" width="30em">
+
+    <VDialog v-model="assigndialog" width="30em">
       <VCard>
         <VCardTitle>
-          {{ t("Edit") }}: {{ playeredit.fullname }}
+          {{ playeredit.last_name }}, {{ playeredit.first_name }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>
+            {{ t("icn.pll_assign") }}: {{ playeredit.last_name }},
+            {{ playeredit.first_name }}
+          </p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processAssignPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="assigndialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="editelodialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("Edit") }}: {{ playeredit.first_name }} {{ playeredit.last_name }}
           <v-divider class="divider" />
         </VCardTitle>
         <VCardText>
-          <h4>{{ t("icn.pll_edit_assigned") }}</h4>
+          <h4>{{ t("icn.pll_edit_elo") }}</h4>
           <div>{{ t("icn.pll_assigned_elo") }}: {{ playeredit.assignedrating }}</div>
           <div>Max ELO: {{ maxelo(playeredit) }}</div>
           <div>Min ELO: {{ minelo(playeredit) }}</div>
           <VTextField v-model="playeredit.assignedrating" label="New Elo" />
-          <h4>{{ t("Titular") }}</h4>
-          <VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doEditPlayer">{{ t("OK") }}</VBtn>
-          <VBtn @click="editdialog = false">{{ t("Cancel") }}</VBtn>
+          <VBtn @click="processEditElo">{{ t("OK") }}</VBtn>
+          <VBtn @click="editelodialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
-    <VDialog v-model="exportdialog" width="30em">
+
+    <VDialog v-model="edittitulardialog" width="30em">
       <VCard>
         <VCardTitle>
-          Export: {{ playeredit.fullname }}
+          {{ t("Edit") }}: {{ playeredit.first_name }} {{ playeredit.last_name }}
+          <v-divider class="divider" />
+        </VCardTitle>
+        <VCardText>
+          <h4>{{ t("Titular") }}</h4>
+          <v-radio-group v-model="titnotit">
+            <v-radio :label="t('icn.pll_notit')" value="notit"></v-radio>
+            <v-radio :label="t('icn.pll_tit')" value="tit"></v-radio>
+          </v-radio-group>
+          <VSelect
+            :items="titularchoices"
+            v-model="playeredit.titular"
+            v-show="titnotit == 'tit'"
+          ></VSelect>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processEditTitular">{{ t("OK") }}</VBtn>
+          <VBtn @click="edittitulardialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="transferdialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          Export: {{ playeredit.last_name }}, {{ playeredit.first_name }}
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Exporting a player to another club</p>
+          <p>{{ t("icn.pll_transfer_pl") }}</p>
           <VTextField label="Club number" v-model="playeredit.idclubvisit" />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doExportPlayer">OK</VBtn>
-          <VBtn @click="exportdialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="transferdialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
-    <VDialog v-model="exportalldialog" width="30em">
+
+    <VDialog v-model="unassigndialog" width="30em">
       <VCard>
         <VCardTitle>
-          Export all players
+          {{ playeredit.last_name }}, {{ playeredit.first_name }}
           <VDivider />
         </VCardTitle>
         <VCardText>
-          <p>Exporting all players to another club</p>
+          <p>
+            {{ t("icn.pll_unassigning") }}: {{ playeredit.last_name }},
+            {{ playeredit.first_name }}
+          </p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processUnassignPlayer">{{ t("OK") }}</VBtn>
+          <VBtn @click="unassigndialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="transferalldialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("icn.pll_transfer") }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>{{ t("icn.pll_transferall") }}</p>
           <VTextField label="Club number" v-model="exportallvisit" />
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="doExportAll">OK</VBtn>
-          <VBtn @click="exportalldialog = false">Cancel</VBtn>
+          <VBtn @click="processTransferAll">{{ t("OK") }}</VBtn>
+          <VBtn @click="transferalldialog = false">{{ t("Cancel") }}</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
+
+    <VDialog v-model="undotransferdialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          Undo transfer: {{ playeredit.last_name }}, {{ playeredit.first_name }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <p>Undo transfer: {{ playeredit.idclubvisit }}</p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processUndoTransfer">OK</VBtn>
+          <VBtn @click="undotransferdialog = false">Cancel</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
     <VDialog v-model="validationdialog" width="30em">
       <VCard>
         <VCardTitle>
@@ -615,6 +825,10 @@ async function setup(icclub_, icdata_) {
 }
 
 .unassigned {
-  color: rgb(109, 123, 183);
+  color: rgb(195, 195, 195);
+}
+
+.v-card-title .v-divider {
+  margin: 0.5em 0;
 }
 </style>

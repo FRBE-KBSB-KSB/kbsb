@@ -50,6 +50,7 @@ from . import (
     list_bel_reports,
     list_fide_reports,
     list_penalties_reports,
+    load_icdata,
     mgmt_get_xlsplayerlists,
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
@@ -265,8 +266,6 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     logger.info(f"api_clb_getICclub {idclub} {auth}")
     try:
         validate_membertoken(auth)
@@ -301,8 +300,6 @@ async def api_clb_validateICplayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await clb_validateICPlayers(idclub, players)
@@ -337,8 +334,6 @@ async def api_clb_updateICPlayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         await clb_updateICplayers(idclub, players)
@@ -412,8 +407,6 @@ async def api_clb_getICseries(
     round: int | None = 0,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await clb_getICseries(idclub, round)
@@ -445,8 +438,6 @@ async def api_clb_saveICplanning(
     icpi: ICPlanning,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         await clb_saveICplanning(icpi.plannings)
@@ -477,8 +468,6 @@ async def api_clb_saveICresults(
     icri: ICResult,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         logger.info("hi")
         validate_membertoken(auth)
@@ -808,3 +797,14 @@ async def api_get_penalties_report(
     except Exception:
         logger.exception("failed api get penalties report")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# icdata
+
+
+@router.get("/icdata", response_model=dict)
+async def api_icdata():
+    """
+    return the icdata
+    """
+    return await load_icdata()

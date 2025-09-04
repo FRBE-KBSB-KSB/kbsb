@@ -36,7 +36,7 @@ GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")
 GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 
-ICDATA_PATH = os.environ.get("ICDATA_PATH", "../data/ic2425.yml")
+ICDATA = "cloud"
 INTERCLUBS_CC_EMAIL = "interclubs@frbe-kbsb-ksb.be"
 
 JWT_ALGORITHM = "HS256"
@@ -132,6 +132,8 @@ if KBSB_MODE == "local":
 if KBSB_MODE == "prodtest":
     from env_prodtest import *  # noqa F403
 
+if KBSB_MODE == "localtest":
+    from env_localtest import *  # noqa F403
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
@@ -142,5 +144,6 @@ logger = logging.getLogger(__name__)
 settings_message = {
     "local": "env_local settings loaded",
     "prodtest": "env_prodtest settings loaded",
+    "localtest": "env_localtest settings loaded",
 }
 logger.info(settings_message.get(KBSB_MODE, "no local settings loaded"))

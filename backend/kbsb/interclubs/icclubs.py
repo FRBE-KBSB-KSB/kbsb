@@ -2,7 +2,7 @@
 
 import logging
 
-from typing import Any
+from typing import Any, cast
 import openpyxl
 from tempfile import NamedTemporaryFile
 
@@ -60,15 +60,32 @@ async def create_icclub(icclub: ICClubDB) -> str:
     return await DbICClub.add(icclubdict)
 
 
-async def get_icclub(options: dict | None = {}) -> ICClubDB | None:
+async def get_icclub(options: dict | None = None) -> ICClubDB | None:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
     """
-    filter = options.copy()
+    filter = options.copy() if options else {}
     filter["_model"] = filter.get("_model", ICClubDB)
+    logger.info(f"get icclub {filter}")
     club = await DbICClub.find_single(filter)
     return club
+
+
+async def update_icclub(
+    iu: ICClubDB, options: dict[str, Any] | None = None
+) -> ICClubDB:
+    """
+    update a interclub club
+    """
+    logger.info(f"update icclub {iu.idclub}")
+    options1 = options.copy() if options else {}
+    options1["_model"] = options1.pop("_model", ICClubDB)
+    iudict = iu.model_dump(exclude_unset=True)
+    return cast(
+        ICClubDB,
+        await DbICClub.update({"idclub": iu.idclub}, iudict, options1),
+    )
 
 
 # Business methods
@@ -384,7 +401,7 @@ async def clb_validateICPlayers(
             p.fiderating = 0
         if 1150 > p.natrating > 0:
             p.natrating = 1150
-        # now we have healty values for fiderating (0 or value)
+        # now we have healthy values for fiderating (0 or value)
         # and natrating is minimal 1150
         maxrating = max(p.fiderating, p.natrating) + 100
         minrating = min(p.fiderating or 3000, p.natrating) - 100
@@ -434,6 +451,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 1,
             "ntitulars": icdata["ntitulars"][1],
+            "maxtitulars": icdata["maxtitulars"][1],
             "counter": 0,
         }
         ix += 1
@@ -441,6 +459,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 2,
             "ntitulars": icdata["ntitulars"][2],
+            "maxtitulars": icdata["maxtitulars"][2],
             "counter": 0,
         }
         ix += 1
@@ -448,6 +467,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 3,
             "ntitulars": icdata["ntitulars"][3],
+            "maxtitulars": icdata["maxtitulars"][3],
             "counter": 0,
         }
         ix += 1
@@ -455,6 +475,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 4,
             "ntitulars": icdata["ntitulars"][4],
+            "maxtitulars": icdata["maxtitulars"][4],
             "counter": 0,
         }
         ix += 1
@@ -462,6 +483,7 @@ async def clb_validateICPlayers(
         titulars[f"{registration.name} {ix}"] = {
             "division": 5,
             "ntitulars": icdata["ntitulars"][5],
+            "maxtitulars": icdata["maxtitulars"][5],
             "counter": 0,
         }
         ix += 1
@@ -469,7 +491,7 @@ async def clb_validateICPlayers(
         if p.titular and p.titular in titulars:
             titulars[p.titular]["counter"] += 1
     for team, tit in titulars.items():
-        if tit["counter"] > tit["ntitulars"]:
+        if tit["counter"] > tit["maxtitulars"]:
             errors.append(
                 ICPlayerValidationError(
                     errortype="TitularCount",
@@ -478,6 +500,16 @@ async def clb_validateICPlayers(
                     detail=team,
                 )
             )
+        if tit["counter"] < tit["ntitulars"]:
+            errors.append(
+                ICPlayerValidationError(
+                    errortype="TitularCount",
+                    idclub=idclub,
+                    message="Not enough titulars",
+                    detail=team,
+                )
+            )
+
     return errors
 
 
