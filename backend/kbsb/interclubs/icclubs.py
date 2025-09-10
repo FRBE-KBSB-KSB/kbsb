@@ -24,6 +24,7 @@ from kbsb.interclubs import (
     DbICClub2425,
     DbICSeries,
     PlayerlistNature,
+    PlayerPeriod,
     load_icdata,
 )
 from kbsb.interclubs.registrations import find_icregistration
@@ -317,6 +318,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     transferdeletes = []
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
+    period = PlayerPeriod.SEPTEMBER
     for p in newplsix.values():
         idn = p.idnumber
         if idn not in oldplsix:
@@ -360,7 +362,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     last_name=t.last_name,
                     natrating=t.natrating,
                     nature=PlayerlistNature.IMPORTED,
-                    period=period,
+                    period=t.period,
                     titular=None,
                 )
             )

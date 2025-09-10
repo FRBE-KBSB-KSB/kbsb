@@ -205,7 +205,7 @@ onMounted(async () => {
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2024-25</h1>
+    <h1>Interclubs Manager 2025-26</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>Loading...</v-card-title>
