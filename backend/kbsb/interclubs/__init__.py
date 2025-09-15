@@ -39,6 +39,7 @@ from .md_interclubs import (  # noqa F401
     ICVenueDB,
     ICVenueIn,
     PlayerlistNature,
+    PlayerPeriod,
     PLAYERSPERDIVISION,
 )
 
