@@ -1,5 +1,7 @@
 from .md_interclubs import (  # noqa F401
     DbICClub,
+    DbICClub2324,
+    DbICClub2425,
     DbICRegistration,
     DbICSeries,
     DbICSeries2324,
@@ -37,6 +39,7 @@ from .md_interclubs import (  # noqa F401
     ICVenueDB,
     ICVenueIn,
     PlayerlistNature,
+    PlayerPeriod,
     PLAYERSPERDIVISION,
 )
 
@@ -49,6 +52,7 @@ from .helpers import load_icdata, ptable  # noqa F401
 from .icclubs import (  # noqa F401
     anon_getICteams,
     anon_getICclub,
+    anon_getICclub_archive,
     anon_getICclubs,
     anon_get_xlsplayerlist,
     clb_getICclub,
@@ -61,6 +65,7 @@ from .icclubs import (  # noqa F401
 from .series import (  # noqa F401
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
+    anon_getICencounterdetails_archive,
     anon_getICstandings,
     anon_getICstandingsArchive,
     anon_getICresultsArchive,
@@ -107,11 +112,15 @@ import kbsb.interclubs.api_interclubs  # noqa: F401, E402
 
 __all__ = [
     "DbICClub",
+    "DbICClub2324",
+    "DbICClub2425",
     "DbICRegistration",
     "DbICSeries",
     "DbICSeries2324",
+    "DbICSeries2425",
     "DbICStandings",
     "DbICStandings2324",
+    "DbICStandings2425",
     "DbICVenue",
     "GAMERESULT",
     "ICClubDB",
@@ -149,6 +158,7 @@ __all__ = [
     "ptable",
     "anon_getICteams",
     "anon_getICclub",
+    "anon_getICclub_archive",
     "anon_getICclubs",
     "anon_get_xlsplayerlist",
     "clb_getICclub",
@@ -159,6 +169,7 @@ __all__ = [
     "mgmt_updateICplayers",
     "anon_get_icseries_clubround",
     "anon_getICencounterdetails",
+    "anon_getICencounterdetails_archive",
     "anon_getICstandings",
     "anon_getICstandingsArchive",
     "anon_getICresultsArchive",

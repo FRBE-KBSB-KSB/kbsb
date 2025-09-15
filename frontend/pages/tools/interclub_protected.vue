@@ -201,7 +201,8 @@ async function selectClub() {
 
 onMounted(async () => {
   console.log("mounted")
-  // locale.value = l ? l : "nl"
+  let l = route.query.locale
+  locale.value = l ? l : "nl"
   checkAuth()
   await processICdata()
   getClubs()
