@@ -35,6 +35,7 @@ dependencies = [
 [tool.uv.sources]
 reddevil = { path = "libs/reddevil-3.4.5-py3-none-any.whl" }
 
+
 [dependency-groups]
 dev = [
     "asyncio>=4.0.0",
