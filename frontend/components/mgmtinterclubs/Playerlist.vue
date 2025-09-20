@@ -24,6 +24,7 @@ const edittitulardialog = ref(false)
 const transferalldialog = ref(false)
 const transferdialog = ref(false)
 const unassigndialog = ref(false)
+const supereditdialog = ref(false)
 
 // datamodel
 const clubmembers = ref([])
@@ -293,6 +294,11 @@ function openEditTitular(idnumber) {
   edittitulardialog.value = true
 }
 
+function openSuperEdit(idnumber) {
+  playeredit.value = { ...playersindexed[idnumber] }
+  supereditdialog.value = true
+}
+
 function openTransferAll() {
   transferalldialog.value = true
 }
@@ -333,6 +339,23 @@ function processEditTitular() {
   }
   playerEdit2Player()
   edittitulardialog.value = false
+}
+
+function processRemoveEdit() {
+  if (
+    window.confirm(
+      `Are you sure you want to remove ${playeredit.value.first_name} ${playeredit.value.last_name} from the playerlist?`
+    )
+  ) {
+    const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
+    players.value.splice(aix, 1)
+  }
+  supereditdialog.value = false
+}
+
+function processSuperEdit() {
+  playerEdit2Player()
+  supereditdialog.value = false
 }
 
 function processTransferAll() {
@@ -552,6 +575,9 @@ async function setup(icclub_, icdata_) {
                 v-show="canExport(item.idnumber)"
                 ><v-list-item-title>Transfer</v-list-item-title></v-list-item
               >
+              <v-list-item @click="openSuperEdit(item.idnumber)"
+                ><v-list-item-title>Super Edit</v-list-item-title></v-list-item
+              >
             </v-list>
           </v-menu>
           <span class="red" v-show="item.nature == 'exported'">
@@ -599,6 +625,50 @@ async function setup(icclub_, icdata_) {
           <VSpacer />
           <VBtn @click="processEditElo">OK</VBtn>
           <VBtn @click="editelodialog = false">Cancel</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VDialog v-model="supereditdialog" width="40em">
+      <VCard>
+        <VCardTitle>
+          Edit: {{ playeredit.first_name }} {{ playeredit.last_name }}
+          <v-divider class="divider" />
+        </VCardTitle>
+        <VCardText>
+          <h4>Standard fields</h4>
+          <v-row>
+            <v-col cols="6">
+              <VTextField v-model="playeredit.first_name" label="First name" />
+              <VTextField v-model="playeredit.last_name" label="Last name" />
+              <VTextField v-model="playeredit.idcluborig" label="Original Club" />
+              <VTextField v-model="playeredit.idclubvisit" label="Visiting Club" />
+            </v-col>
+            <v-col cols="6">
+              <VTextField v-model="playeredit.assignedrating" label="Assigned Elo" />
+              <VTextField v-model="playeredit.fiderating" label="FIDE Elo" />
+              <VTextField v-model="playeredit.natrating" label="Nat. Elo" />
+            </v-col>
+          </v-row>
+          <h4>Danger Zone</h4>
+          Only change the items below one at a time, on a fresh status and save
+          immmediately afterwards. There is no validation on these fields!
+          <v-row>
+            <v-col cols="6">
+              <VTextField v-model="playeredit.idnumber" label="ID number" />
+              <VTextField v-model="playeredit.titular" label="Titular" />
+            </v-col>
+            <v-col cols="6">
+              <VTextField v-model="playeredit.nature" label="Nature" />
+              <VTextField v-model="playeredit.period" label="Period" />
+            </v-col>
+          </v-row>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="processSuperEdit">OK</VBtn>
+          <VBtn @click="supereditdialog = false">Cancel</VBtn>
+          <VBtn @click="processRemoveEdit">Remove from playerlist</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
