@@ -18,7 +18,7 @@
 "icn.perm_denied": "Geen toestemming",
 "icn.plan_avgelohigh": "Gemiddelde Elo te hoog",
 "icn.plan_invalidplayerorder": "Ongeldige ploegvolgorde",
-"icn.plan_ratingreservehigh": "FIDE-rating te hoog",
+"icn.plan_ratingtoohigh": "FIDE-rating te hoog",
 "icn.plan_reservewrongteam": "Reserve in het verkeerde team",
 "icn.plan_titularwrongteam": "Titularis in het verkeerde team",
 "icn.plan_valerror": "Validatiefout bij planning",

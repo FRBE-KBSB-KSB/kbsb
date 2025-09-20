@@ -18,7 +18,7 @@
 "icn.perm_denied": "Permission denied",
 "icn.plan_avgelohigh": "Average Elo too high",
 "icn.plan_invalidplayerorder": "Invalid team order",
-"icn.plan_ratingreservehigh": "FIDE-rating too high",
+"icn.plan_ratingtoohigh": "FIDE-rating too high",
 "icn.plan_reservewrongteam": "Substitute in wrong team",
 "icn.plan_titularwrongteam": "Titular in wrong team",
 "icn.plan_valerror": "Validation error in planning",
