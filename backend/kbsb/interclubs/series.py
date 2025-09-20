@@ -221,7 +221,6 @@ async def clb_saveICplanning(icplanning: ICPlanning) -> None:
     save a lists of pleanning per team
     """
     seriesdict = await _apply_planning(icplanning)
-    logger.info(f"{seriesdict=}")
     for s in seriesdict.values():
         await DbICSeries.update(
             {"division": s.division, "index": s.index},

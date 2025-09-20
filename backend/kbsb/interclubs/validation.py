@@ -252,13 +252,15 @@ class LineUpValidation:
                         )
                     if notfilled:
                         continue
+                    logger.info(f"visitratings {visitratings}")
                     diff = len(visitratings) / 2
-                    visitratings.sort(key=lambda x: x["rating"])
-                    for i, vr in enumerate(visitratings):
+                    vs = sorted(visitratings, key=lambda x: x["rating"], reverse=True)
+                    for i, vr in enumerate(vs):
                         if vr["ix"] < i - diff or vr["ix"] > i + diff:
                             self.create_issue(
                                 reason="visit player order is not correct",
                                 s=s,
+                                round=round,
                                 encix=encix,
                                 idclub=idclub,
                                 gameix=vr["ix"],
@@ -317,9 +319,11 @@ class LineUpValidation:
             maxdiv3 = max(avgdivs.get(3, {}).values(), default=0)
             maxdiv4 = max(avgdivs.get(4, {}).values(), default=0)
             maxdiv5 = max(avgdivs.get(5, {}).values(), default=0)
-            mindiv1 = avgdivs.get(1, {}).values() or [4000]
+            mindiv1 = avgdivs.get(1, {}).values() or 4000
             mindiv2 = min(avgdivs.get(2, {}).values(), default=4000)
             mindiv3 = min(avgdivs.get(3, {}).values(), default=4000)
+            logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
+            logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
             if maxdiv2 > mindiv1:
                 for (name, index), avg in avgdivs.get(2, {}).items():
                     logger.error(f"Avg elo {avg} of {name} too high")
@@ -327,12 +331,13 @@ class LineUpValidation:
                         division=2, index=index, name=name, round=round
                     )
                     self.create_issue(
-                        reason="Avg elo too high in division 2",
+                        reason="Avg elo too high",
                         s=s,
                         round=round,
                         idclub=idclub,
                         encix=encix,
                     )
+                    return
             if maxdiv3 > min(mindiv1, mindiv2):
                 for (name, index), avg in avgdivs.get(3, {}).items():
                     logger.error(f"Avg elo {avg} of {name} too high")
@@ -340,12 +345,13 @@ class LineUpValidation:
                         division=3, index=index, name=name, round=round
                     )
                     self.create_issue(
-                        reason="Avg elo too high in division 3",
+                        reason="Avg elo too high",
                         s=s,
                         round=round,
                         idclub=idclub,
                         encix=encix,
                     )
+                    return
             if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
                 for (name, index), avg in avgdivs.get(4, {}).items():
                     logger.error(f"Avg elo {avg} of {name} too high")
@@ -353,12 +359,13 @@ class LineUpValidation:
                         division=4, index=index, name=name, round=round
                     )
                     self.create_issue(
-                        reason="Avg elo too high in division 4",
+                        reason="Avg elo too high",
                         s=s,
                         round=round,
                         idclub=idclub,
                         encix=encix,
                     )
+                    return
             if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
                 for (name, index), avg in avgdivs.get(5, {}).items():
                     logger.error(f"Avg elo {avg} of {name} too high")
@@ -366,12 +373,13 @@ class LineUpValidation:
                         division=5, index=index, name=name, round=round
                     )
                     self.create_issue(
-                        reason="Avg elo too high in division 5",
+                        reason="Avg elo too high",
                         s=s,
                         round=round,
                         idclub=idclub,
                         encix=encix,
                     )
+                    return
 
     def check_titular_ok(self, round: int, idclub: int):
         for s in self.seriesdict.values():
@@ -383,39 +391,6 @@ class LineUpValidation:
                     continue
                 for encix, g in enumerate(enc.games):
                     if g.idnumber_home in self.titulars:
-                        if s.division > self.titulars[g.idnumber_home]["division"]:
-                            self.create_issue(
-                                reason="Titular played in a division too low",
-                                s=s,
-                                round=round,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_home]["division"]
-                            and s.index != self.titulars[g.idnumber_home]["index"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                                reason="Titular played in wrong series",
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_home]["division"]
-                            and s.index == self.titulars[g.idnumber_home]["index"]
-                            and enc.pairingnr_home
-                            != self.titulars[g.idnumber_home]["pairingnumber"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                                reason="Titular played in wrong series",
-                            )
                         if (
                             s.division == self.titulars[g.idnumber_home]["division"]
                             and s.index == self.titulars[g.idnumber_home]["index"]
@@ -430,25 +405,6 @@ class LineUpValidation:
                                 reason="Titular played in wrong team in the series",
                             )
                     if g.idnumber_visit in self.titulars:
-                        if s.division > self.titulars[g.idnumber_visit]["division"]:
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_visit,
-                                reason="Titular played in a division too low",
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_visit]["division"]
-                            and s.index != self.titulars[g.idnumber_visit]["index"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_visit,
-                                reason="Titular played in wrong series",
-                            )
                         if (
                             s.division == self.titulars[g.idnumber_visit]["division"]
                             and s.index == self.titulars[g.idnumber_visit]["index"]
@@ -517,7 +473,7 @@ class LineUpValidation:
                     for gix, g in enumerate(enc.games):
                         if pnr1 == enc.pairingnr_home and g.idnumber_home in players2:
                             self.create_issue(
-                                reason=f"player {g.idnumber_home} already played in other team of series",
+                                reason=f"reserve already played in other team of series",
                                 s=series,
                                 round=round,
                                 encix=encix,
@@ -529,7 +485,7 @@ class LineUpValidation:
                             pnr1 == enc.pairingnr_visit and g.idnumber_visit in players2
                         ):
                             self.create_issue(
-                                reason=f"player {g.idnumber_visit} already played in other team of series",
+                                reason=f"reserve already played in other team of series",
                                 s=series,
                                 round=round,
                                 encix=encix,
@@ -572,22 +528,10 @@ class LineUpValidation:
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
                 for gix, g in enumerate(enc.games):
-                    # skip if player is titular for the team
-                    t_home = self.titulars.get(g.idnumber_home, {})
-                    if (
-                        t_home
-                        and t_home["division"] == s.division
-                        and t_home["index"] == s.index
-                        and t_home["pairingnumber"] == enc.pairingnr_home
-                    ):
+                    # skip if player is titular.
+                    if g.idnumber_home in self.titulars and idclub == enc.icclub_home:
                         continue
-                    t_visit = self.titulars.get(g.idnumber_visit, {})
-                    if (
-                        t_visit
-                        and t_visit["division"] == s.division
-                        and t_visit["index"] == s.index
-                        and t_visit["pairingnumber"] == enc.pairingnr_visit
-                    ):
+                    if g.idnumber_visit in self.titulars and idclub == enc.icclub_visit:
                         continue
                     # now check the elo
                     fide_home = self.fideratings.get(g.idnumber_home, 0)
@@ -632,7 +576,6 @@ class LineUpValidation:
         self.idclub = idclub
         self.round = round
         await self.a_init()
-
         self.check_order_players(round, idclub)
         self.check_average_elo(round, idclub)
         self.check_titular_ok(round, idclub)

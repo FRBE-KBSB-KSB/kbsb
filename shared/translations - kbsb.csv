@@ -2,6 +2,7 @@ ctx,key,en,nl,fr,de
 icn,1group,1 group,1 groep,1 groupe,1 Gruppe
 icn,1series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 icn,2groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
+icn,board,board,bord,échiquier,Brett
 icn,dist,Distribution,Verdeling,Distribution,Verteilung
 icn,div,Division,Divisie,Division,Division
 icn,enr,Enrollment,Inschrijving,Inscription,Anmeldung
@@ -15,6 +16,12 @@ icn,nopref,No preference,Geen voorkeur,Pas de préférence,keine Präferenz
 icn,not_enrolled,The club is not enrolled yet,De club is nog niet ingeschreven,Le cercle n'est pas encore inscrit,Der Verein ist noch nicht registriert
 icn,other_wishes,Other wishes,Andere wensen,Autres souhaits,Andere Wünsche
 icn,perm_denied,Permission denied,Geen toestemming,Permission refusée,Erlaubnis verweigert
+icn,plan_avgelohigh,Average Elo too high,Gemiddelde Elo te hoog,ELO moyen trop élevé,Durchschnittliche ELO zu hoch
+icn,plan_invalidplayerorder,Invalid team order,Ongeldige ploegvolgorde,Ordre d'équipe invalide,Ungültige Reihenfolge der Mannschaft
+icn,plan_ratingreservehigh,FIDE-rating too high,FIDE-rating te hoog,FIDE-rating trop élevé,FIDE-Rating zu hoch
+icn,plan_reservewrongteam,Substitute in wrong team,Reserve in het verkeerde team,Réserve dans la mauvaise équipe,Reserve im falschen Team
+icn,plan_titularwrongteam,Titular in wrong team,Titularis in het verkeerde team,Titulaire dans la mauvaise équipe,Titularspieler im falschen Team
+icn,plan_valerror,Validation error in planning,Validatiefout bij planning,Erreur de validation dans la planification,Validierungsfehler bei der Planung
 icn,planning_closed,The management of the planning is currently unavailable,Het beheer van de planning is momenteel niet beschikbaar,La gestion du planning est actuellement indisponible,Die Verwaltung der Planung ist derzeit nicht verfügbar
 icn,pll_add,Add to playerlist,Aan spelerlijst toevoegen,Ajouter à la liste de force,Zur Spielerliste hinzufügen
 icn,pll_assign,Assign player to playerlist,Speler toewijzen aan spelerslijst,Ajouter un joueur à la liste de force,Spieler zur Spielerliste hinzufügen
@@ -30,7 +37,7 @@ icn,pll_import_available,There are members of your club that are not yet on this
 icn,pll_mindiv,Min. div.,Min. Afd.,Div. min.,Min. Abt.
 icn,pll_notit,No titular,Geen titularis,Pas de titulaire,kein Titular
 icn,pll_notregistered,"This club is not registered for Interclubs 2025-26, so your playerlist can only  contain transfers to another club, that is registered. You can transfer all the members at once to one club. Or you can just import the members and transfer them individually in a 2nd stage. Until the closing of the playerlist, you can do and undo any transfers.","Deze club is niet geregistreerd voor de Interclubs 2025-26, dus de spelerslijst kan alleen transfers bevatten naar een andere club die wel geregistreerd is. Je kunt alle leden in één keer naar één club transfereren. Of je kunt de leden importeren en ze in een tweede fase een voor een overzetten. Tot de spelerslijst afgesloten wordt, kun je transfers uitvoeren en ongedaan maken.",Ce club n'est pas inscrit aux Interclubs 2025-26 ; la liste de force ne peut donc contenir que des transferts vers un autre club inscrit. Vous pouvez transférer tous les membres simultanément vers un seul club. Vous pouvez également importer les membres et les transférer individuellement lors d'une deuxième étape. Vous pouvez effectuer et annuler tous les transferts jusqu'à la clôture de la liste de force.,"Dieser Verein ist nicht für die Interclubs 2025-26 registriert, daher kann die Spielerliste nur Transfers zu einem anderen Verein enthalten, der registriert ist. Sie können alle Mitglieder auf einmal zu einem Verein transferieren. Oder Sie können die Mitglieder importieren und sie in einem zweiten Schritt einzeln übertragen. Bis zum Abschluss der Spielerliste können Sie Transfers durchführen und rückgängig machen."
-icn,pll_tit,Titular,Titularis,Titulaire,Titular
+icn,pll_tit,Titular,Titularis,Titulaire,Titularspieler
 icn,pll_transfer,Transfer,Transfereren,Transférer,Transferieren
 icn,pll_transfer_pl,Transfer a player to another club,Een speler naar een andere club transfereren,Transférer un joueur vers un autre club,Einen Spieler zu einem anderen Verein transferieren
 icn,pll_transferall,Transfer all members,Alle leden transfereren,Transférer tous les membres,Alle Mitglieder transferieren

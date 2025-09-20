@@ -227,6 +227,7 @@ function readICplanning() {
 
 async function savePlanning() {
   let reply
+  validationdialog.value = false
   showLoading(true)
   console.log("saving planning", icplanning.value)
   try {
@@ -274,6 +275,28 @@ async function validatePlanning() {
   console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
+    validationerrors.value.forEach((err) => {
+      switch (err.errormessage) {
+        case "home player order is not correct":
+        case "visit player order is not correct":
+          err.reason = t("icn.plan_invalidplayerorder")
+          break
+        case "fide rating reserve too high":
+          err.reason = t("icn.plan_ratingreservehigh")
+          break
+        case "Avg elo too high":
+          err.reason = t("icn.plan_avgelohigh")
+          break
+        case "Titular played in wrong team in the series":
+          err.reason = t("icn.plan_titularwrongteam")
+          break
+        case "reserve already played in other team of series":
+          err.reason = t("icn.plan_reservewrongteam")
+          break
+        default:
+          err.reason = err.errmessage
+      }
+    })
     validationdialog.value = true
   } else {
     savePlanning()
@@ -354,6 +377,28 @@ async function validatePlanning() {
         <v-btn @click="validatePlanning()" color="primary">{{ t("Save") }}</v-btn>
       </div>
     </div>
+
+    <VDialog v-model="validationdialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("icn.plan_valerror") }}
+          <VDivider />
+        </VCardTitle>
+        <VCardText>
+          <div v-for="(err, ix) in validationerrors" :key="ix">
+            <p>
+              {{ err.division }}{{ err.index }} {{ err.name }}, {{ t("icn.board") }}
+              {{ err.boardnr }}: {{ err.reason }}
+            </p>
+          </div>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="savePlanning">{{ t("Save anyhow") }}</VBtn>
+          <VBtn @click="validationdialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </v-container>
 </template>
 
