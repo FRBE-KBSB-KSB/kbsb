@@ -36,6 +36,7 @@ from .md_interclubs import (  # noqa F401
     ICTeam,
     ICTeamGame,
     ICTeamStanding,
+    ICValidationError,
     ICVenueDB,
     ICVenueIn,
     PlayerlistNature,
@@ -72,6 +73,7 @@ from .series import (  # noqa F401
     clb_getICseries,
     clb_saveICplanning,
     clb_saveICresults,
+    clb_validateICplanning,
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
 )

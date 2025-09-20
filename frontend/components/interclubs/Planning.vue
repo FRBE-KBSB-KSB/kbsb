@@ -26,9 +26,17 @@ const icseries = ref({})
 const icclub = ref({})
 const idclub = ref(0)
 let round = 0
-const teamsplanning = ref({})
+const icplanning = ref({
+  round: 0,
+  idclub: 0,
+  plannings: [],
+})
 const pln_status = ref("closed")
 let icdata = {}
+
+// validation
+const validationdialog = ref(false)
+const validationerrors = ref([])
 
 async function calcstatus() {
   // we have the following status
@@ -70,9 +78,9 @@ async function calcstatus() {
 
 async function checkAccess() {
   let reply
-  console.log("checkAccess idclub", icclub.value.idclub, idtoken.value)
   if (!idtoken.value) return false
   showLoading(true)
+  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
@@ -113,31 +121,30 @@ async function getICseries() {
   } catch (error) {
     console.log("NOK", error)
     if (error.code == 401) {
-      gotoLogin()
+      showSnackbar("Access denied")
     }
     return
   } finally {
     showLoading(false)
   }
   icseries.value = reply.data
-  teamsplanning.value = []
+  icplanning.value = {
+    round,
+    idclub: idclub.value,
+    plannings: [],
+  }
   readICplanning()
-}
-
-async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__interclubs__manager")
 }
 
 async function readICclub() {
   console.log("readICclub")
   players.value = []
   playersindexed.value = {}
-  teamsplanning.value = {}
   console.log("icclub", icclub.value)
   icclub.value.players.forEach((p) => {
     if (p.nature != "exported") {
       let player = {}
-      let tit = p.titular ? `:: ${t("Titular")} ${p.titular}` : ""
+      let tit = p.titular ? `: ${t("Titular")} ${p.titular}` : ""
       if (p.nature != "exported") {
         player.first_name = p.first_name
         player.last_name = p.last_name
@@ -163,12 +170,10 @@ function readICplanning() {
         let team = {
           division: t.division,
           games: [],
-          idclub: idclub.value,
           index: s.index,
           pairingnumber: t.pairingnumber,
           name: t.name,
           nrgames: icdata.playerperdivision[t.division],
-          round: parseInt(round),
         }
         let avg = 0
         let allassigned = true
@@ -213,8 +218,8 @@ function readICplanning() {
           }
           team.average = allassigned ? avg / team.nrgames : 0
         })
-        // do nothing it for BYE
-        if (team.idclub_opponent) teamsplanning.value.push(team)
+        // do nothing for BYE
+        if (team.idclub_opponent) icplanning.value.plannings.push(team)
       }
     })
   })
@@ -223,11 +228,11 @@ function readICplanning() {
 async function savePlanning() {
   let reply
   showLoading(true)
-  console.log("saving planning", teamsplanning.value)
+  console.log("saving planning", icplanning.value)
   try {
     reply = await $backend("interclub", "clb_saveICplanning", {
       token: idtoken.value,
-      plannings: teamsplanning.value,
+      icplanning: icplanning.value,
     })
   } catch (error) {
     if (error.code == 401) gotoLogin()
@@ -247,13 +252,32 @@ async function setup(icclub_, round_, icdata_) {
   icclub.value = icclub_
   idclub.value = icclub_.idclub
   icdata = icdata_
-  round = round_
+  round = parseInt(round_)
   await calcstatus()
 }
 
-function validatePlanning() {
+async function validatePlanning() {
   let reply
-  savePlanning()
+  console.log("validating planning", icplanning.value)
+  try {
+    showLoading(true)
+    reply = await $backend("interclub", "clb_validateICplanning", {
+      token: idtoken.value,
+      icplanning: icplanning.value,
+    })
+  } catch (error) {
+    showSnackbar(error.message)
+    return
+  } finally {
+    showLoading(false)
+  }
+  console.log("reply.data", reply.data)
+  validationerrors.value = reply.data
+  if (validationerrors.value.length) {
+    validationdialog.value = true
+  } else {
+    savePlanning()
+  }
 }
 </script>
 <template>
@@ -285,13 +309,11 @@ function validatePlanning() {
       :text="t('You can no longer modify the planning of this round')"
     />
     <div v-if="pln_status == 'open'">
-      <VCard v-for="(tp, ix) in teamsplanning" class="my-2">
-        <VCardTitle>
-          {{ tp.name }}
-        </VCardTitle>
-        <VCardSubtitle class="d-flex">
+      <v-card v-for="(tp, ix) in icplanning.plannings" class="my-2">
+        <v-card-title> {{ tp.division }}{{ tp.index }}: {{ tp.name }} </v-card-title>
+        <v-card-subtitle class="d-flex">
           <div v-show="tp.playinghome" class="flex-1-1-100">
-            {{ tp.idclub }} {{ tp.name }} - {{ tp.idclub_opponent }}
+            {{ icplanning.idclub }} {{ tp.name }} - {{ tp.idclub_opponent }}
             {{ tp.name_opponent }}
           </div>
           <div v-show="!tp.playinghome" class="flex-1-1-100">
@@ -300,8 +322,8 @@ function validatePlanning() {
           </div>
           <div class="flex-0-0">{{ t("Average ELO") }}: {{ tp.average }}</div>
           <VDivider />
-        </VCardSubtitle>
-        <VCardText>
+        </v-card-subtitle>
+        <v-card-text>
           <div v-for="(g, ix) in tp.games">
             <VAutocomplete
               v-model="g.idnumber_home"
@@ -326,10 +348,10 @@ function validatePlanning() {
               clearable
             />
           </div>
-        </VCardText>
-      </VCard>
+        </v-card-text>
+      </v-card>
       <div v-show="icseries.length">
-        <VBtn @click="validatePlanning()" color="primary">{{ t("Save") }}</VBtn>
+        <v-btn @click="validatePlanning()" color="primary">{{ t("Save") }}</v-btn>
       </div>
     </div>
   </v-container>

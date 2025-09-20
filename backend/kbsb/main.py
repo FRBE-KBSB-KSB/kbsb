@@ -33,6 +33,7 @@ register_app(app, "kbsb.settings", "/api")
 settings = get_settings()
 logger = logging.getLogger(__name__)
 logger.info(f"Starting website KBSB {version}")
+logger.info(f"icdata: {settings.ICDATA}")
 
 # add CORS middleware for dev only
 app.add_middleware(

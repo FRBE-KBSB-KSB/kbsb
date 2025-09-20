@@ -26,6 +26,7 @@ from . import (
     ICSeriesDB,
     ICStandingsDB,
     ICTeam,
+    ICValidationError,
     anon_getICteams,
     anon_getICclub,
     anon_getICclubs,
@@ -42,6 +43,7 @@ from . import (
     clb_saveICresults,
     clb_updateICplayers,
     clb_validateICPlayers,
+    clb_validateICplanning,
     find_icregistration,
     getICvenues,
     get_bel_report,
@@ -435,16 +437,31 @@ async def api_mgmt_getICseries(
 
 @router.put("/clb/icplanning", status_code=201)
 async def api_clb_saveICplanning(
-    icpi: ICPlanning,
+    icplanning: ICPlanning,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
         validate_membertoken(auth)
-        await clb_saveICplanning(icpi.plannings)
+        await clb_saveICplanning(icplanning)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call clb_saveICplanning")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.put("/clb/icplanningvalidate", response_model=list[ICValidationError])
+async def api_clb_validateICplanning(
+    icplanning: ICPlanning,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    try:
+        validate_membertoken(auth)
+        return await clb_validateICplanning(icplanning)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call clb_validateICplanning")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -570,7 +587,7 @@ async def api_anon_getICencounterdetails_archive(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-# tean forfait
+# team forfait
 
 
 @router.post("/mgmt/command/teamforfeit/{division}/{index}/{name}", status_code=201)

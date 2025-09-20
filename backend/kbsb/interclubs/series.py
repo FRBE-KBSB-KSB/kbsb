@@ -16,7 +16,7 @@ from . import (
     ICEncounter,
     ICGame,
     ICGameDetails,
-    ICPlanningItem,
+    ICPlanning,
     ICResultItem,
     ICRound,
     ICSeries,
@@ -26,6 +26,7 @@ from . import (
     ICTeam,
     ICTeamGame,
     ICTeamStanding,
+    ICValidationError,
     DbICSeries,
     DbICSeries2324,
     DbICSeries2425,
@@ -37,6 +38,7 @@ from . import (
     load_icdata,
     ptable,
 )
+from .validation import LineUpValidation
 
 logger = logging.getLogger(__name__)
 
@@ -159,24 +161,28 @@ async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     return series
 
 
-async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
+async def _apply_planning(icplanning: ICPlanning) -> dict:
     """
-    save a lists of pleanning per team
+    apply the planning of a club, returns a dict indexed by (division,index)
     """
-    for plan in plannings:
-        s = await DbICSeries.find_single(
-            {"division": plan.division, "index": plan.index, "_model": ICSeries}
-        )
+    seriesdict = {}
+    for plan in icplanning.plannings:
+        if (plan.division, plan.index) in seriesdict:
+            sr = seriesdict[(plan.division, plan.index)]
+        else:
+            sr = await DbICSeries.find_single(
+                {"division": plan.division, "index": plan.index, "_model": ICSeries}
+            )
         curround = None
-        for r in s.rounds:
-            if r.round == plan.round:
+        for r in sr.rounds:
+            if r.round == icplanning.round:
                 curround = r
         if not curround:
             raise RdBadRequest(description="InvalidRound")
         for enc in curround.encounters:
             if (
                 plan.playinghome
-                and (enc.icclub_home == plan.idclub)
+                and (enc.icclub_home == icplanning.idclub)
                 and (plan.pairingnumber == enc.pairingnr_home)
             ):
                 if enc.games:
@@ -192,7 +198,7 @@ async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
                     ]
             if (
                 not plan.playinghome
-                and (enc.icclub_visit == plan.idclub)
+                and (enc.icclub_visit == icplanning.idclub)
                 and (plan.pairingnumber == enc.pairingnr_visit)
             ):
                 if enc.games:
@@ -206,10 +212,36 @@ async def clb_saveICplanning(plannings: list[ICPlanningItem]) -> None:
                         )
                         for g in plan.games
                     ]
+        seriesdict[(sr.division, sr.index)] = sr
+    return seriesdict
+
+
+async def clb_saveICplanning(icplanning: ICPlanning) -> None:
+    """
+    save a lists of pleanning per team
+    """
+    seriesdict = await _apply_planning(icplanning)
+    logger.info(f"{seriesdict=}")
+    for s in seriesdict.values():
         await DbICSeries.update(
-            {"division": plan.division, "index": plan.index},
+            {"division": s.division, "index": s.index},
             {"rounds": [r.model_dump() for r in s.rounds]},
         )
+
+
+async def clb_validateICplanning(
+    icplanning: ICPlanning,
+) -> list[ICValidationError]:
+    """
+    save a lists of pleanning per team
+    """
+    seriesdict = await _apply_planning(icplanning)
+    lineUpValidation = LineUpValidation()
+    await lineUpValidation.validate_planning(
+        icplanning.idclub, icplanning.round, seriesdict
+    )
+    logger.info(f"validationerrors {lineUpValidation.validationerrors}")
+    return lineUpValidation.validationerrors
 
 
 async def mgmt_saveICresults(results: list[ICResultItem]) -> None:
