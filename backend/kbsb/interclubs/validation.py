@@ -518,27 +518,31 @@ class LineUpValidation:
                                 gameix=gix,
                             )
 
-    def check_reserves_elotoohigh(self, round: int, idclub: int):
-        for s in self.seriesdict.values():
-            maxelo = self.icdata["max_elo"][s.division]
-            rnd = self._get_round(s, round)
+    def check_elotoohigh(self, round: int, idclub: int):
+        for sr in self.seriesdict.values():
+            maxelo = self.icdata["max_elo"][sr.division]
+            rnd = self._get_round(sr, round)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
                     continue
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
                 for gix, g in enumerate(enc.games):
-                    # skip if player is titular.
-                    if g.idnumber_home in self.titulars and idclub == enc.icclub_home:
-                        continue
-                    if g.idnumber_visit in self.titulars and idclub == enc.icclub_visit:
-                        continue
+                    # if player is titular for the team skip
+                    if g.idnumber_home in self.titulars:
+                        tit = self.titulars[g.idnumber_home]
+                        if tit["division"] == sr.division and tit["index"] == sr.index:
+                            continue
+                    if g.idnumber_visit in self.titulars:
+                        tit = self.titulars[g.idnumber_visit]
+                        if tit["division"] == sr.division and tit["index"] == sr.index:
+                            continue
                     # now check the elo
                     fide_home = self.fideratings.get(g.idnumber_home, 0)
                     if fide_home > maxelo:
                         self.create_issue(
-                            reason="fide rating reserve too high",
-                            s=s,
+                            reason="fide rating too high",
+                            s=sr,
                             round=round,
                             encix=encix,
                             idclub=idclub,
@@ -548,8 +552,8 @@ class LineUpValidation:
                     fide_visit = self.fideratings.get(g.idnumber_visit, 0)
                     if fide_visit > maxelo:
                         self.create_issue(
-                            reason="fide rating reserve too high",
-                            s=s,
+                            reason="fide rating too high",
+                            s=sr,
                             round=round,
                             encix=encix,
                             idclub=idclub,
@@ -580,7 +584,7 @@ class LineUpValidation:
         self.check_average_elo(round, idclub)
         self.check_titular_ok(round, idclub)
         self.check_reserves_in_single_series(round, idclub)
-        self.check_reserves_elotoohigh(round, idclub)
+        self.check_elotoohigh(round, idclub)
 
     async def validate_results(
         self, idclub: int, round: int

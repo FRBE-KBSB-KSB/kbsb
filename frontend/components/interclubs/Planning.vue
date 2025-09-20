@@ -281,8 +281,8 @@ async function validatePlanning() {
         case "visit player order is not correct":
           err.reason = t("icn.plan_invalidplayerorder")
           break
-        case "fide rating reserve too high":
-          err.reason = t("icn.plan_ratingreservehigh")
+        case "fide rating too high":
+          err.reason = t("icn.plan_ratingtoohigh")
           break
         case "Avg elo too high":
           err.reason = t("icn.plan_avgelohigh")
