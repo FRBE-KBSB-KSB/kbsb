@@ -3,9 +3,7 @@ from datetime import datetime, timedelta, timezone, time
 from reddevil.core import RdInternalServerError
 from .md_interclubs import (
     ICSeries,
-    ICTeam,
     ICRound,
-    ICEncounter,
     ICValidationError,
     DbICSeries,
 )
@@ -275,7 +273,7 @@ class LineUpValidation:
                 if clb.idclub != idclub:
                     continue
                 notfilled = False
-                avgdivs = {}
+                avgdivs = {}  # key should be (t.division,t.index,t.pairingnumber)
                 for t in clb.teams:
                     if not (t.division, t.index) in self.seriesdict:
                         # we are bye
@@ -318,74 +316,91 @@ class LineUpValidation:
                     if notfilled:
                         break
                     logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
-                    avgdiv = avgdivs.setdefault(sr.division, {})
-                    if ratings:
-                        avgdiv[(t.name, sr.index)] = sum(ratings) / len(ratings)
+                    avgdivs[(t.division, t.index, t.pairingnumber)] = (
+                        sum(ratings) / len(ratings) if ratings else 0
+                    )
                 if notfilled:
                     break
-                maxdiv2 = max(avgdivs.get(2, {}).values(), default=0)
-                maxdiv3 = max(avgdivs.get(3, {}).values(), default=0)
-                maxdiv4 = max(avgdivs.get(4, {}).values(), default=0)
-                maxdiv5 = max(avgdivs.get(5, {}).values(), default=0)
-                mindiv1 = avgdivs.get(1, {}).values() or 4000
-                mindiv2 = min(avgdivs.get(2, {}).values(), default=4000)
-                mindiv3 = min(avgdivs.get(3, {}).values(), default=4000)
+                logger.info(f"avgdivs {avgdivs}")
+                avg1 = []
+                avg2 = []
+                avg3 = []
+                avg4 = []
+                avg5 = []
+                for key, avg in avgdivs.items():
+                    if key[0] == 1:
+                        avg1.append(avg)
+                    elif key[0] == 2:
+                        avg2.append(avg)
+                    elif key[0] == 3:
+                        avg3.append(avg)
+                    elif key[0] == 4:
+                        avg4.append(avg)
+                    elif key[0] == 5:
+                        avg5.append(avg)
+                maxdiv2 = max(avg2, default=0)
+                maxdiv3 = max(avg3, default=0)
+                maxdiv4 = max(avg4, default=0)
+                maxdiv5 = max(avg5, default=0)
+                mindiv1 = min(avg1, default=4000)
+                mindiv2 = min(avg2, default=4000)
+                mindiv3 = min(avg3, default=4000)
                 logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
                 logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
                 if maxdiv2 > mindiv1:
-                    for (name, index), avg in avgdivs.get(2, {}).items():
-                        logger.error(f"Avg elo {avg} of {name} too high")
-                        s, encix = self._find_encounter(
-                            division=2, index=index, name=name, round=round
-                        )
+                    for key, avg in avgdivs.items():
+                        if key[0] != 2 or avg < maxdiv2:
+                            continue
                         self.create_issue(
                             reason="Avg elo too high",
-                            s=s,
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
                             round=round,
                             idclub=idclub,
-                            encix=encix,
                         )
                         return
                 if maxdiv3 > min(mindiv1, mindiv2):
-                    for (name, index), avg in avgdivs.get(3, {}).items():
-                        logger.error(f"Avg elo {avg} of {name} too high")
-                        s, encix = self._find_encounter(
-                            division=3, index=index, name=name, round=round
-                        )
+                    for key, avg in avgdivs.items():
+                        if key[0] != 3 or avg < maxdiv3:
+                            continue
                         self.create_issue(
                             reason="Avg elo too high",
-                            s=s,
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
                             round=round,
                             idclub=idclub,
-                            encix=encix,
                         )
                         return
                 if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
-                    for (name, index), avg in avgdivs.get(4, {}).items():
-                        logger.error(f"Avg elo {avg} of {name} too high")
-                        s, encix = self._find_encounter(
-                            division=4, index=index, name=name, round=round
-                        )
+                    for key, avg in avgdivs.items():
+                        if key[0] != 4 or avg < maxdiv4:
+                            continue
                         self.create_issue(
                             reason="Avg elo too high",
-                            s=s,
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
                             round=round,
                             idclub=idclub,
-                            encix=encix,
                         )
                         return
                 if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
-                    for (name, index), avg in avgdivs.get(5, {}).items():
-                        logger.error(f"Avg elo {avg} of {name} too high")
-                        s, encix = self._find_encounter(
-                            division=5, index=index, name=name, round=round
-                        )
+                    for key, avg in avgdivs.items():
+                        if key[0] != 5 or avg < maxdiv5:
+                            continue
                         self.create_issue(
                             reason="Avg elo too high",
-                            s=s,
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
                             round=round,
                             idclub=idclub,
-                            encix=encix,
                         )
                         return
         except Exception as e:

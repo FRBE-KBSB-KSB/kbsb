@@ -112,43 +112,21 @@ function canAssign(idnumber) {
 }
 
 function canEditElo(idnumber) {
-  if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-      playersindexed[idnumber].nature
-    )
-  }
-  if (pll_period == "november") {
-    return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
-      playersindexed[idnumber].period == "november"
-    )
-  }
-  if (pll_period == "january") {
-    return (
-      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned ||
-      playersindexed[idnumber].period == "january"
-    )
-  }
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+    playersindexed[idnumber].nature
+  )
 }
 
 function canExport(idnumber) {
-  if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
-      playersindexed[idnumber].nature
-    )
-  } else {
-    return false
-  }
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.unassigned].includes(
+    playersindexed[idnumber].nature
+  )
 }
 
 function canEditTitular(idnumber) {
-  if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-      playersindexed[idnumber].nature
-    )
-  } else {
-    return false
-  }
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+    playersindexed[idnumber].nature
+  )
 }
 
 function canUnassign(idnumber) {
