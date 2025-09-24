@@ -268,118 +268,128 @@ class LineUpValidation:
                             )
 
     def check_average_elo(self, round: int, idclub: int):
-        for clb in self.clubs:
-            if clb.idclub != idclub:
-                continue
-            notfilled = False
-            avgdivs = {}
-            for t in clb.teams:
-                sr = self.seriesdict[(t.division, t.index)]
-                rnd = self._get_round(sr, round)
-                encounters = [
-                    e
-                    for e in rnd.encounters
-                    if t.pairingnumber in (e.pairingnr_home, e.pairingnr_visit)
-                ]
-                if not encounters:
-                    logger.error(
-                        f"We're fucked to get encounter of {t.name} in {sr.division}{sr.index}"
-                    )
-                    for ct in clb.teams:
-                        logger.error(f"debugging club team {ct}")
-                    raise RdInternalServerError("Fucked")
-                enc = encounters[0]
-                if not enc.icclub_home or not enc.icclub_visit:  # bye
+        logger.info(f"check_average_elo for club {idclub} round {round}")
+        logger.info(f"seriesdict keys{self.seriesdict.keys()}")
+        try:
+            for clb in self.clubs:
+                if clb.idclub != idclub:
                     continue
-                # if not enc.boardpoint2_home or not enc.boardpoint2_visit:  # not played]
-                #     continue
-                if t.pairingnumber == enc.pairingnr_home:
-                    ratings = [
-                        self.playerratings[g.idnumber_home]
-                        for g in enc.games
-                        if g.idnumber_home and self.playerratings.get(g.idnumber_home)
+                notfilled = False
+                avgdivs = {}
+                for t in clb.teams:
+                    if not (t.division, t.index) in self.seriesdict:
+                        # we are bye
+                        continue
+                    sr = self.seriesdict[(t.division, t.index)]
+                    rnd = self._get_round(sr, round)
+                    encounters = [
+                        e
+                        for e in rnd.encounters
+                        if t.pairingnumber in (e.pairingnr_home, e.pairingnr_visit)
                     ]
-                    notfilled = min([g.idnumber_home or 0 for g in enc.games]) == 0
-                if t.pairingnumber == enc.pairingnr_visit:
-                    ratings = [
-                        self.playerratings[g.idnumber_visit]
-                        for g in enc.games
-                        if g.idnumber_visit and self.playerratings.get(g.idnumber_visit)
-                    ]
-                    notfilled = min([g.idnumber_visit or 0 for g in enc.games]) == 0
+                    if not encounters:
+                        logger.error(
+                            f"We're fucked to get encounter of {t.name} in {sr.division}{sr.index}"
+                        )
+                        for ct in clb.teams:
+                            logger.error(f"debugging club team {ct}")
+                        raise RdInternalServerError("Fucked")
+                    enc = encounters[0]
+                    if not enc.icclub_home or not enc.icclub_visit:  # bye
+                        continue
+                    # if not enc.boardpoint2_home or not enc.boardpoint2_visit:  # not played]
+                    #     continue
+                    if t.pairingnumber == enc.pairingnr_home:
+                        ratings = [
+                            self.playerratings[g.idnumber_home]
+                            for g in enc.games
+                            if g.idnumber_home
+                            and self.playerratings.get(g.idnumber_home)
+                        ]
+                        notfilled = min([g.idnumber_home or 0 for g in enc.games]) == 0
+                    if t.pairingnumber == enc.pairingnr_visit:
+                        ratings = [
+                            self.playerratings[g.idnumber_visit]
+                            for g in enc.games
+                            if g.idnumber_visit
+                            and self.playerratings.get(g.idnumber_visit)
+                        ]
+                        notfilled = min([g.idnumber_visit or 0 for g in enc.games]) == 0
+                    if notfilled:
+                        break
+                    logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
+                    avgdiv = avgdivs.setdefault(sr.division, {})
+                    if ratings:
+                        avgdiv[(t.name, sr.index)] = sum(ratings) / len(ratings)
                 if notfilled:
                     break
-                logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
-                avgdiv = avgdivs.setdefault(sr.division, {})
-                if ratings:
-                    avgdiv[(t.name, sr.index)] = sum(ratings) / len(ratings)
-            if notfilled:
-                break
-            maxdiv2 = max(avgdivs.get(2, {}).values(), default=0)
-            maxdiv3 = max(avgdivs.get(3, {}).values(), default=0)
-            maxdiv4 = max(avgdivs.get(4, {}).values(), default=0)
-            maxdiv5 = max(avgdivs.get(5, {}).values(), default=0)
-            mindiv1 = avgdivs.get(1, {}).values() or 4000
-            mindiv2 = min(avgdivs.get(2, {}).values(), default=4000)
-            mindiv3 = min(avgdivs.get(3, {}).values(), default=4000)
-            logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
-            logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
-            if maxdiv2 > mindiv1:
-                for (name, index), avg in avgdivs.get(2, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=2, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-                    return
-            if maxdiv3 > min(mindiv1, mindiv2):
-                for (name, index), avg in avgdivs.get(3, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=3, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-                    return
-            if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
-                for (name, index), avg in avgdivs.get(4, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=4, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-                    return
-            if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
-                for (name, index), avg in avgdivs.get(5, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=5, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-                    return
+                maxdiv2 = max(avgdivs.get(2, {}).values(), default=0)
+                maxdiv3 = max(avgdivs.get(3, {}).values(), default=0)
+                maxdiv4 = max(avgdivs.get(4, {}).values(), default=0)
+                maxdiv5 = max(avgdivs.get(5, {}).values(), default=0)
+                mindiv1 = avgdivs.get(1, {}).values() or 4000
+                mindiv2 = min(avgdivs.get(2, {}).values(), default=4000)
+                mindiv3 = min(avgdivs.get(3, {}).values(), default=4000)
+                logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
+                logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
+                if maxdiv2 > mindiv1:
+                    for (name, index), avg in avgdivs.get(2, {}).items():
+                        logger.error(f"Avg elo {avg} of {name} too high")
+                        s, encix = self._find_encounter(
+                            division=2, index=index, name=name, round=round
+                        )
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=s,
+                            round=round,
+                            idclub=idclub,
+                            encix=encix,
+                        )
+                        return
+                if maxdiv3 > min(mindiv1, mindiv2):
+                    for (name, index), avg in avgdivs.get(3, {}).items():
+                        logger.error(f"Avg elo {avg} of {name} too high")
+                        s, encix = self._find_encounter(
+                            division=3, index=index, name=name, round=round
+                        )
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=s,
+                            round=round,
+                            idclub=idclub,
+                            encix=encix,
+                        )
+                        return
+                if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
+                    for (name, index), avg in avgdivs.get(4, {}).items():
+                        logger.error(f"Avg elo {avg} of {name} too high")
+                        s, encix = self._find_encounter(
+                            division=4, index=index, name=name, round=round
+                        )
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=s,
+                            round=round,
+                            idclub=idclub,
+                            encix=encix,
+                        )
+                        return
+                if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
+                    for (name, index), avg in avgdivs.get(5, {}).items():
+                        logger.error(f"Avg elo {avg} of {name} too high")
+                        s, encix = self._find_encounter(
+                            division=5, index=index, name=name, round=round
+                        )
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=s,
+                            round=round,
+                            idclub=idclub,
+                            encix=encix,
+                        )
+                        return
+        except Exception as e:
+            logger.exception("Exception in check_average_elo")
 
     def check_titular_ok(self, round: int, idclub: int):
         for s in self.seriesdict.values():
@@ -519,9 +529,10 @@ class LineUpValidation:
                             )
 
     def check_elotoohigh(self, round: int, idclub: int):
-        for sr in self.seriesdict.values():
-            maxelo = self.icdata["max_elo"][sr.division]
-            rnd = self._get_round(sr, round)
+        try:
+            for sr in self.seriesdict.values():
+                maxelo = self.icdata["max_elo"][sr.division]
+                rnd = self._get_round(sr, round)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
                     continue
@@ -560,6 +571,9 @@ class LineUpValidation:
                             gameix=gix,
                             pairingnr=enc.pairingnr_visit,
                         )
+        except Exception as e:
+            logger.exception("Exception in check_elotoohigh")
+            raise e
 
     async def read_interclubseries(self) -> dict[tuple[int, str], ICSeries]:
         a = {}
