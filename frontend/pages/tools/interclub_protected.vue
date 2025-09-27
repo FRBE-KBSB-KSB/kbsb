@@ -295,27 +295,22 @@ definePageMeta({
     <h3 class="my-2">{{ t("Selected club") }}: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
+        <v-tab value="results">{{ t("Results") }}</v-tab>
         <v-tab value="planning">{{ t("Planning") }}</v-tab>
         <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
-        <!-- <v-tab value="results">{{ t("Results") }}</v-tab>
-         -->
         <!-- <v-tab value="registration">{{ t("icn.enr") }}</v-tab> -->
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
+        <v-window-item :eager="true" value="results">
+          <Results ref="refresults" />
+        </v-window-item>
         <v-window-item :eager="true" value="planning">
           <Planning ref="refplanning" />
         </v-window-item>
         <v-window-item :eager="true" value="playerlist">
           <Playerlist ref="refplayerlist" />
         </v-window-item>
-        <!-- <v-window-item :eager="true" value="results">
-          <Results
-            ref="refresults"
-            @snackbar="displaySnackbar"
-            @changeDialogCounter="changeDialogCounter"
-          />
-        </v-window-item>-->
         <!-- <v-window-item :eager="true" value="registration">
           <Registration
             ref="refregistration"

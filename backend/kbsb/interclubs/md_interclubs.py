@@ -348,6 +348,7 @@ class ICResultItem(BaseModel):
     round: int
     pairingnr_home: int
     pairingnr_visit: int
+    saved: bool = False
     signhome_idnumber: int | None = 0
     signhome_ts: datetime | None = None
     signvisit_idnumber: int | None = 0
