@@ -289,12 +289,11 @@ class ICStandingsDB(BaseModel):
 
 class ICPlanningItem(BaseModel):
     """
-    a submodel of ICPlanning, represnting the planning a single team of a club
+    a submodel of ICPlanning, representing the planning a single team of a club
     """
 
     division: int
     games: list[ICGame]
-    idclub: int
     idclub_opponent: int
     index: str
     name: str
@@ -302,7 +301,6 @@ class ICPlanningItem(BaseModel):
     nrgames: int
     pairingnumber: int
     playinghome: bool
-    round: int
 
 
 class ICPlanning(BaseModel):
@@ -310,7 +308,9 @@ class ICPlanning(BaseModel):
     a input validator for the planning of IC club for a round
     """
 
+    idclub: int
     plannings: list[ICPlanningItem]
+    round: int
 
 
 class ICValidationError(BaseModel):
@@ -363,8 +363,6 @@ class ICResult(BaseModel):
 
 
 # registration
-
-
 class ICRegistrationDB(BaseModel):
     """
     an IC Registration as written in the database
@@ -451,8 +449,6 @@ class ICRegistrationIn(BaseModel):
 
 
 # venues
-
-
 class ICVenueItem(BaseModel):
     """
     a submodel representing a single Venue

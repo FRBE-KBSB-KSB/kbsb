@@ -1,6 +1,6 @@
 [project]
 name = "kbsb"
-version = "3.4.5"
+version = "3.5.3"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
 requires-python = ">=3.11"

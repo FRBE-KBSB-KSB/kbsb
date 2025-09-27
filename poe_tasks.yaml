@@ -43,6 +43,6 @@ tasks:
   i18n:
     shell: |
       cd backend
-      uv run python kbsb.scripts.i18n
+      uv run python -m kbsb.etl.i18n
       cd ..
     help: regenerate i18n files

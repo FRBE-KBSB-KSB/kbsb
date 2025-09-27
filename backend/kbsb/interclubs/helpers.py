@@ -27,11 +27,11 @@ async def load_icdata():
     return icdata
 
 
-async def load_clubinfo():
-    playerratings = getattr(load_clubinfo, "playerratings", None)
-    clubs = getattr(load_clubinfo, "clubs", None)
-    titulars = getattr(load_clubinfo, "titulars", None)
-    fideratings = getattr(load_clubinfo, "fideratings", None)
+async def load_all_icclubs():
+    playerratings = getattr(load_all_icclubs, "playerratings", None)
+    clubs = getattr(load_all_icclubs, "clubs", None)
+    titulars = getattr(load_all_icclubs, "titulars", None)
+    fideratings = getattr(load_all_icclubs, "fideratings", None)
     if not playerratings:
         logger.info("reading interclub ratings")
         playerratings = {}
@@ -44,7 +44,7 @@ async def load_clubinfo():
             clubs.append(clb)
             for p in clb.players:
                 if p.nature in ["assigned", "imported"]:
-                    playerratings[p.idnumber] = p.rating
+                    playerratings[p.idnumber] = p.assignedrating
                     fideratings[p.idnumber] = p.fiderating
                     if p.titular:
                         teamix = int(p.titular.split(" ")[-1])
@@ -62,10 +62,10 @@ async def load_clubinfo():
                             "index": t.index,
                             "pairingnumber": t.pairingnumber,
                         }
-            setattr(load_clubinfo, "playerratings", playerratings)
-            setattr(load_clubinfo, "fideratings", fideratings)
-            setattr(load_clubinfo, "clubs", clubs)
-            setattr(load_clubinfo, "titulars", titulars)
+            setattr(load_all_icclubs, "playerratings", playerratings)
+            setattr(load_all_icclubs, "fideratings", fideratings)
+            setattr(load_all_icclubs, "clubs", clubs)
+            setattr(load_all_icclubs, "titulars", titulars)
     return (playerratings, clubs, titulars, fideratings)
 
 

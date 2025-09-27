@@ -3,13 +3,11 @@ from datetime import datetime, timedelta, timezone, time
 from reddevil.core import RdInternalServerError
 from .md_interclubs import (
     ICSeries,
-    ICTeam,
     ICRound,
-    ICEncounter,
     ICValidationError,
     DbICSeries,
 )
-from .helpers import load_icdata, load_clubinfo
+from .helpers import load_icdata, load_all_icclubs
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +23,12 @@ class LineUpValidation:
         self.doublepairings = []
 
     async def a_init(self) -> None:
-        self.series = await self.read_interclubseries()
         (
             self.playerratings,
             self.clubs,
             self.titulars,
             self.fideratings,
-        ) = await load_clubinfo()
+        ) = await load_all_icclubs()
         self.icdata = await load_icdata()
 
     def _get_round(self, s: ICSeries, round: int) -> ICRound:
@@ -43,7 +40,7 @@ class LineUpValidation:
     def _find_encounter(
         self, division: int, index: int, name: str, round: int
     ) -> tuple[ICSeries, int]:
-        for s in self.series.values():
+        for s in self.seriesdict.values():
             if s.division == division and s.index == index:
                 break
         else:
@@ -82,7 +79,7 @@ class LineUpValidation:
             # encounter between two teams of the same club, now choose the the correct team, via the pairingnr
             pnr_offender = pairingnr
         pnr_opponent = enc.pairingnr_visit if playing_home else enc.pairingnr_home
-        icclub_opponent = enc.icclub_visit if playing_home else enc.icclub_homer
+        icclub_opponent = enc.icclub_visit if playing_home else enc.icclub_home
         boardnr = gameix + 1 if gameix is not None else None
         self.validationerrors.append(
             ICValidationError(
@@ -100,7 +97,7 @@ class LineUpValidation:
         )
 
     def check_forfaits(self, round: int, idclub: int):
-        for s in self.series.values():
+        for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
@@ -130,7 +127,7 @@ class LineUpValidation:
                         )
 
     def check_signatures(self, round: int, idclub: int):
-        for s in self.series.values():
+        for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
             nextday = self.icdata["rounds"][rnd] + timedelta(days=1)
             homesigndate = datetime.combine(nextday, time(0)).astimezone(timezone.utc)
@@ -180,9 +177,10 @@ class LineUpValidation:
                     )
 
     def check_order_players(self, round: int, idclub: int):
-        for s in self.series.values():
+        for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
             for encix, enc in enumerate(rnd.encounters):
+                notfilled = False
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
@@ -190,6 +188,9 @@ class LineUpValidation:
                 if idclub == enc.icclub_home:
                     homeratings = []
                     for gix, g in enumerate(enc.games):
+                        if not g.idnumber_home:
+                            notfilled = True
+                            break
                         homerating = self.playerratings.get(g.idnumber_home)
                         if homerating is None:
                             self.create_issue(
@@ -202,8 +203,14 @@ class LineUpValidation:
                                 pairingnr=enc.pairingnr_home,
                             )
                         homeratings.append(
-                            {"ix": gix, "rating": homerating, "plr": g.idnumber_home}
+                            {
+                                "ix": gix,
+                                "rating": homerating or 0,
+                                "plr": g.idnumber_home or 0,
+                            }
                         )
+                    if notfilled:
+                        continue
                     diff = len(homeratings) // 2
                     hs = sorted(homeratings, key=lambda x: x["rating"], reverse=True)
                     for i, hr in enumerate(hs):
@@ -220,6 +227,9 @@ class LineUpValidation:
                 if idclub == enc.icclub_visit:
                     visitratings = []
                     for gix, g in enumerate(enc.games):
+                        if not g.idnumber_visit:
+                            notfilled = True
+                            break
                         visitrating = self.playerratings.get(g.idnumber_visit)
                         if visitrating is None:
                             self.create_issue(
@@ -232,15 +242,23 @@ class LineUpValidation:
                                 pairingnr=enc.pairingnr_visit,
                             )
                         visitratings.append(
-                            {"ix": gix, "rating": visitrating, "plr": g.idnumber_visit}
+                            {
+                                "ix": gix,
+                                "rating": visitrating or 0,
+                                "plr": g.idnumber_visit or 0,
+                            }
                         )
+                    if notfilled:
+                        continue
+                    logger.info(f"visitratings {visitratings}")
                     diff = len(visitratings) / 2
-                    visitratings.sort(key=lambda x: x["rating"])
-                    for i, vr in enumerate(visitratings):
+                    vs = sorted(visitratings, key=lambda x: x["rating"], reverse=True)
+                    for i, vr in enumerate(vs):
                         if vr["ix"] < i - diff or vr["ix"] > i + diff:
                             self.create_issue(
                                 reason="visit player order is not correct",
                                 s=s,
+                                round=round,
                                 encix=encix,
                                 idclub=idclub,
                                 gameix=vr["ix"],
@@ -248,107 +266,148 @@ class LineUpValidation:
                             )
 
     def check_average_elo(self, round: int, idclub: int):
-        for clb in self.clubs:
-            avgdivs = {}
-            for t in clb.teams:
-                serie = self.series[(t.division, t.index)]
-                rnd = self._get_round(serie, round)
-                encounters = [
-                    e
-                    for e in rnd.encounters
-                    if t.pairingnumber in (e.pairingnr_home, e.pairingnr_visit)
-                ]
-                if not encounters:
-                    logger.error(
-                        f"We're fucked to get encounter of {t.name} in {serie.division}{serie.index}"
-                    )
-                    for ct in clb.teams:
-                        logger.error(f"debugging club team {ct}")
-                    raise RdInternalServerError("Fucked")
-                enc = encounters[0]
-                if not enc.icclub_home or not enc.icclub_visit:  # bye
+        logger.info(f"check_average_elo for club {idclub} round {round}")
+        logger.info(f"seriesdict keys{self.seriesdict.keys()}")
+        try:
+            for clb in self.clubs:
+                if clb.idclub != idclub:
                     continue
-                # if not enc.boardpoint2_home or not enc.boardpoint2_visit:  # not played]
-                #     continue
-                if t.pairingnumber == enc.pairingnr_home:
-                    ratings = [
-                        self.playerratings[g.idnumber_home]
-                        for g in enc.games
-                        if g.idnumber_home and self.playerratings.get(g.idnumber_home)
+                notfilled = False
+                avgdivs = {}  # key should be (t.division,t.index,t.pairingnumber)
+                for t in clb.teams:
+                    if not (t.division, t.index) in self.seriesdict:
+                        # we are bye
+                        continue
+                    sr = self.seriesdict[(t.division, t.index)]
+                    rnd = self._get_round(sr, round)
+                    encounters = [
+                        e
+                        for e in rnd.encounters
+                        if t.pairingnumber in (e.pairingnr_home, e.pairingnr_visit)
                     ]
-                if t.pairingnumber == enc.pairingnr_visit:
-                    ratings = [
-                        self.playerratings[g.idnumber_visit]
-                        for g in enc.games
-                        if g.idnumber_visit and self.playerratings.get(g.idnumber_visit)
-                    ]
-                avgdiv = avgdivs.setdefault(serie.division, {})
-                if ratings:
-                    avgdiv[serie.division][(t.name, serie.index)] = sum(ratings) / len(
-                        ratings
+                    if not encounters:
+                        logger.error(
+                            f"We're fucked to get encounter of {t.name} in {sr.division}{sr.index}"
+                        )
+                        for ct in clb.teams:
+                            logger.error(f"debugging club team {ct}")
+                        raise RdInternalServerError("Fucked")
+                    enc = encounters[0]
+                    if not enc.icclub_home or not enc.icclub_visit:  # bye
+                        continue
+                    # if not enc.boardpoint2_home or not enc.boardpoint2_visit:  # not played]
+                    #     continue
+                    if t.pairingnumber == enc.pairingnr_home:
+                        ratings = [
+                            self.playerratings[g.idnumber_home]
+                            for g in enc.games
+                            if g.idnumber_home
+                            and self.playerratings.get(g.idnumber_home)
+                        ]
+                        notfilled = min([g.idnumber_home or 0 for g in enc.games]) == 0
+                    if t.pairingnumber == enc.pairingnr_visit:
+                        ratings = [
+                            self.playerratings[g.idnumber_visit]
+                            for g in enc.games
+                            if g.idnumber_visit
+                            and self.playerratings.get(g.idnumber_visit)
+                        ]
+                        notfilled = min([g.idnumber_visit or 0 for g in enc.games]) == 0
+                    if notfilled:
+                        break
+                    logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
+                    avgdivs[(t.division, t.index, t.pairingnumber)] = (
+                        sum(ratings) / len(ratings) if ratings else 0
                     )
-            maxdiv2 = max(avgdivs.get(2, {}).values(), default=0)
-            maxdiv3 = max(avgdivs.get(3, {}).values(), default=0)
-            maxdiv4 = max(avgdivs.get(4, {}).values(), default=0)
-            maxdiv5 = max(avgdivs.get(5, {}).values(), default=0)
-            mindiv1 = avgdivs.get(1, {}).values() or [4000]
-            mindiv2 = min(avgdivs.get(2, {}).values(), default=4000)
-            mindiv3 = min(avgdivs.get(3, {}).values(), default=4000)
-            if maxdiv2 > mindiv1:
-                for (name, index), avg in avgdivs.get(2, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=2, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high in division 2",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-            if maxdiv3 > min(mindiv1, mindiv2):
-                for (name, index), avg in avgdivs.get(3, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=3, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high in division 3",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-            if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
-                for (name, index), avg in avgdivs.get(4, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=4, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high in division 4",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
-            if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
-                for (name, index), avg in avgdivs.get(5, {}).items():
-                    logger.error(f"Avg elo {avg} of {name} too high")
-                    s, encix = self._find_encounter(
-                        division=5, index=index, name=name, round=round
-                    )
-                    self.create_issue(
-                        reason="Avg elo too high in division 5",
-                        s=s,
-                        round=round,
-                        idclub=idclub,
-                        encix=encix,
-                    )
+                if notfilled:
+                    break
+                logger.info(f"avgdivs {avgdivs}")
+                avg1 = []
+                avg2 = []
+                avg3 = []
+                avg4 = []
+                avg5 = []
+                for key, avg in avgdivs.items():
+                    if key[0] == 1:
+                        avg1.append(avg)
+                    elif key[0] == 2:
+                        avg2.append(avg)
+                    elif key[0] == 3:
+                        avg3.append(avg)
+                    elif key[0] == 4:
+                        avg4.append(avg)
+                    elif key[0] == 5:
+                        avg5.append(avg)
+                maxdiv2 = max(avg2, default=0)
+                maxdiv3 = max(avg3, default=0)
+                maxdiv4 = max(avg4, default=0)
+                maxdiv5 = max(avg5, default=0)
+                mindiv1 = min(avg1, default=4000)
+                mindiv2 = min(avg2, default=4000)
+                mindiv3 = min(avg3, default=4000)
+                logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
+                logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
+                if maxdiv2 > mindiv1:
+                    for key, avg in avgdivs.items():
+                        if key[0] != 2 or avg < maxdiv2:
+                            continue
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
+                            round=round,
+                            idclub=idclub,
+                        )
+                        return
+                if maxdiv3 > min(mindiv1, mindiv2):
+                    for key, avg in avgdivs.items():
+                        if key[0] != 3 or avg < maxdiv3:
+                            continue
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
+                            round=round,
+                            idclub=idclub,
+                        )
+                        return
+                if maxdiv4 > min(mindiv1, mindiv2, mindiv3):
+                    for key, avg in avgdivs.items():
+                        if key[0] != 4 or avg < maxdiv4:
+                            continue
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
+                            round=round,
+                            idclub=idclub,
+                        )
+                        return
+                if maxdiv5 > min(mindiv1, mindiv2, mindiv3):
+                    for key, avg in avgdivs.items():
+                        if key[0] != 5 or avg < maxdiv5:
+                            continue
+                        self.create_issue(
+                            reason="Avg elo too high",
+                            s=self.seriesdict[(key[0], key[1])],
+                            division=key[0],
+                            index=key[1],
+                            pairingnumber=key[2],
+                            round=round,
+                            idclub=idclub,
+                        )
+                        return
+        except Exception as e:
+            logger.exception("Exception in check_average_elo")
 
     def check_titular_ok(self, round: int, idclub: int):
-        for s in self.series.values():
+        for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
@@ -357,39 +416,6 @@ class LineUpValidation:
                     continue
                 for encix, g in enumerate(enc.games):
                     if g.idnumber_home in self.titulars:
-                        if s.division > self.titulars[g.idnumber_home]["division"]:
-                            self.create_issue(
-                                reason="Titular played in a division too low",
-                                s=s,
-                                round=round,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_home]["division"]
-                            and s.index != self.titulars[g.idnumber_home]["index"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                                reason="Titular played in wrong series",
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_home]["division"]
-                            and s.index == self.titulars[g.idnumber_home]["index"]
-                            and enc.pairingnr_home
-                            != self.titulars[g.idnumber_home]["pairingnumber"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                                reason="Titular played in wrong series",
-                            )
                         if (
                             s.division == self.titulars[g.idnumber_home]["division"]
                             and s.index == self.titulars[g.idnumber_home]["index"]
@@ -404,25 +430,6 @@ class LineUpValidation:
                                 reason="Titular played in wrong team in the series",
                             )
                     if g.idnumber_visit in self.titulars:
-                        if s.division > self.titulars[g.idnumber_visit]["division"]:
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_visit,
-                                reason="Titular played in a division too low",
-                            )
-                        if (
-                            s.division == self.titulars[g.idnumber_visit]["division"]
-                            and s.index != self.titulars[g.idnumber_visit]["index"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_visit,
-                                reason="Titular played in wrong series",
-                            )
                         if (
                             s.division == self.titulars[g.idnumber_visit]["division"]
                             and s.index == self.titulars[g.idnumber_visit]["index"]
@@ -439,7 +446,7 @@ class LineUpValidation:
 
     def check_reserves_in_single_series(self, round: int, idclub: int):
         for club, division, index, pnr1, pnr2 in self.doublepairings:
-            series = self.series[(division, index)]
+            series = self.seriesdict[(division, index)]
             # build up sets of previous players
             players1 = set()
             players2 = set()
@@ -461,7 +468,7 @@ class LineUpValidation:
                         else:
                             players2.add(g.idnumber_visit)
         for club, division, index, pnr1, pnr2 in self.doublepairings:
-            series = self.series[(division, index)]
+            series = self.seriesdict[(division, index)]
             # build up sets of previous players
             players1 = set()
             players2 = set()
@@ -491,7 +498,7 @@ class LineUpValidation:
                     for gix, g in enumerate(enc.games):
                         if pnr1 == enc.pairingnr_home and g.idnumber_home in players2:
                             self.create_issue(
-                                reason=f"player {g.idnumber_home} already played in other team of series",
+                                reason=f"reserve already played in other team of series",
                                 s=series,
                                 round=round,
                                 encix=encix,
@@ -503,7 +510,7 @@ class LineUpValidation:
                             pnr1 == enc.pairingnr_visit and g.idnumber_visit in players2
                         ):
                             self.create_issue(
-                                reason=f"player {g.idnumber_visit} already played in other team of series",
+                                reason=f"reserve already played in other team of series",
                                 s=series,
                                 round=round,
                                 encix=encix,
@@ -536,39 +543,32 @@ class LineUpValidation:
                                 gameix=gix,
                             )
 
-    def check_reserves_elotoohigh(self, round: int, idclub: int):
-        for s in self.series.values():
-            maxelo = self.icdata["max_elo"][s.division]
-            rnd = self._get_round(s, round)
+    def check_elotoohigh(self, round: int, idclub: int):
+        try:
+            for sr in self.seriesdict.values():
+                maxelo = self.icdata["max_elo"][sr.division]
+                rnd = self._get_round(sr, round)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
                     continue
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
                 for gix, g in enumerate(enc.games):
-                    # skip if player is titular for the team
-                    t_home = self.titulars.get(g.idnumber_home, {})
-                    if (
-                        t_home
-                        and t_home["division"] == s.division
-                        and t_home["index"] == s.index
-                        and t_home["pairingnumber"] == enc.pairingnr_home
-                    ):
-                        continue
-                    t_visit = self.titulars.get(g.idnumber_visit, {})
-                    if (
-                        t_visit
-                        and t_visit["division"] == s.division
-                        and t_visit["index"] == s.index
-                        and t_visit["pairingnumber"] == enc.pairingnr_visit
-                    ):
-                        continue
+                    # if player is titular for the team skip
+                    if g.idnumber_home in self.titulars:
+                        tit = self.titulars[g.idnumber_home]
+                        if tit["division"] == sr.division and tit["index"] == sr.index:
+                            continue
+                    if g.idnumber_visit in self.titulars:
+                        tit = self.titulars[g.idnumber_visit]
+                        if tit["division"] == sr.division and tit["index"] == sr.index:
+                            continue
                     # now check the elo
                     fide_home = self.fideratings.get(g.idnumber_home, 0)
                     if fide_home > maxelo:
                         self.create_issue(
-                            reason="fide rating reserve too high",
-                            s=s,
+                            reason="fide rating too high",
+                            s=sr,
                             round=round,
                             encix=encix,
                             idclub=idclub,
@@ -578,23 +578,26 @@ class LineUpValidation:
                     fide_visit = self.fideratings.get(g.idnumber_visit, 0)
                     if fide_visit > maxelo:
                         self.create_issue(
-                            reason="fide rating reserve too high",
-                            s=s,
+                            reason="fide rating too high",
+                            s=sr,
                             round=round,
                             encix=encix,
                             idclub=idclub,
                             gameix=gix,
                             pairingnr=enc.pairingnr_visit,
                         )
+        except Exception as e:
+            logger.exception("Exception in check_elotoohigh")
+            raise e
 
-    async def read_interclubseries(self) -> dict[tuple[int, int], ICSeries]:
+    async def read_interclubseries(self) -> dict[tuple[int, str], ICSeries]:
         a = {}
         for s in await DbICSeries.find_multiple({"_model": ICSeries}):
             a[(s.division, s.index)] = s
         return a
 
     async def validate_planning(
-        self, idclub: int, round: int
+        self, idclub: int, round: int, seriesdict: dict[tuple[int, str], ICSeries]
     ) -> list[ICValidationError]:
         """
         Validate the planning of interclub matches for a specific club and round.
@@ -602,15 +605,15 @@ class LineUpValidation:
         average elo, titular players, reserves in single series, and reserves elo too high.
         """
         self.validationerrors: list[ICValidationError] = []
+        self.seriesdict = seriesdict
         self.idclub = idclub
         self.round = round
         await self.a_init()
         self.check_order_players(round, idclub)
-        # self.check_average_elo(round)
-        # self.check_titular_ok(round)
-        # self.check_reserves_in_single_series(round)
-        # self.check_reserves_elotoohigh(round)
-        return self.validationerrors
+        self.check_average_elo(round, idclub)
+        self.check_titular_ok(round, idclub)
+        self.check_reserves_in_single_series(round, idclub)
+        self.check_elotoohigh(round, idclub)
 
     async def validate_results(
         self, idclub: int, round: int
@@ -624,6 +627,7 @@ class LineUpValidation:
         self.idclub = idclub
         self.round = round
         await self.a_init()
+        self.seriesdict = await self.read_interclubseries()
         self.check_order_players(round, idclub)
         # self.check_average_elo(round)
         # self.check_titular_ok(round)

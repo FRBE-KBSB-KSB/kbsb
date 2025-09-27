@@ -33,7 +33,7 @@ def test_order_players_4_ok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(5, "A"): series5A}
+    lu.seriesdict = {(5, "A"): series5A}
     players = [10104, 10103, 10102, 10101]
     opponents = [20104, 20103, 20102, 20101]
     games = [
@@ -63,7 +63,7 @@ def test_order_players_4_nok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(5, "A"): series5A}
+    lu.seriesdict = {(5, "A"): series5A}
     players = [10104, 10103, 10102, 10101]
     opponents = [20104, 20103, 20102, 20101]
     games = [
@@ -105,7 +105,7 @@ def test_order_players_6_ok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(3, "A"): series3A}
+    lu.seriesdict = {(3, "A"): series3A}
     players = [10106, 10105, 10104, 10103, 10102, 10101]
     opponents = [20106, 20105, 20104, 20103, 20102, 20101]
     games = [
@@ -137,7 +137,7 @@ def test_order_players_6_nok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(3, "A"): series3A}
+    lu.seriesdict = {(3, "A"): series3A}
     players = [10106, 10105, 10104, 10103, 10102, 10101]
     opponents = [20106, 20105, 20104, 20103, 20102, 20101]
     games = [
@@ -183,7 +183,7 @@ def test_order_players_8_ok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(2, "A"): series2A}
+    lu.seriesdict = {(2, "A"): series2A}
     players = [10108, 10107, 10106, 10105, 10104, 10103, 10102, 10101]
     opponents = [20108, 20107, 20106, 20105, 20104, 20103, 20102, 20101]
     games = [
@@ -217,7 +217,7 @@ def test_order_players_8_nok(
 ):
     # Arrange
     lu = LineUpValidation()
-    lu.series = {(2, "A"): series2A}
+    lu.seriesdict = {(2, "A"): series2A}
     players = [10108, 10107, 10106, 10105, 10104, 10103, 10102, 10101]
     opponents = [20108, 20107, 20106, 20105, 20104, 20103, 20102, 20101]
     games = [

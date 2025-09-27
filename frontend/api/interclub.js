@@ -183,8 +183,16 @@ export default {
     return resp
   },
   clb_saveICplanning: async function (options) {
-    const { token, ...option } = options
-    const resp = await axios.put(`${prefix}/clb/icplanning`, options, {
+    const { token, icplanning } = options
+    const resp = await axios.put(`${prefix}/clb/icplanning`, icplanning, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    return resp
+  },
+  clb_validateICplanning: async function (options) {
+    const { token, icplanning } = options
+    console.log("api clb_validateICplanning", icplanning)
+    const resp = await axios.put(`${prefix}/clb/icplanningvalidate`, icplanning, {
       headers: { Authorization: "Bearer " + token },
     })
     return resp
@@ -369,8 +377,10 @@ export default {
     })
     return resp
   },
+
+  // icdata
   icdata: async function (options) {
     const resp = await axios.get(`${prefix}/icdata`)
     return resp
-  }
+  },
 }
