@@ -470,7 +470,7 @@ async function sign(tr, who) {
               </v-col>
               <v-col cols="4" v-show="canOverwrite(tr)">
                 <VBtn color="green" @click="openOverwrite(tr)">{{
-                  t("Overwrite results")
+                  t("icn.res_overwritebutton")
                 }}</VBtn>
               </v-col>
             </v-row>
@@ -508,7 +508,7 @@ async function sign(tr, who) {
       <VCard>
         <VCardTitle>
           {{ t("icn.res_overwritetitle") }} {{ tr1.name_home }} - {{ tr1.name_visit }}
-          <VDivider />
+          <VDivider class="my-1" />
         </VCardTitle>
         <VCardText>
           <p>{{ t("icn.res_overwriteinfo") }}</p>
