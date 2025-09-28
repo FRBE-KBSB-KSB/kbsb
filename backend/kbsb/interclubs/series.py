@@ -371,6 +371,8 @@ def calc_points(enc: ICEncounter):
                 enc.matchpoint_visit = 1
             if enc.boardpoint2_home < enc.boardpoint2_visit:
                 enc.matchpoint_visit = 2
+    else:
+        enc.played = False
 
 
 async def anon_getICencounterdetails(

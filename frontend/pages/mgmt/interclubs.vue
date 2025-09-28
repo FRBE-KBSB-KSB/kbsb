@@ -144,6 +144,10 @@ async function getClubs() {
 async function getClubDetails() {
   let reply
   icclub.value = { idclub: idclub.value }
+  if (!idclub.value) {
+    changedTab()
+    return
+  }
   changeDialogCounter(1)
   try {
     console.log(1, mgmttoken.value)
