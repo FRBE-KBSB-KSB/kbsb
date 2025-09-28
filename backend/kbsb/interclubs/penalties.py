@@ -93,13 +93,14 @@ async def list_penalties_reports() -> list[str]:
     endpoint to list the penalties reports in the cloud
     """
     ...
-    # try:
-    #     files = list_bucket_files("icn")
-    # except Exception as e:
-    #     logger.info("failed to list penalties reports")
-    #     logger.exception(e)
-    # await asyncio.sleep(0)
-    # return [f.split("/")[1] for f in files if f.startswith("icn/penalties")]
+    try:
+        files = list_bucket_files("icn")
+    except Exception as e:
+        logger.info("failed to list penalties reports")
+        logger.exception(e)
+        return []
+    await asyncio.sleep(0)
+    return [f.split("/")[1] for f in files if f.startswith("icn/penalties")]
 
 
 async def get_penalties_report(path: str) -> str:

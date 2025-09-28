@@ -32,7 +32,6 @@ async function download_registrations() {
     })
     xls = reply.data.xls64
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -55,13 +54,12 @@ async function download_venues() {
     })
     xls = reply.data.xls64
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "venues_2426.xlsx"
+  link.download = "venues_2526.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -78,7 +76,6 @@ async function download_playerlists() {
     })
     xls = reply.data.xls64
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -102,7 +99,6 @@ async function get_bel_report(bp) {
     })
     report = reply.data.report
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -125,7 +121,6 @@ async function list_bel_reports() {
     })
     bel_reports.value = reply.data
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -142,7 +137,6 @@ async function get_fide_report(bp) {
     })
     report = reply.data.report
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -165,7 +159,6 @@ async function list_fide_reports() {
     })
     fide_reports.value = reply.data
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -182,7 +175,6 @@ async function get_penalties_report(bp) {
     })
     report = reply.data.report
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -197,7 +189,7 @@ async function get_penalties_report(bp) {
 }
 
 async function list_penalties_reports() {
-  let reply, report
+  let reply
   showLoading(true)
   try {
     reply = await $backend("interclub", "list_penalties_reports", {
@@ -205,7 +197,6 @@ async function list_penalties_reports() {
     })
     penalties_reports.value = reply.data
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -219,8 +210,8 @@ async function setup(icclub_, round_, icdata_) {
   icdata = icdata_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  await list_bel_reports()
-  await list_fide_reports()
+  // await list_bel_reports()
+  // await list_fide_reports()
   await list_penalties_reports()
 }
 </script>

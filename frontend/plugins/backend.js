@@ -68,6 +68,7 @@ const factories = {
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig()
   axios.defaults.baseURL = runtimeConfig.public.apiUrl
+  
   return {
     provide: {
       backend: async function (fact, method, options) {
@@ -76,6 +77,7 @@ export default defineNuxtPlugin((nuxtApp) => {
           console.log("$backend method not existing", fact, method)
         }
         console.log("calling $backend", fact, method, options)
+        console.log("with baseURL", axios.defaults.baseURL)
         return await f(options)
       },
     },
