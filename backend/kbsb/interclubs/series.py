@@ -2,6 +2,7 @@
 
 import logging
 from typing import cast, Any
+import os
 from datetime import datetime, timezone, timedelta, time
 from reddevil.core import (
     RdBadRequest,
@@ -44,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+os.environ["TZ"] = "Europe/Brussels"
 
 # CRUD
 
@@ -117,7 +119,7 @@ async def isRoundOpen(round: int):
     rounddate = icdata["rounds"].get(round)
     if not rounddate:
         return False
-    rounddatetime = datetime.combine(rounddate, time(15))
+    rounddatetime = datetime.combine(rounddate, time(14))
     return datetime.now() > rounddatetime
 
 
@@ -126,6 +128,7 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     get IC club by idclub, returns None if nothing found or round is not open yet
     """
     if not await isRoundOpen(round):
+        logger.info("XXXXXX round not open yet")
         return []
     db = get_mongodb()
     coll = db[DbICSeries.COLLECTION]
