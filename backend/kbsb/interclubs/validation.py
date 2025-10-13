@@ -21,6 +21,7 @@ class LineUpValidation:
     def __init__(self) -> None:
         self.validationerrors = []
         self.doublepairings = []
+        self.seriesread = False
 
     async def a_init(self) -> None:
         (
@@ -594,6 +595,7 @@ class LineUpValidation:
         a = {}
         for s in await DbICSeries.find_multiple({"_model": ICSeries}):
             a[(s.division, s.index)] = s
+        self.seriesread = True
         return a
 
     async def validate_planning(
@@ -604,7 +606,6 @@ class LineUpValidation:
         This method checks various aspects such as forfaits, signatures, player order,
         average elo, titular players, reserves in single series, and reserves elo too high.
         """
-        self.validationerrors: list[ICValidationError] = []
         self.seriesdict = seriesdict
         self.idclub = idclub
         self.round = round
@@ -623,12 +624,15 @@ class LineUpValidation:
         This method checks various aspects such as forfaits, signatures, player order,
         average elo, titular players, reserves in single series, and reserves elo too high.
         """
-        self.validationerrors: list[ICValidationError] = []
+
         self.idclub = idclub
         self.round = round
         await self.a_init()
-        self.seriesdict = await self.read_interclubseries()
-        self.check_order_players(round, idclub)
+        if not self.seriesread:
+            self.seriesdict = await self.read_interclubseries()
+        self.check_forfaits(round, idclub)
+        self.check_signatures(round, idclub)
+        # self.check_order_players(round, idclub)
         # self.check_average_elo(round)
         # self.check_titular_ok(round)
         # self.check_reserves_in_single_series(round)

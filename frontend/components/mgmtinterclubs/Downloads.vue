@@ -210,8 +210,8 @@ async function setup(icclub_, round_, icdata_) {
   icdata = icdata_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  // await list_bel_reports()
-  // await list_fide_reports()
+  await list_bel_reports()
+  await list_fide_reports()
   await list_penalties_reports()
 }
 </script>

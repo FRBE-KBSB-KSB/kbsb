@@ -469,6 +469,7 @@ async def calc_standings(series: ICSeries) -> ICStandingsDB:
                 continue
             if not enc.played:
                 continue
+
             team_home = next(
                 (x for x in standings.teams if x.pairingnumber == enc.pairingnr_home),
                 None,

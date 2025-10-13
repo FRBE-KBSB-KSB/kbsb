@@ -3,37 +3,20 @@
 import logging
 import asyncio
 
-from datetime import datetime, timezone, timedelta, time
-from csv import DictWriter
-from io import StringIO, BytesIO
-from reddevil.core import RdInternalServerError
 from reddevil.filestore.filestore import (
-    write_bucket_content,
-    read_bucket_content,
     list_bucket_files,
 )
+from .validation import LineUpValidation
+from .icclubs import anon_getICclubs
 from .md_interclubs import (
-    DbICSeries,
-    ICSeries,
-    DbICClub,
-    ICClubDB,
-    ICRound,
     ICTeam,
 )
-from .helpers import load_icdata
-from .validation import LineUpValidation
 
 logger = logging.getLogger(__name__)
 icdata = None
 
 # we are caching the series data per round
-allseries = {}
 
-issues = []
-playerratings = {}
-fideratings = {}
-playertitular = {}
-allclubs = []
 doublepairings = [
     # (401, 4, "E", 1, 12),
     # (401, 4, "F", 6, 7),
@@ -54,13 +37,11 @@ async def write_penalties_report(round: int):
     """
     endpoint to write a penalties report
     """
-    ...
-    # global icdata
-    # logger.debug(f"writing penalties report for round {round}")
-    # icdata = await load_icdata()
-    # await read_interclubseries()
-    # await read_interclubratings()
-    # check_round(round)
+    lineUpValidation = LineUpValidation()
+    icclubs = await anon_getICclubs()
+    for icclub in icclubs:
+        await lineUpValidation.validate_results(icclub.idclub, round)
+    logger.info(f"validationerrors {lineUpValidation.validationerrors}")
     # f = StringIO()
     # writer = DictWriter(
     #     f,
