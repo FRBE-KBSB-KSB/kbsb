@@ -130,7 +130,7 @@ class LineUpValidation:
     def check_signatures(self, round: int, idclub: int):
         for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
-            nextday = self.icdata["rounds"][rnd] + timedelta(days=1)
+            nextday = self.icdata["rounds"][round] + timedelta(days=1)
             homesigndate = datetime.combine(nextday, time(0)).astimezone(timezone.utc)
             visitsigndate = datetime.combine(nextday, time(12)).astimezone(timezone.utc)
             for encix, enc in enumerate(rnd.encounters):
@@ -138,44 +138,48 @@ class LineUpValidation:
                     continue
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
-                if not enc.signhome_ts and idclub == enc.icclub_home:
-                    self.create_issue(
-                        reason="signature home missing",
-                        idclub=enc.icclub_home,
-                        s=s,
-                        round=round,
-                        encix=encix,
-                    )
-                elif (
-                    enc.signhome_ts.astimezone(timezone.utc) > homesigndate
-                    and idclub == enc.icclub_home
-                ):
-                    self.create_issue(
-                        reason="signature home too late",
-                        idclub=enc.icclub_home,
-                        s=s,
-                        round=round,
-                        encix=encix,
-                    )
-                if not enc.signvisit_ts and idclub == enc.icclub_visit:
-                    self.create_issue(
-                        reason="signature away missing",
-                        idclub=enc.icclub_visit,
-                        s=s,
-                        round=round,
-                        encix=encix,
-                    )
-                elif (
-                    enc.signvisit_ts.astimezone(timezone.utc) > visitsigndate
-                    and idclub == enc.icclub_visit
-                ):
-                    self.create_issue(
-                        reason="signature away too late",
-                        idclub=enc.icclub_visit,
-                        s=s,
-                        round=round,
-                        encix=encix,
-                    )
+                if idclub == enc.icclub_home:
+                    if not enc.signhome_ts:
+                        self.create_issue(
+                            reason="signature home missing",
+                            idclub=enc.icclub_home,
+                            s=s,
+                            round=round,
+                            encix=encix,
+                        )
+                    else:
+                        if (
+                            enc.signhome_ts.astimezone(timezone.utc) > homesigndate
+                            and idclub == enc.icclub_home
+                        ):
+                            self.create_issue(
+                                reason="signature home too late",
+                                idclub=enc.icclub_home,
+                                s=s,
+                                round=round,
+                                encix=encix,
+                            )
+                if idclub == enc.icclub_visit:
+                    if not enc.signvisit_ts:
+                        self.create_issue(
+                            reason="signature away missing",
+                            idclub=enc.icclub_visit,
+                            s=s,
+                            round=round,
+                            encix=encix,
+                        )
+                    else:
+                        if (
+                            enc.signvisit_ts.astimezone(timezone.utc) > visitsigndate
+                            and idclub == enc.icclub_visit
+                        ):
+                            self.create_issue(
+                                reason="signature away too late",
+                                idclub=enc.icclub_visit,
+                                s=s,
+                                round=round,
+                                encix=encix,
+                            )
 
     def check_order_players(self, round: int, idclub: int):
         for s in self.seriesdict.values():
@@ -251,7 +255,6 @@ class LineUpValidation:
                         )
                     if notfilled:
                         continue
-                    logger.info(f"visitratings {visitratings}")
                     diff = len(visitratings) / 2
                     vs = sorted(visitratings, key=lambda x: x["rating"], reverse=True)
                     for i, vr in enumerate(vs):
@@ -267,8 +270,7 @@ class LineUpValidation:
                             )
 
     def check_average_elo(self, round: int, idclub: int):
-        logger.info(f"check_average_elo for club {idclub} round {round}")
-        logger.info(f"seriesdict keys{self.seriesdict.keys()}")
+        # logger.info(f"seriesdict keys {self.seriesdict.keys()}")
         try:
             for clb in self.clubs:
                 if clb.idclub != idclub:
@@ -316,13 +318,12 @@ class LineUpValidation:
                         notfilled = min([g.idnumber_visit or 0 for g in enc.games]) == 0
                     if notfilled:
                         break
-                    logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
+                    # logger.info(f"sr {sr.division}{sr.index} ratings {ratings}")
                     avgdivs[(t.division, t.index, t.pairingnumber)] = (
                         sum(ratings) / len(ratings) if ratings else 0
                     )
                 if notfilled:
                     break
-                logger.info(f"avgdivs {avgdivs}")
                 avg1 = []
                 avg2 = []
                 avg3 = []
@@ -346,8 +347,8 @@ class LineUpValidation:
                 mindiv1 = min(avg1, default=4000)
                 mindiv2 = min(avg2, default=4000)
                 mindiv3 = min(avg3, default=4000)
-                logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
-                logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
+                # logger.info(f"{maxdiv2=} {maxdiv3=} {maxdiv4=} {maxdiv5=}")
+                # logger.info(f"{mindiv1=} {mindiv2=} {mindiv3=}")
                 if maxdiv2 > mindiv1:
                     for key, avg in avgdivs.items():
                         if key[0] != 2 or avg < maxdiv2:
@@ -632,9 +633,9 @@ class LineUpValidation:
             self.seriesdict = await self.read_interclubseries()
         self.check_forfaits(round, idclub)
         self.check_signatures(round, idclub)
-        # self.check_order_players(round, idclub)
-        # self.check_average_elo(round)
-        # self.check_titular_ok(round)
-        # self.check_reserves_in_single_series(round)
-        # self.check_reserves_elotoohigh(round)
+        self.check_order_players(round, idclub)
+        self.check_average_elo(round, idclub)
+        self.check_titular_ok(round, idclub)
+        # self.check_reserves_in_single_series(round, idclub)
+        self.check_elotoohigh(round, idclub)
         return self.validationerrors
