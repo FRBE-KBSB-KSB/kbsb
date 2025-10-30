@@ -92,8 +92,6 @@ LOG_CONFIG = {
     },
 }
 
-TEMPLATES_PATH = "./backend/kbsb/templates"
-
 TOKEN = {
     "timeout": 180,  # timeout in minutes
     "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",

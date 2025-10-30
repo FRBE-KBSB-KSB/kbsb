@@ -41,4 +41,3 @@ TOKEN = {
     "nocheck": False,
 }
 
-TEMPLATES_PATH = "./backend/kbsb/templates"

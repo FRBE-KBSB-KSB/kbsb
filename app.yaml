@@ -1,12 +1,11 @@
-runtime: python311
+runtime: python312
 entrypoint: gunicorn kbsb.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
 
-
 env_variables:
-  ACTIVE_ENV: prod
   FILESTORE_BUCKET: website-kbsb-prod.appspot.com
   GOOGLE_PROJECT_ID: website-kbsb-prod
   GOOGLE_CLIENT_ID: 658290412135-ti3t11ovj5q2g10t4mla66r4m8orc2ev.apps.googleusercontent.com
+  TZ: Europe/Brussels
 
 handlers:
   - url: /api/.*

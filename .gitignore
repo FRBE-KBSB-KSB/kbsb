@@ -1,18 +1,32 @@
+# dev tools + os
+.idea
+.vscode
+.directory
+.code-workspace
+.eslintcache
+.env.*
+.env
+.DS_Store
+*.mo
 
+# python
+*.pyc
+.mypy_cache
 
-# Log files
-*.log*
+# javascript
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+*.css.map
+node_modules
+yarn-error.log
+yarn.lock
 
-# python backend
-backend/local_settings.py
-
-# vue frontend
-frontend/.output
-frontend/dist
-
-# data
-shared/secrets/
-shared/fide_data
-
-
+# share
+shared/secrets
+__pycache__
+local_settings.py
 .env
