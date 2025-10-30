@@ -1,44 +1,95 @@
 <script setup>
-import { ref, onMounted, nextTick } from "vue"
+import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import { useIdtokenStore } from "@/store/idtoken"
+import { useIdnumberStore } from "@/store/idnumber"
+
 import Details from "@/components/club/Details.vue"
 import Board from "@/components/club/Board.vue"
 import Access from "@/components/club/Access.vue"
 
 import { EMPTY_CLUB } from "@/util/club"
-import { useIdtokenStore } from "@/store/idtoken"
 import { storeToRefs } from "pinia"
 
-const { locale, t } = useI18n()
+// communication
 const router = useRouter()
 const route = useRoute()
+const waitingdialog = ref(false)
+let dialogcounter = 0
+const errortext = ref(null)
+const snackbar = ref(null)
+
+// login
+const logindialog = ref(false)
+const login = ref({})
+const idnstore = useIdnumberStore()
+
+// locale
+const { locale, t } = useI18n()
+
+// API backend
 const { $backend } = useNuxtApp()
 const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
+const { token } = storeToRefs(idstore)
 
+// data model
+const tab = ref("details")
 const clubmembers = ref(null)
 const clubmembers_id = ref(0)
 const club = ref(EMPTY_CLUB)
 const clubs = ref([])
 const idclub = ref(null)
-const waitingdialog = ref(false)
-let dialogcounter = 0
-const board = ref(null)
-const detail = ref(null)
-const access = ref(null)
-const tab = ref(null)
-const errortext = ref(null)
-const snackbar = ref(null)
-
-function checkAuth() {
-  if (!idtoken.value) {
-    gotoLogin()
-  }
-}
+const refboard = ref(null)
+const refdetails = ref(null)
+const refaccess = ref(null)
 
 function changeDialogCounter(i) {
   dialogcounter += i
   waitingdialog.value = dialogcounter > 0
+}
+
+function changeTab() {
+  console.log("changeTab", tab.value)
+  switch (tab.value) {
+    case "details":
+      refdetails.value.setup(club.value)
+      break
+    case "board":
+      refboard.value.setup(club.value, clubmembers.value)
+      break
+    case "access":
+      refaccess.value.setup(club.value, clubmembers.value)
+  }
+}
+
+function checkAuth() {
+  if (!token.value) {
+    gotoLogin()
+  }
+}
+
+async function dologin() {
+  console.log("doing a login")
+  changeDialogCounter(1)
+  let reply
+  try {
+    reply = await $backend("member", "login", {
+      idnumber: login.value.idnumber,
+      password: login.value.password,
+    })
+    console.log("did a login", reply.data)
+  } catch (error) {
+    console.error("failed login", error)
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+  }
+  idstore.updateToken(reply.data)
+  idnstore.updateIdnumber(login.value.idnumber)
+  logindialog.value = false
+  changeTab()
 }
 
 async function getClubs() {
@@ -68,7 +119,7 @@ async function getClubDetails() {
       reply = await $backend("club", "verify_club_access", {
         idclub: idclub.value,
         role: "ClubAdmin",
-        token: idtoken.value,
+        token: token.value,
       })
     } catch (error) {
       if (error.code == 401) gotoLogin()
@@ -81,22 +132,18 @@ async function getClubDetails() {
     try {
       reply = await $backend("club", "clb_get_club", {
         idclub: idclub.value,
-        token: idtoken.value,
+        token: token.value,
       })
+      club.value = reply.data
     } catch (error) {
       if (error.code == 401) gotoLogin()
       displaySnackbar(t(t(error.message)))
       return
     } finally {
       changeDialogCounter(-1)
+      changeTab()
     }
-    club.value = reply.data
   }
-  nextTick(() => {
-    detail.value.readClubDetails()
-    board.value.readClubDetails()
-    access.value.readClubDetails()
-  })
 }
 
 async function getClubMembers() {
@@ -110,32 +157,29 @@ async function getClubMembers() {
     reply = await $backend("member", "anon_getclubmembers", {
       idclub: idclub.value,
     })
+    clubmembers_id.value = idclub.value
+    const members = reply.data
+    members.forEach((p) => {
+      p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
+    })
+    clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
   } catch (error) {
     if (error.code == 401) gotoLogin()
     displaySnackbar(t(error.message))
     return
   } finally {
     changeDialogCounter(-1)
+    changeTab()
   }
-  clubmembers_id.value = idclub.value
-  const members = reply.data
-  members.forEach((p) => {
-    p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
-  })
-  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
-  nextTick(() => {
-    board.value.readClubMembers()
-    access.value.readClubMembers()
-  })
-}
-
-async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value)
 }
 
 function displaySnackbar(text, color) {
   errortext.value = text
   snackbar.value = true
+}
+
+async function gotoLogin() {
+  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value)
 }
 
 async function selectClub() {
@@ -169,6 +213,37 @@ definePageMeta({
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog width="25em" v-model="logindialog">
+      <VCard>
+        <VCardTitle>
+          <VIcon large> mdi-account </VIcon>
+          <label class="headline ml-3">{{ $t("Sign in") }}</label>
+          <VBtn
+            icon="mdi-help"
+            color="green"
+            class="float-right"
+            @click="helpdialog = true"
+          />
+        </VCardTitle>
+        <VDivider />
+        <VCardText>
+          <VTextField v-model="login.idnumber" :label="$t('ID number')" />
+          <VTextField
+            v-model="login.password"
+            xs="12"
+            lg="6"
+            :label="$t('Password')"
+            type="password"
+          />
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="dologin()">
+            {{ $t("Submit") }}
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </v-dialog>
     <v-card>
       <v-card-text>
         {{ $t("Select the club") }} ({{ $t("Start typing number or name") }})
@@ -189,37 +264,20 @@ definePageMeta({
       {{ $t("Selected club") }}: {{ club.idclub }} {{ club.name_short }}
     </h3>
     <div class="elevation-2">
-      <v-tabs v-model="tab" color="green">
-        <v-tab>{{ $t("Details") }}</v-tab>
-        <v-tab>{{ $t("Board members") }}</v-tab>
-        <v-tab>{{ $t("Access Rights") }}</v-tab>
+      <v-tabs v-model="tab" color="green" @update:modelValue="changeTab">
+        <v-tab value="details">{{ $t("Details") }}</v-tab>
+        <v-tab value="board">{{ $t("Board members") }}</v-tab>
+        <v-tab value="access">{{ $t("Access Rights") }}</v-tab>
       </v-tabs>
-      <v-window v-model="tab">
-        <v-window-item :eager="true" :touch="false">
-          <Details
-            :club="club"
-            ref="detail"
-            @snackbar="displaySnackbar"
-            @updateClub="getClubDetails"
-          />
+      <v-window v-model="tab" @update:modelValue="changeTab" :touch="false">
+        <v-window-item :eager="true" value="details">
+          <Details ref="refdetails" @updateClub="getClubDetails" />
         </v-window-item>
-        <v-window-item :eager="true">
-          <Board
-            :club="club"
-            :clubmembers="clubmembers"
-            ref="board"
-            @snackbar="displaySnackbar"
-            @updateClub="getClubDetails"
-          />
+        <v-window-item :eager="true" value="board">
+          <Board ref="refboard" @updateClub="getClubDetails" />
         </v-window-item>
-        <v-window-item :eager="true">
-          <Access
-            :club="club"
-            :clubmembers="clubmembers"
-            ref="access"
-            @snackbar="displaySnackbar"
-            @updateClub="getClubDetails"
-          />
+        <v-window-item :eager="true" value="access">
+          <Access ref="refaccess" @updateClub="getClubDetails" />
         </v-window-item>
       </v-window>
     </div>

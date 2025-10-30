@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import Enrollment from "@/components/mgmtinterclubs/Enrollment"
+import Registration from "@/components/mgmtinterclubs/Registration"
 import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
+import Venues from "@/components/mgmtinterclubs/Venues.vue"
 import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
@@ -22,7 +23,7 @@ const snackbar = ref(null)
 // API backend
 const { $backend } = useNuxtApp()
 const mgmttokenstore = useMgmtTokenStore()
-const { token: idtoken } = storeToRefs(mgmttokenstore)
+const { token: mgmttoken } = storeToRefs(mgmttokenstore)
 const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 // const mgmtinterclubstore = useMgmtInterclubStore()
@@ -30,12 +31,12 @@ const { person } = storeToRefs(personstore)
 
 // data model
 const tab = ref(null)
-const refenrollment = ref(null)
+const refregistration = ref(null)
 const refplayerlist = ref(null)
 // const refplanning = ref(null)
 const refresults = ref(null)
 const refreports = ref(null)
-// const refvenues = ref(null)
+const refvenues = ref(null)
 const refdownloads = ref(null)
 const icdata = ref({})
 const clubs = ref([])
@@ -43,6 +44,7 @@ const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
+let registration_phase = false
 
 // layout + header
 definePageMeta({
@@ -60,11 +62,14 @@ function changeDialogCounter(i) {
   waitingdialog.value = dialogcounter > 0
 }
 
-function changeTab() {
+function changedTab() {
   console.log("changeTab", tab.value)
   switch (tab.value) {
-    case "enrollment":
-      refenrollment.value.setup(icclub.value, icdata.value)
+    case "registration":
+      refregistration.value.setup(icclub.value, icdata.value)
+      break
+    case "venues":
+      refvenues.value.setup(icclub.value, icdata.value)
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
@@ -82,8 +87,8 @@ function changeTab() {
 }
 
 async function checkAuth() {
-  console.log("checking if auth is already set", idtoken.value)
-  if (idtoken.value) return
+  console.log("checking if auth is already set", mgmttoken.value)
+  if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
     console.log("person no credentials")
     gotoLogin()
@@ -139,12 +144,18 @@ async function getClubs() {
 async function getClubDetails() {
   let reply
   icclub.value = { idclub: idclub.value }
+  if (!idclub.value) {
+    changedTab()
+    return
+  }
   changeDialogCounter(1)
   try {
+    console.log(1, mgmttoken.value)
     reply = await $backend("interclub", "mgmt_getICclub", {
       idclub: idclub.value,
-      token: idtoken.value,
+      token: mgmttoken.value,
     })
+    console.log(2)
     icclub.value = { idclub: idclub.value, ...reply.data }
   } catch (error) {
     if (error.code == 401) gotoLogin()
@@ -152,7 +163,7 @@ async function getClubDetails() {
     return
   } finally {
     changeDialogCounter(-1)
-    changeTab()
+    changedTab()
   }
 }
 
@@ -160,36 +171,24 @@ async function gotoLogin() {
   await router.push("/mgmt")
 }
 
-async function parseYaml(group, name) {
-  try {
-    const yamlcontent = await readBucket(group, name)
-    if (!yamlcontent) {
-      return null
-    }
-    return parse(yamlcontent)
-  } catch (error) {
-    console.error("cannot parse yaml", yamlcontent)
-  }
-}
-
 async function processICdata() {
-  icdata.value = await parseYaml("data", "ic2425.yml")
+  let reply
+  changeDialogCounter(1)
+  try {
+    reply = await $backend("interclub", "icdata", {})
+  } catch (error) {
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+  }
+  icdata.value = reply.data
   ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
     return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
   })
-}
-
-async function readBucket(group, name) {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group,
-      name,
-    })
-    return reply.data
-  } catch (error) {
-    console.error("failed to fetch file from bucket")
-    return null
-  }
+  registration_phase =
+    icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
+  changedTab()
 }
 
 function selectClub() {
@@ -203,14 +202,14 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "enrollment"
-  changeTab()
+  tab.value = "registration"
+  changedTab()
 })
 </script>
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2024-25</h1>
+    <h1>Interclubs Manager 2025-26</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>Loading...</v-card-title>
@@ -240,7 +239,7 @@ onMounted(async () => {
               v-model="round"
               :items="ic_rounds"
               label="Round"
-              @update:model-value="changeTab"
+              @update:model-value="changedTab"
             >
             </VSelect>
           </v-col>
@@ -249,16 +248,20 @@ onMounted(async () => {
     </VCard>
     <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
-      <VTabs v-model="tab" color="purple" @update:modelValue="changeTab">
-        <VTab value="enrollment">Registration</VTab>
+      <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
+        <VTab value="registration">Registration</VTab>
+        <VTab value="venues">Venues</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
-      <VWindow v-model="tab" @update:modelValue="changeTab">
-        <VWindowItem value="enrollment" :eager="true">
-          <Enrollment ref="refenrollment" />
+      <VWindow v-model="tab" @update:modelValue="changedTab">
+        <VWindowItem value="registration" :eager="true">
+          <Registration ref="refregistration" />
+        </VWindowItem>
+        <VWindowItem value="venues" :eager="true">
+          <Venues ref="refvenues" />
         </VWindowItem>
         <VWindowItem value="playerlist" :eager="true">
           <Playerlist ref="refplayerlist" />

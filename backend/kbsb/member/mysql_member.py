@@ -279,7 +279,7 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
         idnumber=0,
         idfide=idfide,
         chesstitle=member["chesstitle"],
-        first_name=nparts[1],
+        first_name=nparts[1] if len(nparts) > 1 else "",
         fiderating=member["fiderating"],
         gender=member["gender"],
         last_name=nparts[0],

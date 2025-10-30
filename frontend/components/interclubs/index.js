@@ -1,6 +1,6 @@
 import Announcements from "./Announcements.vue"
 import Dates from "./Dates.vue"
-import Enrollment from "./Enrollment.vue"
+import Enrollment from "./Registration.vue"
 import Planning from "./Planning.vue"
 import Playerlist from "./Playerlist.vue"
 import PlayerlistPublic from "./PlayerlistPublic.vue"

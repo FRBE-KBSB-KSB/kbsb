@@ -3,26 +3,16 @@
 # Log files
 *.log*
 
-# Editor directories and files
-.idea
-.vscode
-*.code-workspace
-vetur.config.js
-.DS_Store
-
-# backend
+# python backend
 backend/local_settings.py
-.mypy_cache
-__pycache__/
-*.pyc
 
 # vue frontend
-frontend/node_modules
-frontend/.nuxt
 frontend/.output
 frontend/dist
 
 # data
 shared/secrets/
 shared/fide_data
+
+
 .env

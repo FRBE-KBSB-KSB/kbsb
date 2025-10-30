@@ -4,35 +4,27 @@ const prefix = "/api/v1/interclubs"
 
 export default {
   // registrations
-  find_interclubenrollment: async function (options) {
+  find_interclubregistration: async function (options) {
     const { idclub } = options
-    const resp = await axios.get(`${prefix}/anon/enrollment/${idclub}`)
+    const resp = await axios.get(`${prefix}/anon/registration/${idclub}`)
     return resp
   },
-  set_interclubenrollment: async function (options) {
-    const { token, idclub, ...enrollment } = options
-    const resp = await axios.post(
-      `${prefix}/clb/enrollment/${idclub}`,
-      enrollment,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    )
+  set_interclubregistration: async function (options) {
+    const { token, idclub, ...registration } = options
+    const resp = await axios.post(`${prefix}/clb/registration/${idclub}`, registration, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
     return resp
   },
-  mgmt_set_interclubenrollment: async function (options) {
-    const { token, idclub, ...enrollment } = options
-    const resp = await axios.post(
-      `${prefix}/mgmt/enrollment/${idclub}`,
-      enrollment,
-      {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    )
+  mgmt_set_interclubregistration: async function (options) {
+    const { token, idclub, ...registration } = options
+    const resp = await axios.post(`${prefix}/mgmt/registration/${idclub}`, registration, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
     return resp
   },
   mgmt_xls_icregistrations: async function (options) {
@@ -104,6 +96,7 @@ export default {
     return resp
   },
   mgmt_getICclub: async function (options) {
+    console.log("api mgmt_getICclub", options)
     const { token, idclub } = options
     const resp = await axios.get(`${prefix}/mgmt/icclub/${idclub}`, {
       headers: {
@@ -152,9 +145,7 @@ export default {
   },
   anon_xls_playerlist: async function (options) {
     const { idclub } = options
-    const resp = await axios.get(
-      `${prefix}/anon/command/xls_playerlist/${idclub}`
-    )
+    const resp = await axios.get(`${prefix}/anon/command/xls_playerlist/${idclub}`)
     return resp
   },
   mgmt_xls_playerlists: async function (options) {
@@ -192,8 +183,16 @@ export default {
     return resp
   },
   clb_saveICplanning: async function (options) {
-    const { token, ...option } = options
-    const resp = await axios.put(`${prefix}/clb/icplanning`, options, {
+    const { token, icplanning } = options
+    const resp = await axios.put(`${prefix}/clb/icplanning`, icplanning, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    return resp
+  },
+  clb_validateICplanning: async function (options) {
+    const { token, icplanning } = options
+    console.log("api clb_validateICplanning", icplanning)
+    const resp = await axios.put(`${prefix}/clb/icplanningvalidate`, icplanning, {
       headers: { Authorization: "Bearer " + token },
     })
     return resp
@@ -238,6 +237,12 @@ export default {
     console.log("api anon_getICResultsArchive", season, round)
     const resp = await axios.get(`${prefix}/anon/icresultsarchive`, {
       params: { season, round },
+    })
+    return resp
+  },
+  anon_getICencounterdetailsArchive: async function (options) {
+    const resp = await axios.get(`${prefix}/anon/icresultdetails_archive`, {
+      params: options,
     })
     return resp
   },
@@ -331,22 +336,16 @@ export default {
   },
   get_bel_report: async function (options) {
     const { token, path } = options
-    const resp = await axios.get(
-      `${prefix}/mgmt/command/get_bel_report/${path}`,
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
+    const resp = await axios.get(`${prefix}/mgmt/command/get_bel_report/${path}`, {
+      headers: { Authorization: "Bearer " + token },
+    })
     return resp
   },
   get_fide_report: async function (options) {
     const { token, path } = options
-    const resp = await axios.get(
-      `${prefix}/mgmt/command/get_fide_report/${path}`,
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
+    const resp = await axios.get(`${prefix}/mgmt/command/get_fide_report/${path}`, {
+      headers: { Authorization: "Bearer " + token },
+    })
     return resp
   },
   write_penalties_report: async function (options) {
@@ -362,6 +361,7 @@ export default {
   },
   list_penalties_reports: async function (options) {
     const { token } = options
+    console.log("api list_penalties_reports options:", options, "\nprefix:", prefix)
     const resp = await axios.post(
       `${prefix}/mgmt/command/list_penalties_reports`,
       {},
@@ -373,12 +373,15 @@ export default {
   },
   get_penalties_report: async function (options) {
     const { token, path } = options
-    const resp = await axios.get(
-      `${prefix}/mgmt/command/get_penalties_report/${path}`,
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
+    const resp = await axios.get(`${prefix}/mgmt/command/get_penalties_report/${path}`, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    return resp
+  },
+
+  // icdata
+  icdata: async function (options) {
+    const resp = await axios.get(`${prefix}/icdata`)
     return resp
   },
 }

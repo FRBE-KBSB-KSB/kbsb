@@ -31,8 +31,10 @@ let playersindexed = {}
 const icseries = ref([])
 let round = 0
 const teamresults = ref([])
+const tr1 = ref({})
 const rsl_status = ref("closed")
 let icdata = {}
+const overwriteDialog = ref(false)
 
 // methods alphabetically
 
@@ -155,6 +157,32 @@ async function checkAccess() {
   }
 }
 
+function canSave(tr) {
+  return !tr.played
+}
+
+function canOverwrite(tr) {
+  return tr.played
+}
+
+function canSignHome(tr) {
+  if (idclub.value == tr.icclub_home) {
+    if (!tr.signhome_idnumber && tr.played) {
+      return true
+    }
+  }
+  return false
+}
+
+function canSignVisit(tr) {
+  if (idclub.value == tr.icclub_visit) {
+    if (!tr.signvisit_idnumber && tr.played) {
+      return true
+    }
+  }
+  return false
+}
+
 function clubLabel(pairingnr, teams) {
   let name = ""
   teams.forEach((t) => {
@@ -225,6 +253,13 @@ function isOverruled(game) {
   return game.overruled && game.overruled != "NOR"
 }
 
+function openOverwrite(tr) {
+  console.log("openOverwrite tr", tr, "tr1", tr1.value)
+  tr1.value = tr
+  console.log("openOverwrite tr1", tr1.value)
+  overwriteDialog.value = true
+}
+
 function readICSeries() {
   console.log("readICSeries")
   let tra = []
@@ -248,6 +283,7 @@ function readICSeries() {
             nrgames: icdata.playerperdivision[division],
             pairingnr_home: enc.pairingnr_home,
             pairingnr_visit: enc.pairingnr_visit,
+            played: enc.played,
             round: round,
             signhome_idnumber: enc.signhome_idnumber,
             signhome_ts: enc.signhome_ts,
@@ -275,14 +311,16 @@ function readICSeries() {
   teamresults.value = [...tra]
 }
 
-async function saveResults() {
+async function saveResults(tr) {
   let reply
   try {
     showLoading(true)
     reply = await $backend("interclub", "clb_saveICresults", {
       token: idtoken.value,
-      results: teamresults.value,
+      results: [tr],
     })
+    overwriteDialog.value = false
+    await getICSeries()
   } catch (error) {
     showSnackbar(t(error.message))
     return
@@ -293,7 +331,7 @@ async function saveResults() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup results")
+  console.log("setup results", icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
@@ -304,7 +342,7 @@ async function setup(icclub_, round_, icdata_) {
   await calcstatus()
 }
 
-function sign(tr, who) {
+async function sign(tr, who) {
   let plinpll = false
   console.log("tr", tr)
   if (who == "home") {
@@ -337,6 +375,7 @@ function sign(tr, who) {
     tr.signvisit_idnumber = idn
     tr.signvisit_ts = new Date().toISOString()
   }
+  await saveResults(tr)
 }
 </script>
 
@@ -373,7 +412,6 @@ function sign(tr, who) {
       :text="t('icn.results_closed')"
     />
     <div v-if="rsl_status == 'open'">
-      <VBtn color="green" @click="saveResults">{{ t("Save results") }}</VBtn>
       <v-card v-for="tr in teamresults" class="my-2">
         <v-card-title>
           {{ t("Division") }} {{ tr.division }}{{ tr.index }}: &nbsp;
@@ -417,7 +455,7 @@ function sign(tr, who) {
                   clearable
                 />
               </v-col>
-              <v-col col="2">
+              <v-col cols="2">
                 <div v-show="isOverruled(g)" class="text-purple font-weight-bold">
                   {{ g.overruled }}
                 </div>
@@ -425,32 +463,63 @@ function sign(tr, who) {
             </v-row>
             <VDivider />
             <v-row class="mt-1">
-              <v-col col="4" v-show="tr.matchpoints && tr.signhome_idnumber">
-                {{ t("signature") }} {{ t("home") }}: {{ tr.signhome_idnumber }}
+              <v-col cols="" v-show="canSave(tr)">
+                <VBtn color="green" @click="saveResults(tr)">{{
+                  t("Save results")
+                }}</VBtn>
               </v-col>
-              <v-col col="4" v-show="tr.matchpoints && !tr.signhome_idnumber">
-                {{ t("home") }}
-                <v-btn @click="sign(tr, 'home')" color="green" density="compact">{{
-                  t("sign")
-                }}</v-btn>
+              <v-col cols="4" v-show="canOverwrite(tr)">
+                <VBtn color="green" @click="openOverwrite(tr)">{{
+                  t("icn.res_overwritebutton")
+                }}</VBtn>
+              </v-col>
+            </v-row>
+            <v-row class="mt-1">
+              <v-col cols="4">
+                {{ t("signature") }} {{ t("home") }}: {{ tr.signhome_idnumber }}
+                <v-btn
+                  @click="sign(tr, 'home')"
+                  color="green"
+                  density="compact"
+                  v-show="canSignHome(tr)"
+                >
+                  {{ t("sign") }}
+                </v-btn>
               </v-col>
               <v-col cols="2"> MP: {{ tr.matchpoints }} </v-col>
               <v-col cols="2"> BP: {{ tr.boardpoints }} </v-col>
-              <v-col col="4" v-show="tr.matchpoints && tr.signvisit_idnumber">
+              <v-col col="4">
                 {{ t("signature") }} {{ t("away") }}: {{ tr.signvisit_idnumber }}
-              </v-col>
-              <v-col col="4" v-show="tr.matchpoints && !tr.signvisit_idnumber">
-                {{ t("away") }}
-                <v-btn @click="sign(tr, 'away')" color="green" density="compact">{{
-                  t("sign")
-                }}</v-btn>
+                <v-btn
+                  @click="sign(tr, 'away')"
+                  color="green"
+                  density="compact"
+                  v-show="canSignVisit(tr)"
+                >
+                  {{ t("sign") }}
+                </v-btn>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
       </v-card>
-
-      <VBtn color="green" @click="saveResults">{{ t("Save results") }}</VBtn>
     </div>
+    <VDialog v-model="overwriteDialog" width="30em">
+      <VCard>
+        <VCardTitle>
+          {{ t("icn.res_overwritetitle") }} {{ tr1.name_home }} - {{ tr1.name_visit }}
+          <VDivider class="my-1" />
+        </VCardTitle>
+        <VCardText>
+          <p>{{ t("icn.res_overwriteinfo") }}</p>
+          <p>{{ t("icn.res_overwriteconfirm") }}</p>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="saveResults(tr1)">{{ t("icn.res_overwrite") }}</VBtn>
+          <VBtn @click="overwriteDialog = false">{{ t("Cancel") }}</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </v-container>
 </template>

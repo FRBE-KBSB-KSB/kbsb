@@ -4,12 +4,13 @@ from kbsb.interclubs import (
     ICClubDB,
     ICClubItem,
     ICEncounter,
-    ICEnrollment,
-    ICEnrollmentIn,
-    ICEnrollmentOut,
+    ICRegistration,
+    ICRegistrationIn,
+    ICRegistrationOut,
     ICGame,
     ICGameDetails,
     ICPlanning,
+    ICPlayer,
     ICPlayerUpdate,
     ICPlayerUpdateItem,
     ICPlayerValidationError,
@@ -23,18 +24,18 @@ from kbsb.interclubs import (
 
 
 @register_fixture
-class IcEnrollmentFactory(ModelFactory[ICEnrollment]):
-    __model__ = ICEnrollment
+class IcRegistrationFactory(ModelFactory[ICRegistration]):
+    __model__ = ICRegistration
 
 
 @register_fixture
-class IcEnrollmentInFactory(ModelFactory[ICEnrollmentIn]):
-    __model__ = ICEnrollmentIn
+class IcRegistrationInFactory(ModelFactory[ICRegistrationIn]):
+    __model__ = ICRegistrationIn
 
 
 @register_fixture
-class IcEnrollmentOutFactory(ModelFactory[ICEnrollmentOut]):
-    __model__ = ICEnrollmentOut
+class IcRegistrationOutFactory(ModelFactory[ICRegistrationOut]):
+    __model__ = ICRegistrationOut
 
 
 @register_fixture
@@ -110,3 +111,8 @@ class IcStandingsDbFactory(ModelFactory[ICStandingsDB]):
 @register_fixture
 class IcTeamFactory(ModelFactory[ICTeam]):
     __model__ = ICTeam
+
+
+@register_fixture
+class IcPlayerFactory(ModelFactory[ICPlayer]):
+    __model__ = ICPlayer

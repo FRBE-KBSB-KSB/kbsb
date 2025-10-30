@@ -47,13 +47,14 @@ async def api_login(ol: LoginValidator) -> str:
 @router.post("/userpassword", include_in_schema=False, status_code=201)
 async def api_set_old_userpassword(
     ol: OldUserPasswordValidator,
-    apikey: str = Depends(header_schema),
+    # apikey: str = Depends(header_schema),
 ):
     """
     force password on user, creates the user if he does not exist
     """
     try:
-        validate_header(apikey)
+        # validate_header(apikey)
+        logger.info(f"Setting user password for {ol.user}")
         await old_userpassword(ol)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

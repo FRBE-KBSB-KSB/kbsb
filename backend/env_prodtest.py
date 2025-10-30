@@ -1,9 +1,16 @@
+# EMAIL = {
+#     "backend": "GMAIL",
+#     "serviceaccountfile": "kbsb-gmail.json",
+#     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
+#     "account": "ruben.decrop@frbe-kbsb-ksb.be",
+#     "blindcopy": "",
+# }
+
 EMAIL = {
-    "backend": "GMAIL",
-    "serviceaccountfile": "kbsb-gmail.json",
+    "backend": "SMTP",
+    "host": "schaken.decrop.net",
+    "port": "1025",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
-    "account": "ruben.decrop@frbe-kbsb-ksb.be",
-    "blindcopy": "",
 }
 
 FILESTORE = {

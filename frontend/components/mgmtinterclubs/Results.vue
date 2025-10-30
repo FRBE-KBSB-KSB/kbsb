@@ -104,6 +104,7 @@ function clubLabel(pairingnr, teams) {
 }
 
 async function getICclub(clb_id) {
+  if (!clb_id) return
   if (playerlist_buffer.value[clb_id]) {
     console.log("playerlist in cache", clb_id)
     return
@@ -173,8 +174,6 @@ async function processICSeries() {
   icseries.value.forEach((s) => {
     const { division, index } = s
     s.rounds[0].encounters.forEach((enc) => {
-      // skip byes
-      if (!enc.icclub_home || !enc.icclub_visit) return
       // skip encounters of other clubs
       if (![enc.icclub_home, enc.icclub_visit].includes(my.idclub)) return
       procencs.push({

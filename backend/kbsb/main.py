@@ -33,6 +33,7 @@ register_app(app, "kbsb.settings", "/api")
 settings = get_settings()
 logger = logging.getLogger(__name__)
 logger.info(f"Starting website KBSB {version}")
+logger.info(f"icdata: {settings.ICDATA}")
 
 # add CORS middleware for dev only
 app.add_middleware(
@@ -70,8 +71,8 @@ logger.info("Api's loaded")
 
 # static files
 if settings.KBSB_MODE != "production":
-    app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
-    app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
+    app.mount("/css", StaticFiles(directory="../frontend/public/css"), name="css")
+    app.mount("/img", StaticFiles(directory="../frontend/public/img"), name="img")
     logger.info("static dirs loaded")
 
 for route in app.routes:

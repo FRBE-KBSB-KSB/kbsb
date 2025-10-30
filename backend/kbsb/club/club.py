@@ -210,7 +210,7 @@ async def sendnotification(clb: Club):
         locale=locale,
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
-        bcc=settings.EMAIL["blindcopy"],
+        bcc=settings.EMAIL.get("blindcopy", ""),
         subject="Club Details",
         template="club/clubdetails_{locale}.md",
     )

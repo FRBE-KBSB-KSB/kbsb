@@ -8,9 +8,11 @@ from reddevil.core import (
     validate_token,
 )
 
+from kbsb.member import validate_membertoken
+
 from . import (
-    ICEnrollment,
-    ICEnrollmentIn,
+    ICRegistration,
+    ICRegistrationIn,
     ICVenueIn,
     ICVenueDB,
     ICClubDB,
@@ -24,11 +26,13 @@ from . import (
     ICSeriesDB,
     ICStandingsDB,
     ICTeam,
+    ICValidationError,
     anon_getICteams,
     anon_getICclub,
     anon_getICclubs,
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
+    anon_getICencounterdetails_archive,
     anon_getICstandings,
     anon_getICstandingsArchive,
     anon_getICresultsArchive,
@@ -39,6 +43,7 @@ from . import (
     clb_saveICresults,
     clb_updateICplayers,
     clb_validateICPlayers,
+    clb_validateICplanning,
     find_icregistration,
     getICvenues,
     get_bel_report,
@@ -47,6 +52,7 @@ from . import (
     list_bel_reports,
     list_fide_reports,
     list_penalties_reports,
+    load_icdata,
     mgmt_get_xlsplayerlists,
     mgmt_saveICresults,
     mgmt_register_teamforfeit,
@@ -67,33 +73,31 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/interclubs")
 
-# enrollments
+# registrations
 
 
-@router.get("/anon/enrollment/{idclub}", response_model=ICEnrollment | None)
-async def api_find_interclubenrollment(idclub: int):
+@router.get("/anon/registration/{idclub}", response_model=ICRegistration | None)
+async def api_find_icregistration(idclub: int):
     """
-    return an enrollment by idclub
+    return an registration by idclub
     """
-    logger.debug(f"api_find_interclubenrollment {idclub}")
+    logger.debug(f"api_find_icregistration {idclub}")
     try:
         return await find_icregistration(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call find_interclubenrollment")
+        logger.exception("failed api call find_icregistration")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_clb_set_enrollment(
+@router.post("/clb/registration/{idclub}", response_model=ICRegistration)
+async def api_clb_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await set_icregistration(idclub, ie, bt)
@@ -104,10 +108,10 @@ async def api_clb_set_enrollment(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_mgmt_set_enrollment(
+@router.post("/mgmt/registration/{idclub}", response_model=ICRegistration)
+async def api_mgmt_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
@@ -117,7 +121,7 @@ async def api_mgmt_set_enrollment(
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
-        logger.exception("failed api call mgmt_set_enrollment")
+        logger.exception("failed api call mgmt_set_registration")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -136,10 +140,10 @@ async def api_xls_registrations(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/clb/enrollment/{idclub}", response_model=ICEnrollment)
-async def api_set_enrollment(
+@router.post("/clb/registration/{idclub}", response_model=ICRegistration)
+async def api_set_registration(
     idclub: int,
-    ie: ICEnrollmentIn,
+    ie: ICRegistrationIn,
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
@@ -264,8 +268,6 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     logger.info(f"api_clb_getICclub {idclub} {auth}")
     try:
         validate_membertoken(auth)
@@ -300,8 +302,6 @@ async def api_clb_validateICplayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await clb_validateICPlayers(idclub, players)
@@ -336,8 +336,6 @@ async def api_clb_updateICPlayers(
     players: ICPlayerUpdate,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         await clb_updateICplayers(idclub, players)
@@ -411,8 +409,6 @@ async def api_clb_getICseries(
     round: int | None = 0,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
         return await clb_getICseries(idclub, round)
@@ -441,18 +437,31 @@ async def api_mgmt_getICseries(
 
 @router.put("/clb/icplanning", status_code=201)
 async def api_clb_saveICplanning(
-    icpi: ICPlanning,
+    icplanning: ICPlanning,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         validate_membertoken(auth)
-        await clb_saveICplanning(icpi.plannings)
+        await clb_saveICplanning(icplanning)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call clb_saveICplanning")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.put("/clb/icplanningvalidate", response_model=list[ICValidationError])
+async def api_clb_validateICplanning(
+    icplanning: ICPlanning,
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
+    try:
+        validate_membertoken(auth)
+        return await clb_validateICplanning(icplanning)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call clb_validateICplanning")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
@@ -476,8 +485,6 @@ async def api_clb_saveICresults(
     icri: ICResult,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         logger.info("hi")
         validate_membertoken(auth)
@@ -551,7 +558,36 @@ async def api_anon_getICresultsArchive(season: str, round: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-# tean forfait
+@router.get("/anon/icresultdetails_archive", response_model=list[ICGameDetails])
+async def api_anon_getICencounterdetails_archive(
+    season: str,
+    division: int,
+    index: str,
+    round: int,
+    icclub_home: int,
+    icclub_visit: int,
+    pairingnr_home: int,
+    pairingnr_visit: int,
+):
+    try:
+        return await anon_getICencounterdetails_archive(
+            season=season,
+            division=division,
+            index=index or "",
+            round=round,
+            icclub_home=icclub_home,
+            icclub_visit=icclub_visit,
+            pairingnr_home=pairingnr_home,
+            pairingnr_visit=pairingnr_visit,
+        )
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICencounterdetails")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# team forfait
 
 
 @router.post("/mgmt/command/teamforfeit/{division}/{index}/{name}", status_code=201)
@@ -778,3 +814,14 @@ async def api_get_penalties_report(
     except Exception:
         logger.exception("failed api get penalties report")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+# icdata
+
+
+@router.get("/icdata", response_model=dict)
+async def api_icdata():
+    """
+    return the icdata
+    """
+    return await load_icdata()

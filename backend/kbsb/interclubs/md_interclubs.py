@@ -12,21 +12,6 @@ from typing import Literal
 from reddevil.core.dbbase import DbBase
 
 
-# old interclub data
-ICROUNDS = {
-    1: date.fromisoformat("2023-09-24"),
-    2: date.fromisoformat("2023-10-15"),
-    3: date.fromisoformat("2023-10-22"),
-    4: date.fromisoformat("2023-11-19"),
-    5: date.fromisoformat("2023-12-03"),
-    6: date.fromisoformat("2024-01-28"),
-    7: date.fromisoformat("2024-02-04"),
-    8: date.fromisoformat("2024-02-18"),
-    9: date.fromisoformat("2024-03-10"),
-    10: date.fromisoformat("2024-03-24"),
-    11: date.fromisoformat("2024-04-24"),
-}
-
 PLAYERSPERDIVISION = {
     1: 8,
     2: 8,
@@ -56,14 +41,15 @@ class PlayerlistNature(StrEnum):
     IMPORTED = auto()
     EXPORTED = auto()
     LOCKED = auto()
-    # older
+    REMOVED = auto()
+    # deprecated
     REQUESTEDIN = auto()
     CONFIRMEDOUT = auto()
 
 
 class PlayerPeriod(StrEnum):
     """
-    The periuod the assignment of the play took place
+    The period the assignment of the play took place
     """
 
     SEPTEMBER = auto()
@@ -153,8 +139,8 @@ class ICClubDB(BaseModel):
     name: str | None = ""
     id: str | None = None
     idclub: int
-    teams: list[ICTeam] | None = Field(default_factory=list)
-    players: list[ICPlayer] | None = Field(default_factory=list)
+    teams: list[ICTeam] | None = []
+    players: list[ICPlayer] | None = []
     registered: bool | None = False
 
 
@@ -303,12 +289,11 @@ class ICStandingsDB(BaseModel):
 
 class ICPlanningItem(BaseModel):
     """
-    a submodel of ICPlanning, represnting the planning a single team of a club
+    a submodel of ICPlanning, representing the planning a single team of a club
     """
 
     division: int
     games: list[ICGame]
-    idclub: int
     idclub_opponent: int
     index: str
     name: str
@@ -316,7 +301,6 @@ class ICPlanningItem(BaseModel):
     nrgames: int
     pairingnumber: int
     playinghome: bool
-    round: int
 
 
 class ICPlanning(BaseModel):
@@ -324,7 +308,26 @@ class ICPlanning(BaseModel):
     a input validator for the planning of IC club for a round
     """
 
+    idclub: int
     plannings: list[ICPlanningItem]
+    round: int
+
+
+class ICValidationError(BaseModel):
+    """
+    an error for a planning validation
+    """
+
+    boardnr: int | None = None
+    division: int
+    errormessage: str
+    index: str
+    icclub_offender: int
+    icclub_opponent: int
+    name: str
+    name_opponent: str
+    pnr_offender: int
+    round: int
 
 
 class ICResultItem(BaseModel):
@@ -345,6 +348,7 @@ class ICResultItem(BaseModel):
     round: int
     pairingnr_home: int
     pairingnr_visit: int
+    saved: bool = False
     signhome_idnumber: int | None = 0
     signhome_ts: datetime | None = None
     signvisit_idnumber: int | None = 0
@@ -359,12 +363,10 @@ class ICResult(BaseModel):
     results: list[ICResultItem]
 
 
-# enrollment
-
-
-class ICEnrollmentDB(BaseModel):
+# registration
+class ICRegistrationDB(BaseModel):
     """
-    an IC Enrollment as written in the database
+    an IC Registration as written in the database
     for doc purposes only
     """
 
@@ -382,9 +384,9 @@ class ICEnrollmentDB(BaseModel):
     wishes: dict[str, Any]
 
 
-class ICEnrollment(BaseModel):
+class ICRegistration(BaseModel):
     """
-    an IC Enrollment as used internally
+    an IC Registration as used internally
     """
 
     id: str | None = None
@@ -401,9 +403,9 @@ class ICEnrollment(BaseModel):
     wishes: dict | None = None
 
 
-class ICEnrollmentOut(BaseModel):
+class ICRegistrationOut(BaseModel):
     """
-    an IC Enrollment as used internally
+    an IC Registration as used internally
     """
 
     id: str
@@ -420,7 +422,7 @@ class ICEnrollmentOut(BaseModel):
     wishes: dict = {}
 
 
-class ICEnrollmentHistory(BaseModel):
+class ICRegistrationHistory(BaseModel):
     """
     a model represnting the history of enrollments
     """
@@ -431,7 +433,7 @@ class ICEnrollmentHistory(BaseModel):
     time: datetime
 
 
-class ICEnrollmentIn(BaseModel):
+class ICRegistrationIn(BaseModel):
     """
     a input validator for an new enrollment
     """
@@ -448,8 +450,6 @@ class ICEnrollmentIn(BaseModel):
 
 
 # venues
-
-
 class ICVenueItem(BaseModel):
     """
     a submodel representing a single Venue
@@ -487,68 +487,82 @@ class ICVenueDB(BaseModel):
 
 
 class DbICSeries(DbBase):
-    COLLECTION = "interclub2425series"
+    COLLECTION = "ic_2526_series"
     DOCUMENTTYPE = ICSeriesDB
     VERSION = 1
     IDGENERATOR = "uuid"
 
 
 class DbICSeries2324(DbBase):
-    COLLECTION = "interclub2324series"
+    COLLECTION = "ic_2324_series"
+    DOCUMENTTYPE = ICSeriesDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+
+
+class DbICSeries2425(DbBase):
+    COLLECTION = "ic_2425_series"
     DOCUMENTTYPE = ICSeriesDB
     VERSION = 1
     IDGENERATOR = "uuid"
 
 
 class DbICStandings(DbBase):
-    COLLECTION = "interclub2425standings"
+    COLLECTION = "ic_2526_standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
     IDGENERATOR = "uuid"
 
 
 class DbICStandings2324(DbBase):
-    COLLECTION = "interclub2324standings"
+    COLLECTION = "ic_2324_standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
     IDGENERATOR = "uuid"
 
 
-class DbICVenue_Old(DbBase):
-    COLLECTION = "interclub2324venues"
-    DOCUMENTTYPE = ICVenueDB
+class DbICStandings2425(DbBase):
+    COLLECTION = "ic_2425_standings"
+    DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
     IDGENERATOR = "uuid"
-    HISTORY = True
 
 
 class DbICVenue(DbBase):
-    COLLECTION = "interclub2425venues"
+    COLLECTION = "ic_2526_venues"
     DOCUMENTTYPE = ICVenueDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
-    HISTORY = True
-
-
-class DbICClub_Old(DbBase):
-    COLLECTION = "interclub2324club"
-    DOCUMENTTYPE = ICClubDB
     VERSION = 1
     IDGENERATOR = "uuid"
     HISTORY = True
 
 
 class DbICClub(DbBase):
-    COLLECTION = "interclub2425club"
+    COLLECTION = "ic_2526_club"
     DOCUMENTTYPE = ICClubDB
     VERSION = 1
     IDGENERATOR = "uuid"
     HISTORY = True
 
 
-class DbICEnrollment(DbBase):
-    COLLECTION = "interclub2425enrollment"
-    DOCUMENTTYPE = ICEnrollmentDB
+class DbICClub2324(DbBase):
+    COLLECTION = "ic_2324_club"
+    DOCUMENTTYPE = ICClubDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = False
+
+
+class DbICClub2425(DbBase):
+    COLLECTION = "ic_2425_club"
+    DOCUMENTTYPE = ICClubDB
+    VERSION = 1
+    IDGENERATOR = "uuid"
+    HISTORY = False
+
+
+class DbICRegistration(DbBase):
+    COLLECTION = "ic_2526_registration"
+    DOCUMENTTYPE = ICRegistrationDB
     VERSION = 1
     IDGENERATOR = "uuid"
     HISTORY = True

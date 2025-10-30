@@ -59,11 +59,15 @@ async def update_interclubvenues(
     options1["_model"] = options1.get("_model", ICVenueDB)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
+    logger.info(f"updating venue {id} with {iudict}")
     return cast(ICVenueDB, await DbICVenue.update(id, iudict, options1))
 
 
 async def getICvenues(idclub: int) -> ICVenueDB:
-    venues = await DbICVenue.find_single({"_model": ICVenueDB, "idclub": idclub})
+    try:
+        venues = await DbICVenue.find_single({"_model": ICVenueDB, "idclub": idclub})
+    except RdNotFound:
+        venues = None
     return venues
 
 
@@ -73,14 +77,13 @@ async def getICvenues(idclub: int) -> ICVenueDB:
 async def set_interclubvenues(idclub: str, ivi: ICVenueIn) -> ICVenueDB:
     logger.info(f"running set icvenues {idclub}")
     club = await get_club_idclub(idclub)
-    logger.debug(f"set_interclubvenues: {idclub} {ivi}")
     if not club:
         raise RdNotFound(description="ClubNotFound")
-    try:
-        ivn = await getICvenues(idclub)
+    ivn = await getICvenues(idclub)
+    if ivn:
         logger.info(f"update interclubvenues {ivn.id}")
         niv = await update_interclubvenues(ivn.id, ivi)
-    except RdNotFound:
+    else:
         iv = ICVenueDB(
             idclub=idclub,
             venues=ivi.venues,
