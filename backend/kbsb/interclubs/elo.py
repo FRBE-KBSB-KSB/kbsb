@@ -145,12 +145,16 @@ async def write_eloprocessing():
         p["last_name"] = unidecode(p["last_name"])
     writer.writerows(players)
     csvelo.seek(0)
+    csvBytes = BytesIO(initial_bytes=csvelo.read().encode("utf-8"))
+    csvelo.close()
     rd = date.today().strftime("%Y%m%d")
     try:
-        write_bucket_content(f"eloprocessing/{rd}.csv", csvelo)
+        write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)
     except Exception as e:
         logger.info("failed to write test file")
         logger.exception(e)
+    finally:
+        csvBytes.close()
     await asyncio.sleep(0)
     # fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
     # logger.info(f"writing {fname}")
@@ -287,7 +291,7 @@ def generate_belgian_report(records: List[EloGame], label: str, round: int):
         "00D Envoi par : interclubs@frbe-kbsb-ksb.be",
         "00E Envoi par le club : 998",
         "00F P={npart} R=1 S={icdate:%d/%m/%y} E={icdate:%d/%m/%y} +{won} ={drawn} -{lost}",
-        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
+        "012 Belgian Interclubs 2025 - 2026 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -636,7 +640,7 @@ def generate_fide_report(round: int):
     cnt["nrated"] = 0
     cnt["mteams"] = 0.0
     hlines = [
-        "012 Belgian Interclubs 2024 - 2025 - Round {round}",
+        "012 Belgian Interclubs 2025 - 2026 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -701,8 +705,9 @@ def generate_fide_report(round: int):
         f.write(ls)
         f.write(linefeed)
     f.seek(0)
+    repBytes = BytesIO(initial_bytes=f.read().encode("utf-8"))
     try:
-        write_bucket_content(f"icn/ICN_fide_R{round}.txt", f)
+        write_bucket_content(f"icn/ICN_fide_R{round}.txt", repBytes)
     except Exception as e:
         logger.info(f"failed to FIDE file icn/ICN_fide_R{round}.txt")
         logger.exception(e)

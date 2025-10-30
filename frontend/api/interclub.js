@@ -361,6 +361,7 @@ export default {
   },
   list_penalties_reports: async function (options) {
     const { token } = options
+    console.log("api list_penalties_reports options:", options, "\nprefix:", prefix)
     const resp = await axios.post(
       `${prefix}/mgmt/command/list_penalties_reports`,
       {},
