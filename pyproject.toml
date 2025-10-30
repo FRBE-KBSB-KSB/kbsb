@@ -3,14 +3,17 @@ name = "kbsb"
 version = "3.5.5"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
-requires-python = ">=3.11"
+authors = [
+    { name = "Ruben Decrop", email = "ruben@frbe-kbsb-ksb.be" }
+]
+requires-python = ">=3.12"
 dependencies = [
     "aiocsv>=1.3.2",
     "aiofiles>=24.1.0",
     "async-lru>=2.0.5",
     "asyncclick>=8.1.8",
     "asyncssh>=2.21.0",
-    "fastapi>=0.116.1",
+    "fastapi[standard]>=0.116.1",
     "google>=3.0.0",
     "google-api-python-client>=2.178.0",
     "google-auth>=2.40.3",
@@ -29,7 +32,7 @@ dependencies = [
     "requests>=2.32.4",
     "toml>=0.10.2",
     "unidecode>=1.4.0",
-    "uvicorn>=0.35.0",
+    "uvicorn>=0.37.0",
 ]
 
 [tool.ruff]
@@ -46,11 +49,13 @@ unfixable = []
 [tool.uv.sources]
 reddevil = { path = "libs/reddevil-3.4.5-py3-none-any.whl" }
 
+[build-system]
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
     "asyncio>=4.0.0",
-    "black>=25.1.0",
     "freezegun>=1.5.5",
     "mypy>=1.17.1",
     "polyfactory>=2.22.1",
