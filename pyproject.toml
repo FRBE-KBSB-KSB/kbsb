@@ -1,6 +1,6 @@
 [project]
 name = "kbsb"
-version = "3.5.5"
+version = "3.6.0"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -50,4 +50,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-reddevil = { path = "libs/reddevil-3.5.0-py3-none-any.whl" }
+reddevil = { path = "libs/reddevil-3.5.2-py3-none-any.whl" }
