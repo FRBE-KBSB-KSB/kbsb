@@ -4,11 +4,14 @@
 *.log*
 
 # python backend
-backend/local_settings.py
+src/local_settings.py
+__pycache__
 
 # vue frontend
 frontend/.output
 frontend/dist
+frontend/node_modules/
+frontend/.nuxt/
 
 # data
 shared/secrets/
@@ -16,3 +19,4 @@ shared/fide_data
 
 
 .env
+.venv

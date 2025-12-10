@@ -60,12 +60,16 @@ from kbsb.interclubs import api_interclubs
 logger.info("loading api_member")
 from kbsb.member import api_member
 
+logger.info("loading api_oldsite")
+from kbsb.oldsite import api_oldsite
+
 
 app.include_router(api_account.router)
 app.include_router(api_club.router)
 app.include_router(api_filestore.router)
 app.include_router(api_interclubs.router)
 app.include_router(api_member.router)
+app.include_router(api_oldsite.router)
 
 logger.info("Api's loaded")
 

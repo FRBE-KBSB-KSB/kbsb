@@ -1,15 +1,10 @@
 tasks:
   be_build:
     shell: |
-      cd backend
       uv install
-      cd ..
     help: install the backend
   be_run:
-    shell: |
-      cd backend 
-      uv run uvicorn kbsb.main:app --reload
-      cd ..
+    cmd: uv run fastapi dev -e kbsb.main:app --reload
     help: run the backend uvicorn server
   deploy:
     shell: |
@@ -41,8 +36,5 @@ tasks:
       gcloud auth application-default login
     help: activate the gcloud kbsbprod configuration
   i18n:
-    shell: |
-      cd backend
-      uv run python -m kbsb.etl.i18n
-      cd ..
+    cmd:  uv run python -m kbsb.etl.i18n
     help: regenerate i18n files
