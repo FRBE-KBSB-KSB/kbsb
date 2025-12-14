@@ -15,9 +15,10 @@ async def api_mail_relay(
     apikey: str = Depends(header_schema),
 ):
     """
-    call
+    call mail_relay
     """
     try:
+        logger.info(f"{apikey=}")
         validate_header(apikey)
         await mail_relay(mrv)
     except RdException as e:

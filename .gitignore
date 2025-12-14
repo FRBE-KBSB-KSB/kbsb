@@ -1,22 +1,18 @@
-
-
-# Log files
-*.log*
-
-# python backend
-src/local_settings.py
+# python
 __pycache__
+.env
+.venv
 
-# vue frontend
+# frontend
 frontend/.output
 frontend/dist
 frontend/node_modules/
 frontend/.nuxt/
 
-# data
+# general
+*.log*
 shared/secrets/
 shared/fide_data
 
 
-.env
-.venv
+
