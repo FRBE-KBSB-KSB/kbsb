@@ -5,6 +5,7 @@
 # to represent business obejcts
 
 from pydantic import BaseModel
+from reddevil.mail import MailAttachment
 
 
 class MailRelayValidator(BaseModel):
@@ -14,6 +15,7 @@ class MailRelayValidator(BaseModel):
 
     bcc: str = ""
     cc: str = ""
+    attachments: list[MailAttachment] = None
     content: str
     receiver: str
     sender: str

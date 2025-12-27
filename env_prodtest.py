@@ -75,7 +75,7 @@ LOG_CONFIG = {
         },
         "reddevil": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "fastapi": {
@@ -91,7 +91,7 @@ LOG_CONFIG = {
     },
 }
 
-TEMPLATES_PATH = "./backend/kbsb/templates"
+TEMPLATES_PATH = "./src/kbsb/templates"
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

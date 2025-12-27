@@ -1,6 +1,6 @@
 [project]
 name = "kbsb"
-version = "3.6.1"
+version = "3.6.3"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
 authors = [
@@ -60,7 +60,7 @@ unfixable = []
 "**/__init__.py" = ["E402"]
 
 [tool.uv.sources]
-reddevil = { path = "libs/reddevil-3.5.3-py3-none-any.whl" }
+reddevil = { path = "libs/reddevil-3.5.4-py3-none-any.whl" }
 
 [build-system]
 requires = ["hatchling"]

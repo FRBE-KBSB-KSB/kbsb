@@ -1,8 +1,9 @@
 # copyright Ruben Decrop 2012 - 2024
 import logging
+from asyncio import sleep
 from . import MailRelayValidator
 from reddevil.mail import MailParams
-from reddevil.mail.mail import sendPlainEmail
+from reddevil.mail.mail import sendEmailMessage
 from reddevil.core import get_settings
 
 logger = logging.getLogger("kbsb")
@@ -23,8 +24,10 @@ async def mail_relay(mrv: MailRelayValidator):
         template=mrv.content,
         locale=None,
         subject=mrv.subject,
+        attachments=mrv.attachments,
     )
     try:
-        sendPlainEmail(mp)
+        sendEmailMessage(mp)
+        await sleep(0)
     except Exception:
         logger.exception("failed")
