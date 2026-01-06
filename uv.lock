@@ -897,7 +897,7 @@ wheels = [
 
 [[package]]
 name = "kbsb"
-version = "3.6.3"
+version = "3.6.4"
 source = { editable = "." }
 dependencies = [
     { name = "aiocsv" },
@@ -961,7 +961,7 @@ requires-dist = [
     { name = "python-jose", extras = ["cryptography"], specifier = ">=3.5.0" },
     { name = "python-slugify", specifier = ">=8.0.4" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "reddevil", path = "libs/reddevil-3.5.4-py3-none-any.whl" },
+    { name = "reddevil", path = "libs/reddevil-3.5.5-py3-none-any.whl" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "toml", specifier = ">=0.10.2" },
     { name = "unidecode", specifier = ">=1.4.0" },
@@ -1513,8 +1513,8 @@ wheels = [
 
 [[package]]
 name = "reddevil"
-version = "3.5.4"
-source = { path = "libs/reddevil-3.5.4-py3-none-any.whl" }
+version = "3.5.5"
+source = { path = "libs/reddevil-3.5.5-py3-none-any.whl" }
 dependencies = [
     { name = "aiofiles" },
     { name = "beautifulsoup4" },
@@ -1541,7 +1541,7 @@ dependencies = [
     { name = "uvicorn" },
 ]
 wheels = [
-    { filename = "reddevil-3.5.4-py3-none-any.whl", hash = "sha256:e69a3e4ccdc158ed7ba698e390ad0f07638b274ead9955edb37ba8cd8a0ed320" },
+    { filename = "reddevil-3.5.5-py3-none-any.whl", hash = "sha256:11134c19d05bdc325758c426bd7eb2c21bd0774f2dc9b9dee8aead7986875756" },
 ]
 
 [package.metadata]
