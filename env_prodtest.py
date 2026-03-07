@@ -18,11 +18,10 @@ FILESTORE = {
     "bucket": "website-kbsb-prod.appspot.com",
 }
 
-ICDATA = "local"
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-local",
+        "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
     "mysql": {
@@ -76,7 +75,7 @@ LOG_CONFIG = {
         },
         "reddevil": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
         "fastapi": {
@@ -92,7 +91,7 @@ LOG_CONFIG = {
     },
 }
 
-TEMPLATES_PATH = "./backend/kbsb/templates"
+TEMPLATES_PATH = "./src/kbsb/templates"
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

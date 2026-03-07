@@ -5,6 +5,7 @@ from pathlib import Path
 import logging.config
 
 API_BASE_URL = "/api"
+API_KEY = "JeanMarieWampers"
 
 BOOKS_CC = "ruben@kosk.be"
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
