@@ -493,18 +493,12 @@ class DbICSeries(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICSeries2324(DbBase):
+class DbICSeries2324(DbICSeries):
     COLLECTION = "ic_2324_series"
-    DOCUMENTTYPE = ICSeriesDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
 
 
-class DbICSeries2425(DbBase):
+class DbICSeries2425(DbICSeries):
     COLLECTION = "ic_2425_series"
-    DOCUMENTTYPE = ICSeriesDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
 
 
 class DbICStandings(DbBase):
@@ -514,18 +508,12 @@ class DbICStandings(DbBase):
     IDGENERATOR = "uuid"
 
 
-class DbICStandings2324(DbBase):
+class DbICStandings2324(DbICStandings):
     COLLECTION = "ic_2324_standings"
-    DOCUMENTTYPE = ICStandingsDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
 
 
-class DbICStandings2425(DbBase):
+class DbICStandings2425(DbICStandings):
     COLLECTION = "ic_2425_standings"
-    DOCUMENTTYPE = ICStandingsDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
 
 
 class DbICVenue(DbBase):
@@ -544,20 +532,12 @@ class DbICClub(DbBase):
     HISTORY = True
 
 
-class DbICClub2324(DbBase):
+class DbICClub2324(DbICClub):
     COLLECTION = "ic_2324_club"
-    DOCUMENTTYPE = ICClubDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
-    HISTORY = False
 
 
-class DbICClub2425(DbBase):
+class DbICClub2425(DbICClub):
     COLLECTION = "ic_2425_club"
-    DOCUMENTTYPE = ICClubDB
-    VERSION = 1
-    IDGENERATOR = "uuid"
-    HISTORY = False
 
 
 class DbICRegistration(DbBase):
