@@ -6,7 +6,9 @@ import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
+import Teamforfeit from "@/components/mgmtinterclubs/Teamforfeit"
 import Venues from "@/components/mgmtinterclubs/Venues.vue"
+
 import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
@@ -38,6 +40,7 @@ const refresults = ref(null)
 const refreports = ref(null)
 const refvenues = ref(null)
 const refdownloads = ref(null)
+const refteamforfeit = ref(null)
 const icdata = ref({})
 const clubs = ref([])
 const icclub = ref({}) // the icclub data
@@ -255,6 +258,7 @@ onMounted(async () => {
         <VTab value="results">Results</VTab>
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
+        <VTab value="teamforfeit">Team Forfeit</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changedTab">
         <VWindowItem value="registration" :eager="true">
@@ -274,6 +278,9 @@ onMounted(async () => {
         </VWindowItem>
         <VWindowItem value="downloads" :eager="true">
           <Downloads ref="refdownloads" />
+        </VWindowItem>
+        <VWindowItem value="teamforfeit" :eager="true">
+          <Teamforfeit ref="refteamforfeit" />
         </VWindowItem>
       </VWindow>
     </div>
