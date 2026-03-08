@@ -14,6 +14,7 @@ from reddevil.core import (
 import pymongo
 from . import (
     GAMERESULT,
+    PLAYERSPERDIVISION,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -132,7 +133,7 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
         return []
     db = get_mongodb()
     coll = db[DbICSeries.COLLECTION]
-    proj = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
     filter = {}
@@ -151,7 +152,7 @@ async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     """
     db = get_mongodb()
     coll = db[DbICSeries.COLLECTION]
-    proj = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
     filter = {}
@@ -168,7 +169,7 @@ async def _apply_planning(icplanning: ICPlanning) -> dict:
     """
     apply the planning of a club, returns a dict indexed by (division,index)
     """
-    seriesdict = {}
+    seriesdict: dict = {}
     for plan in icplanning.plannings:
         if (plan.division, plan.index) in seriesdict:
             sr = seriesdict[(plan.division, plan.index)]
@@ -334,6 +335,19 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
             {"rounds": [r.model_dump() for r in s.rounds]},
         )
         await calc_standings(s)
+
+
+async def anon_getICresults(division: str, index:int) -> ICSeries | None:
+    """
+    get the results of all runds of a series, returns None if nothing found
+    """
+    try:
+        s = await DbICSeries.find_single(
+            {"division": division, "index": index, "_model": ICSeries}
+        )
+        return s
+    except RdNotFound:
+        return None
 
 
 def calc_points(enc: ICEncounter):
@@ -574,7 +588,7 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
     db = get_mongodb()
     coll = db[dbresult.COLLECTION]
     logger.info(f"coll {coll}")
-    proj = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
     proj["rounds"] = {"$elemMatch": {"round": round}}
     logger.info(f"proj {proj}")
     series = []
@@ -622,8 +636,12 @@ async def anon_getICencounterdetails_archive(
                     and enc.pairingnr_visit == pairingnr_visit
                 ):
                     homeclub = await anon_getICclub_archive(season, icclub_home)
+                    assert homeclub
+                    assert homeclub.players
                     homeplayers = {p.idnumber: p for p in homeclub.players}
                     visitclub = await anon_getICclub_archive(season, icclub_visit)
+                    assert visitclub
+                    assert visitclub.players
                     visitplayers = {p.idnumber: p for p in visitclub.players}
                     for g in enc.games:
                         if not g.idnumber_home or not g.idnumber_visit:
@@ -651,15 +669,12 @@ async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> Non
     don't do this for the last round or the standings won't be correct
     """
     logger.info("teamforfeit")
-    series = cast(
-        ICSeries,
-        await DbICSeries.find_single(
-            {
-                "division": division,
-                "index": index,
-                "_model": ICSeriesDB,
-            }
-        ),
+    series = await DbICSeries.find_single(
+        {
+            "division": division,
+            "index": index,
+            "_model": ICSeriesDB,
+        }
     )
     logger.info(f"found series {series.division} {series.index}")
     for t in series.teams:

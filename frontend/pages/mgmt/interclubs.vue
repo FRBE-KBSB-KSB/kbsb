@@ -6,7 +6,9 @@ import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
+import Standings from "@/components/mgmtinterclubs/Standings"
 import Venues from "@/components/mgmtinterclubs/Venues.vue"
+
 import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 // import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
@@ -38,6 +40,7 @@ const refresults = ref(null)
 const refreports = ref(null)
 const refvenues = ref(null)
 const refdownloads = ref(null)
+const refstandings = ref(null)
 const icdata = ref({})
 const clubs = ref([])
 const icclub = ref({}) // the icclub data
@@ -73,6 +76,9 @@ function changedTab() {
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
+      break
+    case "standings":
+      refstandings.value.setup(icclub.value, icdata.value)
       break
     case "reports":
       refreports.value.setup(icclub.value, round.value, icdata.value)
@@ -253,6 +259,7 @@ onMounted(async () => {
         <VTab value="venues">Venues</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
+        <VTab value="standings">Standings</VTab>
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
@@ -269,11 +276,17 @@ onMounted(async () => {
         <VWindowItem value="results" :eager="true">
           <Results ref="refresults" />
         </VWindowItem>
+        <VWindowItem value="standings" :eager="true">
+          <Standings ref="refstandings" />
+        </VWindowItem>
         <VWindowItem value="reports" :eager="true">
           <Reports ref="refreports" />
         </VWindowItem>
         <VWindowItem value="downloads" :eager="true">
           <Downloads ref="refdownloads" />
+        </VWindowItem>
+        <VWindowItem value="teamforfeit" :eager="true">
+          <Teamforfeit ref="refteamforfeit" />
         </VWindowItem>
       </VWindow>
     </div>
