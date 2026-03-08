@@ -1,10 +1,10 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick } from "vue"
 
 // stores
 import { useMgmtTokenStore } from "@/store/mgmttoken"
 import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
 const mgmttokenstore = useMgmtTokenStore()
 const { token: mgmttoken } = storeToRefs(mgmttokenstore)
 const mgmtinterclubstore = useMgmtInterclubStore()
@@ -15,9 +15,9 @@ defineExpose({ checkStore })
 const { $backend } = useNuxtApp()
 
 //  snackbar, loading and confirm widgets
-import ProgressLoading from '@/components/ProgressLoading.vue'
-import SnackbarMessage from '@/components/SnackbarMessage.vue'
-import ConfirmDialog from '@/components/ComfirmDialog.vue'
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
+import ConfirmDialog from "@/components/ComfirmDialog.vue"
 const refsnackbar = ref(null)
 const refloading = ref(null)
 const refconfirm = ref(null)
@@ -45,26 +45,22 @@ async function checkStore() {
     if (my.idclub) {
       await nextTick()
       await getICSeries()
-    }
-    else {
+    } else {
       icseries.value = []
     }
   }
 }
 
 function confirmForfeit() {
-  showConfirm(
-    forfeitConfirmed,
-    {
-      title: "Confirm Fofeiting team",
-      line1: `Are you sure to register a forfeiting for team ${teamselected.value.name}?  
+  showConfirm(forfeitConfirmed, {
+    title: "Confirm Fofeiting team",
+    line1: `Are you sure to register a forfeiting for team ${teamselected.value.name}?  
 This will erase all results of this team, an action which cannot be undone easily.`,
-      line2: `Important remark:  Don't use this routine for the final round.
+    line2: `Important remark:  Don't use this routine for the final round.
 For the last round you should overrule all results of team manually.`,
-      bgcolor: "purple",
-      fgcolor: "white",
-    }
-  )
+    bgcolor: "purple",
+    fgcolor: "white",
+  })
 }
 
 async function forfeitConfirmed() {
@@ -81,16 +77,15 @@ async function forfeitConfirmed() {
   } catch (error) {
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
-  showSnackbar('Team forfeiting saved')
+  showSnackbar("Team forfeiting saved")
 }
 
 async function getICSeries() {
   console.log("team forfeit get IC series")
-  // get the pairing data limited to current club 
+  // get the pairing data limited to current club
   let reply
   if (!my.idclub) {
     icseries.value = {}
@@ -100,10 +95,10 @@ async function getICSeries() {
   try {
     reply = await $backend("interclub", "mgmt_getICseries", {
       idclub: my.idclub,
-      token: mgmttoken.value
+      token: mgmttoken.value,
     })
   } catch (error) {
-    console.log('NOK', error)
+    console.log("NOK", error)
     if (error.code == 401) {
       // TODO
     }
@@ -136,26 +131,22 @@ async function registerForfait() {
     showLoading(true)
     reply = await $backend("interclub", "mgmt_saveICresults", {
       token: mgmttoken.value,
-      results: teamresults.value
+      results: teamresults.value,
     })
   } catch (error) {
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
-  showSnackbar('Results saved')
+  showSnackbar("Results saved")
 }
-
-
 
 onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   showConfirm = refconfirm.value.showConfirm
 })
-
 </script>
 
 <template>
@@ -172,4 +163,3 @@ onMounted(() => {
     </div>
   </VContainer>
 </template>
-

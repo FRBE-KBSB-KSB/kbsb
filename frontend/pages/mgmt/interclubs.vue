@@ -6,7 +6,7 @@ import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
 import Results from "@/components/mgmtinterclubs/Results"
 import Reports from "@/components/mgmtinterclubs/Reports"
 import Downloads from "@/components/mgmtinterclubs/Downloads"
-import Teamforfeit from "@/components/mgmtinterclubs/Teamforfeit"
+import Standings from "@/components/mgmtinterclubs/Standings"
 import Venues from "@/components/mgmtinterclubs/Venues.vue"
 
 import { parse } from "yaml"
@@ -40,7 +40,7 @@ const refresults = ref(null)
 const refreports = ref(null)
 const refvenues = ref(null)
 const refdownloads = ref(null)
-const refteamforfeit = ref(null)
+const refstandings = ref(null)
 const icdata = ref({})
 const clubs = ref([])
 const icclub = ref({}) // the icclub data
@@ -76,6 +76,9 @@ function changedTab() {
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
+      break
+    case "standings":
+      refstandings.value.setup(icclub.value, icdata.value)
       break
     case "reports":
       refreports.value.setup(icclub.value, round.value, icdata.value)
@@ -256,9 +259,9 @@ onMounted(async () => {
         <VTab value="venues">Venues</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
+        <VTab value="standings">Standings</VTab>
         <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
-        <VTab value="teamforfeit">Team Forfeit</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changedTab">
         <VWindowItem value="registration" :eager="true">
@@ -272,6 +275,9 @@ onMounted(async () => {
         </VWindowItem>
         <VWindowItem value="results" :eager="true">
           <Results ref="refresults" />
+        </VWindowItem>
+        <VWindowItem value="standings" :eager="true">
+          <Standings ref="refstandings" />
         </VWindowItem>
         <VWindowItem value="reports" :eager="true">
           <Reports ref="refreports" />

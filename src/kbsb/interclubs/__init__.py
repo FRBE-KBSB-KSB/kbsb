@@ -70,6 +70,7 @@ from .series import (  # noqa F401
     anon_getICstandings,
     anon_getICstandingsArchive,
     anon_getICresultsArchive,
+    anon_getICresults,
     clb_getICseries,
     clb_saveICplanning,
     clb_saveICresults,

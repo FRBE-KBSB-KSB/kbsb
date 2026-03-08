@@ -8,6 +8,7 @@ from reddevil.core import (
     validate_token,
 )
 
+from kbsb.interclubs.series import anon_getICresults
 from kbsb.member import validate_membertoken
 
 from . import (
@@ -33,6 +34,7 @@ from . import (
     anon_get_icseries_clubround,
     anon_getICencounterdetails,
     anon_getICencounterdetails_archive,
+    anon_getICresults,
     anon_getICstandings,
     anon_getICstandingsArchive,
     anon_getICresultsArchive,
@@ -493,6 +495,31 @@ async def api_clb_saveICresults(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call clb_saveICresults")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/anon/icresults/1", response_model=ICSeries | None)
+async def api_anon_getICresults1():
+    try:
+        return await anon_getICresults(1, "")
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICresults")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+
+@router.get("/anon/icresults/{division}/{index}", response_model=ICSeries | None)
+async def api_anon_getICresults(
+    division: int,
+    index: str,
+):
+    try:
+        return await anon_getICresults(division, index)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call anon_getICresults")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

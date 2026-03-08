@@ -337,6 +337,19 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
         await calc_standings(s)
 
 
+async def anon_getICresults(division: str, index:int) -> ICSeries | None:
+    """
+    get the results of all runds of a series, returns None if nothing found
+    """
+    try:
+        s = await DbICSeries.find_single(
+            {"division": division, "index": index, "_model": ICSeries}
+        )
+        return s
+    except RdNotFound:
+        return None
+
+
 def calc_points(enc: ICEncounter):
     """
     calculate the matchpoint and boardpoint for the encounter

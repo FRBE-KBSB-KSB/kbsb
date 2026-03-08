@@ -273,6 +273,7 @@ class ICTeamStanding(BaseModel):
     matchpoints: int
     boardpoints: float
     games: list[ICTeamGame]
+    teamforfeit: bool = False
 
 
 class ICStandingsDB(BaseModel):

@@ -38,10 +38,12 @@ const splitting = ref([
   { title: "In 1 series", value: "1" },
   { title: "In multiple series", value: "2" },
 ])
-
 const rules = ref({
   count20: (x) => (x && x.length <= 20) || "Max 20 characters",
 })
+const icseries = ref([])
+const teamchoices = ref([])
+const teamselected = ref(null)
 let icclub = {}
 let icdata = {}
 
@@ -119,6 +121,49 @@ async function gotoLogin() {
   await router.push("/tools/oldlogin?url=__interclubs__manager")
 }
 
+async function getICSeries() {
+  console.log("team forfeit get IC series")
+  // get the pairing data limited to current club
+  let reply
+  if (!icclub.idclub) {
+    icseries.value = {}
+    return
+  }
+  showLoading(true)
+  try {
+    reply = await $backend("interclub", "mgmt_getICseries", {
+      idclub: icclub.idclub,
+      token: idtoken.value,
+    })
+  } catch (error) {
+    console.log("NOK", error)
+    if (error.code == 401) {
+      // TODO
+    }
+    return
+  } finally {
+    showLoading(false)
+  }
+  icseries.value = reply.data
+  await processICSeries()
+}
+
+async function processICSeries() {
+  // process the series received from the server
+  console.log("processICSeries", icseries.value)
+  teamchoices.value = []
+  icseries.value.forEach((s) => {
+    s.teams.forEach((t) => {
+      if (t.idclub == icclub.idclub && !t.teamforfeit) {
+        teamchoices.value.push({
+          title: `${t.name} (${t.division}${t.index})`,
+          value: t,
+        })
+      }
+    })
+  })
+}
+
 async function modifyRegistration() {
   if (!modifying.value) {
     const allowed = await checkAccess()
@@ -148,6 +193,25 @@ function readRegistration(data) {
     registration.value.wishes.splitting = "2"
   }
   console.log("reg", registration.value)
+}
+
+async function registerForfait() {
+  let reply
+  try {
+    showLoading(true)
+    reply = await $backend("interclub", "mgmt_register_teamforfeit", {
+      token: idtoken.value,
+      division: teamselected.value.division,
+      index: teamselected.value.index,
+      name: teamselected.value.name,
+    })
+  } catch (error) {
+    showSnackbar(error.message)
+    return
+  } finally {
+    showLoading(false)
+  }
+  showSnackbar("Results saved")
 }
 
 async function saveRegistration() {
@@ -181,6 +245,9 @@ async function saveRegistration() {
     showLoading(false)
     await find_interclubregistration()
   }
+  if (teamselected.value) {
+    await registerForfait()
+  }
 }
 
 async function setup(icclub_, icdata_) {
@@ -191,8 +258,8 @@ async function setup(icclub_, icdata_) {
   icdata = icdata_
   calcstatus()
   await find_interclubregistration()
+  await getICSeries()
 }
-
 </script>
 <template>
   <v-container>
@@ -245,6 +312,12 @@ async function setup(icclub_, icdata_) {
           <v-card class="elevation-5">
             <v-card-title class="card-title"> Display name team </v-card-title>
             <v-card-text> Name: {{ registration.name }} </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="4" xl="3">
+          <v-card class="elevation-5">
+            <v-card-title class="card-title">Team forfeit</v-card-title>
+            <v-card-text> No team forfeits </v-card-text>
           </v-card>
         </v-col>
       </v-row>
@@ -334,6 +407,16 @@ async function setup(icclub_, icdata_) {
                 maxlength="20"
                 :rules="[rules.count20]"
               />
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="4" xl="3">
+          <v-card class="elevation-5">
+            <v-card-title class="card-title">Team forfeit</v-card-title>
+            <v-card-text>
+              Select the team which is forfeiting. Don't use this feature for the last
+              round.
+              <v-select v-model="teamselected" :items="teamchoices" />
             </v-card-text>
           </v-card>
         </v-col>
