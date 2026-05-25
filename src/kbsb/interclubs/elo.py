@@ -754,6 +754,7 @@ async def get_fide_report(path: str) -> str:
 # trf processing
 
 trfdata_2425 = {"startround": "20240930.csv", "endround": "20250525.csv"}
+trfdata_2526 = {"startround": "20240930.csv", "endround": "20250525.csv"}
 
 
 async def trf_process_round(round):
@@ -1005,7 +1006,7 @@ async def trf_report_phase1():
     generate the trf report
     """
     logger.info("trf report phase 1")
-    read_eloprocessing(trfdata_2425["startround"])
+    read_eloprocessing(trfdata_2526["startround"])
     for round in range(11, 12):
         logger.info(f"processing round {round}")
         await trf_process_round(round)
@@ -1017,7 +1018,7 @@ async def trf_report_phase2():
     sort the players and write the report
     """
     logger.info("trf report phase 2")
-    read_eloprocessing(trfdata_2425["endround"])
+    read_eloprocessing(trfdata_2526["endround"])
     await trf_process_playerdetails2()
     await trf_process_sort()
     await trf_generate()
