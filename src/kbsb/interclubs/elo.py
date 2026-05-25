@@ -754,7 +754,7 @@ async def get_fide_report(path: str) -> str:
 # trf processing
 
 trfdata_2425 = {"startround": "20240930.csv", "endround": "20250525.csv"}
-trfdata_2526 = {"startround": "20240930.csv", "endround": "20250525.csv"}
+trfdata_2526 = {"startround": "20250929.csv", "endround": "20260428.csv"}
 
 
 async def trf_process_round(round):
@@ -787,7 +787,7 @@ async def trf_process_round(round):
                     )
                 except RdNotFound:
                     await DbICTrfRecord.add(
-                        {"idbel": idnh, "rounds": [], "event": "ic2425"}
+                        {"idbel": idnh, "rounds": [], "event": "ic2526"}
                     )
                     ph = await DbICTrfRecord.find_single(
                         {"idbel": idnh, "_model": DbICTrfRecord.DOCUMENTTYPE}
@@ -822,7 +822,7 @@ async def trf_process_round(round):
                     )
                 except RdNotFound:
                     await DbICTrfRecord.add(
-                        {"idbel": idnv, "rounds": [], "event": "ic2425"}
+                        {"idbel": idnv, "rounds": [], "event": "ic2526"}
                     )
                     pv = await DbICTrfRecord.find_single(
                         {"idbel": idnv, "_model": DbICTrfRecord.DOCUMENTTYPE}
@@ -1007,7 +1007,7 @@ async def trf_report_phase1():
     """
     logger.info("trf report phase 1")
     read_eloprocessing(trfdata_2526["startround"])
-    for round in range(11, 12):
+    for round in range(1, 12):
         logger.info(f"processing round {round}")
         await trf_process_round(round)
     await trf_process_playerdetails1()
