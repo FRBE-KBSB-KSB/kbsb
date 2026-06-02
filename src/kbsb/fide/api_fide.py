@@ -3,10 +3,15 @@ import re
 from pathlib import Path
 from io import BytesIO
 import logging
+import base64
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from openpyxl import load_workbook
+
+from reddevil.core import get_settings
+from reddevil.mail import MailParams, MailAttachment
+from reddevil.mail.mail import sendEmailMessage
 
 logger = logging.getLogger(__name__)
 
@@ -564,6 +569,46 @@ async def generate_fide_form(request: Request):
     event_name = form.get("event_name", "").strip()
     safe_event = re.sub(r"\s+", "_", event_name) or "Unknown"
     filename = f"Tournament_Registration_{safe_event}.xlsx"
+
+    # Send email with FIDE registration Excel attachment
+    excel_content = filled.getvalue()
+    encoded_excel = base64.b64encode(excel_content)
+
+    excel_attachment = MailAttachment(
+        filename=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        content_base64=encoded_excel,
+    )
+
+    settings = get_settings()
+    sender_email = settings.EMAIL.get("sender", "noreply@frbe-kbsb-ksb.be")
+    club_number = form.get("invoice_clubnr", "N/A")
+    mail_subject = f"{event_name} - test form (Jorian)"
+
+    mail_body = f"""
+    <p>Beste,</p>
+    <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
+    <p><strong>Clubnummer:</strong> {club_number}</p>
+    <br>
+    <p>Groetjes!</p>
+    """
+
+    mail_params = MailParams(
+        locale=lang,
+        receiver="fide@frbe-kbsb-ksb.be",
+        sender=sender_email,
+        subject=mail_subject,
+        template=mail_body,
+        attachments=[excel_attachment],
+    )
+
+    try:
+        sendEmailMessage(mail_params)
+        logger.info(
+            f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}"
+        )
+    except Exception:
+        logger.exception("Failed to send FIDE registration email")
 
     headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
 
