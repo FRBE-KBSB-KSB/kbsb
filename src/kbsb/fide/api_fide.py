@@ -5,7 +5,7 @@ from io import BytesIO
 import logging
 import base64
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from openpyxl import load_workbook
 
@@ -15,7 +15,7 @@ from reddevil.mail.mail import sendEmailMessage
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/fide", tags=["fide"])
+router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template_fide_form.xlsx"
@@ -144,8 +144,9 @@ LOOKUP_DATA = {
     "fide_people": {},
     "fide_names": [],
     "time_control_types": [],
-    "time_control_desc": {}
+    "time_control_desc": {},
 }
+
 
 def load_lookup_values():
     global LOOKUP_DATA
@@ -172,15 +173,21 @@ def load_lookup_values():
 
     if "Tournament_Report" in wb.sheetnames:
         ws_tr = wb["Tournament_Report"]
-        LOOKUP_DATA["tournament_report_options"] = [c.value for c in ws_tr["A"] if c.value]
+        LOOKUP_DATA["tournament_report_options"] = [
+            c.value for c in ws_tr["A"] if c.value
+        ]
 
     if "Kind_of_Arbiters" in wb.sheetnames:
         ws_ka = wb["Kind_of_Arbiters"]
-        LOOKUP_DATA["kind_of_arbiters_options"] = [c.value for c in ws_ka["A"] if c.value]
+        LOOKUP_DATA["kind_of_arbiters_options"] = [
+            c.value for c in ws_ka["A"] if c.value
+        ]
 
     if "Tournament_System" in wb.sheetnames:
         ws_ts = wb["Tournament_System"]
-        LOOKUP_DATA["tournament_system_options"] = [c.value for c in ws_ts["A"] if c.value]
+        LOOKUP_DATA["tournament_system_options"] = [
+            c.value for c in ws_ts["A"] if c.value
+        ]
 
     if "FIDE_ID" in wb.sheetnames:
         ws_id = wb["FIDE_ID"]
@@ -209,14 +216,13 @@ def load_lookup_values():
             values = [c.value for c in ws_tc[col][1:] if c.value]
             LOOKUP_DATA["time_control_desc"][t] = values
 
+
 load_lookup_values()
 
+
 @router.get("/form-data")
-async def get_form_data():
-    return {
-        "translations": TRANSLATIONS,
-        "lookups": LOOKUP_DATA
-    }
+def get_form_data():
+    return {"translations": TRANSLATIONS, "lookups": LOOKUP_DATA}
 
 
 def fill_workbook(form_data):
@@ -230,7 +236,10 @@ def fill_workbook(form_data):
     for index, (field_key, _label) in enumerate(FIDE_FIELDS):
         ws[f"B{start_row + index}"] = form_data.get(field_key, "")
 
-    if form_data.get("tournament_report") == "New long tournament" and "Rounds_Long_Tournament" in wb.sheetnames:
+    if (
+        form_data.get("tournament_report") == "New long tournament"
+        and "Rounds_Long_Tournament" in wb.sheetnames
+    ):
         ws_rounds = wb["Rounds_Long_Tournament"]
         ws_rounds["B1"] = form_data.get("event_name", "")
         for r in range(2, 150):
@@ -253,6 +262,7 @@ def fill_workbook(form_data):
     buf.seek(0)
     return buf
 
+
 def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
     if value is None or value == "":
@@ -260,13 +270,21 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     try:
         iv = int(value)
     except ValueError:
+        logger.error(f"{field_label} must be an integer")
         errors.append(f"{field_label} {t_msg['field_must_be_integer']}")
         return None
     if min_value is not None and iv < min_value:
-        errors.append(f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}")
+        logger.error(f"{field_label} must be at least {min}")
+        errors.append(
+            f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}"
+        )
     if max_value is not None and iv > max_value:
-        errors.append(f"{field_label} {t_msg['field_must_be_at_most'].replace('{max}', str(max_value))}")
+        logger.error(f"{field_label} must be at most {max}")
+        errors.append(
+            f"{field_label} {t_msg['field_must_be_at_most'].replace('{max}', str(max_value))}"
+        )
     return iv
+
 
 def parse_float(value, field_label, errors, lang, min_value=None):
     t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
@@ -275,12 +293,17 @@ def parse_float(value, field_label, errors, lang, min_value=None):
     try:
         fv = float(value)
     except ValueError:
+        logger.error(f"{field_label} must be a number")
         errors.append(f"{field_label} {t_msg['field_must_be_number']}")
         return None
     if min_value is not None and fv < min_value:
-        errors.append(f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}")
+        logger.error(f"{field_label} must be at least {min}")
+        errors.append(
+            f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}"
+        )
         return None
     return fv
+
 
 def validate_form(form, lang):
     errors = []
@@ -306,67 +329,190 @@ def validate_form(form, lang):
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
             label = t_fields.get(key, key)
+            logger.error(f"value required for {label}")
             errors.append(f"{label} {t_msg['value_required']}")
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
-        errors.append(f"{t_fields.get('event_name', 'Event Name')} {t_msg['only_letters_numbers_spaces']}")
+        logger.error(
+            f"Event name: {event_name} can only contain letters, number or spaces"
+        )
+        errors.append(
+            f"{t_fields.get('event_name', 'Event Name')} {t_msg['only_letters_numbers_spaces']}"
+        )
 
     if form.get("fide_laws_followed") != "Yes":
+        logger.error("Fide laws must be followed")
         errors.append(t_msg["fide_laws_error"])
 
     if form.get("tiebreak_method") == "Other" and not form.get("tiebreak_other"):
-        errors.append(f"{t_fields.get('tiebreak_other', 'tiebreak_other')} {t_msg['value_required']}")
+        logger.error("Cannot have empty tiebreak other")
+        errors.append(
+            f"{t_fields.get('tiebreak_other', 'tiebreak_other')} {t_msg['value_required']}"
+        )
 
     if form.get("software") == "Other" and not form.get("software_other"):
-        errors.append(f"{t_fields.get('software_other', 'software_other')} {t_msg['value_required']}")
+        logger.error("Cannot have empty software other")
+        errors.append(
+            f"{t_fields.get('software_other', 'software_other')} {t_msg['value_required']}"
+        )
 
-    rounds_reported = parse_int(form.get("rounds_reported"), t_fields.get("rounds_reported", "Number of Rounds reported"), errors, lang, min_value=0, max_value=100)
-    parse_int(form.get("expected_players"), t_fields.get("expected_players", "Expected number of players"), errors, lang, min_value=1, max_value=2500)
-    parse_int(form.get("multiple_round_days"), t_fields.get("multiple_round_days", "Number of multiple round days"), errors, lang, min_value=0, max_value=100)
+    rounds_reported = parse_int(
+        form.get("rounds_reported"),
+        t_fields.get("rounds_reported", "Number of Rounds reported"),
+        errors,
+        lang,
+        min_value=0,
+        max_value=100,
+    )
+    parse_int(
+        form.get("expected_players"),
+        t_fields.get("expected_players", "Expected number of players"),
+        errors,
+        lang,
+        min_value=1,
+        max_value=2500,
+    )
+    parse_int(
+        form.get("multiple_round_days"),
+        t_fields.get("multiple_round_days", "Number of multiple round days"),
+        errors,
+        lang,
+        min_value=0,
+        max_value=100,
+    )
 
     age_limit = form.get("age_limit")
     age_limit_value = form.get("age_limit_value")
     if age_limit and age_limit != "None":
         if not age_limit_value:
-            dep_msg = t_msg["value_required_for"].replace("{dependency}", t_fields.get("age_limit", "Age Limit")).replace("{value}", age_limit)
-            errors.append(f"{t_fields.get('age_limit_value', 'Age Limit Value')} {dep_msg}")
+            dep_msg = (
+                t_msg["value_required_for"]
+                .replace("{dependency}", t_fields.get("age_limit", "Age Limit"))
+                .replace("{value}", age_limit)
+            )
+            logger.error("Age limit value is required")
+            errors.append(
+                f"{t_fields.get('age_limit_value', 'Age Limit Value')} {dep_msg}"
+            )
         else:
-            parse_int(age_limit_value, t_fields.get("age_limit_value", "Age Limit Value"), errors, lang, min_value=0)
+            parse_int(
+                age_limit_value,
+                t_fields.get("age_limit_value", "Age Limit Value"),
+                errors,
+                lang,
+                min_value=0,
+            )
 
-    parse_int(form.get("max_rating"), t_fields.get("max_rating", "Max Rating"), errors, lang, min_value=0)
+    parse_int(
+        form.get("max_rating"),
+        t_fields.get("max_rating", "Max Rating"),
+        errors,
+        lang,
+        min_value=0,
+    )
 
     if form.get("internet_tx") == "Yes":
         boards = form.get("internet_tx_boards")
         if not boards:
-            dep_msg = t_msg["value_required_for"].replace("{dependency}", t_fields.get("internet_tx", "Internet Transmission")).replace("{value}", "Yes")
-            errors.append(f"{t_fields.get('internet_tx_boards', 'Enter number of boards')} {dep_msg}")
+            dep_msg = (
+                t_msg["value_required_for"]
+                .replace(
+                    "{dependency}", t_fields.get("internet_tx", "Internet Transmission")
+                )
+                .replace("{value}", "Yes")
+            )
+            logger.error(f"{boards} is required")
+            errors.append(
+                f"{t_fields.get('internet_tx_boards', 'Enter number of boards')} {dep_msg}"
+            )
         else:
-            parse_int(boards, t_fields.get("internet_tx_boards", "Enter number of boards"), errors, lang, min_value=1)
+            parse_int(
+                boards,
+                t_fields.get("internet_tx_boards", "Enter number of boards"),
+                errors,
+                lang,
+                min_value=1,
+            )
 
     if form.get("time_control_desc") == "Other":
         if not form.get("timectl_other_desc"):
-            dep_msg = t_msg["value_required_for"].replace("{dependency}", t_fields.get("time_control_desc", "Time Control Description")).replace("{value}", "Other")
-            errors.append(f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}")
+            dep_msg = (
+                t_msg["value_required_for"]
+                .replace(
+                    "{dependency}",
+                    t_fields.get("time_control_desc", "Time Control Description"),
+                )
+                .replace("{value}", "Other")
+            )
+            logger.error("Time control description is required")
+            errors.append(
+                f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}"
+            )
         tc_fields = [
-            ("timectl1_moves", t_fields.get("timectl1_moves", "Moves to first time control")),
-            ("timectl1_minutes", t_fields.get("timectl1_minutes", "Minutes to first time control")),
-            ("timectl1_inc_seconds", t_fields.get("timectl1_inc_seconds", "Seconds of Increment/Delay (1st control)")),
-            ("timectl2_moves", t_fields.get("timectl2_moves", "Moves to second time control")),
-            ("timectl2_minutes", t_fields.get("timectl2_minutes", "Minutes to second time control")),
-            ("timectl2_inc_seconds", t_fields.get("timectl2_inc_seconds", "Seconds of Increment/Delay (2nd control)")),
-            ("timectl_final_minutes", t_fields.get("timectl_final_minutes", "Minutes for final session")),
-            ("timectl_final_inc_seconds", t_fields.get("timectl_final_inc_seconds", "Seconds of Increment/Delay (final)")),
+            (
+                "timectl1_moves",
+                t_fields.get("timectl1_moves", "Moves to first time control"),
+            ),
+            (
+                "timectl1_minutes",
+                t_fields.get("timectl1_minutes", "Minutes to first time control"),
+            ),
+            (
+                "timectl1_inc_seconds",
+                t_fields.get(
+                    "timectl1_inc_seconds", "Seconds of Increment/Delay (1st control)"
+                ),
+            ),
+            (
+                "timectl2_moves",
+                t_fields.get("timectl2_moves", "Moves to second time control"),
+            ),
+            (
+                "timectl2_minutes",
+                t_fields.get("timectl2_minutes", "Minutes to second time control"),
+            ),
+            (
+                "timectl2_inc_seconds",
+                t_fields.get(
+                    "timectl2_inc_seconds", "Seconds of Increment/Delay (2nd control)"
+                ),
+            ),
+            (
+                "timectl_final_minutes",
+                t_fields.get("timectl_final_minutes", "Minutes for final session"),
+            ),
+            (
+                "timectl_final_inc_seconds",
+                t_fields.get(
+                    "timectl_final_inc_seconds", "Seconds of Increment/Delay (final)"
+                ),
+            ),
         ]
         for key, label in tc_fields:
             if not form.get(key):
-                dep_msg = t_msg["value_required_for"].replace("{dependency}", t_fields.get("time_control_desc", "Time Control Description")).replace("{value}", "Other")
+                dep_msg = (
+                    t_msg["value_required_for"]
+                    .replace(
+                        "{dependency}",
+                        t_fields.get("time_control_desc", "Time Control Description"),
+                    )
+                    .replace("{value}", "Other")
+                )
+                logger.error(f"Time Control Description: {key} field missing")
                 errors.append(f"{label} {dep_msg}")
             else:
                 parse_int(form.get(key), label, errors, lang, min_value=0)
         for key in ["timectl1_inc_type", "timectl2_inc_type", "timectl_final_inc_type"]:
             if not form.get(key):
-                dep_msg = t_msg["value_required_for"].replace("{dependency}", t_fields.get("time_control_desc", "Time Control Description")).replace("{value}", "Other")
+                dep_msg = (
+                    t_msg["value_required_for"]
+                    .replace(
+                        "{dependency}",
+                        t_fields.get("time_control_desc", "Time Control Description"),
+                    )
+                    .replace("{value}", "Other")
+                )
                 errors.append(f"{t_fields.get(key, key)} {dep_msg}")
 
     if form.get("tournament_report") == "New long tournament":
@@ -381,23 +527,39 @@ def validate_form(form, lang):
                 errors.append(t_msg["round_date_required"].replace("{num}", str(i)))
             else:
                 if prev_date and date_val < prev_date:
-                    msg = t_msg["round_dates_order_error"].replace("{num}", str(i)).replace("{prev_num}", str(prev_idx))
+                    msg = (
+                        t_msg["round_dates_order_error"]
+                        .replace("{num}", str(i))
+                        .replace("{prev_num}", str(prev_idx))
+                    )
                     errors.append(msg)
                 prev_date = date_val
                 prev_idx = i
             if not form.get(report_key):
                 errors.append(t_msg["round_report_required"].replace("{num}", str(i)))
             else:
-                parse_int(form.get(report_key), t_msg["round_report_required"].replace("{num}", str(i)), errors, lang, min_value=1)
+                parse_int(
+                    form.get(report_key),
+                    t_msg["round_report_required"].replace("{num}", str(i)),
+                    errors,
+                    lang,
+                    min_value=1,
+                )
 
-    parse_float(form.get("prize_fund"), t_fields.get("prize_fund", "Prize Fund in euros"), errors, lang, min_value=0.01)
+    parse_float(
+        form.get("prize_fund"),
+        t_fields.get("prize_fund", "Prize Fund in euros"),
+        errors,
+        lang,
+        min_value=0.01,
+    )
     return errors
 
+
 @router.post("/generate")
-async def generate_fide_form(request: Request):
-    form = await request.json()
-    lang = request.query_params.get("lang", "en")
-    
+async def generate_fide_form(locale: str, formdata: dict):
+    locale = locale or "en"
+    form = formdata.get("formdata", {})
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")
 
@@ -407,18 +569,21 @@ async def generate_fide_form(request: Request):
         form["software_other"] = "Swar (with JaVaFo)"
 
     homepage = form.get("homepage", "").strip()
-    if homepage and not (homepage.startswith("http://") or homepage.startswith("https://")):
+    if homepage and not (
+        homepage.startswith("http://") or homepage.startswith("https://")
+    ):
         form["homepage"] = "https://" + homepage
 
-    errors = validate_form(form, lang)
+    errors = validate_form(form, locale)
     if errors:
-        return JSONResponse(status_code=400, content={"success": False, "errors": errors})
+        return JSONResponse(
+            status_code=400, content={"success": False, "errors": errors}
+        )
 
     filled = fill_workbook(form)
     event_name = form.get("event_name", "").strip()
     safe_event = re.sub(r"\s+", "_", event_name) or "Unknown"
     filename = f"Tournament_Registration_{safe_event}.xlsx"
-    
     # Send email with FIDE registration Excel attachment
     excel_content = filled.getvalue()
     encoded_excel = base64.b64encode(excel_content)
@@ -426,7 +591,7 @@ async def generate_fide_form(request: Request):
     excel_attachment = MailAttachment(
         filename=filename,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        content_base64=encoded_excel
+        content_base64=encoded_excel,
     )
 
     settings = get_settings()
@@ -443,26 +608,26 @@ async def generate_fide_form(request: Request):
     """
 
     mail_params = MailParams(
-        locale=lang,
+        locale=locale,
         receiver="fide@frbe-kbsb-ksb.be",
         sender=sender_email,
         subject=mail_subject,
         template=mail_body,
-        attachments=[excel_attachment]
+        attachments=[excel_attachment],
     )
 
     try:
         sendEmailMessage(mail_params)
-        logger.info(f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}")
+        logger.info(
+            f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}"
+        )
     except Exception:
         logger.exception("Failed to send FIDE registration email")
 
-    headers = {
-        'Content-Disposition': f'attachment; filename="{filename}"'
-    }
-    
+    headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+
     return StreamingResponse(
-        iter([filled.getvalue()]), 
+        iter([filled.getvalue()]),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers=headers
+        headers=headers,
     )
