@@ -1,15 +1,16 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useRuntimeConfig } from "#app";
 
-const route = useRoute();
-const runtimeConfig = useRuntimeConfig();
+// communication
+const { $backend } = useNuxtApp()
+const route = useRoute()
 
 // State
 const lang = ref(route.query.locale || "en");
 const waitingdialog = ref(false);
 const errorText = ref("");
+
 
 // Lookups and Translations
 const lookups = ref({
@@ -280,50 +281,28 @@ function handleArbiterChange(nameField, idField) {
   }
 }
 
-// Data fetching
+// data fetching
 async function loadFormData() {
   try {
-    let base = runtimeConfig.public.apiUrl || "/api";
-    if (base.endsWith("/")) {
-      base = base.slice(0, -1);
-    }
-    const url = base + "/fide/form-data";
-    const reply = await $fetch(url);
-    translations.value = reply.translations;
-    lookups.value = reply.lookups;
+    const reply = await $backend("fide", "formdata")
+    console.log("reply", reply)
+    translations.value = reply.data.translations;
+    lookups.value = reply.data.lookups;
   } catch (error) {
     console.error(error);
     errorText.value = "Failed to load form data from backend.";
   }
 }
 
-// Submission
 async function submitForm() {
   waitingdialog.value = true;
   errorText.value = "";
   try {
-    let base = runtimeConfig.public.apiUrl || "/api";
-    if (base.endsWith("/")) {
-      base = base.slice(0, -1);
-    }
-    const url = base + `/fide/generate?lang=${lang.value}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form.value)
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      if (data.errors && data.errors.length > 0) {
-        errorText.value = data.errors.join(" | ");
-      } else {
-        errorText.value = "Generation failed";
-      }
-      return;
-    }
-
-    const blob = await response.blob();
+    const response = await $backend("fide", "generate", {
+      locale: lang.value,
+      formdata: form.value,
+    })
+    console.log("reponse on generate", response)
     let filename = "Tournament_Registration.xlsx";
     const disposition = response.headers.get("content-disposition");
     if (disposition && disposition.indexOf("filename=") !== -1) {
@@ -332,9 +311,10 @@ async function submitForm() {
         filename = matches[1].replace(/['"]/g, "");
       }
     }
-
-    const urlCreator = window.URL || window.webkitURL;
-    const downloadUrl = urlCreator.createObjectURL(blob);
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    });
+    const downloadUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = downloadUrl;
     a.download = filename;
@@ -342,7 +322,6 @@ async function submitForm() {
     a.click();
     document.body.removeChild(a);
     urlCreator.revokeObjectURL(downloadUrl);
-
   } catch (error) {
     console.error(error);
     errorText.value = "Error submitting form";

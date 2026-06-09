@@ -5,7 +5,7 @@ from io import BytesIO
 import logging
 import base64
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from openpyxl import load_workbook
 
@@ -15,7 +15,7 @@ from reddevil.mail.mail import sendEmailMessage
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/fide", tags=["fide"])
+router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template_fide_form.xlsx"
@@ -221,7 +221,7 @@ load_lookup_values()
 
 
 @router.get("/form-data")
-async def get_form_data():
+def get_form_data():
     return {"translations": TRANSLATIONS, "lookups": LOOKUP_DATA}
 
 
@@ -270,13 +270,16 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     try:
         iv = int(value)
     except ValueError:
+        logger.error(f"{field_label} must be an integer")
         errors.append(f"{field_label} {t_msg['field_must_be_integer']}")
         return None
     if min_value is not None and iv < min_value:
+        logger.error(f"{field_label} must be at least {min}")
         errors.append(
             f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}"
         )
     if max_value is not None and iv > max_value:
+        logger.error(f"{field_label} must be at most {max}")
         errors.append(
             f"{field_label} {t_msg['field_must_be_at_most'].replace('{max}', str(max_value))}"
         )
@@ -290,9 +293,11 @@ def parse_float(value, field_label, errors, lang, min_value=None):
     try:
         fv = float(value)
     except ValueError:
+        logger.error(f"{field_label} must be a number")
         errors.append(f"{field_label} {t_msg['field_must_be_number']}")
         return None
     if min_value is not None and fv < min_value:
+        logger.error(f"{field_label} must be at least {min}")
         errors.append(
             f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}"
         )
@@ -324,23 +329,30 @@ def validate_form(form, lang):
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
             label = t_fields.get(key, key)
+            logger.error(f"value required for {label}")
             errors.append(f"{label} {t_msg['value_required']}")
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
+        logger.error(
+            f"Event name: {event_name} can only contain letters, number or spaces"
+        )
         errors.append(
             f"{t_fields.get('event_name', 'Event Name')} {t_msg['only_letters_numbers_spaces']}"
         )
 
     if form.get("fide_laws_followed") != "Yes":
+        logger.error("Fide laws must be followed")
         errors.append(t_msg["fide_laws_error"])
 
     if form.get("tiebreak_method") == "Other" and not form.get("tiebreak_other"):
+        logger.error("Cannot have empty tiebreak other")
         errors.append(
             f"{t_fields.get('tiebreak_other', 'tiebreak_other')} {t_msg['value_required']}"
         )
 
     if form.get("software") == "Other" and not form.get("software_other"):
+        logger.error("Cannot have empty software other")
         errors.append(
             f"{t_fields.get('software_other', 'software_other')} {t_msg['value_required']}"
         )
@@ -379,6 +391,7 @@ def validate_form(form, lang):
                 .replace("{dependency}", t_fields.get("age_limit", "Age Limit"))
                 .replace("{value}", age_limit)
             )
+            logger.error("Age limit value is required")
             errors.append(
                 f"{t_fields.get('age_limit_value', 'Age Limit Value')} {dep_msg}"
             )
@@ -409,6 +422,7 @@ def validate_form(form, lang):
                 )
                 .replace("{value}", "Yes")
             )
+            logger.error(f"{boards} is required")
             errors.append(
                 f"{t_fields.get('internet_tx_boards', 'Enter number of boards')} {dep_msg}"
             )
@@ -431,6 +445,7 @@ def validate_form(form, lang):
                 )
                 .replace("{value}", "Other")
             )
+            logger.error("Time control description is required")
             errors.append(
                 f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}"
             )
@@ -484,6 +499,7 @@ def validate_form(form, lang):
                     )
                     .replace("{value}", "Other")
                 )
+                logger.error(f"Time Control Description: {key} field missing")
                 errors.append(f"{label} {dep_msg}")
             else:
                 parse_int(form.get(key), label, errors, lang, min_value=0)
@@ -541,10 +557,9 @@ def validate_form(form, lang):
 
 
 @router.post("/generate")
-async def generate_fide_form(request: Request):
-    form = await request.json()
-    lang = request.query_params.get("lang", "en")
-
+async def generate_fide_form(locale: str, formdata: dict):
+    locale = locale or "en"
+    form = formdata.get("formdata", {})
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")
 
@@ -559,7 +574,7 @@ async def generate_fide_form(request: Request):
     ):
         form["homepage"] = "https://" + homepage
 
-    errors = validate_form(form, lang)
+    errors = validate_form(form, locale)
     if errors:
         return JSONResponse(
             status_code=400, content={"success": False, "errors": errors}
@@ -594,7 +609,7 @@ async def generate_fide_form(request: Request):
     """
 
     mail_params = MailParams(
-        locale=lang,
+        locale=locale,
         receiver="fide@frbe-kbsb-ksb.be",
         sender=sender_email,
         subject=mail_subject,
