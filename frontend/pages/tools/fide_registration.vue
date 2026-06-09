@@ -11,7 +11,6 @@ const lang = ref(route.query.locale || "en");
 const waitingdialog = ref(false);
 const errorText = ref("");
 
-
 // Lookups and Translations
 const lookups = ref({
   yes_no: [],
