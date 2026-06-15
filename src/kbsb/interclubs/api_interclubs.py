@@ -497,6 +497,7 @@ async def api_clb_saveICresults(
         logger.exception("failed api call clb_saveICresults")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @router.get("/anon/icresults/1", response_model=ICSeries | None)
 async def api_anon_getICresults1():
     try:
@@ -506,7 +507,6 @@ async def api_anon_getICresults1():
     except Exception:
         logger.exception("failed api call anon_getICresults")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
 
 
 @router.get("/anon/icresults/{division}/{index}", response_model=ICSeries | None)
