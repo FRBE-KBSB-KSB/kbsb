@@ -7,7 +7,8 @@ const { $backend } = useNuxtApp()
 const route = useRoute()
 
 // State
-const lang = ref(route.query.locale || "en");
+const queryLang = route.query.locale || route.query.lang;
+const lang = ref(["en", "nl", "fr"].includes(queryLang) ? queryLang : "en");
 const waitingdialog = ref(false);
 const errorText = ref("");
 
