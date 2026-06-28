@@ -7,7 +7,8 @@ const { $backend } = useNuxtApp()
 const route = useRoute()
 
 // State
-const lang = ref(route.query.locale || "en");
+const queryLang = route.query.locale || route.query.lang;
+const lang = ref(["en", "nl", "fr"].includes(queryLang) ? queryLang : "en");
 const waitingdialog = ref(false);
 const errorText = ref("");
 
@@ -310,17 +311,15 @@ async function submitForm() {
         filename = matches[1].replace(/['"]/g, "");
       }
     }
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    });
-    const downloadUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    urlCreator.revokeObjectURL(downloadUrl);
+    const blob = response.data
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error(error);
     errorText.value = "Error submitting form";
@@ -329,23 +328,8 @@ async function submitForm() {
   }
 }
 
-// Theme logic
-const isDark = ref(false);
-function toggleTheme() {
-  isDark.value = !isDark.value;
-  document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
-  try { window.localStorage.setItem('fide_theme', isDark.value ? 'dark' : 'light'); } catch (e) {}
-}
-
 onMounted(() => {
   loadFormData();
-  try {
-    const stored = window.localStorage.getItem('fide_theme');
-    if (stored === 'dark') {
-      isDark.value = true;
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  } catch (e) {}
 });
 
 definePageMeta({
@@ -367,15 +351,10 @@ definePageMeta({
           <a href="#" @click.prevent="lang = 'nl'" :class="['lang-btn', { active: lang === 'nl' }]">NL</a>
           <a href="#" @click.prevent="lang = 'fr'" :class="['lang-btn', { active: lang === 'fr' }]">FR</a>
         </div>
-        <button type="button" @click="toggleTheme" class="theme-toggle" aria-label="Toggle dark mode">
-          <span class="icon" aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
-          <span class="label">{{ isDark ? tUI('light_mode') : tUI('dark_mode') }}</span>
-        </button>
       </div>
     </div>
 
-    <p class="note note--light" v-html="tUI('mandatory_note')"></p>
-    <p class="note note--dark" v-html="tUI('mandatory_note') + ' ' + tUI('dark_mode_note')"></p>
+    <p class="note" v-html="tUI('mandatory_note')"></p>
     
     <div v-if="errorText" class="error">{{ errorText }}</div>
     <div v-if="waitingdialog" class="warning">Processing...</div>
@@ -699,17 +678,7 @@ html {
   --error: #b91c1c;
   --focus-ring: #93c5fd;
 }
-html[data-theme="dark"] {
-  --bg: #020617;
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --card-bg: #020617;
-  --border: #1f2937;
-  --accent: #60a5fa;
-  --accent-soft: #0b1120;
-  --error: #fca5a5;
-  --focus-ring: #38bdf8;
-}
+
 body, .v-application {
   background-color: var(--bg) !important;
   color: var(--text) !important;
@@ -771,9 +740,7 @@ body, .v-application {
 }
 h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; }
 .note { margin: 0 0 1rem; font-size: 0.9rem; color: var(--muted, #4b5563); }
-.note--dark { display: none; }
-[data-theme="dark"] .note--light { display: none; }
-[data-theme="dark"] .note--dark { display: block; }
+
 .warning {
   margin: 0 0 1rem;
   padding: 0.75rem 0.9rem;
@@ -783,29 +750,12 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; }
   color: #92400e;
   font-size: 0.92rem;
 }
-[data-theme="dark"] .warning {
-  background: #271800;
-  color: #fcd34d;
-  border-color: #d97706;
-}
+
 .error { color: var(--error, #b91c1c); margin-bottom: 1rem; font-weight: 600; font-size: 0.95rem; }
-.theme-toggle {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8rem;
-  border-radius: 999px;
-  border: 1px solid var(--border, #e5e7eb);
-  background-color: var(--card-bg, #ffffff);
-  color: var(--muted, #4b5563);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  cursor: pointer;
-}
-.theme-toggle:hover { background-color: var(--accent-soft, #eff6ff); color: var(--text, #111827); }
-.theme-toggle span.icon { font-size: 0.95rem; }
+
 form { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
 label { display: block; font-size: 0.95rem; padding-left: 0; border-left: 0 solid transparent; }
-[data-theme="dark"] label:has(.required-label) { border-left: 3px solid var(--accent, #60a5fa); padding-left: 0.5rem; }
+
 label span { display: block; margin-bottom: 0.25rem; font-weight: 400; }
 label span.required-label { font-weight: 700; }
 input, textarea, select {
@@ -836,7 +786,7 @@ button[type="submit"]:hover { background-color: #1d4ed8; }
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #93c5fd); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.9; cursor: pointer; }
+
 @media (max-width: 640px) {
   .form-shell { padding: 1.25rem 1.25rem 1.1rem; }
   .round-row.active { grid-template-columns: 1fr; }

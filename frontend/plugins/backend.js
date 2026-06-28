@@ -1,9 +1,11 @@
 import axios from "axios"
 import accounts from "@/api/accounts"
 import club from "@/api/club"
+import fide from "@/api/fide"
 import filestore from "@/api/filestore"
 import interclub from "@/api/interclub"
 import member from "@/api/member"
+import test from "@/api/test"
 
 axios.defaults.withCredentials = true
 
@@ -60,9 +62,11 @@ axios.interceptors.response.use(
 const factories = {
   accounts,
   club,
+  fide,
   filestore,
   interclub,
   member,
+  test,
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
