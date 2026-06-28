@@ -312,17 +312,15 @@ async function submitForm() {
         filename = matches[1].replace(/['"]/g, "");
       }
     }
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    });
-    const downloadUrl = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    urlCreator.revokeObjectURL(downloadUrl);
+    const blob = response.data
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error(error);
     errorText.value = "Error submitting form";

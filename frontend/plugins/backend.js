@@ -5,6 +5,7 @@ import fide from "@/api/fide"
 import filestore from "@/api/filestore"
 import interclub from "@/api/interclub"
 import member from "@/api/member"
+import test from "@/api/test"
 
 axios.defaults.withCredentials = true
 
@@ -65,6 +66,7 @@ const factories = {
   filestore,
   interclub,
   member,
+  test,
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
