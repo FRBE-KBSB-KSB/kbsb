@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 
 
 async def main():
-    infile = ROOT_DIR / "shared" / "db" / "icseries2526.csv"
+    infile = ROOT_DIR / "shared" / "db" / "icseries2627.csv"
     async with lifespan(app) as _:
         regs = {r.idclub: r for r in await get_icregistrations()}
         for s in await get_icseries2():

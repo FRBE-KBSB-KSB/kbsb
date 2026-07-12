@@ -4,13 +4,12 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
-from datetime import date, datetime
-from typing import Any
-from pydantic import BaseModel, ConfigDict, Field
+from datetime import datetime
 from enum import StrEnum, auto
-from typing import Literal
-from reddevil.core.dbbase import DbBase
+from typing import Any, Literal
 
+from pydantic import BaseModel, ConfigDict, Field
+from reddevil.core.dbbase import DbBase
 
 PLAYERSPERDIVISION = {
     1: 8,
@@ -55,6 +54,7 @@ class PlayerPeriod(StrEnum):
     SEPTEMBER = auto()
     NOVEMBER = auto()
     JANUARY = auto()
+    FEBRUARY = auto()
     UNKNOWN = auto()
 
 
@@ -488,7 +488,7 @@ class ICVenueDB(BaseModel):
 
 
 class DbICSeries(DbBase):
-    COLLECTION = "ic_2526_series"
+    COLLECTION = "ic_2627_series"
     DOCUMENTTYPE = ICSeriesDB
     VERSION = 1
     IDGENERATOR = "uuid"
@@ -502,8 +502,12 @@ class DbICSeries2425(DbICSeries):
     COLLECTION = "ic_2425_series"
 
 
+class DbICSeries2526(DbICSeries):
+    COLLECTION = "ic_2526_series"
+
+
 class DbICStandings(DbBase):
-    COLLECTION = "ic_2526_standings"
+    COLLECTION = "ic_2627_standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
     IDGENERATOR = "uuid"
@@ -517,8 +521,12 @@ class DbICStandings2425(DbICStandings):
     COLLECTION = "ic_2425_standings"
 
 
+class DbICStandings2526(DbICStandings):
+    COLLECTION = "ic_2526_standings"
+
+
 class DbICVenue(DbBase):
-    COLLECTION = "ic_2526_venues"
+    COLLECTION = "ic_2627_venues"
     DOCUMENTTYPE = ICVenueDB
     VERSION = 1
     IDGENERATOR = "uuid"
@@ -526,7 +534,7 @@ class DbICVenue(DbBase):
 
 
 class DbICClub(DbBase):
-    COLLECTION = "ic_2526_club"
+    COLLECTION = "ic_2627_club"
     DOCUMENTTYPE = ICClubDB
     VERSION = 1
     IDGENERATOR = "uuid"
@@ -541,8 +549,12 @@ class DbICClub2425(DbICClub):
     COLLECTION = "ic_2425_club"
 
 
+class DbICClub2526(DbICClub):
+    COLLECTION = "ic_2526_club"
+
+
 class DbICRegistration(DbBase):
-    COLLECTION = "ic_2526_registration"
+    COLLECTION = "ic_2627_registration"
     DOCUMENTTYPE = ICRegistrationDB
     VERSION = 1
     IDGENERATOR = "uuid"

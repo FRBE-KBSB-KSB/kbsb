@@ -49,7 +49,7 @@ from .md_elo import (  # noqa F401
     EloPlayer,
 )
 
-from .helpers import load_icdata, ptable  # noqa F401
+from .helpers import load_icdata, ptable12  # noqa F401
 from .icclubs import (  # noqa F401
     anon_getICteams,
     anon_getICclub,
@@ -158,7 +158,7 @@ __all__ = [
     "EloGame",
     "EloPlayer",
     "load_icdata",
-    "ptable",
+    "ptable12",
     "anon_getICteams",
     "anon_getICclub",
     "anon_getICclub_archive",

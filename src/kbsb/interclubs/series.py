@@ -1,20 +1,28 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-from typing import cast, Any
 import os
-from datetime import datetime, timezone, timedelta, time
+from datetime import datetime, time, timedelta, timezone
+from typing import Any, cast
+
+import pymongo
 from reddevil.core import (
     RdBadRequest,
     RdNotFound,
-    get_settings,
-    get_mongodb,
     encode_model,
+    get_mongodb,
+    get_settings,
 )
-import pymongo
+
 from . import (
     GAMERESULT,
     PLAYERSPERDIVISION,
+    DbICSeries,
+    DbICSeries2324,
+    DbICSeries2425,
+    DbICStandings,
+    DbICStandings2324,
+    DbICStandings2425,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -29,16 +37,10 @@ from . import (
     ICTeamGame,
     ICTeamStanding,
     ICValidationError,
-    DbICSeries,
-    DbICSeries2324,
-    DbICSeries2425,
-    DbICStandings,
-    DbICStandings2324,
-    DbICStandings2425,
     anon_getICclub,
     anon_getICclub_archive,
     load_icdata,
-    ptable,
+    ptable12,
 )
 from .validation import LineUpValidation
 
@@ -337,7 +339,7 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
         await calc_standings(s)
 
 
-async def anon_getICresults(division: str, index:int) -> ICSeries | None:
+async def anon_getICresults(division: str, index: int) -> ICSeries | None:
     """
     get the results of all runds of a series, returns None if nothing found
     """
@@ -598,7 +600,7 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
         try:
             doc["id"] = str(doc["_id"])
             s = encode_model(doc, ICSeriesDB)
-        except Exception as e:
+        except Exception:
             logger.error(f"encoding ICSeriesDB {doc}")
             continue
         series.append(s)
@@ -715,7 +717,7 @@ async def script_addteam_icseries(
     Add a team to a division
     Does not take care of the titulars
     """
-    from kbsb.interclubs.icclubs import get_icclub, update_icclub, ICClubDB
+    from kbsb.interclubs.icclubs import ICClubDB, get_icclub, update_icclub
 
     logger.info(f"division: {division}, name: {name}")
     filter = {"division": division, "index": index or ""}
@@ -764,7 +766,7 @@ async def script_create_encounters():
         for r in range(11):  # adding all rounds
             encounters = []
             tm_indexed = {t.pairingnumber: t for t in s.teams}
-            for home, visit in ptable[r]:
+            for home, visit in ptable12[r]:
                 enc = ICEncounter(
                     icclub_home=tm_indexed[home].idclub,
                     icclub_visit=tm_indexed[visit].idclub,
