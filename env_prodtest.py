@@ -1,14 +1,6 @@
-# EMAIL = {
-#     "backend": "GMAIL",
-#     "serviceaccountfile": "kbsb-gmail.json",
-#     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
-#     "account": "ruben.decrop@frbe-kbsb-ksb.be",
-#     "blindcopy": "",
-# }
-
 EMAIL = {
     "backend": "SMTP",
-    "host": "schaken.decrop.net",
+    "host": "server.chessdevil.be",
     "port": "1025",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
 }
@@ -32,16 +24,8 @@ SECRETS = {
         "name": "kbsb-gmail",
         "manager": "filejson",
     },
-    "statamic": {
-        "name": "statamic-server",
-        "manager": "filejson",
-    },
     "known-hosts": {
         "name": "known-hosts",
-        "manager": "filejson",
-    },
-    "S_001": {
-        "name": "S_001",
         "manager": "filejson",
     },
 }

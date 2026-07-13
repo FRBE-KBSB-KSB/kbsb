@@ -2,7 +2,7 @@ COLORLOG = True
 
 EMAIL = {
     "backend": "SMTP",
-    "host": "localhost",
+    "host": "server.chessdevil.be",
     "port": "1025",
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
 }
@@ -20,16 +20,8 @@ SECRETS = {
         "name": "kbsb-gdrive-staging",
         "manager": "filejson",
     },
-    "statamic": {
-        "name": "statamic-server",
-        "manager": "filejson",
-    },
     "known-hosts": {
         "name": "known-hosts",
-        "manager": "filejson",
-    },
-    "S_001": {
-        "name": "S_001",
         "manager": "filejson",
     },
 }

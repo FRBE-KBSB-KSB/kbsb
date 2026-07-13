@@ -81,7 +81,7 @@ export default defineNuxtPlugin((nuxtApp) => {
           console.log("$backend method not existing", fact, method)
         }
         console.log("calling $backend", fact, method, options)
-        console.log("with baseURL", axios.defaults.baseURL)
+        // console.log("with baseURL", axios.defaults.baseURL)
         return await f(options)
       },
     },

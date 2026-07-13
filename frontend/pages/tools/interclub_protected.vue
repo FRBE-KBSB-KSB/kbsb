@@ -55,9 +55,39 @@ const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const ic_rounds = ref([])
 const round = ref("1")
-let registration_phase = false
+const phase = ref("unknown")
 
 // methods alphabetically
+
+function calcPhase() {
+  if (route.query.phase) {
+    phase.value = route.query.phase
+    if (phase.value == "registration") {
+      tab.value = "registration"
+      changedTab()
+    }
+    return
+  }
+  let start_registration = new Date(icdata.value.registration_data.start)
+  console.log("start_registration", start_registration)
+  let end_registration = new Date(icdata.value.registration_data.end)
+  console.log("end_registration", end_registration)
+  let today = new Date()
+  if (
+    end_registration.valueOf() >= today.valueOf() &&
+    start_registration.valueOf() <= today.valueOf()
+  ) {
+    phase.value = "registration"
+    tab.value = "registration"
+    changedTab()
+    return
+  }
+  if (start_registration.valueOf() > today.valueOf()) {
+    phase.value = "unknown"
+    return
+  }
+  phase.value = "started"
+}
 
 function changeDialogCounter(i) {
   dialogcounter += i
@@ -74,7 +104,7 @@ function changedTab() {
       refplayerlist.value.setup(icclub.value, icdata.value)
       break
     case "registration":
-      refregistration.value.setup(icclub.value, icdata.value)
+      refregistration.value.setup(icclub.value, icdata.value, locale.value)
       break
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
@@ -105,7 +135,7 @@ async function dologin() {
       idnumber: login.value.idnumber,
       password: login.value.password,
     })
-    console.log("did a login", reply.data)
+    // console.log("did a login", reply.data)
   } catch (error) {
     console.error("failed login", error)
     displaySnackbar(t(error.message))
@@ -116,6 +146,7 @@ async function dologin() {
   idstore.updateToken(reply.data)
   idnstore.updateIdnumber(login.value.idnumber)
   logindialog.value = false
+  console.log("going to tab", tab.value)
   changedTab()
 }
 
@@ -135,6 +166,7 @@ async function getClubs() {
   clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
+  console.log("got clubs", clubs.value)
 }
 
 async function getClubDetails() {
@@ -184,12 +216,9 @@ async function processICdata() {
     changeDialogCounter(-1)
   }
   icdata.value = reply.data
-  ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
-    return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
+  ic_rounds.value = Object.keys(icdata.value.rounds11).map((x) => {
+    return { value: x, title: `R${x}: ${icdata.value.rounds11[x]}` }
   })
-  registration_phase =
-    icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
-  changedTab()
 }
 
 async function selectClub() {
@@ -200,12 +229,16 @@ async function selectClub() {
 // startup
 
 onMounted(async () => {
-  console.log("mounted")
+  console.log("mounted 0", tab.value)
   let l = route.query.locale
   locale.value = l ? l : "nl"
   checkAuth()
   await processICdata()
+  console.log("mounted 1", tab.value)
+  calcPhase()
+  console.log("mounted 2", tab.value)
   getClubs()
+  console.log("mounted 3", tab.value)
   changedTab()
   // await getHelpContent()
 })
@@ -295,10 +328,12 @@ definePageMeta({
     <h3 class="my-2">{{ t("Selected club") }}: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
-        <v-tab value="results">{{ t("Results") }}</v-tab>
-        <v-tab value="planning">{{ t("Planning") }}</v-tab>
-        <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
-        <!-- <v-tab value="registration">{{ t("icn.enr") }}</v-tab> -->
+        <v-tab v-if="phase == 'started'" value="results">{{ t("Results") }}</v-tab>
+        <v-tab v-if="phase == 'started'" value="planning">{{ t("Planning") }}</v-tab>
+        <v-tab v-if="phase == 'started'" value="playerlist">{{ t("Player list") }}</v-tab>
+        <v-tab v-if="phase == 'registration'" value="registration">{{
+          t("icn.enr")
+        }}</v-tab>
         <v-tab value="venues">{{ t("icn.ven_1") }}</v-tab>
       </v-tabs>
       <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
@@ -311,13 +346,13 @@ definePageMeta({
         <v-window-item :eager="true" value="playerlist">
           <Playerlist ref="refplayerlist" />
         </v-window-item>
-        <!-- <v-window-item :eager="true" value="registration">
+        <v-window-item :eager="true" value="registration">
           <Registration
             ref="refregistration"
             @snackbar="displaySnackbar"
             @changeDialogCounter="changeDialogCounter"
           />
-        </v-window-item> -->
+        </v-window-item>
         <v-window-item :eager="true" value="venues">
           <Venue
             ref="refvenues"

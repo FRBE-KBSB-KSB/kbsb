@@ -7,7 +7,7 @@ authors = [
     { name = "Ruben Decrop", email = "ruben.decrop@frbe-kbsb-ksb.be" }
 ]
 
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "aiocsv>=1.3.2",
     "aiofiles>=24.1.0",
@@ -40,6 +40,7 @@ dependencies = [
 dev = [
     "asyncio>=4.0.0",
     "black>=25.1.0",
+    "djlint>=1.40.5",
     "freezegun>=1.5.5",
     "mypy>=1.17.1",
     "polyfactory>=2.22.1",
@@ -63,5 +64,5 @@ unfixable = []
 reddevil = { path = "libs/reddevil-3.5.5-py3-none-any.whl" }
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"

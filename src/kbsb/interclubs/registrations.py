@@ -105,6 +105,7 @@ async def set_icregistration(
                 teams3=ie.teams3,
                 teams4=ie.teams4,
                 teams5=ie.teams5,
+                teams6=ie.teams6,
                 wishes=ie.wishes,
             ),
         )
@@ -119,6 +120,7 @@ async def set_icregistration(
                 teams3=ie.teams3,
                 teams4=ie.teams4,
                 teams5=ie.teams5,
+                teams6=ie.teams6,
                 wishes=ie.wishes,
             )
         )
@@ -137,7 +139,7 @@ async def set_icregistration(
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
         subject=f"Interclubs 2025-2026 club {idclub} {ie.name}",
-        template="interclub/registration_{locale}.md",
+        template="{locale}/interclub_registration.md",
     )
     if bt:
         try:
@@ -168,6 +170,7 @@ async def xls_registrations() -> str:
             "teams3",
             "teams4",
             "teams5",
+            "teams6",
             "grouping",
             "splitting",
             "regional",
@@ -187,6 +190,7 @@ async def xls_registrations() -> str:
                 d.teams3,
                 d.teams4,
                 d.teams5,
+                d.teams6,
                 d.wishes.get("grouping", ""),
                 d.wishes.get("splitting", ""),
                 d.wishes.get("regional", ""),

@@ -382,6 +382,7 @@ class ICRegistrationDB(BaseModel):
     teams3: int
     teams4: int
     teams5: int
+    teams6: int
     wishes: dict[str, Any]
 
 
@@ -401,6 +402,7 @@ class ICRegistration(BaseModel):
     teams3: int | None = None
     teams4: int | None = None
     teams5: int | None = None
+    teams6: int | None = None
     wishes: dict | None = None
 
 
@@ -420,6 +422,7 @@ class ICRegistrationOut(BaseModel):
     teams3: int = 0
     teams4: int = 0
     teams5: int = 0
+    teams6: int = 0
     wishes: dict = {}
 
 
@@ -446,6 +449,7 @@ class ICRegistrationIn(BaseModel):
     teams3: int
     teams4: int
     teams5: int
+    teams6: int
     wishes: dict
     name: str
 
