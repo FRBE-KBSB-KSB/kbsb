@@ -8,10 +8,10 @@
     "2": "In mehrere Serien"
 }  %}
 
-## Anmeldung Interclubs 2025-2026
+## Anmeldung Interclubs 2026-2027
 
 Hiermit bestätigen wir die Anmeldung von {{ idclub }}: {{ name }}
-für die Interclubs-Saison 2025-2026
+für die Interclubs-Saison 2026-2027
 
 Folgende Mannschaften waren gemeldet:
 
@@ -20,6 +20,7 @@ Folgende Mannschaften waren gemeldet:
 - Mannschaften in Division 3: **{{ teams3 }}**
 - Mannschaften in Division 4: **{{ teams4 }}**
 - Mannschaften in Division 5: **{{ teams5 }}**
+- Mannschaften in Division 6: **{{ teams6 }}**
 
 Wünsche:
 

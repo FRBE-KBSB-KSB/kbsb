@@ -70,6 +70,10 @@ function deleteVenue(ix) {
 
 async function getICVenues() {
   let reply
+  if (!icclub.idclub) {
+    venues.value = []
+    return
+  }
   showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICVenues", {
@@ -159,10 +163,12 @@ async function setup(icclub_, icdata_) {
   <VContainer>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h2>Interclub venues</h2>
-    <p v-if="ven_status == 'noclub'">
-      Please select a club to view the interclubs player list
-    </p>
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="ven_status == 'noclub'"
+      text="Select a club"
+    />
     <div v-if="ven_status == 'open'">
       <v-row v-show="!venues.length">
         <v-col cols="12" sm="6" md="4" xl="3">

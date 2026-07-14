@@ -24,6 +24,7 @@ const empty_registration = {
   teams3: 0,
   teams4: 0,
   teams5: 0,
+  teams6: 0,
   wishes: {},
 }
 const registration = ref({ ...empty_registration })
@@ -228,6 +229,7 @@ async function saveRegistration() {
       teams3: registration.value.teams3,
       teams4: registration.value.teams4,
       teams5: registration.value.teams5,
+      teams6: registration.value.teams6,
       wishes: registration.value.wishes,
     })
     modifying.value = false
@@ -275,7 +277,7 @@ async function setup(icclub_, icdata_) {
       <v-row v-show="!registration.id">
         <v-col cols="12" sm="6" md="4" xl="3">
           <v-card class="elevation-5">
-            <v-card-title class="card-title"> Registation </v-card-title>
+            <v-card-title class="card-title">Registration</v-card-title>
             <v-card-text> Not registered </v-card-text>
           </v-card>
         </v-col>
@@ -291,6 +293,7 @@ async function setup(icclub_, icdata_) {
                 <li>Division 3: {{ registration.teams3 }}</li>
                 <li>Division 4: {{ registration.teams4 }}</li>
                 <li>Division 5: {{ registration.teams5 }}</li>
+                <li>Division 6: {{ registration.teams6 }}</li>
               </ul>
             </v-card-text>
           </v-card>
@@ -363,6 +366,13 @@ async function setup(icclub_, icdata_) {
               <v-text-field
                 v-model="registration.teams5"
                 label="Division 5'"
+                type="number"
+                min="0"
+                max="15"
+              />
+              <v-text-field
+                v-model="registration.teams6"
+                label="Division 6'"
                 type="number"
                 min="0"
                 max="15"

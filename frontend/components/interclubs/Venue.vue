@@ -91,6 +91,10 @@ function deleteVenue(ix) {
 
 async function getICVenues() {
   let reply
+  if (icclub.idclub == null) {
+    ven_status.value = "noclub"
+    return
+  }
   showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICVenues", {

@@ -2,22 +2,23 @@
 
 import logging
 from tempfile import NamedTemporaryFile
+from typing import Any, cast
+
 import openpyxl
-from typing import cast, Any
 from fastapi import BackgroundTasks
 from reddevil.core import (
     RdNotFound,
     get_settings,
 )
-from reddevil.mail import MailParams
+from reddevil.mail import MailParams, sendEmail
+
+from kbsb.club import club_locale, get_club_idclub
 from kbsb.interclubs import (
-    ICRegistration,
-    ICRegistrationIn,
     DbICRegistration,
     # ICDATA,
+    ICRegistration,
+    ICRegistrationIn,
 )
-from kbsb.club import get_club_idclub, club_locale
-from reddevil.mail import sendEmail
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +106,7 @@ async def set_icregistration(
                 teams3=ie.teams3,
                 teams4=ie.teams4,
                 teams5=ie.teams5,
+                teams6=ie.teams6,
                 wishes=ie.wishes,
             ),
         )
@@ -119,6 +121,7 @@ async def set_icregistration(
                 teams3=ie.teams3,
                 teams4=ie.teams4,
                 teams5=ie.teams5,
+                teams6=ie.teams6,
                 wishes=ie.wishes,
             )
         )
@@ -136,8 +139,8 @@ async def set_icregistration(
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject=f"Interclubs 2025-2026 club {idclub} {ie.name}",
-        template="interclub/registration_{locale}.md",
+        subject=f"Interclubs 2026-27 club {idclub} {ie.name}",
+        template="{locale}/interclub_registration.md",
     )
     if bt:
         try:
@@ -168,6 +171,7 @@ async def xls_registrations() -> str:
             "teams3",
             "teams4",
             "teams5",
+            "teams6",
             "grouping",
             "splitting",
             "regional",
@@ -187,6 +191,7 @@ async def xls_registrations() -> str:
                 d.teams3,
                 d.teams4,
                 d.teams5,
+                d.teams6,
                 d.wishes.get("grouping", ""),
                 d.wishes.get("splitting", ""),
                 d.wishes.get("regional", ""),
