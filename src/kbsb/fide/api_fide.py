@@ -585,7 +585,6 @@ async def generate_fide_form(locale: str, formdata: dict):
     event_name = form.get("event_name", "").strip()
     safe_event = re.sub(r"\s+", "_", event_name) or "Unknown"
     filename = f"Tournament_Registration_{safe_event}.xlsx"
-
     # Send email with FIDE registration Excel attachment
     excel_content = filled.getvalue()
     encoded_excel = base64.b64encode(excel_content)

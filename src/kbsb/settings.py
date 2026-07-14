@@ -104,10 +104,6 @@ SECRETS = {
         "name": "known-hosts",
         "manager": "googlejson",
     },
-    "S_001": {
-        "name": "S_001",
-        "manager": "googlejson",
-    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))

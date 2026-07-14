@@ -1,35 +1,33 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-
-from typing import Any, cast
-import openpyxl
 from tempfile import NamedTemporaryFile
+from typing import Any, cast
 
-
+import openpyxl
 from reddevil.core import (
     RdNotFound,
     get_settings,
 )
 
+from kbsb.club import get_club_idclub
 from kbsb.interclubs import (
-    ICPlayer,
-    ICClubDB,
-    ICClubItem,
-    ICPlayerUpdate,
-    ICPlayerValidationError,
-    ICTeam,
     DbICClub,
     DbICClub2324,
     DbICClub2425,
+    DbICClub2526,
     DbICSeries,
+    ICClubDB,
+    ICClubItem,
+    ICPlayer,
+    ICPlayerUpdate,
+    ICPlayerValidationError,
+    ICTeam,
     PlayerlistNature,
     PlayerPeriod,
     load_icdata,
 )
 from kbsb.interclubs.registrations import find_icregistration
-from kbsb.club import get_club_idclub
-
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +45,7 @@ ONPLAYERLIST = [
 dbclubs = {
     "2324": DbICClub2324,
     "2425": DbICClub2425,
+    "2526": DbICClub2526,
 }
 
 # CRUD

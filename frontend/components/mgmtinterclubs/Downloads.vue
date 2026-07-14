@@ -37,7 +37,7 @@ async function download_registrations() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "reservations_2526.xlsx"
+  link.download = "reservations_2627 .xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -59,7 +59,7 @@ async function download_venues() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "venues_2526.xlsx"
+  link.download = "venues_2627.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -81,7 +81,7 @@ async function download_playerlists() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "playerlists_2526.xlsx"
+  link.download = "playerlists_2627.xlsx"
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -224,7 +224,7 @@ async function setup(icclub_, round_, icdata_) {
     <v-btn @click="download_registrations">Download registrations</v-btn>
     <h3>Venues</h3>
     <v-btn @click="download_venues">Download venues</v-btn>
-    <h3>Playerlists</h3>
+    <!-- <h3>Playerlists</h3>
     <v-btn @click="download_playerlists">Download playerlists</v-btn>
     <h3>Belgian Elo reports</h3>
     <v-row>
@@ -243,6 +243,6 @@ async function setup(icclub_, round_, icdata_) {
       <v-col cols="12" sm="6" md="4" lg="3" v-for="br in penalties_reports">
         <v-btn @click="get_penalties_report(br)">{{ br }}</v-btn>
       </v-col>
-    </v-row>
+    </v-row> -->
   </VContainer>
 </template>

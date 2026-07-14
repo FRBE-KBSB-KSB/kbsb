@@ -2,13 +2,16 @@ from .md_interclubs import (  # noqa F401
     DbICClub,
     DbICClub2324,
     DbICClub2425,
+    DbICClub2526,
     DbICRegistration,
     DbICSeries,
     DbICSeries2324,
     DbICSeries2425,
+    DbICSeries2526,
     DbICStandings,
     DbICStandings2324,
     DbICStandings2425,
+    DbICStandings2526,
     DbICVenue,
     GAMERESULT,
     ICClubDB,
@@ -49,7 +52,7 @@ from .md_elo import (  # noqa F401
     EloPlayer,
 )
 
-from .helpers import load_icdata, ptable  # noqa F401
+from .helpers import load_icdata, ptable12  # noqa F401
 from .icclubs import (  # noqa F401
     anon_getICteams,
     anon_getICclub,
@@ -121,9 +124,11 @@ __all__ = [
     "DbICSeries",
     "DbICSeries2324",
     "DbICSeries2425",
+    "DbICSeries2526",
     "DbICStandings",
     "DbICStandings2324",
     "DbICStandings2425",
+    "DbICStandings2526",
     "DbICVenue",
     "GAMERESULT",
     "ICClubDB",
@@ -158,7 +163,7 @@ __all__ = [
     "EloGame",
     "EloPlayer",
     "load_icdata",
-    "ptable",
+    "ptable12",
     "anon_getICteams",
     "anon_getICclub",
     "anon_getICclub_archive",

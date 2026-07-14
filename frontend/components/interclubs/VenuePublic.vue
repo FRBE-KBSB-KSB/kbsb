@@ -16,96 +16,113 @@ const refloading = ref(null)
 let showLoading
 
 // data model
-const idclub = ref(null)
-const clubs = ref([])
-const icvenues = ref([])
+const empty_venue = {
+  address: "",
+  email: "",
+  phone: "",
+  capacity: 0,
+  remarks: "",
+  rounds: "",
+  teams: "",
+  wheelchair: true,
+}
+const venues = ref([])
+const ven_status = ref("closed")
+let icclub = {}
+let icdata = {}
 
 // methods alphabetically
+
+function calcstatus() {
+  // we have the following status
+  // - open
+  // - closed
+  // - noclub
+  if (!icclub.idclub) {
+    ven_status.value = "noclub"
+    return
+  }
+  ven_status.value = "open"
+}
+
+async function getICVenues() {
+  let reply
+  if (!icclub.idclub) {
+    venues.value = []
+    return
+  }
+  showLoading(true)
+  try {
+    reply = await $backend("interclub", "anon_getICVenues", {
+      idclub: icclub.idclub,
+    })
+    readVenues(reply.data)
+  } catch (error) {
+    showSnackbar(t(error.message))
+    return
+  } finally {
+    showLoading(false)
+  }
+}
 
 function i18n_boole(v) {
   return v ? t("Yes") : t("No")
 }
 
-async function getClubs() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("club", "anon_get_clubs", {})
-  } catch (error) {
-    showSnackbar(t(error.message))
-    return
-  } finally {
-    showLoading(false)
-  }
-  clubs.value = reply.data
-  clubs.value.forEach((p) => {
-    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
-  })
-}
-
-async function getICVenues() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("interclub", "anon_getICVenues", {
-      idclub: idclub.value,
+function readVenues(data) {
+  console.log("readvenues", data)
+  venues.value = []
+  if (data) {
+    data.venues.forEach((v) => {
+      let vn = { ...empty_venue, ...v }
+      if (Array.isArray(vn.rounds) && vn.rounds.length) {
+        vn.rounds_s = vn.rounds.join(",")
+        vn.roundsel = "selected"
+      } else {
+        vn.rounds_s = ""
+        vn.roundsel = "all"
+      }
+      if (Array.isArray(vn.teams) && vn.teams.length) {
+        vn.teams_s = vn.teams.join(",")
+        vn.teamssel = "selected"
+      } else {
+        vn.teams_s = ""
+        vn.teamssel = "all"
+      }
+      venues.value.push(vn)
     })
-  } catch (error) {
-    showSnackbar(t(error.message))
-    return
-  } finally {
-    showLoading(false)
   }
-  icvenues.value = reply.data.venues
+  console.log("venues read", venues.value)
 }
 
 function selectClub() {
   getICVenues()
 }
 
-async function setup() {
-  console.log("setuo venue public")
+async function setup(idclub_, icdata_) {
+  console.log("setup venue public", idclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  getClubs()
+  icclub = { idclub: idclub_ }
+  icdata = icdata_
+  calcstatus()
+  await getICVenues()
 }
 </script>
 <template>
   <v-container>
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
-    <h2>{{ $t("Interclub venues") }}</h2>
-    <v-card>
-      <v-card-text>
-        {{ $t("Select the club") }} ({{ $t("Start typing number or name") }})
-        <VAutocomplete
-          v-model="idclub"
-          :items="clubs"
-          item-title="merged"
-          item-value="idclub"
-          color="green"
-          label="Club"
-          clearable
-          @update:model-value="getICVenues"
-        >
-        </VAutocomplete>
-      </v-card-text>
-    </v-card>
-    <div v-if="idclub">
-      <v-row v-show="!icvenues.length">
-        <v-col cols="12" sm="6" md="4" xl="3">
-          <v-card class="elevation-5">
-            <v-card-title class="card-title">
-              {{ $t("icn.ven_2") }}
-            </v-card-title>
-            <v-card-text>
-              {{ $t("icn.ven_notdefined") }}
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+    <v-alert
+      type="warning"
+      variant="outlined"
+      v-if="ven_status == 'noclub'"
+      :text="t('icn.select_club')"
+    />
+    <div v-if="ven_status == 'open'">
+      <h3>{{ $t("Interclub venues") }}</h3>
       <v-row>
-        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in icvenues" :key="ix">
+        <v-col cols="12" sm="6" md="4" xl="3" v-for="(v, ix) in venues" :key="ix">
           <v-card class="elevation-5">
             <v-card-title> {{ $t("icn.ven_1") }}: {{ ix + 1 }} </v-card-title>
             <v-card-text>

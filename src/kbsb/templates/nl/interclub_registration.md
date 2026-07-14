@@ -8,10 +8,10 @@
     "2": "In meerdere reeksen"
 }  %}
 
-## Inschrijving Interclub 2025-2026
+## Inschrijving Interclub 2026-2027
 
 Hierbij bevestigen wij de inschrijving van {{ idclub }}: {{ name }}
-voor het interclubseizoen 2025-2026
+voor het interclubseizoen 2026-2027
 
 Volgende ploegen werden ingeschreven:
 
@@ -20,6 +20,7 @@ Volgende ploegen werden ingeschreven:
 - teams in afdeling 3: **{{ teams3 }}**
 - teams in afdeling 4: **{{ teams4 }}**
 - teams in afdeling 5: **{{ teams5 }}**
+- teams in afdeling 6: **{{ teams6 }}**
 
 Wensen:
 

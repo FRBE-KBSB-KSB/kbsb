@@ -13,7 +13,6 @@ const waitingdialog = ref(false);
 const errorText = ref("");
 const submitted = ref(false);
 
-
 // Lookups and Translations
 const lookups = ref({
   yes_no: [],
@@ -372,6 +371,7 @@ async function submitForm() {
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
   } catch (error) {
     console.error(error);
     errorText.value = "Error submitting form";
@@ -432,7 +432,6 @@ function resetForm() {
   }
   submitted.value = false;
 }
-
 onMounted(() => {
   loadFormData();
 });

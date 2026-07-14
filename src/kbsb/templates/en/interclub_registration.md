@@ -1,17 +1,17 @@
 {%- set grouping = {
-    "0": "Geen Voorkeur",
-    "1": "1 groep",
-    "2": "2 tegengestelde groepen"
+    "0": "No preference",
+    "1": "1 group",
+    "2": "2 opposing groups"
 }  %}
 {%- set splitting = {
-    "1": "In 1 reeks",
-    "2": "In meerdere reeksen"
+    "1": "In 1 series",
+    "2": "In multiple series"
 }  %}
 
-## Enrollment Interclub 2025-2026
+## Registration Interclub 2026-2027
 
 We hereby confirm the registration of {{ idclub }}: {{ name }}
-for the interclub season 2025-2026
+for the interclub season 2026-2027
 
 The following teams were entered:
 
@@ -20,6 +20,7 @@ The following teams were entered:
 - teams in division 3: **{{ teams3 }}**
 - teams in division 4: **{{ teams4 }}**
 - teams in division 5: **{{ teams5 }}**
+- teams in division 6: **{{ teams6 }}**
 
 Wishes:
 

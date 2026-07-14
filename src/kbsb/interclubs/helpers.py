@@ -1,12 +1,15 @@
 import logging
+
 import yaml
-from reddevil.filestore.filestore import get_file
 from reddevil.core import RdInternalServerError, get_settings
-from .md_interclubs import (
-    ICClubDB,
-    DbICClub,
-)
+from reddevil.filestore.filestore import get_file
+
 from kbsb import ROOT_DIR
+
+from .md_interclubs import (
+    DbICClub,
+    ICClubDB,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +19,11 @@ async def load_icdata():
     if not icdata:
         settings = get_settings()
         if settings.ICDATA == "cloud":
-            icdr = await get_file("data", "ic2526.yml")
+            icdr = await get_file("data", "ic2627.yml")
             icdata = yaml.load(icdr.body, Loader=yaml.SafeLoader)
             logger.info("loaded icdata from cloud")
         if settings.ICDATA == "local":
-            icdata_path = ROOT_DIR / "shared" / "cloud" / "data" / "ic2526.yml"
+            icdata_path = ROOT_DIR / "shared" / "cloud" / "data" / "ic2627.yml"
             icdata = yaml.load(icdata_path.read_text(), Loader=yaml.SafeLoader)
             logger.info("loaded icdata from local")
         setattr(load_icdata, "icdata", icdata)
@@ -69,7 +72,7 @@ async def load_all_icclubs():
     return (playerratings, clubs, titulars, fideratings)
 
 
-ptable = (
+ptable12 = (
     [(1, 12), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)],
     [(12, 7), (8, 6), (9, 5), (10, 4), (11, 3), (1, 2)],
     [(2, 12), (3, 1), (4, 11), (5, 10), (6, 9), (7, 8)],
@@ -81,4 +84,16 @@ ptable = (
     [(5, 12), (6, 4), (7, 3), (8, 2), (9, 1), (10, 11)],
     [(12, 11), (1, 10), (2, 9), (3, 8), (4, 7), (5, 6)],
     [(6, 12), (7, 5), (8, 4), (9, 3), (10, 2), (11, 1)],
+)
+
+ptable10 = (
+    [(1, 10), (2, 9), (3, 8), (4, 7), (5, 6)],
+    [(10, 6), (7, 5), (8, 4), (9, 3), (1, 2)],
+    [(2, 10), (3, 1), (4, 9), (5, 8), (6, 7)],
+    [(10, 7), (8, 6), (9, 5), (1, 4), (2, 3)],
+    [(3, 10), (4, 2), (5, 1), (6, 9), (7, 8)],
+    [(10, 8), (9, 7), (1, 6), (2, 5), (3, 4)],
+    [(4, 10), (5, 3), (6, 2), (7, 1), (8, 9)],
+    [(10, 9), (1, 8), (2, 7), (3, 6), (4, 5)],
+    [(5, 10), (6, 4), (7, 3), (8, 2), (9, 1)],
 )

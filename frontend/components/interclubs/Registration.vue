@@ -9,7 +9,7 @@ defineExpose({ setup })
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
 const { $backend } = useNuxtApp()
-const { t } = useI18n()
+const { locale, t } = useI18n()
 
 //  snackbar and loading widgets
 import ProgressLoading from "@/components/ProgressLoading.vue"
@@ -26,6 +26,7 @@ const empty_registration = {
   teams3: 0,
   teams4: 0,
   teams5: 0,
+  teams6: 0,
   wishes: {},
 }
 const registration = ref({ ...empty_registration })
@@ -187,6 +188,7 @@ async function saveRegistration() {
       teams3: registration.value.teams3,
       teams4: registration.value.teams4,
       teams5: registration.value.teams5,
+      teams6: registration.value.teams6,
       wishes: registration.value.wishes,
     })
     modifying.value = false
@@ -206,12 +208,22 @@ async function saveRegistration() {
   }
 }
 
-async function setup(icclub_, icdata_) {
-  console.log("setup Registration", icclub_, icdata_)
+async function setup(icclub_, icdata_, locale_) {
+  console.log("setup Registration", icclub_, icdata_, locale_)
+  locale.value = locale_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = icclub_
   icdata = icdata_
+  grouping.value = [
+    { title: t("icn.nopref"), value: "0" },
+    { title: t("icn.1group"), value: "1" },
+    { title: t("icn.2groups"), value: "2" },
+  ]
+  splitting.value = [
+    { title: t("icn.1series"), value: "1" },
+    { title: t("icn.mult_series"), value: "2" },
+  ]
   calcstatus()
   await find_interclubregistration()
 }
@@ -265,6 +277,7 @@ async function setup(icclub_, icdata_) {
                 <li>{{ $t("icn.teams_div") }} 3: {{ registration.teams3 }}</li>
                 <li>{{ $t("icn.teams_div") }} 4: {{ registration.teams4 }}</li>
                 <li>{{ $t("icn.teams_div") }} 5: {{ registration.teams5 }}</li>
+                <li>{{ $t("icn.teams_div") }} 6: {{ registration.teams6 }}</li>
               </ul>
             </v-card-text>
           </v-card>
@@ -342,6 +355,13 @@ async function setup(icclub_, icdata_) {
               <v-text-field
                 v-model="registration.teams5"
                 :label="t('icn.div') + ' 5'"
+                type="number"
+                min="0"
+                max="15"
+              />
+              <v-text-field
+                v-model="registration.teams6"
+                :label="t('icn.div') + ' 6'"
                 type="number"
                 min="0"
                 max="15"

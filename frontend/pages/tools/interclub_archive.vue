@@ -14,7 +14,7 @@ const route = useRoute()
 const tab = ref(null)
 const refresults = ref(null)
 const refstandings = ref(null)
-const season = ref("2425") // default season
+const season = ref("2526") // default season
 
 // methods alphabetically
 
@@ -47,7 +47,7 @@ definePageMeta({
     <v-select
       v-model="season"
       label="Season"
-      :items="['2425', '2324']"
+      :items="['2526', '2425', '2324']"
       width="10em"
       v-on:update:modelValue="changeTab()"
     ></v-select>
