@@ -2,22 +2,23 @@
 
 import logging
 from tempfile import NamedTemporaryFile
+from typing import Any, cast
+
 import openpyxl
-from typing import cast, Any
 from fastapi import BackgroundTasks
 from reddevil.core import (
     RdNotFound,
     get_settings,
 )
-from reddevil.mail import MailParams
+from reddevil.mail import MailParams, sendEmail
+
+from kbsb.club import club_locale, get_club_idclub
 from kbsb.interclubs import (
-    ICRegistration,
-    ICRegistrationIn,
     DbICRegistration,
     # ICDATA,
+    ICRegistration,
+    ICRegistrationIn,
 )
-from kbsb.club import get_club_idclub, club_locale
-from reddevil.mail import sendEmail
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +139,7 @@ async def set_icregistration(
         receiver=",".join(receiver),
         sender="noreply@frbe-kbsb-ksb.be",
         bcc=settings.EMAIL.get("bcc", ""),
-        subject=f"Interclubs 2025-2026 club {idclub} {ie.name}",
+        subject=f"Interclubs 2026-27 club {idclub} {ie.name}",
         template="{locale}/interclub_registration.md",
     )
     if bt:

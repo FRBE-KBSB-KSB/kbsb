@@ -189,11 +189,9 @@ async function processICdata() {
     changeDialogCounter(-1)
   }
   icdata.value = reply.data
-  ic_rounds.value = Object.keys(icdata.value.rounds).map((x) => {
-    return { value: x, title: `R${x}: ${icdata.value.rounds[x]}` }
+  ic_rounds.value = Object.keys(icdata.value.rounds11).map((x) => {
+    return { value: x, title: `R${x}: ${icdata.value.rounds11[x]}` }
   })
-  registration_phase =
-    icdata.value.registration_data.end >= new Date().toISOString().slice(0, 10)
   changedTab()
 }
 
@@ -215,7 +213,7 @@ onMounted(async () => {
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2025-26</h1>
+    <h1>Interclubs Manager 2026-27</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>Loading...</v-card-title>
@@ -257,10 +255,10 @@ onMounted(async () => {
       <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
         <VTab value="registration">Registration</VTab>
         <VTab value="venues">Venues</VTab>
-        <VTab value="playerlist">Player lists</VTab>
+        <!-- <VTab value="playerlist">Player lists</VTab>
         <VTab value="results">Results</VTab>
         <VTab value="standings">Standings</VTab>
-        <VTab value="reports">Reports</VTab>
+        <VTab value="reports">Reports</VTab> -->
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changedTab">

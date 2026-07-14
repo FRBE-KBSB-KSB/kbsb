@@ -20,9 +20,11 @@ from . import (
     DbICSeries,
     DbICSeries2324,
     DbICSeries2425,
+    DbICSeries2526,
     DbICStandings,
     DbICStandings2324,
     DbICStandings2425,
+    DbICStandings2526,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -563,10 +565,12 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
 dbseasons = {
     "2324": DbICStandings2324,
     "2425": DbICStandings2425,
+    "2526": DbICStandings2526,
 }
 dbseries = {
     "2324": DbICSeries2324,
     "2425": DbICSeries2425,
+    "2526": DbICSeries2526,
 }
 
 

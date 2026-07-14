@@ -250,7 +250,7 @@ definePageMeta({
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2025-26</h1>
+    <h1>Interclubs Manager 2026-27</h1>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ t("Loading...") }}</v-card-title>
