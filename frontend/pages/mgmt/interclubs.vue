@@ -1,17 +1,15 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import Registration from "@/components/mgmtinterclubs/Registration"
+import Registration from "@/components/mgmtinterclubs/Registration.vue"
 import Playerlist from "@/components/mgmtinterclubs/Playerlist.vue"
-import Results from "@/components/mgmtinterclubs/Results"
-import Reports from "@/components/mgmtinterclubs/Reports"
-import Downloads from "@/components/mgmtinterclubs/Downloads"
-import Standings from "@/components/mgmtinterclubs/Standings"
+import Results from "@/components/mgmtinterclubs/Results.vue"
+import Reports from "@/components/mgmtinterclubs/Reports.vue"
+import Downloads from "@/components/mgmtinterclubs/Downloads.vue"
+import Standings from "@/components/mgmtinterclubs/Standings.vue"
 import Venues from "@/components/mgmtinterclubs/Venues.vue"
 
-import { parse } from "yaml"
 import { useMgmtTokenStore } from "@/store/mgmttoken"
-// import { useMgmtInterclubStore } from "@/store/mgmtinterclub"
 import { usePersonStore } from "@/store/person"
 import { storeToRefs } from "pinia"
 

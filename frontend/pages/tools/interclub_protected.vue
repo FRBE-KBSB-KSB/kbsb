@@ -2,7 +2,7 @@ b
 <script setup>
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRouter } from "vue-router"
+import { useRoute } from "vue-router"
 import { useIdtokenStore } from "@/store/idtoken"
 import { useIdnumberStore } from "@/store/idnumber"
 import showdown from "showdown"
@@ -16,7 +16,6 @@ import { parse } from "yaml"
 import { storeToRefs } from "pinia"
 
 // communication
-const router = useRouter()
 const route = useRoute()
 const waitingdialog = ref(false)
 let dialogcounter = 0
@@ -234,11 +233,8 @@ onMounted(async () => {
   locale.value = l ? l : "nl"
   checkAuth()
   await processICdata()
-  console.log("mounted 1", tab.value)
   calcPhase()
-  console.log("mounted 2", tab.value)
   getClubs()
-  console.log("mounted 3", tab.value)
   changedTab()
   // await getHelpContent()
 })
