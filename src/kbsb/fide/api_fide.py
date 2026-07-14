@@ -119,7 +119,6 @@ MANDATORY_ALWAYS = [
     "gm_wgm_norms",
     "chief_arbiter_name",
     "chief_arbiter_fide_id",
-    "kind_of_arbiters",
     "chief_organizer_name",
     "chief_organizer_fide_id",
     "time_control_code",
@@ -214,6 +213,8 @@ def load_lookup_values():
         LOOKUP_DATA["time_control_types"] = types
         for t, col in zip(types, col_letters):
             values = [c.value for c in ws_tc[col][1:] if c.value]
+            if t == "Standard" and "45min/end+30sec/move from move 1" not in values:
+                values.append("45min/end+30sec/move from move 1")
             LOOKUP_DATA["time_control_desc"][t] = values
 
 
@@ -597,9 +598,59 @@ async def generate_fide_form(locale: str, formdata: dict):
     settings = get_settings()
     sender_email = settings.EMAIL.get("sender", "noreply@frbe-kbsb-ksb.be")
     club_number = form.get("invoice_clubnr", "N/A")
-    mail_subject = f"{event_name} - test form (Jorian)"
+
+    # Check if this is a short standard time control (<90 minutes)
+    is_short_standard = False
+    tc_code = form.get("time_control_code")
+    tc_desc = form.get("time_control_desc")
+
+    if tc_code == "Standard":
+        if tc_desc == "Other":
+            try:
+                mins = int(form.get("timectl1_minutes", 0))
+                if mins < 90:
+                    is_short_standard = True
+            except ValueError:
+                pass
+        elif tc_desc:
+            match = re.match(r"^(\d+)min", tc_desc)
+            if match:
+                try:
+                    mins = int(match.group(1))
+                    if mins < 90:
+                        is_short_standard = True
+                except ValueError:
+                    pass
+
+    # Check if max_rating is valid (< 1800)
+    max_rating_str = str(form.get("max_rating", "")).strip()
+    is_rating_valid = False
+    if max_rating_str:
+        try:
+            max_rating_val = int(float(max_rating_str))
+            if max_rating_val < 1800:
+                is_rating_valid = True
+        except ValueError:
+            pass
+
+    is_unapproved = is_short_standard and not is_rating_valid
+
+    t_msg = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
+
+    warning_banner = ""
+    if is_unapproved:
+        email_warn_msg = t_msg.get(
+            "email_unapproved_warning",
+            "WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This combination is incorrect under FIDE rules, and this registration is NOT approved."
+        )
+        warning_banner = f'<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2;">{email_warn_msg}</div>'
+
+    mail_subject = f"{event_name} - Fide registration form"
+    if is_unapproved:
+        mail_subject = f"[UNAPPROVED] {mail_subject}"
 
     mail_body = f"""
+    {warning_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
     <p><strong>Clubnummer:</strong> {club_number}</p>
@@ -623,6 +674,42 @@ async def generate_fide_form(locale: str, formdata: dict):
         )
     except Exception:
         logger.exception("Failed to send FIDE registration email")
+
+    # Send confirmation email to invoice_email and contact_email (if provided)
+    conf_subject = t_msg.get(
+        "conf_subject", "FIDE Registration Confirmation: {event_name}"
+    ).replace("{event_name}", event_name)
+    conf_body = t_msg.get(
+        "conf_body", "<p>Thank you for submitting the FIDE registration form.</p>"
+    ).replace("{event_name}", event_name)
+
+    if is_unapproved:
+        conf_body = warning_banner + conf_body
+
+    recipients = []
+    invoice_email = form.get("invoice_email", "").strip()
+    contact_email = form.get("contact_email", "").strip()
+    if invoice_email:
+        recipients.append(invoice_email)
+    if contact_email and contact_email != invoice_email:
+        recipients.append(contact_email)
+
+    for recipient in recipients:
+        conf_params = MailParams(
+            locale=locale,
+            receiver=recipient,
+            sender=sender_email,
+            subject=conf_subject,
+            template=conf_body,
+            attachments=[excel_attachment],
+        )
+        try:
+            sendEmailMessage(conf_params)
+            logger.info(
+                f"FIDE Registration confirmation email sent to {recipient} from {sender_email}"
+            )
+        except Exception:
+            logger.exception(f"Failed to send FIDE registration confirmation email to {recipient}")
 
     headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
 

@@ -11,6 +11,7 @@ const queryLang = route.query.locale || route.query.lang;
 const lang = ref(["en", "nl", "fr"].includes(queryLang) ? queryLang : "en");
 const waitingdialog = ref(false);
 const errorText = ref("");
+const submitted = ref(false);
 
 // Lookups and Translations
 const lookups = ref({
@@ -34,8 +35,8 @@ const form = ref({
   invoice_email: "",
   invoice_clubnr: "",
   fide_laws_followed: "Yes",
-  national_championship_143a: "",
-  on_fide_calendar: "",
+  national_championship_143a: "No",
+  on_fide_calendar: "No",
   tournament_report: "",
   tournament_type: "Over the Board",
   event_name: "",
@@ -48,8 +49,8 @@ const form = ref({
   female_only: "",
   start_date: "",
   end_date: "",
-  title_norms: "",
-  gm_wgm_norms: "",
+  title_norms: "No",
+  gm_wgm_norms: "No",
   chief_arbiter_name: "", chief_arbiter_fide_id: "",
   dep_chief_arbiter1_name: "", dep_chief_arbiter1_fide_id: "",
   dep_chief_arbiter2_name: "", dep_chief_arbiter2_fide_id: "",
@@ -68,7 +69,7 @@ const form = ref({
   timectl_final_minutes: "", timectl_final_inc_type: "", timectl_final_inc_seconds: "",
   max_rating: "",
   age_limit: "", age_limit_value: "",
-  all_digital_clocks: "",
+  all_digital_clocks: "Yes",
   internet_tx: "", internet_tx_boards: "",
   tiebreak_method: "", tiebreak_other: "",
   software: "", software_other: "", software_version: "",
@@ -99,6 +100,58 @@ const roundsCount = computed(() => parseInt(form.value.rounds_reported) || 0);
 const timeControlDescOptions = computed(() => {
   if (!form.value.time_control_code) return [];
   return lookups.value.time_control_desc[form.value.time_control_code] || [];
+});
+
+const totalMinutes = computed(() => {
+  if (form.value.time_control_code !== 'Standard') return 0;
+  
+  if (form.value.time_control_desc === 'Other') {
+    const m1 = parseInt(form.value.timectl1_minutes, 10) || 0;
+    const m2 = parseInt(form.value.timectl2_minutes, 10) || 0;
+    const m3 = parseInt(form.value.timectl_final_minutes, 10) || 0;
+    const inc = parseInt(form.value.timectl1_inc_seconds, 10) || 0;
+    return m1 + m2 + m3 + inc;
+  }
+  
+  const desc = form.value.time_control_desc;
+  if (!desc) return 0;
+  
+  let totalMins = 0;
+  const minMatches = desc.matchAll(/(\d+)min/g);
+  for (const m of minMatches) {
+    totalMins += parseInt(m[1], 10);
+  }
+  
+  let incMins = 0;
+  const incMatch = desc.match(/(\d+)sec\/move(?: from move (\d+))?/);
+  if (incMatch) {
+    const sec = parseInt(incMatch[1], 10);
+    const startMove = incMatch[2] ? parseInt(incMatch[2], 10) : 1;
+    if (startMove === 1) {
+      incMins = sec;
+    } else if (startMove < 60) {
+      incMins = (sec * (60 - startMove)) / 60;
+    }
+  }
+  
+  return totalMins + incMins;
+});
+
+const ratingRequirement = computed(() => {
+  if (form.value.time_control_code !== 'Standard') return 'ok';
+  const mins = totalMinutes.value;
+  if (mins <= 0) return 'ok';
+  
+  if (mins < 60) {
+    return 'not_rateable';
+  } else if (mins < 90) {
+    const val = parseInt(form.value.max_rating, 10);
+    return (!isNaN(val) && val < 1800) ? 'ok' : 'require_1800';
+  } else if (mins < 120) {
+    const val = parseInt(form.value.max_rating, 10);
+    return (!isNaN(val) && val < 2400) ? 'ok' : 'require_2400';
+  }
+  return 'ok';
 });
 
 // Helper functions for round dates and FIDE period logic
@@ -295,6 +348,17 @@ async function loadFormData() {
 }
 
 async function submitForm() {
+  if (ratingRequirement.value !== 'ok') {
+    let confirmKey = '';
+    if (ratingRequirement.value === 'not_rateable') confirmKey = 'fide_under_60_confirm';
+    else if (ratingRequirement.value === 'require_1800') confirmKey = 'fide_under_90_confirm';
+    else if (ratingRequirement.value === 'require_2400') confirmKey = 'fide_under_120_confirm';
+    
+    if (confirmKey) {
+      const proceed = confirm(tMsg(confirmKey));
+      if (!proceed) return;
+    }
+  }
   waitingdialog.value = true;
   errorText.value = "";
   try {
@@ -303,23 +367,11 @@ async function submitForm() {
       formdata: form.value,
     })
     console.log("reponse on generate", response)
-    let filename = "Tournament_Registration.xlsx";
-    const disposition = response.headers.get("content-disposition");
-    if (disposition && disposition.indexOf("filename=") !== -1) {
-      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-      if (matches != null && matches[1]) {
-        filename = matches[1].replace(/['"]/g, "");
-      }
+    submitted.value = true;
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    const blob = response.data
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
+
   } catch (error) {
     console.error(error);
     errorText.value = "Error submitting form";
@@ -328,6 +380,58 @@ async function submitForm() {
   }
 }
 
+function resetForm() {
+  form.value = {
+    invoice_email: "",
+    invoice_clubnr: "",
+    fide_laws_followed: "Yes",
+    national_championship_143a: "No",
+    on_fide_calendar: "No",
+    tournament_report: "",
+    tournament_type: "Over the Board",
+    event_name: "",
+    city: "",
+    country: "",
+    expected_players: "",
+    tournament_system: "",
+    rounds_reported: "",
+    multiple_round_days: "0",
+    female_only: "",
+    start_date: "",
+    end_date: "",
+    title_norms: "No",
+    gm_wgm_norms: "No",
+    chief_arbiter_name: "", chief_arbiter_fide_id: "",
+    dep_chief_arbiter1_name: "", dep_chief_arbiter1_fide_id: "",
+    dep_chief_arbiter2_name: "", dep_chief_arbiter2_fide_id: "",
+    kind_of_arbiters: "",
+    arbiter1_name: "", arbiter1_fide_id: "",
+    arbiter2_name: "", arbiter2_fide_id: "",
+    arbiter3_name: "", arbiter3_fide_id: "",
+    arbiter4_name: "", arbiter4_fide_id: "",
+    chief_organizer_name: "", chief_organizer_fide_id: "",
+    organizer1_name: "", organizer1_fide_id: "",
+    organizer2_name: "", organizer2_fide_id: "",
+    organizer3_name: "", organizer3_fide_id: "",
+    time_control_code: "", time_control_desc: "", timectl_other_desc: "",
+    timectl1_moves: "", timectl1_minutes: "", timectl1_inc_type: "", timectl1_inc_seconds: "",
+    timectl2_moves: "", timectl2_minutes: "", timectl2_inc_type: "", timectl2_inc_seconds: "",
+    timectl_final_minutes: "", timectl_final_inc_type: "", timectl_final_inc_seconds: "",
+    max_rating: "",
+    age_limit: "", age_limit_value: "",
+    all_digital_clocks: "Yes",
+    internet_tx: "", internet_tx_boards: "",
+    tiebreak_method: "", tiebreak_other: "",
+    software: "", software_other: "", software_version: "",
+    pgn_provided: "No",
+    contact_email: "", homepage: "", prize_fund: "", remarks: ""
+  };
+  for (let i = 1; i <= 100; i++) {
+    form.value[`round${i}_date`] = "";
+    form.value[`round${i}_report`] = "";
+  }
+  submitted.value = false;
+}
 onMounted(() => {
   loadFormData();
 });
@@ -341,6 +445,18 @@ definePageMeta({
   <div v-if="!translations" class="form-shell" style="text-align: center; padding: 3rem;">
     <div v-if="errorText" class="error">{{ errorText }}</div>
     <div v-else>Loading...</div>
+  </div>
+  <div v-else-if="submitted" class="form-shell" style="text-align: center; padding: 3.5rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div style="width: 80px; height: 80px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">✓</div>
+    <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text, #111827); margin-bottom: 1rem;">
+      {{ tUI('submitted_title') }}
+    </h2>
+    <p style="font-size: 1.05rem; color: var(--muted, #4b5563); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6;">
+      {{ tUI('submitted_msg') }}
+    </p>
+    <button @click="resetForm" style="padding: 0.6rem 1.8rem; font-weight: 600; border-radius: 999px; border: none; background-color: var(--accent, #2563eb); color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+      {{ tUI('back_btn') }}
+    </button>
   </div>
   <div v-else class="form-shell">
     <div class="shell-header">
@@ -504,8 +620,8 @@ definePageMeta({
       <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id"></label>
       
       <label>
-        <span class="required-label">{{ tField('kind_of_arbiters') }}</span>
-        <select v-model="form.kind_of_arbiters" required>
+        <span>{{ tField('kind_of_arbiters') }}</span>
+        <select v-model="form.kind_of_arbiters">
           <option value="">{{ tUI('select_placeholder') }}</option>
           <option v-for="opt in lookups.kind_of_arbiters_options" :key="opt" :value="opt">{{ opt }}</option>
         </select>
@@ -585,7 +701,19 @@ definePageMeta({
 
       <div class="group-title">{{ tCat('other_parameters') }}</div>
 
-      <label><span>{{ tField('max_rating') }}</span><input type="number" v-model="form.max_rating" min="0"></label>
+      <label>
+        <span>{{ tField('max_rating') }}</span>
+        <input type="number" v-model="form.max_rating" min="0">
+        <div v-if="ratingRequirement === 'not_rateable'" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
+          {{ tUI('fide_under_60_warning') }}
+        </div>
+        <div v-else-if="ratingRequirement === 'require_1800'" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          {{ tUI('fide_under_90_warning') }}
+        </div>
+        <div v-else-if="ratingRequirement === 'require_2400'" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          {{ tUI('fide_under_120_warning') }}
+        </div>
+      </label>
       <label>
         <span>{{ tField('age_limit') }}</span>
         <select v-model="form.age_limit">
@@ -668,7 +796,7 @@ definePageMeta({
 
 <style>
 html {
-  --bg: #f5f5f7;
+  --bg: #ffffff;
   --text: #111827;
   --muted: #4b5563;
   --card-bg: #ffffff;
@@ -677,6 +805,7 @@ html {
   --accent-soft: #eff6ff;
   --error: #b91c1c;
   --focus-ring: #93c5fd;
+  overflow-y: auto !important;
 }
 
 body, .v-application {

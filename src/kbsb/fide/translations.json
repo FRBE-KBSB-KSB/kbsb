@@ -1,7 +1,7 @@
 {
   "en": {
     "ui": {
-      "title": "Fide Registration Form - Test",
+      "title": "Fide Registration Form",
       "dark_mode": "Dark mode",
       "light_mode": "Light mode",
       "mandatory_note": "Fields in bold are mandatory. Fields that appear only for certain options are mandatory whenever they are shown.",
@@ -9,7 +9,13 @@
       "export_btn": "Export",
       "select_placeholder": "--select--",
       "more_arbiters_note": "If there are more than 4 arbiters, mention so in the Remarks at the end of the form.",
-      "fide_laws_note": "By filling in the form you accept that FIDE Laws will be followed."
+      "fide_laws_note": "By filling in the form you accept that FIDE Laws will be followed.",
+      "submitted_title": "Form Submitted Successfully!",
+      "submitted_msg": "The FIDE registration form has been successfully sent to fide@frbe-kbsb-ksb.be. You will receive a copy or confirmation shortly.",
+      "back_btn": "Back to form",
+      "fide_under_60_warning": "Warning: This standard pace total time is less than 60 minutes. It is NOT rateable under FIDE regulations.",
+      "fide_under_90_warning": "Warning: At this standard pace (< 90 min), the Max Rating field must be filled in with a value less than 1800.",
+      "fide_under_120_warning": "Warning: At this standard pace (< 120 min), the Max Rating field must be filled in with a value less than 2400."
     },
     "categories": {
       "tournament_info": "Tournament Info",
@@ -103,7 +109,7 @@
       "software_other": "If Software = 'Other', specify 'Other'",
       "software_version": "Version Software",
       "pgn_provided": "Will PGN be provided?",
-      "contact_email": "Contact E-mail",
+      "contact_email": "Contact E-mail (arbiter)",
       "homepage": "Internet Homepage",
       "prize_fund": "Prize Fund in euros",
       "remarks": "Remarks",
@@ -123,12 +129,20 @@
       "field_must_be_at_most": "must be at most {max}.",
       "round_date_required": "Round {num} date is required for New long tournament.",
       "round_report_required": "The report number for Round {num} is required for New long tournament.",
-      "round_dates_order_error": "Round {num} date must not be earlier than Round {prev_num} date."
+      "round_dates_order_error": "Round {num} date must not be earlier than Round {prev_num} date.",
+      "conf_subject": "FIDE Registration Confirmation: {event_name}",
+      "conf_body": "<p>Dear Organizer / Arbiter,</p><p>Thank you for submitting the FIDE registration form for the tournament: <strong>{event_name}</strong>.</p><p>Your request has been received and sent to the FIDE rating officer.</p><p>Best regards,</p><p>Jorian Burssens</p>",
+      "fide_under_60_confirm": "This standard time control is less than 60 minutes, which is not rateable under FIDE rules.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_90_confirm": "This standard time control under 90 minutes is only rateable if all players are rated below 1800. Your Max Rating is either empty or >= 1800.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_120_confirm": "This standard time control under 120 minutes is only rateable if all players are rated below 2400. Your Max Rating is either empty or >= 2400.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_60_email": "WARNING: This tournament uses a standard time control under 60 minutes. This is not rateable under FIDE regulations, and this registration is NOT approved.",
+      "fide_under_90_email": "WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This is incorrect under FIDE regulations, and this registration is NOT approved.",
+      "fide_under_120_email": "WARNING: This tournament uses a standard time control under 120 minutes but the Max Rating is either not set or is >= 2400. This is incorrect under FIDE regulations, and this registration is NOT approved."
     }
   },
   "nl": {
     "ui": {
-      "title": "Fide Registration Form - Test",
+      "title": "Fide Registration Form",
       "dark_mode": "Donkere modus",
       "light_mode": "Lichte modus",
       "mandatory_note": "Velden in het vet zijn verplicht. Velden die enkel verschijnen voor specifieke opties zijn verplicht zodra ze getoond worden.",
@@ -136,7 +150,13 @@
       "export_btn": "Exporteren",
       "select_placeholder": "--selecteer--",
       "more_arbiters_note": "Als er meer dan 4 arbiters zijn, vermeld dit dan in de Opmerkingen aan het einde van het formulier.",
-      "fide_laws_note": "Door dit formulier in te vullen, accepteert u dat de FIDE-regels worden gevolgd."
+      "fide_laws_note": "Door dit formulier in te vullen, accepteert u dat de FIDE-regels worden gevolgd.",
+      "submitted_title": "Formulier succesvol verzonden!",
+      "submitted_msg": "Het FIDE-registratieformulier is succesvol verzonden naar fide@frbe-kbsb-ksb.be. U ontvangt spoedig een kopie of bevestiging.",
+      "back_btn": "Terug naar het formulier",
+      "fide_under_60_warning": "Waarschuwing: Bij dit standaardtempo is de totale speeltijd korter dan 60 minuten. Dit is NIET te homologeren volgens FIDE-regels.",
+      "fide_under_90_warning": "Waarschuwing: Bij dit standaardtempo (< 90 min) moet de maximale rating ingevuld zijn met een waarde kleiner dan 1800.",
+      "fide_under_120_warning": "Waarschuwing: Bij dit standaardtempo (< 120 min) moet de maximale rating ingevuld zijn met een waarde kleiner dan 2400."
     },
     "categories": {
       "tournament_info": "Toernooi-informatie",
@@ -230,7 +250,7 @@
       "software_other": "Indien Software = 'Overige', specificeer 'Overige'",
       "software_version": "Softwareversie",
       "pgn_provided": "Wordt PGN geleverd?",
-      "contact_email": "Contact e-mail",
+      "contact_email": "Contact e-mail (arbiter)",
       "homepage": "Website",
       "prize_fund": "Prijzenpot in euro's",
       "remarks": "Opmerkingen",
@@ -250,12 +270,20 @@
       "field_must_be_at_most": "mag maximaal {max} zijn.",
       "round_date_required": "Datum van ronde {num} is verplicht voor nieuw lang toernooi.",
       "round_report_required": "Het rapportnummer voor Ronde {num} is verplicht voor nieuw lang toernooi.",
-      "round_dates_order_error": "Datum van ronde {num} mag niet vroeger zijn dan datum van ronde {prev_num}."
+      "round_dates_order_error": "Datum van ronde {num} mag niet vroeger zijn dan datum van ronde {prev_num}.",
+      "conf_subject": "FIDE-registratiebevestiging: {event_name}",
+      "conf_body": "<p>Beste organisator / scheidsrechter,</p><p>Bedankt voor het indienen van het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p><p>Uw aanvraag is ontvangen en verzonden naar de FIDE rating officer.</p><p>Met vriendelijke groet,</p><p>Jorian Burssens</p>",
+      "fide_under_60_confirm": "Deze standaard bedenktijd is korter dan 60 minuten, wat niet te homologeren is volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_90_confirm": "De combinatie van een standaard bedenktijd korter dan 90 minuten en een maximale rating die leeg of >= 1800 is, is incorrect volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_120_confirm": "De combinatie van een standaard bedenktijd korter dan 120 minuten en een maximale rating die leeg of >= 2400 is, is incorrect volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_60_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 60 minuten. Dit is niet te homologeren volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.",
+      "fide_under_90_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 90 minuten, maar de maximale rating is niet ingevuld of is >= 1800. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.",
+      "fide_under_120_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 120 minuten, maar de maximale rating is niet ingevuld of is >= 2400. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd."
     }
   },
   "fr": {
     "ui": {
-      "title": "Fide Registration Form - Test",
+      "title": "Fide Registration Form",
       "dark_mode": "Mode sombre",
       "light_mode": "Mode clair",
       "mandatory_note": "Les champs en gras sont obligatoires. Les champs qui n'apparaissent que pour certaines options sont obligatoires lorsqu'ils sont affichés.",
@@ -263,7 +291,13 @@
       "export_btn": "Exporter",
       "select_placeholder": "--sélectionner--",
       "more_arbiters_note": "S'il y a plus de 4 arbitres, veuillez le mentionner dans les remarques à la fin du formulaire.",
-      "fide_laws_note": "En remplissant le formulaire, vous acceptez que les règles de la FIDE soient suivies."
+      "fide_laws_note": "En remplissant le formulaire, vous acceptez que les règles de la FIDE soient suivies.",
+      "submitted_title": "Formulaire soumis avec succès !",
+      "submitted_msg": "Le formulaire d'inscription FIDE a été envoyé avec succès à fide@frbe-kbsb-ksb.be. Vous recevrez une copie ou une confirmation sous peu.",
+      "back_btn": "Retour au formulaire",
+      "fide_under_60_warning": "Attention : À cette cadence standard, le temps total de jeu est inférieur à 60 minutes. Ce tournoi n'est PAS homologable selon les règles FIDE.",
+      "fide_under_90_warning": "Attention : À cette cadence standard (< 90 min), le classement maximum doit être renseigné avec une valeur inférieure à 1800.",
+      "fide_under_120_warning": "Attention : À cette cadence standard (< 120 min), le classement maximum doit être renseigné avec une valeur inférieure à 2400."
     },
     "categories": {
       "tournament_info": "Informations sur le tournoi",
@@ -357,7 +391,7 @@
       "software_other": "Si Logiciel = 'Autre', spécifiez 'Autre'",
       "software_version": "Version du logiciel",
       "pgn_provided": "Le PGN sera-t-il fourni ?",
-      "contact_email": "E-mail de contact",
+      "contact_email": "E-mail de contact (arbitre)",
       "homepage": "Site internet",
       "prize_fund": "Prix en euros",
       "remarks": "Remarques",
@@ -377,7 +411,15 @@
       "field_must_be_at_most": "doit être au plus {max}.",
       "round_date_required": "La date de la ronde {num} est obligatoire pour un nouveau tournoi long.",
       "round_report_required": "Le numéro de rapport pour la ronde {num} est obligatoire pour un nouveau tournoi long.",
-      "round_dates_order_error": "La date de la ronde {num} ne doit pas être antérieure à la date de la ronde {prev_num}."
+      "round_dates_order_error": "La date de la ronde {num} ne doit pas être antérieure à la date de la ronde {prev_num}.",
+      "conf_subject": "Confirmation d'inscription FIDE : {event_name}",
+      "conf_body": "<p>Cher organisateur / arbitre,</p><p>Merci d'avoir soumis le formulaire d'inscription FIDE pour le tournoi : <strong>{event_name}</strong>.</p><p>Votre demande a été reçue et envoyée au responsable des classements FIDE.</p><p>Cordialement,</p><p>Jorian Burssens</p>",
+      "fide_under_60_confirm": "Cette cadence standard est inférieure à 60 minutes, ce qui n'est pas homologable selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_90_confirm": "La combinaison d'une cadence standard inférieure à 90 minutes et d'un classement maximum vide ou >= 1800 est incorrecte selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_120_confirm": "La combinaison d'une cadence standard inférieure à 120 minutes et d'un classement maximum vide ou >= 2400 est incorrecte selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_60_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 60 minutes. Ce n'est pas homologable selon les règles FIDE, et cette inscription n'est PAS approuvée.",
+      "fide_under_90_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 90 minutes mais le classement maximum n'est pas renseigné ou est >= 1800. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée.",
+      "fide_under_120_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 120 minutes mais le classement maximum n'est pas renseigné ou est >= 2400. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée."
     }
   }
 }
