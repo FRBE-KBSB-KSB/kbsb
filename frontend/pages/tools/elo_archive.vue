@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, onUnmounted } from "vue"
 import { useRoute } from "vue-router"
 import { useI18n } from "vue-i18n"
 
@@ -396,6 +396,22 @@ function cleanTournament(tourney) {
 onMounted(() => {
   let l = route.query.locale
   locale.value = ["en", "nl", "fr", "de"].includes(l) ? l : "nl"
+
+  // Send message to parent iframe if embedded
+  if (typeof window !== "undefined" && window.parent !== window) {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        window.parent.postMessage({
+          type: "kbsb-iframe-resize",
+          height: entry.target.scrollHeight
+        }, "*")
+      }
+    })
+    resizeObserver.observe(document.body)
+    onUnmounted(() => {
+      resizeObserver.disconnect()
+    })
+  }
 })
 </script>
 

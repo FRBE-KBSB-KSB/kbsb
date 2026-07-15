@@ -1,13 +1,52 @@
 import os
 import sqlite3
 import logging
-import psycopg
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 from reddevil.core import get_secret
+from psycopg_pool import ConnectionPool
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/archive", tags=["archive"])
+
+class PooledConnectionWrapper:
+    def __init__(self, conn, pool):
+        self._conn = conn
+        self._pool = pool
+        
+    def cursor(self, *args, **kwargs):
+        return self._conn.cursor(*args, **kwargs)
+        
+    def close(self):
+        if self._pool is not None:
+            self._pool.putconn(self._conn)
+            self._pool = None
+        else:
+            self._conn.close()
+
+_pool = None
+
+def get_pool():
+    global _pool
+    if _pool is not None:
+        return _pool
+    try:
+        pg_config = get_secret("postgres")
+        db_host = pg_config.get('dbhost', '')
+        if db_host == "oldelo.zerotwo.cloud":
+            try:
+                import socket
+                socket.gethostbyname(db_host)
+            except Exception:
+                logger.warning("DNS resolution failed for oldelo.zerotwo.cloud, falling back to IP 178.104.142.24")
+                db_host = "178.104.142.24"
+        
+        dsn = f"host={db_host} port={pg_config.get('dbport', 5432)} dbname={pg_config['dbname']} user={pg_config['dbuser']} password={pg_config['dbpassword']}"
+        _pool = ConnectionPool(dsn, min_size=1, max_size=10, open=True)
+        return _pool
+    except Exception as e:
+        logger.exception("Failed to initialize PostgreSQL ConnectionPool")
+        raise e
 
 def get_archive_connection():
     # If KBSB_MODE is local, fallback to local SQLite database
@@ -25,19 +64,9 @@ def get_archive_connection():
         return conn, "sqlite"
     else:
         try:
-            pg_config = get_secret("postgres")
-            db_host = pg_config.get('dbhost', '')
-            if db_host == "oldelo.zerotwo.cloud":
-                try:
-                    import socket
-                    socket.gethostbyname(db_host)
-                except Exception:
-                    logger.warning("DNS resolution failed for oldelo.zerotwo.cloud, falling back to IP 178.104.142.24")
-                    db_host = "178.104.142.24"
-            
-            dsn = f"host={db_host} port={pg_config.get('dbport', 5432)} dbname={pg_config['dbname']} user={pg_config['dbuser']} password={pg_config['dbpassword']}"
-            conn = psycopg.connect(dsn)
-            return conn, "postgres"
+            pool = get_pool()
+            conn = pool.getconn()
+            return PooledConnectionWrapper(conn, pool), "postgres"
         except Exception:
             logger.exception("Failed to connect to PostgreSQL")
             raise HTTPException(status_code=500, detail="Database connection failed")
