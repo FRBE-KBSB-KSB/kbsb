@@ -36,6 +36,18 @@ const profileLoading = ref(false)
 const ratings = ref([])
 const games = ref([])
 const filteredPeriod = ref("All")
+const totalGames = ref(0)
+const latestGameDate = ref(null)
+
+// Sorting states
+const searchSortKey = ref('name')
+const searchSortOrder = ref('asc')
+
+const clubSortKey = ref('latest_elo')
+const clubSortOrder = ref('desc')
+
+const gamesSortKey = ref('date')
+const gamesSortOrder = ref('desc')
 
 // Hovered chart point state
 const hoveredPoint = ref(null)
@@ -114,6 +126,8 @@ async function selectPlayer(memberId) {
   games.value = []
   filteredPeriod.value = "All"
   hoveredPoint.value = null
+  totalGames.value = 0
+  latestGameDate.value = null
   
   try {
     const res = await $backend("archive", "getProfile", { member_id: memberId })
@@ -121,6 +135,8 @@ async function selectPlayer(memberId) {
       selectedPlayer.value = res.data.player
       ratings.value = res.data.ratings
       games.value = res.data.games
+      totalGames.value = res.data.total_games || 0
+      latestGameDate.value = res.data.latest_game_date || null
     } else {
       errorText.value = "Failed to load player profile"
     }
@@ -129,6 +145,74 @@ async function selectPlayer(memberId) {
     errorText.value = error.message || "An error occurred fetching player details"
   } finally {
     profileLoading.value = false
+  }
+}
+
+// Sorting helpers and computed properties
+function sortCompare(a, b, key, orderMultiplier) {
+  let valA = a[key]
+  let valB = b[key]
+  
+  if (key === 'latest_elo' || key === 'opponent_elo' || key === 'member_id' || key === 'club_id' || key === 'player_count') {
+    valA = Number(valA) || 0
+    valB = Number(valB) || 0
+  } else {
+    valA = valA ? String(valA).toLowerCase() : ""
+    valB = valB ? String(valB).toLowerCase() : ""
+  }
+  
+  if (valA === valB) return 0
+  if (valA === "" || valA === 0) return 1
+  if (valB === "" || valB === 0) return -1
+  
+  if (typeof valA === 'number') {
+    return (valA - valB) * orderMultiplier
+  }
+  return valA.localeCompare(valB) * orderMultiplier
+}
+
+const sortedPlayers = computed(() => {
+  const key = searchSortKey.value
+  const mult = searchSortOrder.value === 'asc' ? 1 : -1
+  return [...players.value].sort((a, b) => sortCompare(a, b, key, mult))
+})
+
+const sortedClubPlayers = computed(() => {
+  const key = clubSortKey.value
+  const mult = clubSortOrder.value === 'asc' ? 1 : -1
+  return [...clubPlayers.value].sort((a, b) => sortCompare(a, b, key, mult))
+})
+
+const sortedGames = computed(() => {
+  const key = gamesSortKey.value
+  const mult = gamesSortOrder.value === 'asc' ? 1 : -1
+  return [...filteredGames.value].sort((a, b) => sortCompare(a, b, key, mult))
+})
+
+function toggleSortSearch(key) {
+  if (searchSortKey.value === key) {
+    searchSortOrder.value = searchSortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    searchSortKey.value = key
+    searchSortOrder.value = 'asc'
+  }
+}
+
+function toggleSortClub(key) {
+  if (clubSortKey.value === key) {
+    clubSortOrder.value = clubSortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    clubSortKey.value = key
+    clubSortOrder.value = 'asc'
+  }
+}
+
+function toggleSortGames(key) {
+  if (gamesSortKey.value === key) {
+    gamesSortOrder.value = gamesSortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    gamesSortKey.value = key
+    gamesSortOrder.value = 'asc'
   }
 }
 
@@ -145,6 +229,54 @@ const filteredGames = computed(() => {
   }
   return games.value.filter(g => g.period === filteredPeriod.value)
 })
+
+const latestPeriod = computed(() => {
+  if (ratings.value && ratings.value.length > 0) {
+    return ratings.value[ratings.value.length - 1].period
+  }
+  if (clubPlayers.value && clubPlayers.value.length > 0) {
+    return clubPlayers.value[0].latest_elo_period
+  }
+  if (players.value && players.value.length > 0) {
+    return players.value[0].latest_elo_period
+  }
+  return null
+})
+
+function goToClub(club) {
+  selectedPlayer.value = null
+  searchMode.value = 'club'
+  selectClub(club)
+}
+
+function getPlayerResultText(game) {
+  if (game.result === '1/2') return '½'
+  const isWhite = game.color === 'W'
+  if (game.result === '1-0') return isWhite ? '1' : '0'
+  if (game.result === '0-1') return isWhite ? '0' : '1'
+  return game.result
+}
+
+function getPlayerResultColor(game) {
+  const res = getPlayerResultText(game)
+  if (res === '1') return 'green-darken-1'
+  if (res === '½') return 'grey-darken-1'
+  if (res === '0') return 'red-darken-1'
+  return 'grey'
+}
+
+function getEloChange(game) {
+  if (!game.k_factor) return '-'
+  let score = 0
+  if (game.result === '1-0') score = game.color === 'W' ? 1.0 : 0.0
+  else if (game.result === '0-1') score = game.color === 'W' ? 0.0 : 1.0
+  else if (game.result === '1/2') score = 0.5
+  
+  const we = (game.expected_score || 0) / 100.0
+  const diff = game.k_factor * (score - we)
+  const rounded = Math.round(diff)
+  return rounded >= 0 ? `+${rounded}` : `${rounded}`
+}
 
 // SVG ELO Chart coordinates
 const chartWidth = 800
@@ -339,17 +471,47 @@ onMounted(() => {
             <v-table hover>
               <thead class="bg-green-lighten-5">
                 <tr>
-                  <th class="font-weight-bold">{{ t('arc.player_name') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.member_id') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.last_elo') || 'Laatste ELO' }}</th>
-                  <th class="font-weight-bold">{{ t('arc.gender') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.birthyear') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.nationality') }}</th>
+                  <th @click="toggleSortSearch('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.player_name') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'name' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.member_id') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'member_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.last_elo') || 'Laatste ELO' }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'latest_elo' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.gender') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'gender' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.birthyear') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'birthdate' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.nationality') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'nationality' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr 
-                  v-for="p in players" 
+                  v-for="p in sortedPlayers" 
                   :key="p.member_id" 
                   @click="selectPlayer(p.member_id)" 
                   style="cursor: pointer;"
@@ -419,7 +581,7 @@ onMounted(() => {
                   <tr>
                     <th class="font-weight-bold">{{ t('arc.club_id') || 'Clubnummer' }}</th>
                     <th class="font-weight-bold">{{ t('arc.club_name') || 'Clubnaam' }}</th>
-                    <th class="font-weight-bold">{{ t('arc.abbrev') || 'Afkorting' }}</th>
+                    <th class="font-weight-bold">{{ t('arc.club_players_count') || 'Ledental' }}</th>
                     <th class="font-weight-bold">Fed</th>
                   </tr>
                 </thead>
@@ -432,7 +594,7 @@ onMounted(() => {
                   >
                     <td class="font-weight-bold text-green-darken-3">{{ c.club_id }}</td>
                     <td class="font-weight-medium">{{ c.name }}</td>
-                    <td>{{ c.abbreviation || '-' }}</td>
+                    <td>{{ c.player_count || 0 }}</td>
                     <td><v-chip size="small" variant="outlined" color="green">{{ c.federation }}</v-chip></td>
                   </tr>
                 </tbody>
@@ -481,17 +643,47 @@ onMounted(() => {
               <v-table hover>
                 <thead class="bg-green-lighten-5">
                   <tr>
-                    <th class="font-weight-bold">{{ t('arc.player_name') }}</th>
-                    <th class="font-weight-bold">{{ t('arc.member_id') }}</th>
-                    <th class="font-weight-bold">{{ t('arc.last_elo') || 'Laatste ELO' }}</th>
-                    <th class="font-weight-bold">{{ t('arc.gender') }}</th>
-                    <th class="font-weight-bold">{{ t('arc.birthyear') }}</th>
-                    <th class="font-weight-bold">{{ t('arc.nationality') }}</th>
+                    <th @click="toggleSortClub('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.player_name') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'name' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortClub('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.member_id') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'member_id' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortClub('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.last_elo') || 'Laatste ELO' }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'latest_elo' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortClub('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.gender') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'gender' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortClub('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.birthyear') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'birthdate' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortClub('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.nationality') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ clubSortKey === 'nationality' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr 
-                    v-for="p in clubPlayers" 
+                    v-for="p in sortedClubPlayers" 
                     :key="p.member_id" 
                     @click="selectPlayer(p.member_id)" 
                     style="cursor: pointer;"
@@ -532,25 +724,53 @@ onMounted(() => {
         <v-card class="mb-6 border-green bg-green-lighten-5">
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="3">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.player_name') }}</div>
                 <div class="text-h5 font-weight-bold text-green-darken-4">{{ selectedPlayer.name }}</div>
+                <div class="text-subtitle-2 text-grey-darken-2" v-if="selectedPlayer.club_id">
+                  Club: 
+                  <span 
+                    @click="goToClub({ club_id: selectedPlayer.club_id, name: selectedPlayer.club_name })" 
+                    class="text-green-darken-3 font-weight-medium text-decoration-underline" 
+                    style="cursor: pointer;"
+                  >
+                    {{ selectedPlayer.club_name || selectedPlayer.club_id }} ({{ selectedPlayer.club_id }})
+                  </span>
+                </div>
               </v-col>
-              <v-col cols="6" sm="3" md="2">
+              <v-col cols="6" sm="3" md="1.5">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.member_id') }}</div>
                 <div class="text-h6 font-weight-bold">{{ selectedPlayer.member_id }}</div>
               </v-col>
-              <v-col cols="6" sm="3" md="2">
+              <v-col cols="6" sm="3" md="1.5">
+                <div class="text-subtitle-2 text-grey-darken-1">FIDE-ID</div>
+                <div class="text-h6 font-weight-bold">
+                  <a v-if="selectedPlayer.fide_id" :href="`https://ratings.fide.com/profile/${selectedPlayer.fide_id}`" target="_blank" class="text-green-darken-2 text-decoration-none">
+                    {{ selectedPlayer.fide_id }}
+                    <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
+                  </a>
+                  <span v-else>N/A</span>
+                </div>
+              </v-col>
+              <v-col cols="6" sm="3" md="0.5" class="px-1">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.gender') }}</div>
                 <div class="text-h6">{{ selectedPlayer.gender }}</div>
               </v-col>
-              <v-col cols="6" sm="3" md="2">
+              <v-col cols="6" sm="3" md="1">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.birthyear') }}</div>
                 <div class="text-h6">{{ selectedPlayer.birthdate ? selectedPlayer.birthdate.substring(0, 4) : 'N/A' }}</div>
               </v-col>
-              <v-col cols="6" sm="3" md="2">
+              <v-col cols="6" sm="3" md="1">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.nationality') }}</div>
                 <div class="text-h6">{{ selectedPlayer.nationality || 'BEL' }}</div>
+              </v-col>
+              <v-col cols="6" sm="3" md="1.5">
+                <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.total_games') || 'Aantal partijen' }}</div>
+                <div class="text-h6 font-weight-bold text-green-darken-3">{{ totalGames || 0 }}</div>
+              </v-col>
+              <v-col cols="6" sm="3" md="2">
+                <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.latest_game') || 'Laatste partij' }}</div>
+                <div class="text-h6 font-weight-bold text-green-darken-3">{{ latestGameDate || 'N/A' }}</div>
               </v-col>
             </v-row>
           </v-card-text>
@@ -639,12 +859,13 @@ onMounted(() => {
                   :cx="pt.x" 
                   :cy="pt.y" 
                   r="5" 
-                  fill="#ffffff" 
-                  stroke="#16a34a" 
+                  :fill="filteredPeriod === pt.period ? '#dc2626' : '#ffffff'" 
+                  :stroke="filteredPeriod === pt.period ? '#dc2626' : '#16a34a'" 
                   stroke-width="3"
                   style="cursor: pointer; transition: r 0.15s;"
                   @mouseover="hoveredPoint = pt"
                   @mouseleave="hoveredPoint = null"
+                  @click="filteredPeriod = filteredPeriod === pt.period ? 'All' : pt.period"
                 />
               </svg>
             </div>
@@ -654,7 +875,19 @@ onMounted(() => {
         <!-- Game History list -->
         <v-card class="elevation-2">
           <v-card-title class="d-flex align-center justify-space-between pt-4 px-6 pb-2">
-            <span class="text-h6 font-weight-bold text-green-darken-3">{{ t('arc.game_history') }}</span>
+            <span class="text-h6 font-weight-bold text-green-darken-3">
+              {{ t('arc.game_history') }}
+              <v-chip 
+                v-if="filteredPeriod !== 'All'" 
+                closable 
+                size="small" 
+                color="green" 
+                class="ml-2 font-weight-bold"
+                @click:close="filteredPeriod = 'All'"
+              >
+                {{ formatPeriod(filteredPeriod) }}
+              </v-chip>
+            </span>
             <v-select
               v-model="filteredPeriod"
               :items="periodsList"
@@ -677,39 +910,99 @@ onMounted(() => {
             <v-table hover>
               <thead class="bg-green-lighten-5">
                 <tr>
-                  <th class="font-weight-bold">{{ t('arc.period') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.date') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.tournament') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.opponent') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.rating') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.color') }}</th>
-                  <th class="font-weight-bold">{{ t('arc.result') }}</th>
+                  <th @click="toggleSortGames('period')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.period') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'period' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('date')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.date') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'date' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('game_number')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.game_nr') || 'Partijnr.' }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'game_number' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('tournament')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.tournament') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'tournament' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('opponent_name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.opponent') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'opponent_name' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('opponent_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.rating') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'opponent_elo' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('color')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.color') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'color' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('k_factor')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    K
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'k_factor' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('expected_score')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    +/-
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'expected_score' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortGames('result')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    {{ t('arc.result') }}
+                    <v-icon size="small" class="ml-1">
+                      {{ gamesSortKey === 'result' ? (gamesSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="g in filteredGames" :key="g.id">
+                <tr v-for="g in sortedGames" :key="g.id">
                   <td>{{ formatPeriod(g.period) }}</td>
                   <td>{{ g.date || 'N/A' }}</td>
-                  <td class="text-truncate" style="max-width: 250px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
-                  <td class="font-weight-medium">{{ g.opponent_name }}</td>
-                  <td>{{ g.opponent_elo || 'N/A' }}</td>
+                  <td>{{ g.game_number || '-' }}</td>
+                  <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
+                  <td class="font-weight-medium">
+                    <span 
+                      v-if="g.opponent_member_id && g.opponent_member_id > 0"
+                      @click="selectPlayer(g.opponent_member_id)" 
+                      class="text-green-darken-3 font-weight-medium text-decoration-underline" 
+                      style="cursor: pointer;"
+                    >
+                      {{ g.opponent_name }}
+                    </span>
+                    <span v-else>{{ g.opponent_name }}</span>
+                  </td>
+                  <td>{{ g.opponent_elo !== null ? g.opponent_elo : 'N/A' }}</td>
                   <td>
                     <v-icon :color="g.color === 'W' ? 'grey-darken-3' : 'grey-lighten-1'">
                       {{ g.color === 'W' ? 'mdi-checkbox-blank' : 'mdi-checkbox-blank-outline' }}
                     </v-icon>
-                    <span class="ml-1">{{ g.color === 'W' ? 'White' : 'Black' }}</span>
+                    <span class="ml-1">{{ g.color === 'W' ? t('arc.white') : t('arc.black') }}</span>
                   </td>
+                  <td>{{ g.k_factor || '-' }}</td>
                   <td>
-                    <v-chip
-                      :color="g.result === '1-0' ? 'green-darken-1' : (g.result === '1/2' ? 'grey-darken-1' : 'red-darken-1')"
-                      size="small"
-                      variant="flat"
-                      text-color="white"
-                      class="font-weight-bold"
-                    >
-                      {{ g.result }}
-                    </v-chip>
+                    <span :class="getEloChange(g).startsWith('+') ? 'text-green-darken-2 font-weight-bold' : (getEloChange(g).startsWith('-') ? 'text-red-darken-2 font-weight-bold' : '')">
+                      {{ getEloChange(g) }}
+                    </span>
                   </td>
+                  <td>{{ getPlayerResultText(g) }}</td>
                 </tr>
               </tbody>
             </v-table>

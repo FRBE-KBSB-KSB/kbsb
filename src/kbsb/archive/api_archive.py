@@ -4,7 +4,7 @@ import logging
 import psycopg
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
-from reddevil.core import get_secret, get_settings
+from reddevil.core import get_secret
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/archive", tags=["archive"])
@@ -26,10 +26,19 @@ def get_archive_connection():
     else:
         try:
             pg_config = get_secret("postgres")
-            dsn = f"host={pg_config['dbhost']} port={pg_config.get('dbport', 5432)} dbname={pg_config['dbname']} user={pg_config['dbuser']} password={pg_config['dbpassword']}"
+            db_host = pg_config.get('dbhost', '')
+            if db_host == "oldelo.zerotwo.cloud":
+                try:
+                    import socket
+                    socket.gethostbyname(db_host)
+                except Exception:
+                    logger.warning("DNS resolution failed for oldelo.zerotwo.cloud, falling back to IP 178.104.142.24")
+                    db_host = "178.104.142.24"
+            
+            dsn = f"host={db_host} port={pg_config.get('dbport', 5432)} dbname={pg_config['dbname']} user={pg_config['dbuser']} password={pg_config['dbpassword']}"
             conn = psycopg.connect(dsn)
             return conn, "postgres"
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to connect to PostgreSQL")
             raise HTTPException(status_code=500, detail="Database connection failed")
 
@@ -45,7 +54,7 @@ def run_query(conn, db_type, sql_pg, sql_lite, params):
             cursor.execute(sql_lite, params)
             results = [dict(row) for row in cursor.fetchall()]
         return results
-    except Exception as e:
+    except Exception:
         logger.exception("Database query execution failed")
         raise HTTPException(status_code=500, detail="Database query error")
     finally:
@@ -58,16 +67,18 @@ async def search_players(q: str = Query(..., min_length=2)):
         # Search by name or stamnummer
         search_pattern = f"%{q}%"
         sql_pg = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
             WHERE p.name ILIKE %s OR CAST(p.member_id AS TEXT) LIKE %s 
             ORDER BY p.name ASC 
             LIMIT 50
         """
         sql_lite = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
             WHERE p.name LIKE ? OR CAST(p.member_id AS TEXT) LIKE ? 
             ORDER BY p.name ASC 
@@ -84,17 +95,19 @@ async def search_clubs(q: str = Query(..., min_length=2)):
     try:
         search_pattern = f"%{q}%"
         sql_pg = """
-            SELECT club_id, name, abbreviation, federation 
-            FROM clubs 
-            WHERE name ILIKE %s OR CAST(club_id AS TEXT) LIKE %s 
-            ORDER BY club_id ASC 
+            SELECT c.club_id, c.name, c.abbreviation, c.federation,
+                   (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
+            FROM clubs c
+            WHERE c.name ILIKE %s OR CAST(c.club_id AS TEXT) LIKE %s 
+            ORDER BY c.club_id ASC 
             LIMIT 50
         """
         sql_lite = """
-            SELECT club_id, name, abbreviation, federation 
-            FROM clubs 
-            WHERE name LIKE ? OR CAST(club_id AS TEXT) LIKE ? 
-            ORDER BY club_id ASC 
+            SELECT c.club_id, c.name, c.abbreviation, c.federation,
+                   (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
+            FROM clubs c
+            WHERE c.name LIKE ? OR CAST(c.club_id AS TEXT) LIKE ? 
+            ORDER BY c.club_id ASC 
             LIMIT 50
         """
         results = run_query(conn, db_type, sql_pg, sql_lite, (search_pattern, search_pattern))
@@ -107,15 +120,17 @@ async def get_club_players(club_id: int):
     conn, db_type = get_archive_connection()
     try:
         sql_pg = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
             WHERE p.club_id = %s AND p.license_year >= 2026
             ORDER BY latest_elo DESC NULLS LAST, p.name ASC
         """
         sql_lite = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
             WHERE p.club_id = ? AND p.license_year >= 2026
             ORDER BY latest_elo DESC, p.name ASC
@@ -129,8 +144,18 @@ async def get_club_players(club_id: int):
 async def get_player_profile(member_id: int):
     conn, db_type = get_archive_connection()
     try:
-        sql_pg = "SELECT member_id, name, gender, birthdate, nationality FROM players WHERE member_id = %s"
-        sql_lite = "SELECT member_id, name, gender, birthdate, nationality FROM players WHERE member_id = ?"
+        sql_pg = """
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id, c.name as club_name 
+            FROM players p 
+            LEFT JOIN clubs c ON p.club_id = c.club_id 
+            WHERE p.member_id = %s
+        """
+        sql_lite = """
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id, c.name as club_name 
+            FROM players p 
+            LEFT JOIN clubs c ON p.club_id = c.club_id 
+            WHERE p.member_id = ?
+        """
         
         results = run_query(conn, db_type, sql_pg, sql_lite, (member_id,))
         if not results:
@@ -145,14 +170,14 @@ async def get_player_profile(member_id: int):
         
         # 2. Fetch game history (limit to last 100 games for performance, full list via separate games query)
         sql_games_pg = """
-            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo, game_number, k_factor, expected_score 
             FROM player_games 
             WHERE member_id = %s 
             ORDER BY date DESC, period DESC, id DESC
             LIMIT 100
         """
         sql_games_lite = """
-            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo, game_number, k_factor, expected_score 
             FROM player_games 
             WHERE member_id = ? 
             ORDER BY date DESC, period DESC, id DESC
@@ -160,11 +185,24 @@ async def get_player_profile(member_id: int):
         """
         games = run_query(conn, db_type, sql_games_pg, sql_games_lite, (member_id,))
         
+        # 3. Fetch summary stats (total games and latest game date)
+        sql_stats_pg = "SELECT COUNT(*) as total_games, MAX(date) as latest_game_date FROM player_games WHERE member_id = %s"
+        sql_stats_lite = "SELECT COUNT(*) as total_games, MAX(date) as latest_game_date FROM player_games WHERE member_id = ?"
+        stats = run_query(conn, db_type, sql_stats_pg, sql_stats_lite, (member_id,))
+        
+        total_games = stats[0]["total_games"] if stats else 0
+        latest_game_date = stats[0]["latest_game_date"] if stats else None
+        latest_game_date_str = latest_game_date.isoformat() if latest_game_date else None
+        if isinstance(latest_game_date, str):
+            latest_game_date_str = latest_game_date
+            
         return {
             "success": True,
             "player": player,
             "ratings": ratings,
-            "games": games
+            "games": games,
+            "total_games": total_games,
+            "latest_game_date": latest_game_date_str
         }
     finally:
         conn.close()
@@ -175,13 +213,13 @@ async def get_player_games(member_id: int, period: str = None):
     try:
         if period:
             sql_pg = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
                 FROM player_games 
                 WHERE member_id = %s AND period = %s
                 ORDER BY date DESC, id DESC
             """
             sql_lite = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
                 FROM player_games 
                 WHERE member_id = ? AND period = ?
                 ORDER BY date DESC, id DESC
@@ -189,13 +227,13 @@ async def get_player_games(member_id: int, period: str = None):
             params = (member_id, period)
         else:
             sql_pg = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
                 FROM player_games 
                 WHERE member_id = %s
                 ORDER BY date DESC, period DESC, id DESC
             """
             sql_lite = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date 
+                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
                 FROM player_games 
                 WHERE member_id = ?
                 ORDER BY date DESC, period DESC, id DESC

@@ -1,6 +1,14 @@
 # copyright Ruben Decrop 2015 - 2024
 # copyright Chessdevil Consulting 2015 - 2024
 
+import sys
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 import logging, logging.config
 import os
 from fastapi import FastAPI
