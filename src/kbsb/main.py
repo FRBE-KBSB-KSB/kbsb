@@ -66,6 +66,9 @@ from kbsb.oldsite import api_oldsite
 logger.info("loading api_fide")
 from kbsb.fide import api_fide
 
+logger.info("loading api_archive")
+from kbsb.archive import api_archive
+
 app.include_router(api_account.router)
 app.include_router(api_club.router)
 app.include_router(api_filestore.router)
@@ -73,6 +76,7 @@ app.include_router(api_interclubs.router)
 app.include_router(api_member.router)
 app.include_router(api_oldsite.router)
 app.include_router(api_fide.router)
+app.include_router(api_archive.router)
 
 logger.info("Api's loaded")
 
