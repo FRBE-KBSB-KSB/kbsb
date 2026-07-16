@@ -133,6 +133,7 @@ async def xls_venues() -> str:
             "wheelchaie",
             "email",
             "phone",
+            "parking",
             "remarks",
         ]
     )
@@ -150,6 +151,7 @@ async def xls_venues() -> str:
                     vn.wheelchair,
                     vn.email,
                     vn.phone,
+                    vn.parking,
                     vn.remarks,
                 ]
             )

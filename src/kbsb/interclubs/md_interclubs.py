@@ -463,6 +463,7 @@ class ICVenueItem(BaseModel):
     address: str
     capacity: int  # number of boards, 0  is unlimited
     email: str | None = ""
+    parking: str | None = ""
     phone: str | None = ""
     remarks: str | None = ""
     rounds: list[str] | None = None
