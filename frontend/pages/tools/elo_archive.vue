@@ -1018,7 +1018,18 @@ onMounted(() => {
                       {{ getEloChange(g) }}
                     </span>
                   </td>
-                  <td>{{ getPlayerResultText(g) }}</td>
+                  <td>
+                    <v-chip
+                      :color="getPlayerResultColor(g)"
+                      size="small"
+                      variant="flat"
+                      text-color="white"
+                      class="font-weight-bold"
+                      style="min-width: 28px; justify-content: center;"
+                    >
+                      {{ getPlayerResultText(g) }}
+                    </v-chip>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
