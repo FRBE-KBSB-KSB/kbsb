@@ -322,7 +322,20 @@ watch(
   { deep: true }
 );
 
-// Arbiter FIDE lookup
+// localStorage cache for frequently reused fields
+const CACHED_FIELDS = [
+  'invoice_email', 'invoice_clubnr',
+  'city', 'country',
+  'software', 'software_version',
+  'contact_email', 'homepage'
+]
+CACHED_FIELDS.forEach(field => {
+  watch(() => form.value[field], val => {
+    if (val) localStorage.setItem(`fide_${field}`, val)
+    else localStorage.removeItem(`fide_${field}`)
+  })
+})
+
 const noLicenseArbiters = ref(new Set())
 
 const fide_people_by_id = computed(() => {
@@ -462,6 +475,11 @@ function resetForm() {
 }
 onMounted(() => {
   loadFormData();
+  // Restore cached field values from localStorage
+  CACHED_FIELDS.forEach(field => {
+    const cached = localStorage.getItem(`fide_${field}`)
+    if (cached !== null) form.value[field] = cached
+  })
 });
 
 definePageMeta({
