@@ -357,6 +357,8 @@ const fide_people_by_id = computed(() => {
   return map
 })
 
+const fide_ids_list = computed(() => Object.keys(fide_people_by_id.value))
+
 function handleArbiterChange(nameField, idField) {
   const name = form.value[nameField];
   const info = lookups.value.fide_people[name];
@@ -668,19 +670,19 @@ definePageMeta({
         <input type="text" v-model="form.chief_arbiter_name" list="fideNames" @change="handleArbiterChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
         <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span><input type="text" v-model="form.chief_arbiter_fide_id" @change="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required></label>
+      <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span><input type="text" v-model="form.chief_arbiter_fide_id" list="fideIds" @change="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" @input="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required></label>
       
       <label><span>{{ tField('dep_chief_arbiter1_name') }}</span>
         <input type="text" v-model="form.dep_chief_arbiter1_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
         <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter1_fide_id" @change="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')"></label>
+      <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')"></label>
       
       <label><span>{{ tField('dep_chief_arbiter2_name') }}</span>
         <input type="text" v-model="form.dep_chief_arbiter2_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
         <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id" @change="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')"></label>
+      <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')"></label>
       
       <label>
         <span>{{ tField('kind_of_arbiters') }}</span>
@@ -695,25 +697,25 @@ definePageMeta({
         <input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleArbiterChange('arbiter1_name', 'arbiter1_fide_id')">
         <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" @change="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
+      <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')" @input="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
       <label>
         <span>{{ tField('arbiter2_name') }}</span>
         <input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleArbiterChange('arbiter2_name', 'arbiter2_fide_id')">
         <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" @change="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
+      <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')" @input="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
       <label>
         <span>{{ tField('arbiter3_name') }}</span>
         <input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleArbiterChange('arbiter3_name', 'arbiter3_fide_id')">
         <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" @change="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
+      <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')" @input="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
       <label>
         <span>{{ tField('arbiter4_name') }}</span>
         <input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleArbiterChange('arbiter4_name', 'arbiter4_fide_id')">
         <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" @change="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
+      <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')" @input="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
       
       <div style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin-top: -0.25rem; font-style: italic;">{{ tUI('more_arbiters_note') }}</div>
 
@@ -872,6 +874,9 @@ definePageMeta({
 
       <datalist id="fideNames">
         <option v-for="name in lookups.fide_names" :key="name" :value="name"></option>
+      </datalist>
+      <datalist id="fideIds">
+        <option v-for="id in fide_ids_list" :key="id" :value="id"></option>
       </datalist>
     </form>
   </div>
