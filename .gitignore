@@ -13,6 +13,8 @@ frontend/.nuxt/
 *.log*
 shared/secrets/
 shared/fide_data
+scratch/
+kbsb-*.json
 
 
 

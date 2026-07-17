@@ -96,6 +96,10 @@ SECRETS = {
         "name": "kbsb-mysql",
         "manager": "googlejson",
     },
+    "postgres": {
+        "name": "testing-vps-postgres",
+        "manager": "googlejson",
+    },
     "gmail": {
         "name": "kbsb-gmail",
         "manager": "googlejson",

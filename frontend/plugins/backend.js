@@ -1,5 +1,6 @@
 import axios from "axios"
 import accounts from "@/api/accounts"
+import national_elo_archive from "@/api/national_elo_archive"
 import club from "@/api/club"
 import fide from "@/api/fide"
 import filestore from "@/api/filestore"
@@ -61,6 +62,7 @@ axios.interceptors.response.use(
 
 const factories = {
   accounts,
+  national_elo_archive,
   club,
   fide,
   filestore,

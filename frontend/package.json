@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "rm -rf /tmp/nitro && nuxt dev",
+    "dev": "node -e \"try { require('fs').rmSync('/tmp/nitro', { recursive: true, force: true }) } catch(e) {}\" && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -23,6 +23,7 @@
     "@mdi/font": "^7.3.67",
     "@pinia/nuxt": "^0.5.1",
     "axios": "^1.6.2",
+    "chart.js": "^4.5.1",
     "front-matter": "^4.0.2",
     "jose": "^5.2.0",
     "nuxt-vue3-google-signin": "^0.0.11",
