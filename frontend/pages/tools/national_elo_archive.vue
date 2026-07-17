@@ -52,9 +52,6 @@ const gamesSortOrder = ref('desc')
 // Hovered chart point state
 const hoveredPoint = ref(null)
 
-// Player search query type
-const searchType = ref("all")
-
 // Regions state
 const loadingRegions = ref(false)
 const regionsClubs = ref({})
@@ -156,7 +153,7 @@ async function handleSearch() {
   players.value = []
   
   try {
-    const res = await $backend("national_elo_archive", "search", { q: searchQuery.value, type: searchType.value })
+    const res = await $backend("national_elo_archive", "search", { q: searchQuery.value })
     if (res && res.data && res.data.success) {
       players.value = res.data.players
     } else {
@@ -568,18 +565,6 @@ onMounted(() => {
                     prepend-icon="mdi-search-web"
                   >
                     {{ t('arc.search_btn') }}
-                  </v-btn>
-                </v-col>
-              </v-row>
-              <v-row class="mt-2" hide-details>
-                <v-col cols="12">
-                  <v-radio-group v-model="searchType" inline hide-details color="green-darken-2" class="mt-0">
-                    <v-radio value="all" label="All fields / Alles"></v-radio>
-                    <v-radio value="name" label="Name / Naam"></v-radio>
-                    <v-radio value="national" label="National ID / Stamnummer"></v-radio>
-                    <v-radio value="fide" label="FIDE ID"></v-radio>
-                  </v-radio-group>
-                </v-col>
               </v-row>
             </v-form>
           </v-card-text>
@@ -605,6 +590,12 @@ onMounted(() => {
                     {{ t('arc.member_id') }}
                     <v-icon size="small" class="ml-1">
                       {{ searchSortKey === 'member_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                    </v-icon>
+                  </th>
+                  <th @click="toggleSortSearch('fide_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                    FIDE ID
+                    <v-icon size="small" class="ml-1">
+                      {{ searchSortKey === 'fide_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
                   <th @click="toggleSortSearch('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
@@ -634,19 +625,20 @@ onMounted(() => {
                 </tr>
               </thead>
               <tbody>
-                <tr 
-                  v-for="p in sortedPlayers" 
-                  :key="p.member_id" 
-                  @click="selectPlayer(p.member_id)" 
-                  style="cursor: pointer;"
-                >
-                  <td class="text-green-darken-3 font-weight-medium">{{ p.name }}</td>
-                  <td>{{ p.member_id }}</td>
-                  <td class="font-weight-bold text-green-darken-2">{{ p.latest_elo || 'N/A' }}</td>
-                  <td>{{ p.gender }}</td>
-                  <td>{{ p.birthdate ? p.birthdate.substring(0, 4) : 'N/A' }}</td>
-                  <td>{{ p.nationality || 'BEL' }}</td>
-                </tr>
+                  <tr 
+                    v-for="p in sortedPlayers" 
+                    :key="p.member_id" 
+                    @click="selectPlayer(p.member_id)" 
+                    style="cursor: pointer;"
+                  >
+                    <td class="text-green-darken-3 font-weight-medium">{{ p.name }}</td>
+                    <td>{{ p.member_id }}</td>
+                    <td>{{ p.fide_id || 'N/A' }}</td>
+                    <td class="font-weight-bold text-green-darken-2">{{ p.latest_elo || 'N/A' }}</td>
+                    <td>{{ p.gender }}</td>
+                    <td>{{ p.birthdate ? p.birthdate.substring(0, 4) : 'N/A' }}</td>
+                    <td>{{ p.nationality || 'BEL' }}</td>
+                  </tr>
               </tbody>
             </v-table>
           </v-card-text>
