@@ -90,30 +90,46 @@ def run_query(conn, db_type, sql_pg, sql_lite, params):
         cursor.close()
 
 @router.get("/search")
-async def search_players(q: str = Query(..., min_length=2)):
+async def search_players(q: str = Query(..., min_length=2), type: str = Query("all")):
     conn, db_type = get_archive_connection()
     try:
-        # Search by name or stamnummer
         search_pattern = f"%{q}%"
-        sql_pg = """
+        if type == "name":
+            where_pg = "p.name ILIKE %s"
+            where_lite = "p.name LIKE ?"
+            params = (search_pattern,)
+        elif type == "national":
+            where_pg = "CAST(p.member_id AS TEXT) LIKE %s"
+            where_lite = "CAST(p.member_id AS TEXT) LIKE ?"
+            params = (search_pattern,)
+        elif type == "fide":
+            where_pg = "CAST(p.fide_id AS TEXT) LIKE %s"
+            where_lite = "CAST(p.fide_id AS TEXT) LIKE ?"
+            params = (search_pattern,)
+        else: # "all"
+            where_pg = "p.name ILIKE %s OR CAST(p.member_id AS TEXT) LIKE %s OR CAST(p.fide_id AS TEXT) LIKE %s"
+            where_lite = "p.name LIKE ? OR CAST(p.member_id AS TEXT) LIKE ? OR CAST(p.fide_id AS TEXT) LIKE ?"
+            params = (search_pattern, search_pattern, search_pattern)
+
+        sql_pg = f"""
             SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
                    (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
                    (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
-            WHERE p.name ILIKE %s OR CAST(p.member_id AS TEXT) LIKE %s 
+            WHERE {where_pg}
             ORDER BY p.name ASC 
             LIMIT 50
         """
-        sql_lite = """
+        sql_lite = f"""
             SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
                    (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
                    (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
-            WHERE p.name LIKE ? OR CAST(p.member_id AS TEXT) LIKE ? 
+            WHERE {where_lite}
             ORDER BY p.name ASC 
             LIMIT 50
         """
-        results = run_query(conn, db_type, sql_pg, sql_lite, (search_pattern, search_pattern))
+        results = run_query(conn, db_type, sql_pg, sql_lite, params)
         return {"success": True, "players": results}
     finally:
         conn.close()
@@ -140,6 +156,27 @@ async def search_clubs(q: str = Query(..., min_length=2)):
             LIMIT 50
         """
         results = run_query(conn, db_type, sql_pg, sql_lite, (search_pattern, search_pattern))
+        return {"success": True, "clubs": results}
+    finally:
+        conn.close()
+
+@router.get("/clubs/all")
+async def get_all_clubs():
+    conn, db_type = get_archive_connection()
+    try:
+        sql_pg = """
+            SELECT c.club_id, c.name, c.abbreviation, c.federation,
+                   (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
+            FROM clubs c
+            ORDER BY c.club_id ASC
+        """
+        sql_lite = """
+            SELECT c.club_id, c.name, c.abbreviation, c.federation,
+                   (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
+            FROM clubs c
+            ORDER BY c.club_id ASC
+        """
+        results = run_query(conn, db_type, sql_pg, sql_lite, ())
         return {"success": True, "clubs": results}
     finally:
         conn.close()

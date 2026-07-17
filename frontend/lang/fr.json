@@ -389,5 +389,7 @@
 "arc.total_games": "Nombre de parties",
 "arc.latest_game": "Dernière partie",
 "arc.loading": "Chargement...",
+"arc.title": "Archives ELO & Historique des parties",
+"arc.regions_tab": "Régions",
 "ZZZ": "ZZZ"
 }

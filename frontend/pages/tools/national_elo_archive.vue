@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
+import { ref, computed, onMounted, onUnmounted, watch } from "vue"
 import { useRoute } from "vue-router"
 import { useI18n } from "vue-i18n"
 
@@ -11,7 +11,7 @@ definePageMeta({
   layout: "nomenu",
 })
 
-// Search Mode ('player' or 'club')
+// Search Mode ('player', 'club', or 'region')
 const searchMode = ref("player")
 
 // Player search state
@@ -51,6 +51,67 @@ const gamesSortOrder = ref('desc')
 
 // Hovered chart point state
 const hoveredPoint = ref(null)
+
+// Regions state
+const loadingRegions = ref(false)
+const regionsClubs = ref({})
+const regionsList = [
+  { id: 0, name: "Brussel / Bruxelles (VSF)", clubIds: [201, 204, 209, 229, 244] },
+  { id: 100, name: "Antwerpen", clubIds: [108, 109, 114, 121, 124, 128, 130, 132, 134, 135, 143, 162, 166, 174, 176, 182, 188, 190, 194, 195, 196] },
+  { id: 200, name: "Vlaams-Brabant", clubIds: [228, 230, 231, 233, 234, 235, 236, 238, 240, 260, 261] },
+  { id: 299, name: "Bruxelles / Brussel (FEFB)", clubIds: [202, 207, 226, 239, 278, 289] },
+  { id: 300, name: "West-Vlaanderen", clubIds: [301, 302, 303, 304, 305, 307, 309, 312, 313, 318, 322, 340, 351, 352, 353, 362, 363, 364] },
+  { id: 400, name: "Oost-Vlaanderen", clubIds: [401, 402, 404, 408, 410, 417, 418, 422, 425, 430, 432, 436, 438, 460, 462, 465, 471, 472, 475] },
+  { id: 500, name: "Hainaut", clubIds: [501, 511, 514, 520, 521, 525, 541, 547, 548, 549, 551] },
+  { id: 600, name: "Liège", clubIds: [601, 603, 609, 618, 619, 621, 622, 641, 666] },
+  { id: 699, name: "SVDB", clubIds: [604, 607, 623, 627] },
+  { id: 700, name: "Limburg", clubIds: [701, 703, 705, 707, 708, 712, 713, 714, 715, 725, 726, 727, 732, 733, 736, 737, 741, 742, 743] },
+  { id: 800, name: "Namur - Luxembourg", clubIds: [810, 811, 814, 816] },
+  { id: 900, name: "Namur", clubIds: [901, 902, 906, 909] },
+  { id: 950, name: "Brabant Wallon", clubIds: [518, 951, 952, 953, 954, 961, 962] }
+]
+
+async function loadAllClubsForRegions() {
+  loadingRegions.value = true
+  errorText.value = ""
+  regionsClubs.value = {}
+  
+  try {
+    const res = await $backend("national_elo_archive", "getAllClubs")
+    if (res && res.data && res.data.success) {
+      const clubsList = res.data.clubs || []
+      
+      const grouped = {}
+      regionsList.forEach(r => {
+        grouped[r.id] = []
+      })
+      
+      clubsList.forEach(club => {
+        if (!club.player_count || club.player_count === 0) return
+        
+        const region = regionsList.find(r => r.clubIds.includes(club.club_id))
+        if (region) {
+          grouped[region.id].push(club)
+        }
+      })
+      
+      regionsClubs.value = grouped
+    } else {
+      errorText.value = "Failed to load clubs for regions"
+    }
+  } catch (error) {
+    console.error(error)
+    errorText.value = error.message || "An error occurred fetching regions clubs"
+  } finally {
+    loadingRegions.value = false
+  }
+}
+
+watch(searchMode, (newVal) => {
+  if (newVal === "region" && Object.keys(regionsClubs.value).length === 0) {
+    loadAllClubsForRegions()
+  }
+})
 
 // API methods
 async function handleSearch() {
@@ -433,101 +494,83 @@ onMounted(() => {
 
     <!-- VIEW 1: SEARCH PLAYER / CLUB -->
     <div v-if="!selectedPlayer">
-      <!-- Tabs to select search mode -->
-      <v-tabs v-slot:default v-model="searchMode" color="green-darken-3" class="mb-6 bg-green-lighten-5 rounded elevation-1">
-        <v-tab value="player" prepend-icon="mdi-account-search">
-          {{ t('arc.search_player_tab') || 'Speler' }}
-        </v-tab>
-        <v-tab value="club" prepend-icon="mdi-home-group">
-          {{ t('arc.search_club_tab') || 'Club' }}
-        </v-tab>
-      </v-tabs>
+      <!-- IF A CLUB IS SELECTED -->
+      <div v-if="selectedClub">
+        <v-btn 
+          color="green-darken-2" 
+          variant="outlined" 
+          prepend-icon="mdi-arrow-left" 
+          class="mb-4"
+          @click="selectedClub = null"
+        >
+          {{ t('arc.back_to_clubs') || 'Terug naar clubs' }}
+        </v-btn>
 
-      <!-- MODE 1: PLAYER SEARCH -->
-      <div v-if="searchMode === 'player'">
-        <v-card class="mb-6 elevation-2 border-green">
-          <v-card-text>
-            <v-form @submit.prevent="handleSearch">
-              <v-row align="center">
-                <v-col cols="12" md="9">
-                  <v-text-field
-                    v-model="searchQuery"
-                    prepend-inner-icon="mdi-magnify"
-                    :label="t('arc.search_placeholder')"
-                    variant="outlined"
-                    color="green-darken-2"
-                    hide-details
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-btn
-                    block
-                    size="large"
-                    color="green-darken-2"
-                    type="submit"
-                    :loading="searching"
-                    prepend-icon="mdi-search-web"
-                  >
-                    {{ t('arc.search_btn') }}
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-form>
+        <v-card class="mb-6 border-green bg-green-lighten-5">
+          <v-card-text class="d-flex align-center justify-space-between py-4">
+            <div>
+              <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.selected_club') || 'Geselecteerde Club' }}</div>
+              <div class="text-h5 font-weight-bold text-green-darken-4">
+                {{ selectedClub.name }} ({{ selectedClub.club_id }})
+              </div>
+            </div>
+            <v-chip color="green-darken-3" class="font-weight-bold" variant="flat">
+              {{ clubPlayers.length }} {{ t('arc.players_count') || 'spelers' }}
+            </v-chip>
           </v-card-text>
         </v-card>
 
-        <!-- Player search results list -->
-        <v-card v-if="hasSearched && !searching" class="elevation-2">
-          <v-card-text v-if="players.length === 0" class="text-center py-8 text-muted">
-            <v-icon size="48" color="grey-lighten-1" class="mb-2">mdi-account-search-outline</v-icon>
-            <p class="text-subtitle-1">{{ t('arc.no_results') }}</p>
-          </v-card-text>
-          <v-card-text v-else class="pa-0">
+        <v-row v-if="loadingClubPlayers" justify="center" class="my-8">
+          <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
+        </v-row>
+
+        <!-- Club players table (sorted by latest ELO) -->
+        <v-card v-else class="elevation-2">
+          <v-card-text class="pa-0">
             <v-table hover>
               <thead class="bg-green-lighten-5">
                 <tr>
-                  <th @click="toggleSortSearch('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.player_name') }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'name' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'name' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
-                  <th @click="toggleSortSearch('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.member_id') }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'member_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'member_id' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
-                  <th @click="toggleSortSearch('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.last_elo') || 'Laatste ELO' }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'latest_elo' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'latest_elo' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
-                  <th @click="toggleSortSearch('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.gender') }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'gender' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'gender' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
-                  <th @click="toggleSortSearch('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.birthyear') }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'birthdate' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'birthdate' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
-                  <th @click="toggleSortSearch('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                  <th @click="toggleSortClub('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
                     {{ t('arc.nationality') }}
                     <v-icon size="small" class="ml-1">
-                      {{ searchSortKey === 'nationality' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      {{ clubSortKey === 'nationality' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr 
-                  v-for="p in sortedPlayers" 
+                  v-for="p in sortedClubPlayers" 
                   :key="p.member_id" 
                   @click="selectPlayer(p.member_id)" 
                   style="cursor: pointer;"
@@ -543,16 +586,138 @@ onMounted(() => {
             </v-table>
           </v-card-text>
         </v-card>
-
-        <v-row v-if="searching" justify="center" class="my-8">
-          <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
-        </v-row>
       </div>
 
-      <!-- MODE 2: CLUB SEARCH -->
+      <!-- ELSE (NO CLUB SELECTED) -->
       <div v-else>
-        <!-- Club search form if no club selected -->
-        <div v-if="!selectedClub">
+        <!-- Tabs to select search mode -->
+        <v-tabs v-slot:default v-model="searchMode" color="green-darken-3" class="mb-6 bg-green-lighten-5 rounded elevation-1">
+          <v-tab value="player" prepend-icon="mdi-account-search">
+            {{ t('arc.search_player_tab') || 'Speler' }}
+          </v-tab>
+          <v-tab value="club" prepend-icon="mdi-home-group">
+            {{ t('arc.search_club_tab') || 'Club' }}
+          </v-tab>
+          <v-tab value="region" prepend-icon="mdi-map-marker-multiple">
+            {{ t('arc.regions_tab') || 'Regio\'s' }}
+          </v-tab>
+        </v-tabs>
+
+        <!-- MODE 1: PLAYER SEARCH -->
+        <div v-if="searchMode === 'player'">
+          <v-card class="mb-6 elevation-2 border-green">
+            <v-card-text>
+              <v-form @submit.prevent="handleSearch">
+                <v-row align="center">
+                  <v-col cols="12" md="9">
+                    <v-text-field
+                      v-model="searchQuery"
+                      prepend-inner-icon="mdi-magnify"
+                      :label="t('arc.search_placeholder')"
+                      variant="outlined"
+                      color="green-darken-2"
+                      hide-details
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <v-btn
+                      block
+                      size="large"
+                      color="green-darken-2"
+                      type="submit"
+                      :loading="searching"
+                      prepend-icon="mdi-search-web"
+                    >
+                      {{ t('arc.search_btn') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+
+          <!-- Player search results list -->
+          <v-card v-if="hasSearched && !searching" class="elevation-2">
+            <v-card-text v-if="players.length === 0" class="text-center py-8 text-muted">
+              <v-icon size="48" color="grey-lighten-1" class="mb-2">mdi-account-search-outline</v-icon>
+              <p class="text-subtitle-1">{{ t('arc.no_results') }}</p>
+            </v-card-text>
+            <v-card-text v-else class="pa-0">
+              <v-table hover>
+                <thead class="bg-green-lighten-5">
+                  <tr>
+                    <th @click="toggleSortSearch('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.player_name') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'name' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.member_id') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'member_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('fide_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      FIDE ID
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'fide_id' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.last_elo') || 'Laatste ELO' }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'latest_elo' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.gender') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'gender' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.birthyear') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'birthdate' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                    <th @click="toggleSortSearch('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
+                      {{ t('arc.nationality') }}
+                      <v-icon size="small" class="ml-1">
+                        {{ searchSortKey === 'nationality' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
+                      </v-icon>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr 
+                    v-for="p in sortedPlayers" 
+                    :key="p.member_id" 
+                    @click="selectPlayer(p.member_id)" 
+                    style="cursor: pointer;"
+                  >
+                    <td class="text-green-darken-3 font-weight-medium">{{ p.name }}</td>
+                    <td>{{ p.member_id }}</td>
+                    <td>{{ p.fide_id || 'N/A' }}</td>
+                    <td class="font-weight-bold text-green-darken-2">{{ p.latest_elo || 'N/A' }}</td>
+                    <td>{{ p.gender }}</td>
+                    <td>{{ p.birthdate ? p.birthdate.substring(0, 4) : 'N/A' }}</td>
+                    <td>{{ p.nationality || 'BEL' }}</td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-card-text>
+          </v-card>
+
+          <v-row v-if="searching" justify="center" class="my-8">
+            <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
+          </v-row>
+        </div>
+
+        <!-- MODE 2: CLUB SEARCH -->
+        <div v-else-if="searchMode === 'club'">
           <v-card class="mb-6 elevation-2 border-green">
             <v-card-text>
               <v-form @submit.prevent="handleClubSearch">
@@ -623,98 +788,54 @@ onMounted(() => {
           </v-row>
         </div>
 
-        <!-- Selected Club: Display Players sorted by Latest ELO -->
-        <div v-else>
-          <v-btn 
-            color="green-darken-2" 
-            variant="outlined" 
-            prepend-icon="mdi-arrow-left" 
-            class="mb-4"
-            @click="selectedClub = null"
-          >
-            {{ t('arc.back_to_clubs') || 'Terug naar clubs' }}
-          </v-btn>
-
-          <v-card class="mb-6 border-green bg-green-lighten-5">
-            <v-card-text class="d-flex align-center justify-space-between py-4">
-              <div>
-                <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.selected_club') || 'Geselecteerde Club' }}</div>
-                <div class="text-h5 font-weight-bold text-green-darken-4">
-                  {{ selectedClub.name }} ({{ selectedClub.club_id }})
-                </div>
-              </div>
-              <v-chip color="green-darken-3" class="font-weight-bold" variant="flat">
-                {{ clubPlayers.length }} {{ t('arc.players_count') || 'spelers' }}
-              </v-chip>
-            </v-card-text>
-          </v-card>
-
-          <v-row v-if="loadingClubPlayers" justify="center" class="my-8">
+        <!-- MODE 3: REGIONS -->
+        <div v-else-if="searchMode === 'region'">
+          <v-row v-if="loadingRegions" justify="center" class="my-8">
             <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
           </v-row>
-
-          <!-- Club players table (sorted by latest ELO) -->
-          <v-card v-else class="elevation-2">
-            <v-card-text class="pa-0">
-              <v-table hover>
-                <thead class="bg-green-lighten-5">
-                  <tr>
-                    <th @click="toggleSortClub('name')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.player_name') }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'name' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                    <th @click="toggleSortClub('member_id')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.member_id') }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'member_id' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                    <th @click="toggleSortClub('latest_elo')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.last_elo') || 'Laatste ELO' }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'latest_elo' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                    <th @click="toggleSortClub('gender')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.gender') }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'gender' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                    <th @click="toggleSortClub('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.birthyear') }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'birthdate' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                    <th @click="toggleSortClub('nationality')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                      {{ t('arc.nationality') }}
-                      <v-icon size="small" class="ml-1">
-                        {{ clubSortKey === 'nationality' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
-                      </v-icon>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr 
-                    v-for="p in sortedClubPlayers" 
-                    :key="p.member_id" 
-                    @click="selectPlayer(p.member_id)" 
-                    style="cursor: pointer;"
-                  >
-                    <td class="text-green-darken-3 font-weight-medium">{{ p.name }}</td>
-                    <td>{{ p.member_id }}</td>
-                    <td class="font-weight-bold text-green-darken-2">{{ p.latest_elo || 'N/A' }}</td>
-                    <td>{{ p.gender }}</td>
-                    <td>{{ p.birthdate ? p.birthdate.substring(0, 4) : 'N/A' }}</td>
-                    <td>{{ p.nationality || 'BEL' }}</td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
+          
+          <div v-else>
+            <div v-for="region in regionsList" :key="region.id">
+              <div v-if="regionsClubs[region.id] && regionsClubs[region.id].length > 0" class="mb-8">
+                <h2 class="text-h5 font-weight-bold text-green-darken-3 mb-4 pb-2" style="border-bottom: 2px solid #e0e0e0;">
+                  {{ region.name }}
+                </h2>
+                
+                <v-card class="elevation-1 pa-4 bg-grey-lighten-4">
+                  <v-row>
+                    <v-col 
+                      v-for="club in regionsClubs[region.id]" 
+                      :key="club.club_id"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                      lg="3"
+                    >
+                      <v-card 
+                        variant="outlined" 
+                        color="green-darken-1" 
+                        class="h-100 hover-card bg-white" 
+                        @click="selectClub(club)"
+                        style="cursor: pointer;"
+                      >
+                        <v-card-text class="d-flex align-center justify-space-between py-3 px-4">
+                          <div class="text-truncate">
+                            <div class="text-caption text-grey-darken-1 font-weight-bold">{{ club.club_id }}</div>
+                            <div class="font-weight-bold text-green-darken-4 text-truncate">
+                              {{ club.name }}
+                            </div>
+                          </div>
+                          <v-chip size="x-small" color="green-darken-3" class="font-weight-bold ml-2">
+                            {{ club.player_count }}
+                          </v-chip>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1046,5 +1167,13 @@ onMounted(() => {
 }
 .chart-container svg text {
   user-select: none;
+}
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.15) !important;
+  background-color: #f1f8e9 !important; /* green-lighten-5 */
 }
 </style>
