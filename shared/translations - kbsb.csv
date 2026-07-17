@@ -68,6 +68,7 @@ icn,ven_closed,The management of the planning is currently unavailable,Het behee
 icn,ven_notdefined,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
 icn,ven_round_avail,Available for the ounds,Beschikbaar op ronden,Disponibles aux rondes,Verfügbar in den Runden
 icn,ven_round_sel,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
+icn,ven_parking,Parking,Parking,Parking,Parken
 icn,ven_team_sel,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
 icn,ven_save,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 icn,ven_save_fail,Saving venues failed,Opslaan speellokalen mislukt,Sauvegarder les salles de jeu échoué,Speichern Spielorte fehlgeschlagen
@@ -350,4 +351,41 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,You triggered a bug. Please inform the webmaster.,You triggered a bug. Please inform the webmaster.,Je hebt een bug geactiveerd. Informeer de webmaster.,Vous avez déclenché un bug. Merci d'en informer le webmaster.,Sie haben einen Fehler ausgelöst. Bitte informieren Sie den Webmaster.
 ,Youth,Youth,Jeugd,Jeunesse,Jugend
 ,Youth director,Youth director,Jeugdleider,Directeur de la jeunesse,Jugendleiter
-,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiter
+,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiterarc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
+arc,search_player_tab,Search Player,Speler zoeken,Rechercher un joueur,Spieler suchen
+arc,search_club_tab,Search Club,Club zoeken,Rechercher un club,Verein suchen
+arc,search_btn,Search,Zoeken,Rechercher,Suchen
+arc,search_placeholder,Search player name or stamnummer...,Zoek spelersnaam of stamnummer...,Rechercher un nom ou un matricule...,Spielername oder Mitgliedsnummer suchen...
+arc,search_club_placeholder,Search club name or number...,Zoek clubnaam of clubnummer...,Rechercher par nom ou numéro de club...,Vereinsname oder Vereinsnummer suchen...
+arc,no_results,No players found.,Geen spelers gevonden.,Aucun joueur trouvé.,Keine Spieler gefunden.
+arc,no_clubs,No clubs found.,Geen clubs gevonden.,Aucun club trouvé.,Keine Vereine gefunden.
+arc,player_name,Name,Naam,Nom,Name
+arc,member_id,Stamnummer,Stamnummer,Matricule,Mitgliedsnummer
+arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
+arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
+arc,abbrev,Abbreviation,Afkorting,Abréviation,Abkürzung
+arc,gender,Gender,Geslacht,Genre,Geschlecht
+arc,birthdate,Birthdate,Geboortedatum,Date de naissance,Geburtsdatum
+arc,birthyear,Birth Year,Geboortejaar,Année de naissance,Geburtsjahr
+arc,nationality,Nationality,Nationaliteit,Nationalité,Nationalität
+arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
+arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
+arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
+arc,result,Result,Resultaat,Résultat,Ergebnis
+arc,color,Color,Kleur,Couleur,Farbe
+arc,date,Date,Datum,Date,Datum
+arc,tournament,Tournament,Toernooi,Tournoi,Turnier
+arc,rating,Rating,Rating,Classement,Wertung
+arc,period,Period,Periode,Période,Periode
+arc,white,White,Wit,Blanc,Weiß
+arc,black,Black,Zwart,Noir,Schwarz
+arc,game_nr,Game No.,Partijnr.,N° de partie,Partienummer
+arc,back_to_search,Back to search,Terug naar zoeken,Retour à la recherche,Zurück zur Suche
+arc,back_to_clubs,Back to clubs,Terug naar clubs,Retour aux clubs,Zurück zu Vereinen
+arc,selected_club,Selected Club,Geselecteerde club,Club sélectionné,Ausgewählter Verein
+arc,players_count,players,spelers,joueurs,Spieler
+arc,last_elo,Last ELO,Laatste ELO,Dernier ELO,Letzte ELO
+arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
+arc,total_games,Total Games,Aantal partijen,Nombre de parties,Anzahl der Partien
+arc,latest_game,Latest Game,Laatste partij,Dernière partie,Letzte Partie
+arc,loading,Loading...,Laden...,Chargement...,Laden...
