@@ -143,6 +143,9 @@ async function setup(idclub_, icdata_) {
                 <b>{{ t("icn.ven_wheelchair") }}:</b> {{ i18n_boole(v.wheelchair) }}
               </div>
               <div>
+                <b>{{ t("icn.ven_parking") }}:</b> {{ v.parking }}
+              </div>
+              <div>
                 <b>{{ $t("Email address venue") }}:</b> {{ v.email }}
               </div>
               <div>

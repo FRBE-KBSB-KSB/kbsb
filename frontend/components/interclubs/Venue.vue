@@ -242,6 +242,9 @@ async function setup(icclub_, icdata_) {
               <div>
                 <b>{{ t("icn.ven_wheelchair") }}:</b> {{ v.wheelchair }}
               </div>
+              <div>
+                <b>{{ t("icn.ven_parking") }}:</b> {{ v.parking }}
+              </div>
               <p>{{ t("Optional") }}</p>
               <div>
                 <b>{{ t("Email address") }} {{ t("icn.ven_1") }}:</b> {{ v.email }}
@@ -302,6 +305,7 @@ async function setup(icclub_, icdata_) {
                 :label="t('icn.ven_team_sel')"
               />
               <v-checkbox v-model="v.wheelchair" :label="t('icn.ven_wheelchair')" />
+              <v-text-field v-model="v.parking" :label="`${t('icn.ven_parking')}`" />
               <p class="fieldname">{{ t("Optionally") }}</p>
               <v-text-field
                 v-model="v.email"
