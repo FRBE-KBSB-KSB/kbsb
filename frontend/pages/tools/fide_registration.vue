@@ -159,6 +159,10 @@ const ratingRequirement = computed(() => {
 });
 
 // Helper functions for round dates and FIDE period logic
+// FIDE periods:
+//   - Days 1 to (lastDay-2): regular month period → key "YYYY-MM"
+//   - Last 2 days (lastDay-1, lastDay): transition period → key "YYYY-MM-late"
+// These are 3 DISTINCT periods across a month boundary.
 function getFidePeriod(dateString) {
   if (!dateString) return null;
   const parts = dateString.split('-');
@@ -169,17 +173,23 @@ function getFidePeriod(dateString) {
   if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
 
   const lastDay = new Date(year, month, 0).getDate();
-  let periodYear = year;
-  let periodMonth = month;
 
   if (day >= lastDay - 1) {
-    periodMonth += 1;
-    if (periodMonth > 12) {
-      periodMonth = 1;
-      periodYear += 1;
-    }
+    // Last 2 days of month: own distinct period, stays in this month but marked 'late'
+    return {
+      year,
+      month,
+      late: true,
+      key: `${year}-${String(month).padStart(2, '0')}-late`
+    };
   }
-  return { year: periodYear, month: periodMonth, key: `${periodYear}-${String(periodMonth).padStart(2, '0')}` };
+
+  return {
+    year,
+    month,
+    late: false,
+    key: `${year}-${String(month).padStart(2, '0')}`
+  };
 }
 
 function getRoundDateError(index) {
@@ -235,10 +245,11 @@ function recalculateReportNumbers() {
     }
   });
 
-  // Sort periods chronologically
+  // Sort periods chronologically: regular month < late month < next regular month
   uniquePeriods.sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
-    return a.month - b.month;
+    if (a.month !== b.month) return a.month - b.month;
+    return (a.late ? 1 : 0) - (b.late ? 1 : 0);
   });
 
   // Assign report numbers
