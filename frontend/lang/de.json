@@ -389,5 +389,6 @@
 "arc.total_games": "Anzahl der Partien",
 "arc.latest_game": "Letzte Partie",
 "arc.loading": "Laden...",
+"arc.title": "ELO-Archiv & Partiehistorie",
 "ZZZ": "ZZZ"
 }
