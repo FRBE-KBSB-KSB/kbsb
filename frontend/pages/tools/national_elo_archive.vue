@@ -838,6 +838,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </div>
 
     <!-- VIEW 2: PLAYER PROFILE & HISTORY -->
     <div v-else>
