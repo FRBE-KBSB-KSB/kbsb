@@ -41,7 +41,7 @@ const form = ref({
   tournament_type: "Over the Board",
   event_name: "",
   city: "",
-  country: "",
+  country: "BEL",
   expected_players: "",
   tournament_system: "",
   rounds_reported: "",
@@ -78,7 +78,7 @@ const form = ref({
 });
 
 // Create round fields
-for (let i = 1; i <= 100; i++) {
+for (let i = 1; i <= 40; i++) {
   form.value[`round${i}_date`] = "";
   form.value[`round${i}_report`] = "";
 }
@@ -96,6 +96,10 @@ const tOptInc = (val) => translations.value?.[lang.value]?.options?.inc_delay?.[
 // Computed Properties
 const isLongTournament = computed(() => form.value.tournament_report === 'New long tournament');
 const roundsCount = computed(() => parseInt(form.value.rounds_reported) || 0);
+
+const eventNameHasIllegalChars = computed(() =>
+  form.value.event_name ? /[^A-Za-z0-9 ]/.test(form.value.event_name) : false
+);
 
 const timeControlDescOptions = computed(() => {
   if (!form.value.time_control_code) return [];
@@ -155,6 +159,10 @@ const ratingRequirement = computed(() => {
 });
 
 // Helper functions for round dates and FIDE period logic
+// FIDE periods:
+//   - Days 1 to (lastDay-2): regular month period → key "YYYY-MM"
+//   - Last 2 days (lastDay-1, lastDay): transition period → key "YYYY-MM-late"
+// These are 3 DISTINCT periods across a month boundary.
 function getFidePeriod(dateString) {
   if (!dateString) return null;
   const parts = dateString.split('-');
@@ -165,17 +173,23 @@ function getFidePeriod(dateString) {
   if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
 
   const lastDay = new Date(year, month, 0).getDate();
-  let periodYear = year;
-  let periodMonth = month;
 
   if (day >= lastDay - 1) {
-    periodMonth += 1;
-    if (periodMonth > 12) {
-      periodMonth = 1;
-      periodYear += 1;
-    }
+    // Last 2 days of month: own distinct period, stays in this month but marked 'late'
+    return {
+      year,
+      month,
+      late: true,
+      key: `${year}-${String(month).padStart(2, '0')}-late`
+    };
   }
-  return { year: periodYear, month: periodMonth, key: `${periodYear}-${periodMonth}` };
+
+  return {
+    year,
+    month,
+    late: false,
+    key: `${year}-${String(month).padStart(2, '0')}`
+  };
 }
 
 function getRoundDateError(index) {
@@ -231,14 +245,15 @@ function recalculateReportNumbers() {
     }
   });
 
-  // Sort periods chronologically
+  // Sort periods chronologically: regular month < late month < next regular month
   uniquePeriods.sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
-    return a.month - b.month;
+    if (a.month !== b.month) return a.month - b.month;
+    return (a.late ? 1 : 0) - (b.late ? 1 : 0);
   });
 
   // Assign report numbers
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 1; i <= 40; i++) {
     if (i <= count) {
       const dateVal = form.value[`round${i}_date`];
       if (dateVal) {
@@ -289,7 +304,7 @@ watch(isLongTournament, (isLong) => {
     form.value.start_date = "";
     form.value.end_date = "";
     form.value.multiple_round_days = "0";
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 40; i++) {
       form.value[`round${i}_date`] = "";
       form.value[`round${i}_report`] = "";
     }
@@ -318,20 +333,59 @@ watch(
   { deep: true }
 );
 
-// Arbiter FIDE lookup
+// localStorage cache for frequently reused fields
+const CACHED_FIELDS = [
+  'invoice_email', 'invoice_clubnr',
+  'city', 'country',
+  'software', 'software_version',
+  'contact_email', 'homepage'
+]
+CACHED_FIELDS.forEach(field => {
+  watch(() => form.value[field], val => {
+    if (val) localStorage.setItem(`fide_${field}`, val)
+    else localStorage.removeItem(`fide_${field}`)
+  })
+})
+
+const noLicenseArbiters = ref(new Set())
+
+const fide_people_by_id = computed(() => {
+  const map = {}
+  for (const [name, info] of Object.entries(lookups.value.fide_people || {})) {
+    if (info.id) map[String(info.id)] = { ...info, name }
+  }
+  return map
+})
+
+const fide_ids_list = computed(() => Object.keys(fide_people_by_id.value))
+
 function handleArbiterChange(nameField, idField) {
   const name = form.value[nameField];
   const info = lookups.value.fide_people[name];
+  const updated = new Set(noLicenseArbiters.value)
+  updated.delete(nameField)
   if (info) {
     form.value[idField] = info.id || "";
     if (info.license && info.license.toLowerCase() === 'no license') {
-      const ok = confirm(name + " " + tMsg('no_license_confirm'));
-      if (!ok) {
-        form.value[nameField] = "";
-        form.value[idField] = "";
-      }
+      updated.add(nameField)
     }
   }
+  noLicenseArbiters.value = updated
+}
+
+function handleArbiterIdChange(nameField, idField) {
+  const id = String(form.value[idField] || '').trim()
+  if (!id) return
+  const info = fide_people_by_id.value[id]
+  const updated = new Set(noLicenseArbiters.value)
+  updated.delete(nameField)
+  if (info) {
+    form.value[nameField] = info.name || ""
+    if (info.license && info.license.toLowerCase() === 'no license') {
+      updated.add(nameField)
+    }
+  }
+  noLicenseArbiters.value = updated
 }
 
 // data fetching
@@ -391,7 +445,7 @@ function resetForm() {
     tournament_type: "Over the Board",
     event_name: "",
     city: "",
-    country: "",
+    country: "BEL",
     expected_players: "",
     tournament_system: "",
     rounds_reported: "",
@@ -434,6 +488,11 @@ function resetForm() {
 }
 onMounted(() => {
   loadFormData();
+  // Restore cached field values from localStorage
+  CACHED_FIELDS.forEach(field => {
+    const cached = localStorage.getItem(`fide_${field}`)
+    if (cached !== null) form.value[field] = cached
+  })
 });
 
 definePageMeta({
@@ -526,7 +585,10 @@ definePageMeta({
       </label>
       <label>
         <span class="required-label">{{ tField('event_name') }}</span>
-        <input type="text" v-model="form.event_name" pattern="[A-Za-z0-9 ]+" title="Only letters A-Z, numbers and spaces are allowed." required>
+        <input type="text" v-model="form.event_name" :class="{ 'input-error': eventNameHasIllegalChars }" required>
+        <div v-if="eventNameHasIllegalChars" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
+          ⚠ Illegal characters detected. Only letters A–Z, numbers, and spaces are allowed.
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('city') }}</span>
@@ -542,7 +604,7 @@ definePageMeta({
       </label>
       <label>
         <span class="required-label">{{ tField('rounds_reported') }}</span>
-        <input type="number" v-model="form.rounds_reported" min="0" max="100" required>
+        <input type="number" v-model="form.rounds_reported" min="0" max="40" required>
       </label>
       
       <label v-if="!isLongTournament">
@@ -606,18 +668,21 @@ definePageMeta({
 
       <label><span class="required-label">{{ tField('chief_arbiter_name') }}</span>
         <input type="text" v-model="form.chief_arbiter_name" list="fideNames" @change="handleArbiterChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+        <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span><input type="text" v-model="form.chief_arbiter_fide_id" required></label>
+      <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span><input type="text" v-model="form.chief_arbiter_fide_id" list="fideIds" @change="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" @input="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required></label>
       
       <label><span>{{ tField('dep_chief_arbiter1_name') }}</span>
         <input type="text" v-model="form.dep_chief_arbiter1_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+        <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter1_fide_id"></label>
+      <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')"></label>
       
       <label><span>{{ tField('dep_chief_arbiter2_name') }}</span>
         <input type="text" v-model="form.dep_chief_arbiter2_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+        <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
       </label>
-      <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id"></label>
+      <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')"></label>
       
       <label>
         <span>{{ tField('kind_of_arbiters') }}</span>
@@ -627,14 +692,30 @@ definePageMeta({
         </select>
       </label>
       
-      <label><span>{{ tField('arbiter1_name') }}</span><input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleArbiterChange('arbiter1_name', 'arbiter1_fide_id')"></label>
-      <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id"></label>
-      <label><span>{{ tField('arbiter2_name') }}</span><input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleArbiterChange('arbiter2_name', 'arbiter2_fide_id')"></label>
-      <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id"></label>
-      <label><span>{{ tField('arbiter3_name') }}</span><input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleArbiterChange('arbiter3_name', 'arbiter3_fide_id')"></label>
-      <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id"></label>
-      <label><span>{{ tField('arbiter4_name') }}</span><input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleArbiterChange('arbiter4_name', 'arbiter4_fide_id')"></label>
-      <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id"></label>
+      <label>
+        <span>{{ tField('arbiter1_name') }}</span>
+        <input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleArbiterChange('arbiter1_name', 'arbiter1_fide_id')">
+        <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+      </label>
+      <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')" @input="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
+      <label>
+        <span>{{ tField('arbiter2_name') }}</span>
+        <input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleArbiterChange('arbiter2_name', 'arbiter2_fide_id')">
+        <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+      </label>
+      <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')" @input="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
+      <label>
+        <span>{{ tField('arbiter3_name') }}</span>
+        <input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleArbiterChange('arbiter3_name', 'arbiter3_fide_id')">
+        <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+      </label>
+      <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')" @input="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
+      <label>
+        <span>{{ tField('arbiter4_name') }}</span>
+        <input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleArbiterChange('arbiter4_name', 'arbiter4_fide_id')">
+        <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+      </label>
+      <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')" @input="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
       
       <div style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin-top: -0.25rem; font-style: italic;">{{ tUI('more_arbiters_note') }}</div>
 
@@ -764,7 +845,7 @@ definePageMeta({
         <span class="required-label">{{ tField('software_other') }}</span><input type="text" v-model="form.software_other" required>
       </label>
 
-      <label><span class="required-label">{{ tField('software_version') }}</span><input type="text" v-model="form.software_version" required></label>
+      <label><span>{{ tField('software_version') }}</span><input type="text" v-model="form.software_version"></label>
       
       <label>
         <span>{{ tField('pgn_provided') }}</span>
@@ -774,7 +855,11 @@ definePageMeta({
         </select>
       </label>
       
-      <label><span class="required-label">{{ tField('contact_email') }}</span><input type="email" v-model="form.contact_email" required></label>
+      <label>
+        <span class="required-label">{{ tField('contact_email') }}</span>
+        <input type="email" v-model="form.contact_email" required>
+        <div style="font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; font-style: italic;">A confirmation email will be sent to this address. This is typically the email of the organising club.</div>
+      </label>
       <label>
         <span class="required-label">{{ tField('homepage') }}</span>
         <input type="text" v-model="form.homepage" required>
@@ -789,6 +874,9 @@ definePageMeta({
 
       <datalist id="fideNames">
         <option v-for="name in lookups.fide_names" :key="name" :value="name"></option>
+      </datalist>
+      <datalist id="fideIds">
+        <option v-for="id in fide_ids_list" :key="id" :value="id"></option>
       </datalist>
     </form>
   </div>
