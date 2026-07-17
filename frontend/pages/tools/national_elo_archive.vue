@@ -61,7 +61,7 @@ async function handleSearch() {
   players.value = []
   
   try {
-    const res = await $backend("archive", "search", { q: searchQuery.value })
+    const res = await $backend("national_elo_archive", "search", { q: searchQuery.value })
     if (res && res.data && res.data.success) {
       players.value = res.data.players
     } else {
@@ -84,7 +84,7 @@ async function handleClubSearch() {
   selectedClub.value = null
   
   try {
-    const res = await $backend("archive", "searchClubs", { q: clubSearchQuery.value })
+    const res = await $backend("national_elo_archive", "searchClubs", { q: clubSearchQuery.value })
     if (res && res.data && res.data.success) {
       clubs.value = res.data.clubs
     } else {
@@ -105,7 +105,7 @@ async function selectClub(club) {
   clubPlayers.value = []
   
   try {
-    const res = await $backend("archive", "getClubPlayers", { club_id: club.club_id })
+    const res = await $backend("national_elo_archive", "getClubPlayers", { club_id: club.club_id })
     if (res && res.data && res.data.success) {
       clubPlayers.value = res.data.players
     } else {
@@ -130,7 +130,7 @@ async function selectPlayer(memberId) {
   latestGameDate.value = null
   
   try {
-    const res = await $backend("archive", "getProfile", { member_id: memberId })
+    const res = await $backend("national_elo_archive", "getProfile", { member_id: memberId })
     if (res && res.data && res.data.success) {
       selectedPlayer.value = res.data.player
       ratings.value = res.data.ratings

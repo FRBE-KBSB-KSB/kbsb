@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const prefix = "/api/v1/archive";
+const prefix = "/api/v1/national_elo_archive";
 export default {
   search: async function(options) {
     return await axios.get(`${prefix}/search?q=${options.q}`);

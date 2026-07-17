@@ -7,7 +7,7 @@ from reddevil.core import get_secret
 from psycopg_pool import ConnectionPool
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/v1/archive", tags=["archive"])
+router = APIRouter(prefix="/api/v1/national_elo_archive", tags=["national_elo_archive"])
 
 class PooledConnectionWrapper:
     def __init__(self, conn, pool):
