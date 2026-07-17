@@ -78,7 +78,7 @@ const form = ref({
 });
 
 // Create round fields
-for (let i = 1; i <= 100; i++) {
+for (let i = 1; i <= 40; i++) {
   form.value[`round${i}_date`] = "";
   form.value[`round${i}_report`] = "";
 }
@@ -242,7 +242,7 @@ function recalculateReportNumbers() {
   });
 
   // Assign report numbers
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 1; i <= 40; i++) {
     if (i <= count) {
       const dateVal = form.value[`round${i}_date`];
       if (dateVal) {
@@ -293,7 +293,7 @@ watch(isLongTournament, (isLong) => {
     form.value.start_date = "";
     form.value.end_date = "";
     form.value.multiple_round_days = "0";
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 40; i++) {
       form.value[`round${i}_date`] = "";
       form.value[`round${i}_report`] = "";
     }
@@ -591,7 +591,7 @@ definePageMeta({
       </label>
       <label>
         <span class="required-label">{{ tField('rounds_reported') }}</span>
-        <input type="number" v-model="form.rounds_reported" min="0" max="100" required>
+        <input type="number" v-model="form.rounds_reported" min="0" max="40" required>
       </label>
       
       <label v-if="!isLongTournament">
