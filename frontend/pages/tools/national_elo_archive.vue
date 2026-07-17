@@ -565,6 +565,8 @@ onMounted(() => {
                     prepend-icon="mdi-search-web"
                   >
                     {{ t('arc.search_btn') }}
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-form>
           </v-card-text>
