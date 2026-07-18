@@ -209,8 +209,22 @@ async def search_players(q: str = Query(..., min_length=2), type: str = Query("a
             name_parts = name_full.split(",")
             last_name = normalize_name(name_parts[0])
             first_name = normalize_name(name_parts[1]) if len(name_parts) > 1 else ""
-            full_name_norm = normalize_name(name_full)
-            
+            # Names are stored "Last, First" but users search in either order,
+            # so match against both concatenations.
+            if first_name:
+                name_variants = {last_name + first_name, first_name + last_name}
+            else:
+                name_variants = {last_name}
+
+            def best_name_score(q):
+                best = None
+                for variant in name_variants:
+                    if q in variant:
+                        s = len(variant) - len(q)
+                        if best is None or s < best:
+                            best = s
+                return best
+
             matched = False
             score = 999
             
@@ -223,9 +237,10 @@ async def search_players(q: str = Query(..., min_length=2), type: str = Query("a
                     matched = True
                     score = len(fide_id_str) - len(q_norm)
             elif type == "name":
-                if q_norm in full_name_norm:
+                name_score = best_name_score(q_norm)
+                if name_score is not None:
                     matched = True
-                    score = len(full_name_norm) - len(q_norm)
+                    score = name_score
                 elif len(q_norm) >= 3:
                     dist = min(
                         levenshtein_distance(q_norm, last_name),
@@ -241,9 +256,9 @@ async def search_players(q: str = Query(..., min_length=2), type: str = Query("a
                 elif fide_id_str and q_norm in fide_id_str:
                     matched = True
                     score = len(fide_id_str) - len(q_norm)
-                elif q_norm in full_name_norm:
+                elif best_name_score(q_norm) is not None:
                     matched = True
-                    score = len(full_name_norm) - len(q_norm)
+                    score = best_name_score(q_norm)
                 elif len(q_norm) >= 3:
                     dist = min(
                         levenshtein_distance(q_norm, last_name),
