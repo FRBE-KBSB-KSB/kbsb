@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import logging
+import unicodedata
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query
 from reddevil.core import get_secret
@@ -89,48 +90,176 @@ def run_query(conn, db_type, sql_pg, sql_lite, params):
     finally:
         cursor.close()
 
+def clean_birthdate(player_dict):
+    if "birthdate" in player_dict and player_dict["birthdate"]:
+        bd = player_dict["birthdate"]
+        if hasattr(bd, "year"):
+            player_dict["birthdate"] = str(bd.year)
+        else:
+            player_dict["birthdate"] = str(bd)[:4]
+    return player_dict
+
+def normalize_name(s):
+    if not s:
+        return ""
+    s = unicodedata.normalize('NFD', s)
+    s = "".join([c for c in s if not unicodedata.category(c).startswith('M')])
+    s = s.lower()
+    s = s.replace("'", "").replace("-", "").replace(" ", "").replace(".", "")
+    return s
+
+def levenshtein_distance(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein_distance(s2, s1)
+    if len(s2) == 0:
+        return len(s1)
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+    return previous_row[-1]
+
+def filter_recycled_ratings(ratings_list):
+    if not ratings_list:
+        return []
+    parsed = []
+    for r in ratings_list:
+        p = str(r["period"])
+        if len(p) == 6:
+            try:
+                year = int(p[:4])
+                month = int(p[4:])
+                months_val = year * 12 + month
+                parsed.append((months_val, r))
+            except ValueError:
+                continue
+    if not parsed:
+        return ratings_list
+    parsed.sort(key=lambda x: x[0], reverse=True)
+    keep = []
+    last_val = None
+    for val, r in parsed:
+        if last_val is not None:
+            gap = last_val - val
+            if gap > 36:  # Discard everything before a gap of more than 3 years
+                break
+        keep.append(r)
+        last_val = val
+    keep.reverse()
+    return keep
+
 @router.get("/search")
-async def search_players(q: str = Query(..., min_length=2), type: str = Query("all")):
+async def search_players(q: str = Query(..., min_length=2), type: str = Query("all"), age_category: str = Query("all")):
     conn, db_type = get_archive_connection()
     try:
-        search_pattern = f"%{q}%"
-        if type == "name":
-            where_pg = "p.name ILIKE %s"
-            where_lite = "p.name LIKE ?"
-            params = (search_pattern,)
-        elif type == "national":
-            where_pg = "CAST(p.member_id AS TEXT) LIKE %s"
-            where_lite = "CAST(p.member_id AS TEXT) LIKE ?"
-            params = (search_pattern,)
-        elif type == "fide":
-            where_pg = "CAST(p.fide_id AS TEXT) LIKE %s"
-            where_lite = "CAST(p.fide_id AS TEXT) LIKE ?"
-            params = (search_pattern,)
-        else: # "all"
-            where_pg = "p.name ILIKE %s OR CAST(p.member_id AS TEXT) LIKE %s OR CAST(p.fide_id AS TEXT) LIKE %s"
-            where_lite = "p.name LIKE ? OR CAST(p.member_id AS TEXT) LIKE ? OR CAST(p.fide_id AS TEXT) LIKE ?"
-            params = (search_pattern, search_pattern, search_pattern)
+        # Fetch all active players from database
+        sql_pg = """
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
+            FROM players p
+            WHERE p.license_year >= 2026
+        """
+        sql_lite = """
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id,
+                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
+                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
+            FROM players p
+            WHERE p.license_year >= 2026
+        """
+        players = run_query(conn, db_type, sql_pg, sql_lite, ())
+        
+        # Clean birthdates
+        for p in players:
+            clean_birthdate(p)
+            
+        # Filter and rank in Python
+        from datetime import date
+        q_norm = normalize_name(q)
+        results = []
+        current_year = date.today().year
+        
+        for p in players:
+            # Apply age category filter if active
+            if age_category != "all":
+                if not p["birthdate"]:
+                    continue
+                try:
+                    byear = int(p["birthdate"])
+                    age = current_year - byear
+                    if age_category == "youth" and age > 20:
+                        continue
+                    elif age_category == "senior" and (age < 21 or age > 59):
+                        continue
+                    elif age_category == "senior_60" and age < 60:
+                        continue
+                except ValueError:
+                    continue
 
-        sql_pg = f"""
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
-                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
-            FROM players p
-            WHERE {where_pg}
-            ORDER BY p.name ASC 
-            LIMIT 50
-        """
-        sql_lite = f"""
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
-                   (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
-                   (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
-            FROM players p
-            WHERE {where_lite}
-            ORDER BY p.name ASC 
-            LIMIT 50
-        """
-        results = run_query(conn, db_type, sql_pg, sql_lite, params)
-        return {"success": True, "players": results}
+            member_id_str = str(p["member_id"])
+            fide_id_str = str(p["fide_id"]) if p["fide_id"] else ""
+            name_full = p["name"]
+            
+            # Extract first and last name for fuzzy matching
+            name_parts = name_full.split(",")
+            last_name = normalize_name(name_parts[0])
+            first_name = normalize_name(name_parts[1]) if len(name_parts) > 1 else ""
+            full_name_norm = normalize_name(name_full)
+            
+            matched = False
+            score = 999
+            
+            if type == "national":
+                if q_norm in member_id_str:
+                    matched = True
+                    score = len(member_id_str) - len(q_norm)
+            elif type == "fide":
+                if q_norm in fide_id_str:
+                    matched = True
+                    score = len(fide_id_str) - len(q_norm)
+            elif type == "name":
+                if q_norm in full_name_norm:
+                    matched = True
+                    score = len(full_name_norm) - len(q_norm)
+                elif len(q_norm) >= 3:
+                    dist = min(
+                        levenshtein_distance(q_norm, last_name),
+                        levenshtein_distance(q_norm, first_name) if first_name else 999
+                    )
+                    if dist <= 2:
+                        matched = True
+                        score = 100 + dist
+            else: # "all"
+                if q_norm in member_id_str:
+                    matched = True
+                    score = len(member_id_str) - len(q_norm)
+                elif fide_id_str and q_norm in fide_id_str:
+                    matched = True
+                    score = len(fide_id_str) - len(q_norm)
+                elif q_norm in full_name_norm:
+                    matched = True
+                    score = len(full_name_norm) - len(q_norm)
+                elif len(q_norm) >= 3:
+                    dist = min(
+                        levenshtein_distance(q_norm, last_name),
+                        levenshtein_distance(q_norm, first_name) if first_name else 999
+                    )
+                    if dist <= 2:
+                        matched = True
+                        score = 100 + dist
+            
+            if matched:
+                results.append((score, p))
+                
+        # Sort first by match score, then alphabetically
+        results.sort(key=lambda x: (x[0], x[1]["name"]))
+        final_players = [x[1] for x in results[:50]]
+        return {"success": True, "players": final_players}
     finally:
         conn.close()
 
@@ -186,7 +315,7 @@ async def get_club_players(club_id: int):
     conn, db_type = get_archive_connection()
     try:
         sql_pg = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id,
                    (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
                    (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
@@ -194,7 +323,7 @@ async def get_club_players(club_id: int):
             ORDER BY latest_elo DESC NULLS LAST, p.name ASC
         """
         sql_lite = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id,
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id,
                    (SELECT pr.rating FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo,
                    (SELECT pr.period FROM player_ratings pr WHERE pr.member_id = p.member_id ORDER BY pr.period DESC LIMIT 1) as latest_elo_period
             FROM players p
@@ -202,6 +331,8 @@ async def get_club_players(club_id: int):
             ORDER BY latest_elo DESC, p.name ASC
         """
         results = run_query(conn, db_type, sql_pg, sql_lite, (club_id,))
+        for r in results:
+            clean_birthdate(r)
         return {"success": True, "players": results}
     finally:
         conn.close()
@@ -211,13 +342,13 @@ async def get_player_profile(member_id: int):
     conn, db_type = get_archive_connection()
     try:
         sql_pg = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id, c.name as club_name 
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id, c.name as club_name 
             FROM players p 
             LEFT JOIN clubs c ON p.club_id = c.club_id 
             WHERE p.member_id = %s
         """
         sql_lite = """
-            SELECT p.member_id, p.name, p.gender, p.birthdate, p.nationality, p.club_id, p.fide_id, c.name as club_name 
+            SELECT p.member_id, p.name, p.gender, p.birthdate, p.club_id, p.fide_id, c.name as club_name 
             FROM players p 
             LEFT JOIN clubs c ON p.club_id = c.club_id 
             WHERE p.member_id = ?
@@ -228,26 +359,30 @@ async def get_player_profile(member_id: int):
             raise HTTPException(status_code=404, detail="Player not found")
             
         player = results[0]
+        clean_birthdate(player)
         
         # 1. Fetch ratings history
         sql_ratings_pg = "SELECT period, rating FROM player_ratings WHERE member_id = %s ORDER BY period ASC"
         sql_ratings_lite = "SELECT period, rating FROM player_ratings WHERE member_id = ? ORDER BY period ASC"
         ratings = run_query(conn, db_type, sql_ratings_pg, sql_ratings_lite, (member_id,))
+        ratings = filter_recycled_ratings(ratings)
         
-        # 2. Fetch game history (limit to last 100 games for performance, full list via separate games query)
+        # 2. Fetch full game history
         sql_games_pg = """
-            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo, game_number, k_factor, expected_score 
-            FROM player_games 
-            WHERE member_id = %s 
-            ORDER BY date DESC, period DESC, id DESC
-            LIMIT 100
+            SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
+                   (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+            FROM player_games pg
+            LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+            WHERE pg.member_id = %s 
+            ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
         """
         sql_games_lite = """
-            SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo, game_number, k_factor, expected_score 
-            FROM player_games 
-            WHERE member_id = ? 
-            ORDER BY date DESC, period DESC, id DESC
-            LIMIT 100
+            SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
+                   (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+            FROM player_games pg
+            LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+            WHERE pg.member_id = ? 
+            ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
         """
         games = run_query(conn, db_type, sql_games_pg, sql_games_lite, (member_id,))
         
@@ -279,30 +414,38 @@ async def get_player_games(member_id: int, period: str = None):
     try:
         if period:
             sql_pg = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
-                FROM player_games 
-                WHERE member_id = %s AND period = %s
-                ORDER BY date DESC, id DESC
+                SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo,
+                       (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+                FROM player_games pg
+                LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+                WHERE pg.member_id = %s AND pg.period = %s
+                ORDER BY pg.date DESC, pg.id DESC
             """
             sql_lite = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
-                FROM player_games 
-                WHERE member_id = ? AND period = ?
-                ORDER BY date DESC, id DESC
+                SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo,
+                       (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+                FROM player_games pg
+                LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+                WHERE pg.member_id = ? AND pg.period = ?
+                ORDER BY pg.date DESC, pg.id DESC
             """
             params = (member_id, period)
         else:
             sql_pg = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
-                FROM player_games 
-                WHERE member_id = %s
-                ORDER BY date DESC, period DESC, id DESC
+                SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo,
+                       (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+                FROM player_games pg
+                LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+                WHERE pg.member_id = %s
+                ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
             """
             sql_lite = """
-                SELECT period, opponent_member_id, opponent_name, tournament, result, color, date, opponent_elo 
-                FROM player_games 
-                WHERE member_id = ?
-                ORDER BY date DESC, period DESC, id DESC
+                SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo,
+                       (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
+                FROM player_games pg
+                LEFT JOIN players p ON pg.opponent_member_id = p.member_id
+                WHERE pg.member_id = ?
+                ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
             """
             params = (member_id,)
             

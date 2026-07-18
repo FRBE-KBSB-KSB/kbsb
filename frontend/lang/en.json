@@ -391,5 +391,6 @@
 "arc.loading": "Loading...",
 "arc.title": "ELO Archive & Game History",
 "arc.regions_tab": "Regions",
+"arc.archive_note": "The Belgian ELO archive is historical and runs up to July 2026. For the most recent FIDE game history and rating calculations, please refer to the player's FIDE profile.",
 "ZZZ": "ZZZ"
 }
