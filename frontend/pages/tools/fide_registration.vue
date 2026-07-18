@@ -876,7 +876,9 @@ definePageMeta({
         <option v-for="name in lookups.fide_names" :key="name" :value="name"></option>
       </datalist>
       <datalist id="fideIds">
-        <option v-for="id in fide_ids_list" :key="id" :value="id"></option>
+        <option v-for="id in fide_ids_list" :key="id" :value="id">
+          {{ fide_people_by_id[id]?.name || '' }}
+        </option>
       </datalist>
     </form>
   </div>
