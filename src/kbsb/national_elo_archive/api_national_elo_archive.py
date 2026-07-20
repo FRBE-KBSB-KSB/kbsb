@@ -124,35 +124,6 @@ def levenshtein_distance(s1, s2):
         previous_row = current_row
     return previous_row[-1]
 
-def filter_recycled_ratings(ratings_list):
-    if not ratings_list:
-        return []
-    parsed = []
-    for r in ratings_list:
-        p = str(r["period"])
-        if len(p) == 6:
-            try:
-                year = int(p[:4])
-                month = int(p[4:])
-                months_val = year * 12 + month
-                parsed.append((months_val, r))
-            except ValueError:
-                continue
-    if not parsed:
-        return ratings_list
-    parsed.sort(key=lambda x: x[0], reverse=True)
-    keep = []
-    last_val = None
-    for val, r in parsed:
-        if last_val is not None:
-            gap = last_val - val
-            if gap > 36:  # Discard everything before a gap of more than 3 years
-                break
-        keep.append(r)
-        last_val = val
-    keep.reverse()
-    return keep
-
 @router.get("/search")
 async def search_players(q: str = Query(..., min_length=2), type: str = Query("all"), age_category: str = Query("all")):
     conn, db_type = get_archive_connection()
@@ -283,23 +254,49 @@ async def search_clubs(q: str = Query(..., min_length=2)):
     conn, db_type = get_archive_connection()
     try:
         search_pattern = f"%{q}%"
+        prefix_pattern = f"{q}%"
+        # Relevance order: exact id match, exact name match, id/name prefix
+        # match, then substring match ranked by where the query occurs (an
+        # earlier match reads as more relevant) and by name length (shorter,
+        # more specific names first); club_id is only the final tiebreak.
         sql_pg = """
             SELECT c.club_id, c.name, c.abbreviation, c.federation,
                    (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
             FROM clubs c
-            WHERE c.name ILIKE %s OR CAST(c.club_id AS TEXT) LIKE %s 
-            ORDER BY c.club_id ASC 
+            WHERE c.name ILIKE %s OR CAST(c.club_id AS TEXT) LIKE %s
+            ORDER BY
+                CASE
+                    WHEN CAST(c.club_id AS TEXT) = %s THEN 0
+                    WHEN LOWER(c.name) = LOWER(%s) THEN 1
+                    WHEN CAST(c.club_id AS TEXT) LIKE %s THEN 2
+                    WHEN LOWER(c.name) LIKE LOWER(%s) THEN 3
+                    ELSE 4
+                END,
+                POSITION(LOWER(%s) IN LOWER(c.name)),
+                LENGTH(c.name),
+                c.club_id ASC
             LIMIT 50
         """
         sql_lite = """
             SELECT c.club_id, c.name, c.abbreviation, c.federation,
                    (SELECT COUNT(*) FROM players p WHERE p.club_id = c.club_id AND p.license_year >= 2026) as player_count
             FROM clubs c
-            WHERE c.name LIKE ? OR CAST(c.club_id AS TEXT) LIKE ? 
-            ORDER BY c.club_id ASC 
+            WHERE c.name LIKE ? OR CAST(c.club_id AS TEXT) LIKE ?
+            ORDER BY
+                CASE
+                    WHEN CAST(c.club_id AS TEXT) = ? THEN 0
+                    WHEN LOWER(c.name) = LOWER(?) THEN 1
+                    WHEN CAST(c.club_id AS TEXT) LIKE ? THEN 2
+                    WHEN LOWER(c.name) LIKE LOWER(?) THEN 3
+                    ELSE 4
+                END,
+                INSTR(LOWER(c.name), LOWER(?)),
+                LENGTH(c.name),
+                c.club_id ASC
             LIMIT 50
         """
-        results = run_query(conn, db_type, sql_pg, sql_lite, (search_pattern, search_pattern))
+        params = (search_pattern, search_pattern, q, q, prefix_pattern, search_pattern, q)
+        results = run_query(conn, db_type, sql_pg, sql_lite, params)
         return {"success": True, "clubs": results}
     finally:
         conn.close()
@@ -380,7 +377,6 @@ async def get_player_profile(member_id: int):
         sql_ratings_pg = "SELECT period, rating FROM player_ratings WHERE member_id = %s ORDER BY period ASC"
         sql_ratings_lite = "SELECT period, rating FROM player_ratings WHERE member_id = ? ORDER BY period ASC"
         ratings = run_query(conn, db_type, sql_ratings_pg, sql_ratings_lite, (member_id,))
-        ratings = filter_recycled_ratings(ratings)
         
         # 2. Fetch full game history
         sql_games_pg = """

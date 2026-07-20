@@ -43,7 +43,10 @@ const totalGames = ref(0)
 const latestGameDate = ref(null)
 
 // Sorting states
-const searchSortKey = ref('name')
+// searchSortKey starts null: the backend already returns player search
+// results ordered by match relevance, so leave that order alone until the
+// user explicitly clicks a column header to sort by something else.
+const searchSortKey = ref(null)
 const searchSortOrder = ref('asc')
 
 const clubSortKey = ref('latest_elo')
@@ -128,6 +131,7 @@ async function handleSearch() {
   birthYearTo.value = null
   errorText.value = ""
   players.value = []
+  searchSortKey.value = null
   
   try {
     const res = await $backend("national_elo_archive", "search", { q: searchQuery.value })
@@ -241,8 +245,6 @@ function sortCompare(a, b, key, orderMultiplier) {
 }
 
 const sortedPlayers = computed(() => {
-  const key = searchSortKey.value
-  const mult = searchSortOrder.value === 'asc' ? 1 : -1
   let list = [...players.value]
   if (birthYearFrom.value || birthYearTo.value) {
     list = list.filter(p => {
@@ -253,6 +255,12 @@ const sortedPlayers = computed(() => {
       return true
     })
   }
+  // No explicit sort chosen yet: keep the backend's match-relevance order.
+  if (!searchSortKey.value) {
+    return list
+  }
+  const key = searchSortKey.value
+  const mult = searchSortOrder.value === 'asc' ? 1 : -1
   return list.sort((a, b) => sortCompare(a, b, key, mult))
 })
 
@@ -1184,14 +1192,22 @@ onMounted(() => {
 
                   <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
                   <td class="font-weight-medium">
-                    <span 
+                    <span
                       v-if="g.opponent_member_id && g.opponent_member_id > 0 && g.opponent_is_active"
-                      @click="selectPlayer(g.opponent_member_id)" 
-                      class="text-green-darken-3 font-weight-medium text-decoration-underline" 
+                      @click="selectPlayer(g.opponent_member_id)"
+                      class="text-green-darken-3 font-weight-medium text-decoration-underline"
                       style="cursor: pointer;"
                     >
                       {{ g.opponent_name }}
                     </span>
+                    <v-tooltip v-else-if="g.opponent_name === 'Unknown Opponent'" location="top" max-width="320">
+                      <template #activator="{ props }">
+                        <span v-bind="props" class="text-grey font-italic" style="cursor: help;">
+                          {{ t('arc.unknown_opponent') }}
+                        </span>
+                      </template>
+                      {{ t('arc.unknown_opponent_hint') }}
+                    </v-tooltip>
                     <span v-else>{{ g.opponent_name }}</span>
                   </td>
                   <td>{{ g.opponent_elo !== null ? g.opponent_elo : 'N/A' }}</td>
