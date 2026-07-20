@@ -192,7 +192,7 @@ async function setup(icclub_, icdata_) {
               <div><b>Rounds:</b> {{ v.rounds_s }}</div>
               <div><b>Accessible for wheelchair:</b> {{ v.wheelchair }}</div>
               <div><b>Parking:</b> {{ v.parking }}</div>
-              <p>Optional</p>
+              <div><b>Remarks:</b> {{ v.remarks }}</div>
               <div><b>Email address venue:</b> {{ v.email }}</div>
               <div><b>Telephone number venue:</b> {{ v.phone }}</div>
             </v-card-text>
@@ -239,12 +239,12 @@ async function setup(icclub_, icdata_) {
                 v-model="v.teams_s"
                 label="Teams"
               />
-              <v-text-field v-model="v.parking" label="Parking" />
               <v-checkbox v-model="v.wheelchair" label="Accessible for wheelchair" />
+              <v-text-field v-model="v.parking" label="Parking" />
+              <v-textarea v-model="v.remarks" label="Remarks" />
               <p class="fieldname">Optionally</p>
               <v-text-field v-model="v.email" label="Email address venue" />
               <v-text-field v-model="v.phone" label="Telephone number venue" />
-              <v-textarea v-model="v.remarks" label="Remarks" />
             </v-card-text>
             <v-card-actions>
               <v-btn fab small @click="deleteVenue(ix)">

@@ -7,6 +7,7 @@ import Results from "@/components/mgmtinterclubs/Results.vue"
 import Reports from "@/components/mgmtinterclubs/Reports.vue"
 import Downloads from "@/components/mgmtinterclubs/Downloads.vue"
 import Standings from "@/components/mgmtinterclubs/Standings.vue"
+import Teamforfeit from "@/components/mgmtinterclubs/Teamforfeit.vue"
 import Venues from "@/components/mgmtinterclubs/Venues.vue"
 
 import { useMgmtTokenStore } from "@/store/mgmttoken"

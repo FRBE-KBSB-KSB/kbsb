@@ -236,14 +236,6 @@ function updateDetails(s) {
         </div>
       </v-card-text>
     </v-card>
-    <v-dialog width="10em" v-model="waitingdialog">
-      <v-card>
-        <v-card-title>{{ t("Loading...") }}</v-card-title>
-        <v-card-text>
-          <v-progress-circular indeterminate color="green" />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 

@@ -6,6 +6,7 @@ import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
 import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
+import Contact from "@/components/interclubs/Contact.vue"
 
 // locale
 const { locale, t } = useI18n()
@@ -26,8 +27,8 @@ const refresults = ref(null)
 const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
+const refcontact = ref(null)
 const clubs = ref([])
-const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const icdata = ref({})
 const ic_rounds = ref([])
@@ -40,7 +41,7 @@ function changeDialogCounter(i) {
 }
 
 function changedTab() {
-  console.log("changeTab", tab.value)
+  console.log("changedTab", tab.value)
   switch (tab.value) {
     case "results":
       refresults.value.setup(icdata.value)
@@ -53,6 +54,9 @@ function changedTab() {
       break
     case "venues":
       refvenues.value.setup(idclub.value, icdata.value)
+      break
+    case "contact":
+      refcontact.value.setup(idclub.value)
       break
   }
 }
@@ -106,11 +110,12 @@ function selectClub() {
 }
 
 onMounted(async () => {
+  //
   let l = route.query.locale
   locale.value = l ? l : "nl"
   await processICdata()
   await getICClubs()
-
+  tab.value = "venues"
   changedTab()
 })
 
@@ -151,15 +156,13 @@ definePageMeta({
       </VCardText>
     </VCard>
     <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
-      <!-- <v-tab value="results">{{ t("Results") }}</v-tab>
-      <v-tab value="standings">{{ t("Standings") }}</v-tab>
-      <v-tab value="playerlist">{{ t("Player list") }}</v-tab> -->
+      <!-- <v-tab value="results">{{ t("Results") }}</v-tab> -->
+      <!-- <v-tab value="standings">{{ t("Standings") }}</v-tab> -->
+      <!-- <v-tab value="playerlist">{{ t("Player list") }}</v-tab>  -->
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
+      <v-tab value="contact">{{ t("Contact") }}</v-tab>
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
-      <v-window-item :eager="true" value="venues">
-        <VenuePublic ref="refvenues" />
-      </v-window-item>
       <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>
@@ -168,6 +171,12 @@ definePageMeta({
       </v-window-item>
       <v-window-item :eager="true" value="playerlist">
         <PlayerlistPublic ref="refplayerlist" />
+      </v-window-item>
+      <v-window-item :eager="true" value="venues">
+        <VenuePublic ref="refvenues" />
+      </v-window-item>
+      <v-window-item :eager="true" value="contact">
+        <Contact ref="refcontact" />
       </v-window-item>
     </v-window>
   </v-container>
