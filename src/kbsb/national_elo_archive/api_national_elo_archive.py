@@ -384,19 +384,19 @@ async def get_player_profile(member_id: int):
         
         # 2. Fetch full game history
         sql_games_pg = """
-            SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
+            SELECT pg.id, pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
                    (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
             FROM player_games pg
             LEFT JOIN players p ON pg.opponent_member_id = p.member_id
-            WHERE pg.member_id = %s 
+            WHERE pg.member_id = %s
             ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
         """
         sql_games_lite = """
-            SELECT pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
+            SELECT pg.id, pg.period, pg.opponent_member_id, pg.opponent_name, pg.tournament, pg.result, pg.color, pg.date, pg.opponent_elo, pg.game_number, pg.k_factor, pg.expected_score,
                    (CASE WHEN p.member_id IS NOT NULL THEN 1 ELSE 0 END) as opponent_is_active
             FROM player_games pg
             LEFT JOIN players p ON pg.opponent_member_id = p.member_id
-            WHERE pg.member_id = ? 
+            WHERE pg.member_id = ?
             ORDER BY pg.date DESC, pg.period DESC, pg.id DESC
         """
         games = run_query(conn, db_type, sql_games_pg, sql_games_lite, (member_id,))
