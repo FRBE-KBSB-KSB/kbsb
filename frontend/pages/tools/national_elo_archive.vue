@@ -43,7 +43,10 @@ const totalGames = ref(0)
 const latestGameDate = ref(null)
 
 // Sorting states
-const searchSortKey = ref('name')
+// searchSortKey starts null: the backend already returns player search
+// results ordered by match relevance, so leave that order alone until the
+// user explicitly clicks a column header to sort by something else.
+const searchSortKey = ref(null)
 const searchSortOrder = ref('asc')
 
 const clubSortKey = ref('latest_elo')
@@ -128,6 +131,7 @@ async function handleSearch() {
   birthYearTo.value = null
   errorText.value = ""
   players.value = []
+  searchSortKey.value = null
   
   try {
     const res = await $backend("national_elo_archive", "search", { q: searchQuery.value })
@@ -241,8 +245,6 @@ function sortCompare(a, b, key, orderMultiplier) {
 }
 
 const sortedPlayers = computed(() => {
-  const key = searchSortKey.value
-  const mult = searchSortOrder.value === 'asc' ? 1 : -1
   let list = [...players.value]
   if (birthYearFrom.value || birthYearTo.value) {
     list = list.filter(p => {
@@ -253,6 +255,12 @@ const sortedPlayers = computed(() => {
       return true
     })
   }
+  // No explicit sort chosen yet: keep the backend's match-relevance order.
+  if (!searchSortKey.value) {
+    return list
+  }
+  const key = searchSortKey.value
+  const mult = searchSortOrder.value === 'asc' ? 1 : -1
   return list.sort((a, b) => sortCompare(a, b, key, mult))
 })
 
