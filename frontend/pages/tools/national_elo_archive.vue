@@ -52,6 +52,9 @@ const clubSortOrder = ref('desc')
 const gamesSortKey = ref('date')
 const gamesSortOrder = ref('desc')
 
+const gamesPage = ref(1)
+const gamesPerPage = 50
+
 // Hovered chart point state
 const hoveredPoint = ref(null)
 
@@ -263,6 +266,17 @@ const sortedGames = computed(() => {
   const key = gamesSortKey.value
   const mult = gamesSortOrder.value === 'asc' ? 1 : -1
   return [...filteredGames.value].sort((a, b) => sortCompare(a, b, key, mult))
+})
+
+const gamesPageCount = computed(() => Math.max(1, Math.ceil(sortedGames.value.length / gamesPerPage)))
+
+const paginatedGames = computed(() => {
+  const start = (gamesPage.value - 1) * gamesPerPage
+  return sortedGames.value.slice(start, start + gamesPerPage)
+})
+
+watch([filteredPeriod, gamesSortKey, gamesSortOrder, games], () => {
+  gamesPage.value = 1
 })
 
 function toggleSortSearch(key) {
@@ -1164,7 +1178,7 @@ onMounted(() => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="g in sortedGames" :key="g.id">
+                <tr v-for="g in paginatedGames" :key="g.id">
                   <td>{{ formatPeriod(g.period) }}</td>
                   <td>{{ g.date || 'N/A' }}</td>
 
@@ -1208,6 +1222,15 @@ onMounted(() => {
                 </tr>
               </tbody>
             </v-table>
+            <div class="d-flex justify-center pa-3">
+              <v-pagination
+                v-model="gamesPage"
+                :length="gamesPageCount"
+                :total-visible="7"
+                density="compact"
+                color="green"
+              ></v-pagination>
+            </div>
           </v-card-text>
         </v-card>
       </div>
