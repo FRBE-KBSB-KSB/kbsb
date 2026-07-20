@@ -338,7 +338,6 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Tuesday,Tuesday,Dinsdag,Mardi,Dienstag
 ,Useful information,Useful information,Nuttige informatie,Information utile,Nützliche Informationen
 ,Validation of player list.,Validation of player list.,Validatie van de spelerslijst.,Validation de la liste de force,Validierung der Spielerliste.
-,Vice president,Vice president,Vicevoorzitter,Vice-président,Vizepräsident
 ,vice_president,vice president,vicevoorzitter,vice-président,Vizepräsident
 ,Webmaster,Webmaster,Webmaster,Webmaster,Webmaster
 ,webmaster,webmaster,webmaster,webmaster,Webmaster
@@ -347,47 +346,47 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Which versions do you want?,Which versions do you want?,Welke versies wens je?,Quelles versions voulez-vous?,Welche Versionen möchten Sie?
 ,Wrong combination of username and password,Wrong combination of username and password,Verkeerde combinatie van gebruikersnaam en wachtwoord,Mauvaise combinaison de nom d'utilisateur et de mot de passe,Falsche Kombination aus Benutzername und Passwort
 ,Yes,Yes,Ja,Oui,Ja
-,You can no longer modify the planning of this round,You can no longer modify the planning of this round,Je kan de planning van deze ronde niet meer wijzigen,Vous ne pouvez plus modifier la planification de cette ronde,Sie können die Planung dieser Runde nicht mehr ändern
-,You triggered a bug. Please inform the webmaster.,You triggered a bug. Please inform the webmaster.,Je hebt een bug geactiveerd. Informeer de webmaster.,Vous avez déclenché un bug. Merci d'en informer le webmaster.,Sie haben einen Fehler ausgelöst. Bitte informieren Sie den Webmaster.
-,Youth,Youth,Jeugd,Jeunesse,Jugend
-,Youth director,Youth director,Jeugdleider,Directeur de la jeunesse,Jugendleiter
-,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiterarc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
-arc,search_player_tab,Search Player,Speler zoeken,Rechercher un joueur,Spieler suchen
-arc,search_club_tab,Search Club,Club zoeken,Rechercher un club,Verein suchen
-arc,search_btn,Search,Zoeken,Rechercher,Suchen
-arc,search_placeholder,Search player name or stamnummer...,Zoek spelersnaam of stamnummer...,Rechercher un nom ou un matricule...,Spielername oder Mitgliedsnummer suchen...
-arc,search_club_placeholder,Search club name or number...,Zoek clubnaam of clubnummer...,Rechercher par nom ou numéro de club...,Vereinsname oder Vereinsnummer suchen...
-arc,no_results,No players found.,Geen spelers gevonden.,Aucun joueur trouvé.,Keine Spieler gefunden.
-arc,no_clubs,No clubs found.,Geen clubs gevonden.,Aucun club trouvé.,Keine Vereine gefunden.
-arc,player_name,Name,Naam,Nom,Name
-arc,member_id,Stamnummer,Stamnummer,Matricule,Mitgliedsnummer
-arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
-arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
+,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiter
+ctx,key,en,nl,fr,de
 arc,abbrev,Abbreviation,Afkorting,Abréviation,Abkürzung
-arc,gender,Gender,Geslacht,Genre,Geschlecht
+arc,archive_note,"The Belgian ELO archive is historical and runs up to July 2026. For the most recent FIDE game history and rating calculations, please refer to the player's FIDE profile.","Het Belgisch ELO-archief is historisch en loopt tot juli 2026. Voor de meest recente FIDE-speelgeschiedenis en ratingberekeningen, raadpleeg het FIDE-profiel van de speler.","L'archive ELO belge est historique et s'étend jusqu'en juillet 2026. Pour l'historique FIDE le plus récent et les calculs de classement, consultez le profil FIDE du joueur.",Das belgische ELO-Archiv ist historisch und läuft bis Juli 2026. Für die aktuellste FIDE-Spielhistorie und Ratingberechnungen besuchen Sie bitte das FIDE-Profil des Spielers.
+arc,back_to_clubs,Back to clubs,Terug naar clubs,Retour aux clubs,Zurück zu Vereinen
+arc,back_to_search,Back to search,Terug naar zoeken,Retour à la recherche,Zurück zur Suche
 arc,birthdate,Birthdate,Geboortedatum,Date de naissance,Geburtsdatum
 arc,birthyear,Birth Year,Geboortejaar,Année de naissance,Geburtsjahr
-arc,nationality,Nationality,Nationaliteit,Nationalité,Nationalität
-arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
-arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
-arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
-arc,result,Result,Resultaat,Résultat,Ergebnis
+arc,black,Black,Zwart,Noir,Schwarz
+arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
+arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
+arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
 arc,color,Color,Kleur,Couleur,Farbe
 arc,date,Date,Datum,Date,Datum
-arc,tournament,Tournament,Toernooi,Tournoi,Turnier
-arc,rating,Rating,Rating,Classement,Wertung
-arc,period,Period,Periode,Période,Periode
-arc,white,White,Wit,Blanc,Weiß
-arc,black,Black,Zwart,Noir,Schwarz
+arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
+arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
 arc,game_nr,Game No.,Partijnr.,N° de partie,Partienummer
-arc,back_to_search,Back to search,Terug naar zoeken,Retour à la recherche,Zurück zur Suche
-arc,back_to_clubs,Back to clubs,Terug naar clubs,Retour aux clubs,Zurück zu Vereinen
-arc,selected_club,Selected Club,Geselecteerde club,Club sélectionné,Ausgewählter Verein
-arc,players_count,players,spelers,joueurs,Spieler
+arc,gender,Gender,Geslacht,Genre,Geschlecht
 arc,last_elo,Last ELO,Laatste ELO,Dernier ELO,Letzte ELO
-arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
-arc,total_games,Total Games,Aantal partijen,Nombre de parties,Anzahl der Partien
 arc,latest_game,Latest Game,Laatste partij,Dernière partie,Letzte Partie
 arc,loading,Loading...,Laden...,Chargement...,Laden...
-arc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
+arc,member_id,Stamnummer,Stamnummer,Matricule,Mitgliedsnummer
+arc,nationality,Nationality,Nationaliteit,Nationalité,Nationalität
+arc,no_clubs,No clubs found.,Geen clubs gevonden.,Aucun club trouvé.,Keine Vereine gefunden.
+arc,no_results,No players found.,Geen spelers gevonden.,Aucun joueur trouvé.,Keine Spieler gefunden.
+arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
+arc,period,Period,Periode,Période,Periode
+arc,player_name,Name,Naam,Nom,Name
+arc,players_count,players,spelers,joueurs,Spieler
+arc,rating,Rating,Rating,Classement,Wertung
 arc,regions_tab,Regions,Regio's,Régions,Regionen
+arc,result,Result,Resultaat,Résultat,Ergebnis
+arc,search_btn,Search,Zoeken,Rechercher,Suchen
+arc,search_club_placeholder,Search club name or number...,Zoek clubnaam of clubnummer...,Rechercher par nom ou numéro de club...,Vereinsname oder Vereinsnummer suchen...
+arc,search_club_tab,Search Club,Club zoeken,Rechercher un club,Verein suchen
+arc,search_placeholder,Search player name or stamnummer...,Zoek spelersnaam of stamnummer...,Rechercher un nom ou un matricule...,Spielername oder Mitgliedsnummer suchen...
+arc,search_player_tab,Search Player,Speler zoeken,Rechercher un joueur,Spieler suchen
+arc,selected_club,Selected Club,Geselecteerde club,Club sélectionné,Ausgewählter Verein
+arc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
+arc,total_games,Total Games,Aantal partijen,Nombre de parties,Anzahl der Partien
+arc,tournament,Tournament,Toernooi,Tournoi,Turnier
+arc,unknown_opponent,Unknown opponent,Onbekende tegenstander,Adversaire inconnu,Unbekannter Gegner
+arc,unknown_opponent_hint,The opponent's name was not saved in the source data. This is usually because the game did not count for ELO (K = 0).,De naam van de tegenstander werd niet bewaard in de brongegevens. Meestal omdat de partij niet meetelde voor de ELO-verwerking (K = 0).,Le nom de l'adversaire n'a pas été enregistré dans les données sources. Généralement parce que la partie ne comptait pas pour le classement ELO (K = 0).,"Der Name des Gegners wurde in den Quelldaten nicht gespeichert. Meistens, weil die Partie nicht für die ELO-Wertung zählte (K = 0)."
+arc,white,White,Wit,Blanc,Weiß

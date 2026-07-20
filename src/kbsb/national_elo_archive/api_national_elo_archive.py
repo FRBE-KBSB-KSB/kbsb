@@ -124,35 +124,6 @@ def levenshtein_distance(s1, s2):
         previous_row = current_row
     return previous_row[-1]
 
-def filter_recycled_ratings(ratings_list):
-    if not ratings_list:
-        return []
-    parsed = []
-    for r in ratings_list:
-        p = str(r["period"])
-        if len(p) == 6:
-            try:
-                year = int(p[:4])
-                month = int(p[4:])
-                months_val = year * 12 + month
-                parsed.append((months_val, r))
-            except ValueError:
-                continue
-    if not parsed:
-        return ratings_list
-    parsed.sort(key=lambda x: x[0], reverse=True)
-    keep = []
-    last_val = None
-    for val, r in parsed:
-        if last_val is not None:
-            gap = last_val - val
-            if gap > 36:  # Discard everything before a gap of more than 3 years
-                break
-        keep.append(r)
-        last_val = val
-    keep.reverse()
-    return keep
-
 @router.get("/search")
 async def search_players(q: str = Query(..., min_length=2), type: str = Query("all"), age_category: str = Query("all")):
     conn, db_type = get_archive_connection()
@@ -380,7 +351,6 @@ async def get_player_profile(member_id: int):
         sql_ratings_pg = "SELECT period, rating FROM player_ratings WHERE member_id = %s ORDER BY period ASC"
         sql_ratings_lite = "SELECT period, rating FROM player_ratings WHERE member_id = ? ORDER BY period ASC"
         ratings = run_query(conn, db_type, sql_ratings_pg, sql_ratings_lite, (member_id,))
-        ratings = filter_recycled_ratings(ratings)
         
         # 2. Fetch full game history
         sql_games_pg = """

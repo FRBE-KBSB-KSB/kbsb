@@ -1184,14 +1184,22 @@ onMounted(() => {
 
                   <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
                   <td class="font-weight-medium">
-                    <span 
+                    <span
                       v-if="g.opponent_member_id && g.opponent_member_id > 0 && g.opponent_is_active"
-                      @click="selectPlayer(g.opponent_member_id)" 
-                      class="text-green-darken-3 font-weight-medium text-decoration-underline" 
+                      @click="selectPlayer(g.opponent_member_id)"
+                      class="text-green-darken-3 font-weight-medium text-decoration-underline"
                       style="cursor: pointer;"
                     >
                       {{ g.opponent_name }}
                     </span>
+                    <v-tooltip v-else-if="g.opponent_name === 'Unknown Opponent'" location="top" max-width="320">
+                      <template #activator="{ props }">
+                        <span v-bind="props" class="text-grey font-italic" style="cursor: help;">
+                          {{ t('arc.unknown_opponent') }}
+                        </span>
+                      </template>
+                      {{ t('arc.unknown_opponent_hint') }}
+                    </v-tooltip>
                     <span v-else>{{ g.opponent_name }}</span>
                   </td>
                   <td>{{ g.opponent_elo !== null ? g.opponent_elo : 'N/A' }}</td>
