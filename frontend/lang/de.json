@@ -388,7 +388,7 @@
 "arc.total_games": "Anzahl der Partien",
 "arc.tournament": "Turnier",
 "arc.unknown_opponent": "Unbekannter Gegner",
-"arc.unknown_opponent_hint": "Der Name des Gegners wurde in den Quelldaten nicht gespeichert. Meistens, weil die Partie nicht fÃ¼r die ELO-Wertung zÃ¤hlte (K = 0).",
+"arc.unknown_opponent_hint": "Der Name des Gegners wurde in den Quelldaten nicht gespeichert. Meist handelt es sich um ein auslÃ¤ndisches oder FIDE-gewertetes Turnier, bei dem nur die Wertungszahl des Gegners erfasst wurde, nicht sein Name. Diese Partien zÃ¤hlten dennoch fÃ¼r die ELO-Wertung.",
 "arc.white": "WeiÃŸ",
 "ZZZ": "ZZZ"
 }

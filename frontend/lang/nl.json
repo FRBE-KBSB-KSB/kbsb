@@ -388,7 +388,7 @@
 "arc.total_games": "Aantal partijen",
 "arc.tournament": "Toernooi",
 "arc.unknown_opponent": "Onbekende tegenstander",
-"arc.unknown_opponent_hint": "De naam van de tegenstander werd niet bewaard in de brongegevens. Meestal omdat de partij niet meetelde voor de ELO-verwerking (K = 0).",
+"arc.unknown_opponent_hint": "De naam van de tegenstander werd niet in de brongegevens bewaard. Dit is meestal een buitenlands of FIDE-toernooi, waarbij alleen de rating van de tegenstander werd bewaard, niet zijn naam. Deze partijen telden wel degelijk mee voor de ELO.",
 "arc.white": "Wit",
 "ZZZ": "ZZZ"
 }

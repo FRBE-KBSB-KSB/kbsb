@@ -388,7 +388,7 @@
 "arc.total_games": "Nombre de parties",
 "arc.tournament": "Tournoi",
 "arc.unknown_opponent": "Adversaire inconnu",
-"arc.unknown_opponent_hint": "Le nom de l'adversaire n'a pas Ã©tÃ© enregistrÃ© dans les donnÃ©es sources. GÃ©nÃ©ralement parce que la partie ne comptait pas pour le classement ELO (K = 0).",
+"arc.unknown_opponent_hint": "Le nom de l'adversaire n'a pas Ã©tÃ© conservÃ© dans les donnÃ©es sources. Il s'agit gÃ©nÃ©ralement d'un tournoi Ã©tranger ou homologuÃ© FIDE, oÃ¹ seul le classement de l'adversaire a Ã©tÃ© enregistrÃ©, pas son nom. Ces parties comptaient bel et bien pour le classement ELO.",
 "arc.white": "Blanc",
 "ZZZ": "ZZZ"
 }

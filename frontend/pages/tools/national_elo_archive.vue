@@ -57,6 +57,7 @@ const gamesSortOrder = ref('desc')
 
 const gamesPage = ref(1)
 const gamesPerPage = 50
+const expandedGroups = ref(new Set()) // keys of expanded placeholder-tournament summary rows
 
 // Hovered chart point state
 const hoveredPoint = ref(null)
@@ -276,15 +277,47 @@ const sortedGames = computed(() => {
   return [...filteredGames.value].sort((a, b) => sortCompare(a, b, key, mult))
 })
 
-const gamesPageCount = computed(() => Math.max(1, Math.ceil(sortedGames.value.length / gamesPerPage)))
+// Fold consecutive "Unknown Opponent" games from the same tournament (foreign/FIDE
+// events imported against a single placeholder opponent) into one collapsible summary
+// row, so an 11-round FIDE open shows as one line instead of 11 identical rows. Grouping
+// is positional, so the current sort order (date by default) is preserved -- a group sits
+// where its games already are. Real, identifiable opponents are never grouped.
+const groupedGames = computed(() => {
+  const rows = []
+  const src = sortedGames.value
+  let i = 0
+  while (i < src.length) {
+    const g = src[i]
+    if (g.opponent_name === 'Unknown Opponent') {
+      let j = i + 1
+      while (
+        j < src.length &&
+        src[j].opponent_name === 'Unknown Opponent' &&
+        src[j].tournament === g.tournament &&
+        src[j].date === g.date
+      ) j++
+      if (j - i > 1) {
+        rows.push({ key: 'grp-' + g.id, summary: true, games: src.slice(i, j) })
+        i = j
+        continue
+      }
+    }
+    rows.push({ key: 'game-' + g.id, summary: false, games: [g] })
+    i++
+  }
+  return rows
+})
 
-const paginatedGames = computed(() => {
+const gamesPageCount = computed(() => Math.max(1, Math.ceil(groupedGames.value.length / gamesPerPage)))
+
+const paginatedRows = computed(() => {
   const start = (gamesPage.value - 1) * gamesPerPage
-  return sortedGames.value.slice(start, start + gamesPerPage)
+  return groupedGames.value.slice(start, start + gamesPerPage)
 })
 
 watch([filteredPeriod, gamesSortKey, gamesSortOrder, games], () => {
   gamesPage.value = 1
+  expandedGroups.value = new Set()
 })
 
 function toggleSortSearch(key) {
@@ -373,6 +406,49 @@ function getEloChange(game) {
   const diff = game.k_factor * (score - we)
   const rounded = Math.round(diff)
   return rounded >= 0 ? `+${rounded}` : `${rounded}`
+}
+
+// --- placeholder-tournament summary-row helpers ---
+function toggleGroup(key) {
+  const s = new Set(expandedGroups.value)
+  if (s.has(key)) s.delete(key)
+  else s.add(key)
+  expandedGroups.value = s
+}
+function isGroupExpanded(key) {
+  return expandedGroups.value.has(key)
+}
+// singles always render their one game; a group's children only render when expanded
+function rowGames(row) {
+  return row.summary ? (isGroupExpanded(row.key) ? row.games : []) : row.games
+}
+function gameEloDelta(game) {
+  if (!game.k_factor) return 0
+  const score = game.result === '1-0' ? 1 : game.result === '1/2' ? 0.5 : 0
+  return Math.round(game.k_factor * (score - (game.expected_score || 0) / 100.0))
+}
+function groupNet(games) {
+  const n = games.reduce((s, g) => s + gameEloDelta(g), 0)
+  return n >= 0 ? `+${n}` : `${n}`
+}
+function groupNetClass(games) {
+  const n = games.reduce((s, g) => s + gameEloDelta(g), 0)
+  return n > 0 ? 'text-green-darken-2 font-weight-bold' : (n < 0 ? 'text-red-darken-2 font-weight-bold' : '')
+}
+// compact, language-neutral score: points / games, e.g. "5/11" or "4.5/8"
+function groupScore(games) {
+  const pts = games.reduce((s, g) => s + (g.result === '1-0' ? 1 : g.result === '1/2' ? 0.5 : 0), 0)
+  return `${pts}/${games.length}`
+}
+function groupEloDisplay(games) {
+  const elos = games.map(g => g.opponent_elo).filter(e => e !== null && e !== undefined)
+  if (!elos.length) return 'N/A'
+  const min = Math.min(...elos), max = Math.max(...elos)
+  return min === max ? `${min}` : `${min}–${max}`
+}
+function groupK(games) {
+  const ks = [...new Set(games.map(g => g.k_factor))]
+  return ks.length === 1 ? (ks[0] || '-') : '-'
 }
 
 // SVG ELO Chart coordinates
@@ -1186,56 +1262,90 @@ onMounted(() => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="g in paginatedGames" :key="g.id">
-                  <td>{{ formatPeriod(g.period) }}</td>
-                  <td>{{ g.date || 'N/A' }}</td>
+                <template v-for="row in paginatedRows" :key="row.key">
+                  <!-- summary row for a folded placeholder-opponent tournament -->
+                  <tr
+                    v-if="row.summary"
+                    @click="toggleGroup(row.key)"
+                    style="cursor: pointer;"
+                    class="bg-blue-grey-lighten-5"
+                  >
+                    <td>{{ formatPeriod(row.games[0].period) }}</td>
+                    <td>{{ row.games[0].date || 'N/A' }}</td>
+                    <td class="text-truncate" style="max-width: 180px;" :title="row.games[0].tournament">{{ cleanTournament(row.games[0].tournament) }}</td>
+                    <td class="font-weight-medium">
+                      <v-icon size="small" class="mr-1">{{ isGroupExpanded(row.key) ? 'mdi-chevron-down' : 'mdi-chevron-right' }}</v-icon>
+                      <v-tooltip location="top" max-width="320">
+                        <template #activator="{ props }">
+                          <span v-bind="props" class="text-grey-darken-1 font-italic" style="cursor: help;">
+                            {{ t('arc.unknown_opponent') }} ×{{ row.games.length }}
+                          </span>
+                        </template>
+                        {{ t('arc.unknown_opponent_hint') }}
+                      </v-tooltip>
+                    </td>
+                    <td>{{ groupEloDisplay(row.games) }}</td>
+                    <td>—</td>
+                    <td>{{ groupK(row.games) }}</td>
+                    <td><span :class="groupNetClass(row.games)">{{ groupNet(row.games) }}</span></td>
+                    <td>
+                      <v-chip color="blue-grey" size="small" variant="flat" text-color="white" class="font-weight-bold" style="min-width: 28px; justify-content: center;">
+                        {{ groupScore(row.games) }}
+                      </v-chip>
+                    </td>
+                  </tr>
+                  <!-- individual game rows: singles always, group children only when expanded -->
+                  <tr v-for="g in rowGames(row)" :key="g.id" :class="row.summary ? 'bg-grey-lighten-4' : ''">
+                    <td>{{ formatPeriod(g.period) }}</td>
+                    <td>{{ g.date || 'N/A' }}</td>
 
-                  <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
-                  <td class="font-weight-medium">
-                    <span
-                      v-if="g.opponent_member_id && g.opponent_member_id > 0 && g.opponent_is_active"
-                      @click="selectPlayer(g.opponent_member_id)"
-                      class="text-green-darken-3 font-weight-medium text-decoration-underline"
-                      style="cursor: pointer;"
-                    >
-                      {{ g.opponent_name }}
-                    </span>
-                    <v-tooltip v-else-if="g.opponent_name === 'Unknown Opponent'" location="top" max-width="320">
-                      <template #activator="{ props }">
-                        <span v-bind="props" class="text-grey font-italic" style="cursor: help;">
-                          {{ t('arc.unknown_opponent') }}
-                        </span>
-                      </template>
-                      {{ t('arc.unknown_opponent_hint') }}
-                    </v-tooltip>
-                    <span v-else>{{ g.opponent_name }}</span>
-                  </td>
-                  <td>{{ g.opponent_elo !== null ? g.opponent_elo : 'N/A' }}</td>
-                  <td>
-                    <v-icon :color="g.color === 'W' ? 'grey-lighten-1' : 'grey-darken-3'">
-                      {{ g.color === 'W' ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-blank' }}
-                    </v-icon>
-                    <span class="ml-1">{{ g.color === 'W' ? t('arc.white') : t('arc.black') }}</span>
-                  </td>
-                  <td>{{ g.k_factor || '-' }}</td>
-                  <td>
-                    <span :class="getEloChange(g).startsWith('+') ? 'text-green-darken-2 font-weight-bold' : (getEloChange(g).startsWith('-') ? 'text-red-darken-2 font-weight-bold' : '')">
-                      {{ getEloChange(g) }}
-                    </span>
-                  </td>
-                  <td>
-                    <v-chip
-                      :color="getPlayerResultColor(g)"
-                      size="small"
-                      variant="flat"
-                      text-color="white"
-                      class="font-weight-bold"
-                      style="min-width: 28px; justify-content: center;"
-                    >
-                      {{ getPlayerResultText(g) }}
-                    </v-chip>
-                  </td>
-                </tr>
+                    <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
+                    <td class="font-weight-medium">
+                      <span
+                        v-if="g.opponent_member_id && g.opponent_member_id > 0 && g.opponent_is_active"
+                        @click="selectPlayer(g.opponent_member_id)"
+                        class="text-green-darken-3 font-weight-medium text-decoration-underline"
+                        style="cursor: pointer;"
+                      >
+                        {{ g.opponent_name }}
+                      </span>
+                      <v-tooltip v-else-if="g.opponent_name === 'Unknown Opponent'" location="top" max-width="320">
+                        <template #activator="{ props }">
+                          <span v-bind="props" class="text-grey font-italic" style="cursor: help;">
+                            {{ t('arc.unknown_opponent') }}
+                          </span>
+                        </template>
+                        {{ t('arc.unknown_opponent_hint') }}
+                      </v-tooltip>
+                      <span v-else>{{ g.opponent_name }}</span>
+                    </td>
+                    <td>{{ g.opponent_elo !== null ? g.opponent_elo : 'N/A' }}</td>
+                    <td>
+                      <v-icon :color="g.color === 'W' ? 'grey-lighten-1' : 'grey-darken-3'">
+                        {{ g.color === 'W' ? 'mdi-checkbox-blank-outline' : 'mdi-checkbox-blank' }}
+                      </v-icon>
+                      <span class="ml-1">{{ g.color === 'W' ? t('arc.white') : t('arc.black') }}</span>
+                    </td>
+                    <td>{{ g.k_factor || '-' }}</td>
+                    <td>
+                      <span :class="getEloChange(g).startsWith('+') ? 'text-green-darken-2 font-weight-bold' : (getEloChange(g).startsWith('-') ? 'text-red-darken-2 font-weight-bold' : '')">
+                        {{ getEloChange(g) }}
+                      </span>
+                    </td>
+                    <td>
+                      <v-chip
+                        :color="getPlayerResultColor(g)"
+                        size="small"
+                        variant="flat"
+                        text-color="white"
+                        class="font-weight-bold"
+                        style="min-width: 28px; justify-content: center;"
+                      >
+                        {{ getPlayerResultText(g) }}
+                      </v-chip>
+                    </td>
+                  </tr>
+                </template>
               </tbody>
             </v-table>
             <div class="d-flex justify-center pa-3">

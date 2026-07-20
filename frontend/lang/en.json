@@ -388,7 +388,7 @@
 "arc.total_games": "Total Games",
 "arc.tournament": "Tournament",
 "arc.unknown_opponent": "Unknown opponent",
-"arc.unknown_opponent_hint": "The opponent's name was not saved in the source data. This is usually because the game did not count for ELO (K = 0).",
+"arc.unknown_opponent_hint": "The opponent's name wasn't kept in the source data. This is usually a foreign or FIDE-rated tournament, where only the opponent's rating was recorded, not their name. These games still counted toward the ELO.",
 "arc.white": "White",
 "ZZZ": "ZZZ"
 }
