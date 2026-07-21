@@ -6,7 +6,7 @@ rootdir = Path(__file__).parents[3]
 
 def process_i18n():
     allrows = {}
-    with (rootdir / "shared" / "translations - kbsb.csv").open(newline="") as csvfile:
+    with (rootdir / "shared" / "translations - kbsb.csv").open(newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile)
         for r in reader:
             ctx = r["ctx"]
