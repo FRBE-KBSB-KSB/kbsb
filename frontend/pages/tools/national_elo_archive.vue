@@ -353,6 +353,23 @@ const periodsList = computed(() => {
   return ["All", ...Array.from(periods).sort().reverse()]
 })
 
+// The dropdown is built from GAMES, the rating graph from RATINGS, and those two can
+// legitimately start at different points: an unrated player's games still get recorded
+// (with K = 0) and are what establish their first rating, so games can exist for periods
+// that have no rating yet. Showing the rating next to each period makes that visible --
+// a period with no number is simply one the player had no rating for -- instead of
+// looking like the dropdown and the graph disagree.
+const ratingByPeriod = computed(() => {
+  const m = new Map()
+  for (const r of (ratings.value || [])) m.set(r.period, r.rating)
+  return m
+})
+function periodLabel(p) {
+  if (p === 'All') return 'All Periods'
+  const r = ratingByPeriod.value.get(p)
+  return r ? `${formatPeriod(p)} · ${r}` : formatPeriod(p)
+}
+
 // Filtered games list
 const filteredGames = computed(() => {
   if (filteredPeriod.value === "All") {
@@ -481,20 +498,20 @@ const chartMinMax = computed(() => {
 
 const chartPoints = computed(() => {
   if (!ratings.value || ratings.value.length === 0) return []
-  
+
   const { min, max } = chartMinMax.value
   const total = ratings.value.length
-  
+
   return ratings.value.map((r, index) => {
     // X distribution
-    const x = total > 1 
+    const x = total > 1
       ? paddingLeft + index * (chartWidth - paddingLeft - paddingRight) / (total - 1)
       : paddingLeft + (chartWidth - paddingLeft - paddingRight) / 2
-      
+
     // Y distribution
-    const y = (chartHeight - paddingBottom) - 
+    const y = (chartHeight - paddingBottom) -
       (r.rating - min) * (chartHeight - paddingBottom - paddingTop) / (max - min)
-      
+
     return {
       x,
       y,
@@ -530,20 +547,30 @@ const yGridLines = computed(() => {
 const xGridLines = computed(() => {
   const pts = chartPoints.value
   if (pts.length <= 1) return []
-  
+
   const lines = []
-  // Only label every Nth point to avoid overlap
   const total = pts.length
   let step = 1
-  if (total > 20) step = 4
+  if (total > 30) step = 6
+  else if (total > 20) step = 4
   else if (total > 10) step = 2
-  
+
   for (let i = 0; i < total; i += step) {
     lines.push(pts[i])
   }
-  // Make sure last one is labeled
-  if ((total - 1) % step !== 0) {
-    lines.push(pts[total - 1])
+  // Make sure last one is labeled, but prevent overlap
+  const lastIdx = total - 1
+  if (lastIdx % step !== 0) {
+    const lastAdded = lines[lines.length - 1]
+    const actualLast = pts[lastIdx]
+    // If the forced final label would sit too close to the last stepped label,
+    // skip adding it rather than dropping the stepped one -- dropping it opened
+    // a gap spanning a full step near the most recent data (e.g. jumping from
+    // "Oct 2023" straight to "Jul 2026"), which read as a broken/missing axis.
+    // Worst case now is a single unlabeled trailing point, not a large gap.
+    if (!lastAdded || actualLast.x - lastAdded.x >= 60) {
+      lines.push(actualLast)
+    }
   }
   return lines
 })
@@ -557,6 +584,15 @@ function formatPeriod(periodStr) {
     "01": "Jan", "04": "Apr", "07": "Jul", "10": "Oct"
   }
   return `${months[month] || month} ${year}`
+}
+
+function formatGameDate(dateStr) {
+  if (!dateStr) return "N/A"
+  // Dates arrive as ISO timestamps (e.g. "2012-07-07T00:00:00.000Z"); show the
+  // calendar date only. Slice the leading YYYY-MM-DD rather than constructing a
+  // Date, to avoid timezone shifts turning midnight-UTC into the previous day.
+  const m = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/)
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : String(dateStr)
 }
 
 function cleanTournament(tourney) {
@@ -667,7 +703,7 @@ onMounted(() => {
                     </v-icon>
                   </th>
                   <th @click="toggleSortClub('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                    {{ t('arc.birthyear') }}
+                    <span class='text-no-wrap'>{{ t('arc.birthyear') }}</span>
                     <v-icon size="small" class="ml-1">
                       {{ clubSortKey === 'birthdate' ? (clubSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                     </v-icon>
@@ -837,7 +873,7 @@ onMounted(() => {
                         </v-icon>
                       </th>
                       <th @click="toggleSortSearch('birthdate')" class="font-weight-bold" style="cursor: pointer; user-select: none;">
-                        {{ t('arc.birthyear') }}
+                        <span class='text-no-wrap'>{{ t('arc.birthyear') }}</span>
                         <v-icon size="small" class="ml-1">
                           {{ searchSortKey === 'birthdate' ? (searchSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}
                         </v-icon>
@@ -1035,7 +1071,7 @@ onMounted(() => {
               <v-col cols="6" sm="3" md="2">
                 <div class="text-subtitle-2 text-grey-darken-1">FIDE-ID</div>
                 <div class="text-h6 font-weight-bold">
-                  <a v-if="selectedPlayer.fide_id" :href="`https://ratings.fide.com/profile/${selectedPlayer.fide_id}`" target="_blank" class="text-green-darken-2 text-decoration-none">
+                  <a v-if="selectedPlayer.fide_id" :href="`https://ratings.fide.com/profile/${selectedPlayer.fide_id}`" target="_blank" rel="noopener noreferrer" class="text-green-darken-2 text-decoration-none">
                     {{ selectedPlayer.fide_id }}
                     <v-icon size="x-small" class="ml-1">mdi-open-in-new</v-icon>
                   </a>
@@ -1047,13 +1083,13 @@ onMounted(() => {
                 <div class="text-h6">{{ selectedPlayer.gender }}</div>
               </v-col>
               <v-col cols="6" sm="3" md="1">
-                <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.birthyear') }}</div>
+                <div class="text-subtitle-2 text-grey-darken-1"><span class='text-no-wrap'>{{ t('arc.birthyear') }}</span></div>
                 <div class="text-h6">{{ selectedPlayer.birthdate ? selectedPlayer.birthdate.substring(0, 4) : 'N/A' }}</div>
               </v-col>
 
               <v-col cols="6" sm="3" md="2">
                 <div class="text-subtitle-2 text-grey-darken-1">{{ t('arc.latest_game') || 'Laatste partij' }}</div>
-                <div class="text-h6 font-weight-bold text-green-darken-3">{{ latestGameDate || 'N/A' }}</div>
+                <div class="text-h6 font-weight-bold text-green-darken-3">{{ latestGameDate ? formatGameDate(latestGameDate) : 'N/A' }}</div>
               </v-col>
             </v-row>
           </v-card-text>
@@ -1192,10 +1228,10 @@ onMounted(() => {
               style="max-width: 180px;"
             >
               <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :title="item.value === 'All' ? 'All Periods' : formatPeriod(item.value)"></v-list-item>
+                <v-list-item v-bind="props" :title="periodLabel(item.value)"></v-list-item>
               </template>
               <template v-slot:selection="{ item }">
-                <span>{{ item.value === "All" ? "All Periods" : formatPeriod(item.value) }}</span>
+                <span>{{ periodLabel(item.value) }}</span>
               </template>
             </v-select>
           </v-card-title>
@@ -1271,7 +1307,7 @@ onMounted(() => {
                     class="bg-blue-grey-lighten-5"
                   >
                     <td>{{ formatPeriod(row.games[0].period) }}</td>
-                    <td>{{ row.games[0].date || 'N/A' }}</td>
+                    <td>{{ formatGameDate(row.games[0].date) }}</td>
                     <td class="text-truncate" style="max-width: 180px;" :title="row.games[0].tournament">{{ cleanTournament(row.games[0].tournament) }}</td>
                     <td class="font-weight-medium">
                       <v-icon size="small" class="mr-1">{{ isGroupExpanded(row.key) ? 'mdi-chevron-down' : 'mdi-chevron-right' }}</v-icon>
@@ -1297,7 +1333,7 @@ onMounted(() => {
                   <!-- individual game rows: singles always, group children only when expanded -->
                   <tr v-for="g in rowGames(row)" :key="g.id" :class="row.summary ? 'bg-grey-lighten-4' : ''">
                     <td>{{ formatPeriod(g.period) }}</td>
-                    <td>{{ g.date || 'N/A' }}</td>
+                    <td>{{ formatGameDate(g.date) }}</td>
 
                     <td class="text-truncate" style="max-width: 180px;" :title="g.tournament">{{ cleanTournament(g.tournament) }}</td>
                     <td class="font-weight-medium">
