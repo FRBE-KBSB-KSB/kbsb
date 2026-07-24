@@ -1,25 +1,31 @@
 import axios from "axios";
 
-const prefix = "/api/v1/national_elo_archive";
+const prefix = "http://127.0.0.1:8000/api/v1/national_elo_archive";
+
 export default {
-  search: async function(options) {
-    const typeQuery = options.type ? `&type=${options.type}` : "";
-    return await axios.get(`${prefix}/search?q=${options.q}${typeQuery}`);
+  async search(options) {
+    const qEscaped = encodeURIComponent((options && options.q) ? options.q.trim() : "");
+    const typeQuery = (options && options.type) ? `&type=${encodeURIComponent(options.type)}` : "";
+    return await axios.get(`${prefix}/search?q=${qEscaped}${typeQuery}`);
   },
-  getProfile: async function(options) {
-    return await axios.get(`${prefix}/player/${options.member_id}`);
+  async getProfile(options) {
+    const id = (options && options.member_id) ? options.member_id : "";
+    return await axios.get(`${prefix}/player/${id}`);
   },
-  getGames: async function(options) {
-    const periodQuery = options.period ? `?period=${options.period}` : "";
-    return await axios.get(`${prefix}/player/${options.member_id}/games${periodQuery}`);
+  async getGames(options) {
+    const id = (options && options.member_id) ? options.member_id : "";
+    const periodQuery = (options && options.period) ? `?period=${encodeURIComponent(options.period)}` : "";
+    return await axios.get(`${prefix}/player/${id}/games${periodQuery}`);
   },
-  searchClubs: async function(options) {
-    return await axios.get(`${prefix}/clubs?q=${options.q}`);
+  async searchClubs(options) {
+    const qEscaped = encodeURIComponent((options && options.q) ? options.q.trim() : "");
+    return await axios.get(`${prefix}/clubs?q=${qEscaped}`);
   },
-  getClubPlayers: async function(options) {
-    return await axios.get(`${prefix}/club/${options.club_id}/players`);
+  async getClubPlayers(options) {
+    const clubId = (options && options.club_id) ? options.club_id : "";
+    return await axios.get(`${prefix}/club/${clubId}/players`);
   },
-  getAllClubs: async function() {
+  async getAllClubs() {
     return await axios.get(`${prefix}/clubs/all`);
   }
 };
