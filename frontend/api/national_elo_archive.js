@@ -1,6 +1,14 @@
 import axios from "axios";
 
-const prefix = "http://127.0.0.1:8000/api/v1/national_elo_archive";
+// Relative path resolved against axios.defaults.baseURL (set from
+// runtimeConfig.public.apiUrl in plugins/backend.js), same as every other
+// api/*.js client. A hardcoded absolute "http://127.0.0.1:8000" here used to
+// dodge Node 18+ SSR resolving "localhost" to IPv6 in local dev, but it also
+// ignored API_URL in production, sending deployed users' browsers to their
+// own machine instead of the real backend. The shared apiUrl default is
+// already the IPv4 literal ("http://127.0.0.1:8000/"), so this relative path
+// avoids the IPv6 issue locally while still respecting API_URL when deployed.
+const prefix = "/api/v1/national_elo_archive";
 
 export default {
   async search(options) {
