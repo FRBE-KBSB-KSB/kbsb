@@ -11,7 +11,7 @@ definePageMeta({
   layout: "nomenu",
 })
 
-// Search Mode ('player', 'club', or 'region')
+// Search Mode ('player' or 'club')
 const searchMode = ref("player")
 
 // Player search state
@@ -61,67 +61,6 @@ const expandedGroups = ref(new Set()) // keys of expanded placeholder-tournament
 
 // Hovered chart point state
 const hoveredPoint = ref(null)
-
-// Regions state
-const loadingRegions = ref(false)
-const regionsClubs = ref({})
-const regionsList = [
-  { id: 0, name: "Brussel / Bruxelles (VSF)", clubIds: [201, 204, 209, 229, 244] },
-  { id: 100, name: "Antwerpen", clubIds: [108, 109, 114, 121, 124, 128, 130, 132, 134, 135, 143, 162, 166, 174, 176, 182, 188, 190, 194, 195, 196] },
-  { id: 200, name: "Vlaams-Brabant", clubIds: [228, 230, 231, 233, 234, 235, 236, 238, 240, 260, 261] },
-  { id: 299, name: "Bruxelles / Brussel (FEFB)", clubIds: [202, 207, 226, 239, 278, 289] },
-  { id: 300, name: "West-Vlaanderen", clubIds: [301, 302, 303, 304, 305, 307, 309, 312, 313, 318, 322, 340, 351, 352, 353, 362, 363, 364] },
-  { id: 400, name: "Oost-Vlaanderen", clubIds: [401, 402, 404, 408, 410, 417, 418, 422, 425, 430, 432, 436, 438, 460, 462, 465, 471, 472, 475] },
-  { id: 500, name: "Hainaut", clubIds: [501, 511, 514, 520, 521, 525, 541, 547, 548, 549, 551] },
-  { id: 600, name: "Liège", clubIds: [601, 603, 609, 618, 619, 621, 622, 641, 666] },
-  { id: 699, name: "SVDB", clubIds: [604, 607, 623, 627] },
-  { id: 700, name: "Limburg", clubIds: [701, 703, 705, 707, 708, 712, 713, 714, 715, 725, 726, 727, 732, 733, 736, 737, 741, 742, 743] },
-  { id: 800, name: "Namur - Luxembourg", clubIds: [810, 811, 814, 816] },
-  { id: 900, name: "Namur", clubIds: [901, 902, 906, 909] },
-  { id: 950, name: "Brabant Wallon", clubIds: [518, 951, 952, 953, 954, 961, 962] }
-]
-
-async function loadAllClubsForRegions() {
-  loadingRegions.value = true
-  errorText.value = ""
-  regionsClubs.value = {}
-  
-  try {
-    const res = await $backend("national_elo_archive", "getAllClubs")
-    if (res && res.data && res.data.success) {
-      const clubsList = res.data.clubs || []
-      
-      const grouped = {}
-      regionsList.forEach(r => {
-        grouped[r.id] = []
-      })
-      
-      clubsList.forEach(club => {
-        if (!club.player_count || club.player_count === 0) return
-        
-        const region = regionsList.find(r => r.clubIds.includes(club.club_id))
-        if (region) {
-          grouped[region.id].push(club)
-        }
-      })
-      
-      regionsClubs.value = grouped
-    } else {
-      errorText.value = "Failed to load clubs for regions"
-    }
-  } catch (error) {
-    console.error(error)
-    errorText.value = error.message || "An error occurred fetching regions clubs"
-  } finally {
-    loadingRegions.value = false
-  }
-}
-
-watch(searchMode, (newVal) => {
-  if (newVal === "region" && Object.keys(regionsClubs.value).length === 0) {
-    loadAllClubsForRegions()
-  }
-})
 
 // API methods
 async function handleSearch() {
@@ -740,9 +679,6 @@ onMounted(() => {
           <v-tab value="club" prepend-icon="mdi-home-group">
             {{ t('arc.search_club_tab') || 'Club' }}
           </v-tab>
-          <v-tab value="region" prepend-icon="mdi-map-marker-multiple">
-            {{ t('arc.regions_tab') || 'Regio\'s' }}
-          </v-tab>
         </v-tabs>
 
         <!-- MODE 1: PLAYER SEARCH -->
@@ -975,56 +911,6 @@ onMounted(() => {
           <v-row v-if="searchingClubs" justify="center" class="my-8">
             <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
           </v-row>
-        </div>
-
-        <!-- MODE 3: REGIONS -->
-        <div v-else-if="searchMode === 'region'">
-          <v-row v-if="loadingRegions" justify="center" class="my-8">
-            <v-progress-circular indeterminate color="green" size="64"></v-progress-circular>
-          </v-row>
-          
-          <div v-else>
-            <div v-for="region in regionsList" :key="region.id">
-              <div v-if="regionsClubs[region.id] && regionsClubs[region.id].length > 0" class="mb-8">
-                <h2 class="text-h5 font-weight-bold text-green-darken-3 mb-4 pb-2" style="border-bottom: 2px solid #e0e0e0;">
-                  {{ region.name }}
-                </h2>
-                
-                <v-card class="elevation-1 pa-4 bg-grey-lighten-4">
-                  <v-row>
-                    <v-col 
-                      v-for="club in regionsClubs[region.id]" 
-                      :key="club.club_id"
-                      cols="12"
-                      sm="6"
-                      md="4"
-                      lg="3"
-                    >
-                      <v-card 
-                        variant="outlined" 
-                        color="green-darken-1" 
-                        class="h-100 hover-card bg-white" 
-                        @click="selectClub(club)"
-                        style="cursor: pointer;"
-                      >
-                        <v-card-text class="d-flex align-center justify-space-between py-3 px-4">
-                          <div class="text-truncate">
-                            <div class="text-caption text-grey-darken-1 font-weight-bold">{{ club.club_id }}</div>
-                            <div class="font-weight-bold text-green-darken-4 text-truncate">
-                              {{ club.name }}
-                            </div>
-                          </div>
-                          <v-chip size="x-small" color="green-darken-3" class="font-weight-bold ml-2">
-                            {{ club.player_count }}
-                          </v-chip>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
