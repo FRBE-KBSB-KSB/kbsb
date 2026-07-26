@@ -21,7 +21,14 @@ def get_api_key() -> str:
         project_id = "website-kbsb-prod"
         
     client = secretmanager.SecretManagerServiceClient()
-    name = f"projects/{project_id}/secrets/KBSB-testing-api/versions/latest"
+    # This proxy only ever forwards to /api/v1/national_elo_archive (see
+    # TARGET_BASE_URL below) — it genuinely only needs the oldelo-scoped
+    # key, never the master one, matching the two-role split in
+    # kbsb-dataplatform's dataplatform-api (see that repo's
+    # docs/api_key_management.md). Renamed from the old flat single-key
+    # secret "KBSB-testing-api" (deleted 2026-07-26) when the API moved to
+    # per-role scoped keys.
+    name = f"projects/{project_id}/secrets/hetzner-api-oldelo/versions/latest"
     
     try:
         response = client.access_secret_version(request={"name": name})
