@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
 // communication
@@ -493,6 +493,22 @@ onMounted(() => {
     const cached = localStorage.getItem(`fide_${field}`)
     if (cached !== null) form.value[field] = cached
   })
+
+  // Send message to parent iframe if embedded
+  if (typeof window !== "undefined" && window.parent !== window) {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        window.parent.postMessage({
+          type: "kbsb-iframe-resize",
+          height: entry.target.scrollHeight
+        }, "*")
+      }
+    })
+    resizeObserver.observe(document.body)
+    onUnmounted(() => {
+      resizeObserver.disconnect()
+    })
+  }
 });
 
 definePageMeta({
@@ -994,7 +1010,7 @@ button[type="submit"]:hover { background-color: var(--accent-dark, #1b5e20); }
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.person-row { display: grid; grid-template-columns: 160px 1fr; gap: 0.75rem; align-items: start; }
+.person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
 
 @media (max-width: 640px) {
   .form-shell { padding: 1.25rem 1.25rem 1.1rem; }
