@@ -93,7 +93,7 @@ FIDE_FIELDS = [
     ("pgn_provided", "Will PGN be provided?"),
     ("contact_email", "Contact E-mail"),
     ("homepage", "Internet Homepage"),
-    ("prize_fund", "Prize Fund in euros"),
+    ("prize_fund", "Prize Fund"),
     ("remarks", "Remarks"),
 ]
 
@@ -285,25 +285,6 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
             f"{field_label} {t_msg['field_must_be_at_most'].replace('{max}', str(max_value))}"
         )
     return iv
-
-
-def parse_float(value, field_label, errors, lang, min_value=None):
-    t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
-    if value is None or value == "":
-        return None
-    try:
-        fv = float(value)
-    except ValueError:
-        logger.error(f"{field_label} must be a number")
-        errors.append(f"{field_label} {t_msg['field_must_be_number']}")
-        return None
-    if min_value is not None and fv < min_value:
-        logger.error(f"{field_label} must be at least {min}")
-        errors.append(
-            f"{field_label} {t_msg['field_must_be_at_least'].replace('{min}', str(min_value))}"
-        )
-        return None
-    return fv
 
 
 def validate_form(form, lang):
@@ -547,13 +528,6 @@ def validate_form(form, lang):
                     min_value=1,
                 )
 
-    parse_float(
-        form.get("prize_fund"),
-        t_fields.get("prize_fund", "Prize Fund in euros"),
-        errors,
-        lang,
-        min_value=0.01,
-    )
     return errors
 
 
