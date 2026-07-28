@@ -77,6 +77,9 @@ from kbsb.fide import api_fide
 logger.info("loading api_national_elo_archive")
 from kbsb.national_elo_archive import api_national_elo_archive
 
+logger.info("loading api_players_fide")
+from kbsb.players_fide import api_players_fide
+
 app.include_router(api_account.router)
 app.include_router(api_club.router)
 app.include_router(api_filestore.router)
@@ -85,6 +88,7 @@ app.include_router(api_member.router)
 app.include_router(api_oldsite.router)
 app.include_router(api_fide.router)
 app.include_router(api_national_elo_archive.router)
+app.include_router(api_players_fide.router)
 
 logger.info("Api's loaded")
 

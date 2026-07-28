@@ -388,6 +388,82 @@ function handleFideIdChange(nameField, idField) {
   noLicenseArbiters.value = updated
 }
 
+// Organizer name/ID autofill: unlike arbiters (small local xlsx list, see
+// handleFideNameChange/handleFideIdChange above), any FIDE-registered person
+// can be a tournament organizer, so this searches the live players_fide
+// dataset (kbsb-dataplatform, ~1.9M records) via a debounced typeahead
+// instead of a preloaded datalist.
+const organizerResults = ref({})
+const organizerSearching = ref({})
+const organizerSearchTimers = {}
+
+function searchOrganizer(nameField) {
+  const q = form.value[nameField]
+  clearTimeout(organizerSearchTimers[nameField])
+  if (!q || q.trim().length < 3) {
+    organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+    return
+  }
+  organizerSearchTimers[nameField] = setTimeout(async () => {
+    organizerSearching.value = { ...organizerSearching.value, [nameField]: true }
+    try {
+      const res = await $backend("players_fide", "search", { q })
+      // A slower earlier keystroke's response can resolve after a later one
+      // (e.g. typing "jor" then quickly continuing to "jorian" fires two
+      // overlapping requests) -- only apply this response if the field
+      // still holds the query that triggered it, otherwise it clobbers
+      // fresher results and the dropdown visibly flickers/settles late.
+      if (form.value[nameField] !== q) return
+      const players = (res && res.data && res.data.players) || []
+      organizerResults.value = { ...organizerResults.value, [nameField]: players.slice(0, 8) }
+    } catch (error) {
+      console.error(error)
+      if (form.value[nameField] === q) {
+        organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+      }
+    } finally {
+      if (form.value[nameField] === q) {
+        organizerSearching.value = { ...organizerSearching.value, [nameField]: false }
+      }
+    }
+  }, 300)
+}
+
+function selectOrganizer(nameField, idField, player) {
+  form.value[nameField] = player.name
+  form.value[idField] = String(player.fide_id)
+  organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+}
+
+function hideOrganizerResults(nameField) {
+  organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+}
+
+// Enter inside a text input submits the enclosing <form> by default -- with
+// many required fields still empty elsewhere while someone's mid-search here,
+// that native validation jump-to-first-invalid-field reads as "hitting enter
+// teleports me to the top of the form". Pick the top match instead (or just
+// swallow the keypress if there's nothing to pick).
+function selectTopOrganizerResult(nameField, idField) {
+  const results = organizerResults.value[nameField]
+  if (results && results.length) {
+    selectOrganizer(nameField, idField, results[0])
+  }
+}
+
+async function lookupOrganizerById(nameField, idField) {
+  const id = String(form.value[idField] || '').trim()
+  if (!id || !/^\d+$/.test(id)) return
+  try {
+    const res = await $backend("players_fide", "lookup", { fide_id: id })
+    if (res && res.data && res.data.success && res.data.player) {
+      form.value[nameField] = res.data.player.name
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 // data fetching
 async function loadFormData() {
   try {
@@ -751,20 +827,52 @@ definePageMeta({
       <div class="group-title">{{ tCat('organizers') }}</div>
 
       <div class="person-row">
-        <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" list="fideIds" @change="handleFideIdChange('chief_organizer_name', 'chief_organizer_fide_id')" @input="handleFideIdChange('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
-        <label><span class="required-label">{{ tField('chief_organizer_name') }}</span><input type="text" v-model="form.chief_organizer_name" list="fideNames" @change="handleFideNameChange('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
+        <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" @blur="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" @keydown.enter.prevent="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
+        <label style="position: relative;">
+          <span class="required-label">{{ tField('chief_organizer_name') }}<span v-if="organizerSearching['chief_organizer_name']" class="organizer-searching-hint">…</span></span>
+          <input type="text" v-model="form.chief_organizer_name" autocomplete="off" @input="searchOrganizer('chief_organizer_name')" @blur="hideOrganizerResults('chief_organizer_name')" @keydown.enter.prevent="selectTopOrganizerResult('chief_organizer_name', 'chief_organizer_fide_id')" required>
+          <ul v-if="organizerResults['chief_organizer_name'] && organizerResults['chief_organizer_name'].length" class="organizer-dropdown">
+            <li v-for="p in organizerResults['chief_organizer_name']" :key="p.fide_id" @mousedown.prevent="selectOrganizer('chief_organizer_name', 'chief_organizer_fide_id', p)">
+              {{ p.name }} <span class="organizer-dropdown-meta">{{ p.fed }} · {{ p.fide_id }}</span>
+            </li>
+          </ul>
+        </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id" list="fideIds" @change="handleFideIdChange('organizer1_name', 'organizer1_fide_id')" @input="handleFideIdChange('organizer1_name', 'organizer1_fide_id')"></label>
-        <label><span>{{ tField('organizer1_name') }}</span><input type="text" v-model="form.organizer1_name" list="fideNames" @change="handleFideNameChange('organizer1_name', 'organizer1_fide_id')"></label>
+        <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id" @blur="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')"></label>
+        <label style="position: relative;">
+          <span>{{ tField('organizer1_name') }}<span v-if="organizerSearching['organizer1_name']" class="organizer-searching-hint">…</span></span>
+          <input type="text" v-model="form.organizer1_name" autocomplete="off" @input="searchOrganizer('organizer1_name')" @blur="hideOrganizerResults('organizer1_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer1_name', 'organizer1_fide_id')">
+          <ul v-if="organizerResults['organizer1_name'] && organizerResults['organizer1_name'].length" class="organizer-dropdown">
+            <li v-for="p in organizerResults['organizer1_name']" :key="p.fide_id" @mousedown.prevent="selectOrganizer('organizer1_name', 'organizer1_fide_id', p)">
+              {{ p.name }} <span class="organizer-dropdown-meta">{{ p.fed }} · {{ p.fide_id }}</span>
+            </li>
+          </ul>
+        </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id" list="fideIds" @change="handleFideIdChange('organizer2_name', 'organizer2_fide_id')" @input="handleFideIdChange('organizer2_name', 'organizer2_fide_id')"></label>
-        <label><span>{{ tField('organizer2_name') }}</span><input type="text" v-model="form.organizer2_name" list="fideNames" @change="handleFideNameChange('organizer2_name', 'organizer2_fide_id')"></label>
+        <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id" @blur="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')"></label>
+        <label style="position: relative;">
+          <span>{{ tField('organizer2_name') }}<span v-if="organizerSearching['organizer2_name']" class="organizer-searching-hint">…</span></span>
+          <input type="text" v-model="form.organizer2_name" autocomplete="off" @input="searchOrganizer('organizer2_name')" @blur="hideOrganizerResults('organizer2_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer2_name', 'organizer2_fide_id')">
+          <ul v-if="organizerResults['organizer2_name'] && organizerResults['organizer2_name'].length" class="organizer-dropdown">
+            <li v-for="p in organizerResults['organizer2_name']" :key="p.fide_id" @mousedown.prevent="selectOrganizer('organizer2_name', 'organizer2_fide_id', p)">
+              {{ p.name }} <span class="organizer-dropdown-meta">{{ p.fed }} · {{ p.fide_id }}</span>
+            </li>
+          </ul>
+        </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id" list="fideIds" @change="handleFideIdChange('organizer3_name', 'organizer3_fide_id')" @input="handleFideIdChange('organizer3_name', 'organizer3_fide_id')"></label>
-        <label><span>{{ tField('organizer3_name') }}</span><input type="text" v-model="form.organizer3_name" list="fideNames" @change="handleFideNameChange('organizer3_name', 'organizer3_fide_id')"></label>
+        <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id" @blur="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')"></label>
+        <label style="position: relative;">
+          <span>{{ tField('organizer3_name') }}<span v-if="organizerSearching['organizer3_name']" class="organizer-searching-hint">…</span></span>
+          <input type="text" v-model="form.organizer3_name" autocomplete="off" @input="searchOrganizer('organizer3_name')" @blur="hideOrganizerResults('organizer3_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer3_name', 'organizer3_fide_id')">
+          <ul v-if="organizerResults['organizer3_name'] && organizerResults['organizer3_name'].length" class="organizer-dropdown">
+            <li v-for="p in organizerResults['organizer3_name']" :key="p.fide_id" @mousedown.prevent="selectOrganizer('organizer3_name', 'organizer3_fide_id', p)">
+              {{ p.name }} <span class="organizer-dropdown-meta">{{ p.fed }} · {{ p.fide_id }}</span>
+            </li>
+          </ul>
+        </label>
       </div>
 
       <div class="group-title">{{ tCat('time_control') }}</div>
@@ -882,7 +990,7 @@ definePageMeta({
         <span class="required-label">{{ tField('software_other') }}</span><input type="text" v-model="form.software_other" required>
       </label>
 
-      <label><span>{{ tField('software_version') }}</span><input type="text" v-model="form.software_version"></label>
+      <label><span class="required-label">{{ tField('software_version') }}</span><input type="text" v-model="form.software_version" required></label>
       
       <label>
         <span>{{ tField('pgn_provided') }}</span>
@@ -1011,6 +1119,39 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
+.organizer-dropdown {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.15rem 0 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 0.375rem;
+  box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15);
+  max-height: 220px;
+  overflow-y: auto;
+}
+.organizer-dropdown li {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.organizer-dropdown li:hover {
+  background-color: var(--accent-soft, #e8f5e9);
+}
+.organizer-dropdown-meta {
+  color: var(--muted, #4b5563);
+  font-size: 0.8rem;
+}
+.organizer-searching-hint {
+  color: var(--muted, #4b5563);
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
 
 @media (max-width: 640px) {
   .form-shell { padding: 1.25rem 1.25rem 1.1rem; }

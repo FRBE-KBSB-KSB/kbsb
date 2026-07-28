@@ -6,6 +6,7 @@ import fide from "@/api/fide"
 import filestore from "@/api/filestore"
 import interclub from "@/api/interclub"
 import member from "@/api/member"
+import players_fide from "@/api/players_fide"
 import test from "@/api/test"
 
 axios.defaults.withCredentials = true
@@ -68,6 +69,7 @@ const factories = {
   filestore,
   interclub,
   member,
+  players_fide,
   test,
 }
 
