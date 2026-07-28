@@ -359,7 +359,7 @@ const fide_people_by_id = computed(() => {
 
 const fide_ids_list = computed(() => Object.keys(fide_people_by_id.value))
 
-function handleArbiterChange(nameField, idField) {
+function handleFideNameChange(nameField, idField) {
   const name = form.value[nameField];
   const info = lookups.value.fide_people[name];
   const updated = new Set(noLicenseArbiters.value)
@@ -373,7 +373,7 @@ function handleArbiterChange(nameField, idField) {
   noLicenseArbiters.value = updated
 }
 
-function handleArbiterIdChange(nameField, idField) {
+function handleFideIdChange(nameField, idField) {
   const id = String(form.value[idField] || '').trim()
   if (!id) return
   const info = fide_people_by_id.value[id]
@@ -506,27 +506,20 @@ definePageMeta({
     <div v-else>Loading...</div>
   </div>
   <div v-else-if="submitted" class="form-shell" style="text-align: center; padding: 3.5rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <div style="width: 80px; height: 80px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">✓</div>
+    <div style="width: 80px; height: 80px; background-color: var(--accent, #2e7d32); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(46, 125, 50, 0.3);">✓</div>
     <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text, #111827); margin-bottom: 1rem;">
       {{ tUI('submitted_title') }}
     </h2>
     <p style="font-size: 1.05rem; color: var(--muted, #4b5563); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6;">
       {{ tUI('submitted_msg') }}
     </p>
-    <button @click="resetForm" style="padding: 0.6rem 1.8rem; font-weight: 600; border-radius: 999px; border: none; background-color: var(--accent, #2563eb); color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
+    <button @click="resetForm" style="padding: 0.6rem 1.8rem; font-weight: 600; border-radius: 999px; border: none; background-color: var(--accent, #2e7d32); color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
       {{ tUI('back_btn') }}
     </button>
   </div>
   <div v-else class="form-shell">
     <div class="shell-header">
       <h1>{{ tUI('title') }}</h1>
-      <div class="header-controls">
-        <div class="lang-selector">
-          <a href="#" @click.prevent="lang = 'en'" :class="['lang-btn', { active: lang === 'en' }]">EN</a>
-          <a href="#" @click.prevent="lang = 'nl'" :class="['lang-btn', { active: lang === 'nl' }]">NL</a>
-          <a href="#" @click.prevent="lang = 'fr'" :class="['lang-btn', { active: lang === 'fr' }]">FR</a>
-        </div>
-      </div>
     </div>
 
     <p class="note" v-html="tUI('mandatory_note')"></p>
@@ -577,13 +570,6 @@ definePageMeta({
         </select>
       </label>
       <label>
-        <span class="required-label">{{ tField('tournament_system') }}</span>
-        <select v-model="form.tournament_system" required>
-          <option value="">{{ tUI('select_placeholder') }}</option>
-          <option v-for="opt in lookups.tournament_system_options" :key="opt" :value="opt">{{ opt }}</option>
-        </select>
-      </label>
-      <label>
         <span class="required-label">{{ tField('event_name') }}</span>
         <input type="text" v-model="form.event_name" :class="{ 'input-error': eventNameHasIllegalChars }" required>
         <div v-if="eventNameHasIllegalChars" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
@@ -601,6 +587,13 @@ definePageMeta({
       <label>
         <span class="required-label">{{ tField('expected_players') }}</span>
         <input type="number" v-model="form.expected_players" min="1" max="2500" required>
+      </label>
+      <label>
+        <span class="required-label">{{ tField('tournament_system') }}</span>
+        <select v-model="form.tournament_system" required>
+          <option value="">{{ tUI('select_placeholder') }}</option>
+          <option v-for="opt in lookups.tournament_system_options" :key="opt" :value="opt">{{ opt }}</option>
+        </select>
       </label>
       <label>
         <span class="required-label">{{ tField('rounds_reported') }}</span>
@@ -666,24 +659,36 @@ definePageMeta({
 
       <div class="group-title">{{ tCat('arbiters') }}</div>
 
-      <label><span class="required-label">{{ tField('chief_arbiter_name') }}</span>
-        <input type="text" v-model="form.chief_arbiter_name" list="fideNames" @change="handleArbiterChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
-        <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span><input type="text" v-model="form.chief_arbiter_fide_id" list="fideIds" @change="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" @input="handleArbiterIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required></label>
-      
-      <label><span>{{ tField('dep_chief_arbiter1_name') }}</span>
-        <input type="text" v-model="form.dep_chief_arbiter1_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
-        <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')"></label>
-      
-      <label><span>{{ tField('dep_chief_arbiter2_name') }}</span>
-        <input type="text" v-model="form.dep_chief_arbiter2_name" list="fideNames" @change="handleArbiterChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
-        <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span><input type="text" v-model="form.dep_chief_arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @input="handleArbiterIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')"></label>
-      
+      <div class="person-row">
+        <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span>
+          <input type="text" v-model="form.chief_arbiter_fide_id" list="fideIds" @change="handleFideIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" @input="handleFideIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+        </label>
+        <label><span class="required-label">{{ tField('chief_arbiter_name') }}</span>
+          <input type="text" v-model="form.chief_arbiter_name" list="fideNames" @change="handleFideNameChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+          <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+
+      <div class="person-row">
+        <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" list="fideIds" @change="handleFideIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @input="handleFideIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+        </label>
+        <label><span>{{ tField('dep_chief_arbiter1_name') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter1_name" list="fideNames" @change="handleFideNameChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+          <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+
+      <div class="person-row">
+        <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" list="fideIds" @change="handleFideIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @input="handleFideIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+        </label>
+        <label><span>{{ tField('dep_chief_arbiter2_name') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter2_name" list="fideNames" @change="handleFideNameChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+          <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+
       <label>
         <span>{{ tField('kind_of_arbiters') }}</span>
         <select v-model="form.kind_of_arbiters">
@@ -691,44 +696,60 @@ definePageMeta({
           <option v-for="opt in lookups.kind_of_arbiters_options" :key="opt" :value="opt">{{ opt }}</option>
         </select>
       </label>
-      
-      <label>
-        <span>{{ tField('arbiter1_name') }}</span>
-        <input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleArbiterChange('arbiter1_name', 'arbiter1_fide_id')">
-        <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')" @input="handleArbiterIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
-      <label>
-        <span>{{ tField('arbiter2_name') }}</span>
-        <input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleArbiterChange('arbiter2_name', 'arbiter2_fide_id')">
-        <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')" @input="handleArbiterIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
-      <label>
-        <span>{{ tField('arbiter3_name') }}</span>
-        <input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleArbiterChange('arbiter3_name', 'arbiter3_fide_id')">
-        <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')" @input="handleArbiterIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
-      <label>
-        <span>{{ tField('arbiter4_name') }}</span>
-        <input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleArbiterChange('arbiter4_name', 'arbiter4_fide_id')">
-        <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
-      </label>
-      <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" list="fideIds" @change="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')" @input="handleArbiterIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
-      
+
+      <div class="person-row">
+        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" list="fideIds" @change="handleFideIdChange('arbiter1_name', 'arbiter1_fide_id')" @input="handleFideIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
+        <label>
+          <span>{{ tField('arbiter1_name') }}</span>
+          <input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleFideNameChange('arbiter1_name', 'arbiter1_fide_id')">
+          <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" list="fideIds" @change="handleFideIdChange('arbiter2_name', 'arbiter2_fide_id')" @input="handleFideIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
+        <label>
+          <span>{{ tField('arbiter2_name') }}</span>
+          <input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleFideNameChange('arbiter2_name', 'arbiter2_fide_id')">
+          <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" list="fideIds" @change="handleFideIdChange('arbiter3_name', 'arbiter3_fide_id')" @input="handleFideIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
+        <label>
+          <span>{{ tField('arbiter3_name') }}</span>
+          <input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleFideNameChange('arbiter3_name', 'arbiter3_fide_id')">
+          <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" list="fideIds" @change="handleFideIdChange('arbiter4_name', 'arbiter4_fide_id')" @input="handleFideIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
+        <label>
+          <span>{{ tField('arbiter4_name') }}</span>
+          <input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleFideNameChange('arbiter4_name', 'arbiter4_fide_id')">
+          <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        </label>
+      </div>
+
       <div style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin-top: -0.25rem; font-style: italic;">{{ tUI('more_arbiters_note') }}</div>
 
       <div class="group-title">{{ tCat('organizers') }}</div>
 
-      <label><span class="required-label">{{ tField('chief_organizer_name') }}</span><input type="text" v-model="form.chief_organizer_name" required></label>
-      <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" required></label>
-      <label><span>{{ tField('organizer1_name') }}</span><input type="text" v-model="form.organizer1_name"></label>
-      <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id"></label>
-      <label><span>{{ tField('organizer2_name') }}</span><input type="text" v-model="form.organizer2_name"></label>
-      <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id"></label>
-      <label><span>{{ tField('organizer3_name') }}</span><input type="text" v-model="form.organizer3_name"></label>
-      <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id"></label>
+      <div class="person-row">
+        <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" list="fideIds" @change="handleFideIdChange('chief_organizer_name', 'chief_organizer_fide_id')" @input="handleFideIdChange('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
+        <label><span class="required-label">{{ tField('chief_organizer_name') }}</span><input type="text" v-model="form.chief_organizer_name" list="fideNames" @change="handleFideNameChange('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id" list="fideIds" @change="handleFideIdChange('organizer1_name', 'organizer1_fide_id')" @input="handleFideIdChange('organizer1_name', 'organizer1_fide_id')"></label>
+        <label><span>{{ tField('organizer1_name') }}</span><input type="text" v-model="form.organizer1_name" list="fideNames" @change="handleFideNameChange('organizer1_name', 'organizer1_fide_id')"></label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id" list="fideIds" @change="handleFideIdChange('organizer2_name', 'organizer2_fide_id')" @input="handleFideIdChange('organizer2_name', 'organizer2_fide_id')"></label>
+        <label><span>{{ tField('organizer2_name') }}</span><input type="text" v-model="form.organizer2_name" list="fideNames" @change="handleFideNameChange('organizer2_name', 'organizer2_fide_id')"></label>
+      </div>
+      <div class="person-row">
+        <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id" list="fideIds" @change="handleFideIdChange('organizer3_name', 'organizer3_fide_id')" @input="handleFideIdChange('organizer3_name', 'organizer3_fide_id')"></label>
+        <label><span>{{ tField('organizer3_name') }}</span><input type="text" v-model="form.organizer3_name" list="fideNames" @change="handleFideNameChange('organizer3_name', 'organizer3_fide_id')"></label>
+      </div>
 
       <div class="group-title">{{ tCat('time_control') }}</div>
 
@@ -867,7 +888,7 @@ definePageMeta({
           Warning: URL should usually contain http or https.
         </div>
       </label>
-      <label><span>{{ tField('prize_fund') }}</span><input type="number" v-model="form.prize_fund" min="0.01" step="0.01"></label>
+      <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
       <button type="submit">{{ tUI('export_btn') }}</button>
@@ -891,10 +912,11 @@ html {
   --muted: #4b5563;
   --card-bg: #ffffff;
   --border: #e5e7eb;
-  --accent: #2563eb;
-  --accent-soft: #eff6ff;
+  --accent: #2e7d32;
+  --accent-dark: #1b5e20;
+  --accent-soft: #e8f5e9;
   --error: #b91c1c;
-  --focus-ring: #93c5fd;
+  --focus-ring: #a5d6a7;
   overflow-y: auto !important;
 }
 
@@ -916,48 +938,15 @@ body, .v-application {
   color: var(--text, #111827);
   border-radius: 0.75rem;
   border: 1px solid var(--border, #e5e7eb);
+  border-left: 5px solid var(--accent-dark, #1b5e20);
   padding: 1.75rem 1.75rem 1.5rem;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 18px 45px rgba(27, 94, 32, 0.12);
 }
 
 .shell-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
   margin-bottom: 0.35rem;
 }
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.lang-selector {
-  display: flex;
-  gap: 0.25rem;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 999px;
-  padding: 0.2rem;
-  background-color: var(--card-bg, #ffffff);
-}
-.lang-btn {
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--muted, #4b5563);
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  transition: all 0.2s;
-}
-.lang-btn:hover {
-  color: var(--text, #111827);
-  background-color: var(--accent-soft, #eff6ff);
-}
-.lang-btn.active {
-  color: #ffffff !important;
-  background-color: var(--accent, #2563eb);
-}
-h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; }
+h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; color: var(--accent, #2e7d32); }
 .note { margin: 0 0 1rem; font-size: 0.9rem; color: var(--muted, #4b5563); }
 
 .warning {
@@ -987,7 +976,7 @@ input, textarea, select {
   background-color: var(--card-bg, #ffffff);
   color: var(--text, #111827);
 }
-input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus-ring, #93c5fd); outline-offset: 1px; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 1px; }
 .input-error { border-color: var(--error, #b91c1c) !important; }
 textarea { min-height: 4rem; }
 .group-title { margin-top: 1.5rem; font-weight: 700; font-size: 0.98rem; color: var(--muted, #4b5563); }
@@ -997,17 +986,19 @@ button[type="submit"] {
   font-weight: 600;
   border-radius: 999px;
   border: none;
-  background-color: var(--accent, #2563eb);
+  background-color: var(--accent, #2e7d32);
   color: #ffffff;
   cursor: pointer;
 }
-button[type="submit"]:hover { background-color: #1d4ed8; }
-button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #93c5fd); outline-offset: 2px; }
+button[type="submit"]:hover { background-color: var(--accent-dark, #1b5e20); }
+button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.person-row { display: grid; grid-template-columns: 160px 1fr; gap: 0.75rem; align-items: start; }
 
 @media (max-width: 640px) {
   .form-shell { padding: 1.25rem 1.25rem 1.1rem; }
   .round-row.active { grid-template-columns: 1fr; }
+  .person-row { grid-template-columns: 1fr; }
 }
 </style>
