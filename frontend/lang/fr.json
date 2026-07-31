@@ -383,7 +383,7 @@
 "arc.search_placeholder": "Rechercher un nom ou un matricule...",
 "arc.search_player_tab": "Rechercher un joueur",
 "arc.selected_club": "Club sélectionné",
-"arc.stamnummer_lookup_hint": "La recherche par matricule permet aussi de trouver des joueurs non affiliés. Ils n'apparaissent pas dans la recherche ci-dessus, uniquement via le matricule exact ici.",
+"arc.stamnummer_lookup_hint": "La recherche par matricule permet aussi de trouver des joueurs non affiliés, qui n'apparaissent pas dans la recherche habituelle. Seule la recherche par matricule exact permet de les trouver.",
 "arc.title": "Archives ELO & Historique des parties",
 "arc.total_games": "Nombre de parties",
 "arc.tournament": "Tournoi",
