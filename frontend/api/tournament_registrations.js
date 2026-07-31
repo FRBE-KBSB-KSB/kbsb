@@ -25,9 +25,29 @@ export default {
     return await axios.get(`${prefix}/lookup?q=${qEscaped}`);
   },
 
+  // Public, field-restricted (no date_birth/email/phone/gsm/submitted_ip --
+  // see PUBLIC_REGISTRATION_COLUMNS server-side). Use admin_getRegistrations
+  // for the full-fidelity admin view.
   getRegistrations: async function (options) {
     const { id } = options;
     return await axios.get(`${prefix}/${id}/registrations`);
+  },
+
+  // Full-fidelity, public, no auth beyond knowing the row's own id -- same
+  // trust model as updateRegistration below. Used to prefill the edit-own-
+  // registration dialog, which needs real date_birth etc.; the public LIST
+  // response above no longer carries that.
+  getRegistration: async function (options) {
+    const { id } = options;
+    return await axios.get(`${prefix}/registrations/${id}`);
+  },
+
+  // Full-fidelity sibling of getRegistrations, for the admin dashboard.
+  admin_getRegistrations: async function (options) {
+    const { id, token } = options;
+    return await axios.get(`${prefix}/admin/tournaments/${id}/registrations`, {
+      headers: { Authorization: "Bearer " + token },
+    });
   },
 
   createRegistration: async function (options) {

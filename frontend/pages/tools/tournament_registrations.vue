@@ -480,14 +480,34 @@ const editRegLookupResults = ref([])
 const editRegLookupSearching = ref(false)
 let editRegLookupTimer = null
 
-function openEditRegistration(row, isAdmin) {
+// Admin's `row` already comes from admin_getRegistrations (full-fidelity,
+// authenticated) -- used as-is. The public listing's `row` comes from the
+// field-restricted public getRegistrations (no date_birth/email/phone/gsm,
+// see PUBLIC_REGISTRATION_COLUMNS server-side), so the public path fetches
+// a fresh full single row instead -- same no-extra-auth, knowledge-of-id
+// trust model updateRegistration below already relies on, just extended to
+// reading one row instead of only writing it.
+async function openEditRegistration(row, isAdmin) {
   editRegId.value = row.id
   editRegIsAdmin.value = isAdmin
-  editRegForm.value = { ...EMPTY_REGISTRATION, ...row }
   editRegLookupQuery.value = ""
   editRegLookupResults.value = []
   editRegError.value = ""
+
+  if (isAdmin) {
+    editRegForm.value = { ...EMPTY_REGISTRATION, ...row }
+    editRegDialog.value = true
+    return
+  }
+
   editRegDialog.value = true
+  editRegForm.value = { ...EMPTY_REGISTRATION, ...row }
+  try {
+    const reply = await $backend("tournament_registrations", "getRegistration", { id: row.id })
+    editRegForm.value = { ...EMPTY_REGISTRATION, ...reply.data.registration }
+  } catch (error) {
+    editRegError.value = error.message || t("trnreg.registration_not_found")
+  }
 }
 
 function closeEditRegistration() {
@@ -720,7 +740,7 @@ async function loadAdminRegistrations() {
   if (!selectedAdminTournament.value) return
   loadingAdminRegistrations.value = true
   try {
-    const reply = await $backend("tournament_registrations", "getRegistrations", { id: selectedAdminTournament.value.id })
+    const reply = await $backend("tournament_registrations", "admin_getRegistrations", { id: selectedAdminTournament.value.id, token: token.value })
     adminRegistrations.value = (reply.data && reply.data.registrations) || []
   } catch (error) {
     adminActionError.value = error.message || t("trnreg.load_registrations_failed")
@@ -1293,7 +1313,7 @@ onMounted(() => {
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('id')">{{ t('trnreg.col_id') }} <v-icon size="small">{{ listSortKey === 'id' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ listSortKey === 'last_name' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }}</th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('date_birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'date_birth' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth_year')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth_year' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }}</th>
                   <th>{{ t('trnreg.col_category') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
@@ -1306,7 +1326,13 @@ onMounted(() => {
                   <td>{{ r.id }}</td>
                   <td>{{ r.last_name }} {{ r.first_name }}</td>
                   <td>{{ r.sex }}</td>
-                  <td>{{ formatDateDisplay(r.date_birth) }}</td>
+                  <!-- Birth YEAR only, never the full date -- this is the
+                       public listing (no auth beyond x-api-key). See
+                       PUBLIC_REGISTRATION_COLUMNS server-side; matches
+                       legacy's own listingRegistrations.js, which fetched
+                       full data but deliberately truncated it to
+                       DateBirth.substring(0, 4) before ever rendering it. -->
+                  <td>{{ r.birth_year || "" }}</td>
                   <td>{{ r.national_club_name || r.national_club }}</td>
                   <td>{{ categoryLabel(tournament, r.category_index) }}</td>
                   <td>{{ r.fide_id }}</td>
