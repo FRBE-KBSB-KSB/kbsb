@@ -383,6 +383,7 @@
 "arc.search_placeholder": "Zoek spelersnaam of stamnummer...",
 "arc.search_player_tab": "Speler zoeken",
 "arc.selected_club": "Geselecteerde club",
+"arc.stamnummer_lookup_hint": "Zoeken op stamnummer toont ook niet-aangesloten spelers. Zij verschijnen niet in de gewone zoekfunctie hierboven, enkel via het exacte stamnummer hier.",
 "arc.title": "ELO-archief & Partijhistoriek",
 "arc.total_games": "Aantal partijen",
 "arc.tournament": "Toernooi",

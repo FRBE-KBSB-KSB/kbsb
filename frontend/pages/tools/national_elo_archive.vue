@@ -16,6 +16,11 @@ const searchMode = ref("player")
 
 // Player search state
 const searchQuery = ref("")
+// Exact-id lookup: separate from the fuzzy search box above -- looks a
+// player up directly by member id (works for "all ids": current, historical
+// invisible, and reused-id suffixed like "94b"), independent of whether that
+// id would show up in the general search results.
+const exactIdQuery = ref("")
 const birthYearFrom = ref(null)
 const birthYearTo = ref(null)
 const showBirthFilter = ref(false)
@@ -161,12 +166,25 @@ async function selectPlayer(memberId) {
   }
 }
 
+async function handleExactIdLookup() {
+  const id = exactIdQuery.value.trim()
+  if (!id) return
+  await selectPlayer(id)
+}
+
 // Sorting helpers and computed properties
 function sortCompare(a, b, key, orderMultiplier) {
   let valA = a[key]
   let valB = b[key]
   
-  if (key === 'latest_elo' || key === 'opponent_elo' || key === 'member_id' || key === 'club_id' || key === 'player_count') {
+  if (key === 'member_id') {
+    // member_id can now be a plain number ("94") or a reused-id suffixed
+    // string ("94b") -- Number("94b") is NaN, which collapsed every such
+    // player to 0 and sorted them all first/last regardless of real id.
+    // parseInt reads the leading digits, so "94"/"94b"/"94c" sort together.
+    valA = parseInt(valA) || 0
+    valB = parseInt(valB) || 0
+  } else if (key === 'latest_elo' || key === 'opponent_elo' || key === 'club_id' || key === 'player_count') {
     valA = Number(valA) || 0
     valB = Number(valB) || 0
   } else {
@@ -683,6 +701,38 @@ onMounted(() => {
 
         <!-- MODE 1: PLAYER SEARCH -->
         <div v-if="searchMode === 'player'">
+          <!-- Exact-id lookup, separate from the search box below on purpose:
+               works for any id (current, historical, reused-id suffixed like
+               "94b"), regardless of whether it would appear in search results.
+               Deliberately small/secondary, not styled like the main search.
+               Label/button reuse existing arc.* keys; the hint is a new key
+               (arc.stamnummer_lookup_hint) added to all 4 lang/*.json files --
+               a stopgap until it's added to the translation Google Sheet, or
+               it'll be wiped on the next `poe i18n` regen. -->
+          <v-form @submit.prevent="handleExactIdLookup" class="d-flex align-center flex-wrap ga-2 mb-4">
+            <v-text-field
+              v-model="exactIdQuery"
+              :label="t('arc.member_id')"
+              variant="outlined"
+              density="compact"
+              color="green-darken-2"
+              hide-details
+              style="max-width: 140px;"
+            ></v-text-field>
+            <v-btn
+              color="green-darken-2"
+              variant="tonal"
+              density="comfortable"
+              type="submit"
+              :loading="profileLoading"
+            >
+              {{ t('arc.search_btn') }}
+            </v-btn>
+            <div class="text-caption text-grey-darken-1" style="max-width: 480px;">
+              {{ t('arc.stamnummer_lookup_hint') }}
+            </div>
+          </v-form>
+
           <v-card class="mb-6 elevation-2 border-green">
             <v-card-text>
               <v-form @submit.prevent="handleSearch">

@@ -383,6 +383,7 @@
 "arc.search_placeholder": "Search player name or stamnummer...",
 "arc.search_player_tab": "Search Player",
 "arc.selected_club": "Selected Club",
+"arc.stamnummer_lookup_hint": "Searching by stamnummer also finds players who aren't currently affiliated. They don't appear in the search above — only through an exact stamnummer lookup here.",
 "arc.title": "ELO Archive & Game History",
 "arc.total_games": "Total Games",
 "arc.tournament": "Tournament",

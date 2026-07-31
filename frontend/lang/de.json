@@ -383,6 +383,7 @@
 "arc.search_placeholder": "Spielername oder Mitgliedsnummer suchen...",
 "arc.search_player_tab": "Spieler suchen",
 "arc.selected_club": "Ausgewählter Verein",
+"arc.stamnummer_lookup_hint": "Die Suche nach der Mitgliedsnummer findet auch nicht zugehörige Spieler. Sie erscheinen nicht in der Suche oben, nur über die genaue Nummer hier.",
 "arc.title": "ELO-Archiv & Partiehistorie",
 "arc.total_games": "Anzahl der Partien",
 "arc.tournament": "Turnier",
