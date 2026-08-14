@@ -14,7 +14,7 @@ ICDATA = "local"
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-local",
+        "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
     "mysql": {

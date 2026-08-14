@@ -36,3 +36,16 @@ export const overrulechoices = [
   { title: "0-½", value: "0-½" },
   { title: "Team FF", value: "Team FF" },
 ]
+
+export function round_selector(icdata){
+  let sel_array = icdata.rounds.map((x) => {
+    if (x.nr6 == x.nr) {
+      return { value: x.nr, title: `${x.date}:  R${x.nr}` }
+    }
+    if (x.nr6 > 0) {
+      return { value: x.nr6, title: `${x.date}:  R${x.nr}  (R${x.nr6} Div. 6)` }
+    }
+    return { value: x.nr6, title: `${x.date}:  R${x.nr}  (No Div. 6)` }
+  })
+  return sel_array
+}

@@ -1,4 +1,4 @@
-# copyright Ruben Decrop 2012 - 2024
+# copyright Ruben Decrop 2012 - 2026
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 # we are using pydantic models (and not dicts) to represent

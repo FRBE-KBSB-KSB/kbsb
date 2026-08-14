@@ -31,6 +31,7 @@ const refcontact = ref(null)
 const clubs = ref([])
 const idclub = ref(null)
 const icdata = ref({})
+const round = ref(null)
 const ic_rounds = ref([])
 
 // methods alphabetically
@@ -80,6 +81,7 @@ async function getICClubs() {
     changeDialogCounter(-1)
   }
   clubs.value = reply.data
+  clubs.value.sort((a, b) => a.idclub - b.idclub)
   clubs.value.forEach((p) => {
     console.log("p", p)
     p.merged = `${p.idclub}: ${p.name}`
@@ -98,9 +100,7 @@ async function processICdata() {
     changeDialogCounter(-1)
   }
   icdata.value = reply.data
-  ic_rounds.value = Object.keys(icdata.value.rounds11).map((x) => {
-    return { value: x, title: `R${x}: ${icdata.value.rounds11[x]}` }
-  })
+  ic_rounds.value = round_selector(icdata.value)
   changedTab()
 }
 
