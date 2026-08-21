@@ -1,13 +1,12 @@
 # copyright Ruben Decrop 2012 - 2022
 
+import logging.config
 import os
 from pathlib import Path
-import logging.config
 
 API_BASE_URL = "/api"
 API_KEY = "JeanMarieWampers"
 
-BOOKS_CC = "ruben@kosk.be"
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", False)
@@ -136,6 +135,9 @@ if KBSB_MODE == "prodtest":
 if KBSB_MODE == "localtest":
     from env_localtest import *  # noqa F403
 
+if KBSB_MODE == "testing":
+    from tests.settings import *  # noqa F403
+
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
 
@@ -146,5 +148,6 @@ settings_message = {
     "local": "env_local settings loaded",
     "prodtest": "env_prodtest settings loaded",
     "localtest": "env_localtest settings loaded",
+    "testing": "tests.settings loaded",
 }
 logger.info(settings_message.get(KBSB_MODE, "no local settings loaded"))

@@ -1,6 +1,7 @@
-import pytest
 import mysql.connector
-from reddevil.core import register_app, get_settings
+import pytest
+from reddevil.core import get_settings, register_app
+
 from kbsb.main import app
 from tests.factories import *  # noqa F401
 

@@ -85,7 +85,7 @@ from .registrations import (  # noqa F401
     create_icregistration,
     find_icregistration,
     get_icregistration,
-    get_icregistration,
+    get_icregistrations,
     set_icregistration,
     update_icregistration,
     xls_registrations,

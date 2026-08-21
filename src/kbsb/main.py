@@ -2,22 +2,29 @@
 # copyright Chessdevil Consulting 2015 - 2024
 
 import sys
-if sys.platform == 'win32':
+
+if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
-        sys.stderr.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
     except Exception:
         pass
 
-import logging, logging.config
-import os
-from fastapi import FastAPI
-from fastapi.routing import APIRoute
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+import logging
+import logging.config
 from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
-from reddevil.core import register_app, get_settings, connect_mongodb, close_mongodb
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRoute
+from fastapi.staticfiles import StaticFiles
+from reddevil.core import (
+    close_mongodb,
+    connect_mongodb,
+    register_app,
+)
+from reddevil.core.register import get_setting
 
 
 @asynccontextmanager
@@ -38,10 +45,9 @@ app = FastAPI(
 )
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
-settings = get_settings()
 logger = logging.getLogger(__name__)
 logger.info(f"Starting website KBSB {version}")
-logger.info(f"icdata: {settings.ICDATA}")
+logger.info(f"icdata: {get_setting('ICDATA')}")
 
 # add CORS middleware for dev only
 app.add_middleware(
@@ -97,7 +103,7 @@ app.include_router(api_tournament_registrations.router)
 logger.info("Api's loaded")
 
 # static files
-if settings.KBSB_MODE != "production":
+if get_setting("KBSB_MODE") != "production":
     app.mount("/css", StaticFiles(directory="frontend/public/css"), name="css")
     app.mount("/img", StaticFiles(directory="frontend/public/img"), name="img")
     logger.info("static dirs loaded")
