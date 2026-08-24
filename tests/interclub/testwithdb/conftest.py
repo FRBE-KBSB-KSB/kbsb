@@ -11,19 +11,19 @@ from reddevil.core import (
 )
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def app():
     myapp = FastAPI()
     register_app(myapp, "tests.settings", "/api")
     a_connect_mongodb()
     db = a_get_mongodb()
     myapp.state.db = db
-    await db.client.drop_database(db.name)
+    await db.drop_collection("ic_2627_registrations")
     yield myapp
     await a_close_mongodb()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def ic_registrations(app):
 
     def safe_int(value):
