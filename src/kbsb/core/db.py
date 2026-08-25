@@ -1,12 +1,11 @@
 # copyright Ruben Decrop 2012 - 2020
-from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
+from datetime import date, datetime
+
+import mysql.connector
+from reddevil.core import RdInternalServerError, get_secret
 
 logger = logging.getLogger(__name__)
-
-from datetime import datetime, date
-from reddevil.core import get_secret, RdInternalServerError
-import mysql.connector
 
 
 def date2datetime(d: dict, f: str):
