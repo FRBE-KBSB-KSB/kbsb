@@ -1,4 +1,46 @@
 ctx,key,en,nl,fr,de
+arc,abbrev,Abbreviation,Afkorting,Abréviation,Abkürzung
+arc,archive_note,"The Belgian ELO archive is historical and runs up to July 2026. For the most recent FIDE game history and rating calculations, please refer to the player's FIDE profile.","Het Belgisch ELO-archief is historisch en loopt tot juli 2026. Voor de meest recente FIDE-speelgeschiedenis en ratingberekeningen, raadpleeg het FIDE-profiel van de speler.","L'archive ELO belge est historique et s'étend jusqu'en juillet 2026. Pour l'historique FIDE le plus récent et les calculs de classement, consultez le profil FIDE du joueur.",Das belgische ELO-Archiv ist historisch und läuft bis Juli 2026. Für die aktuellste FIDE-Spielhistorie und Ratingberechnungen besuchen Sie bitte das FIDE-Profil des Spielers.
+arc,back_to_clubs,Back to clubs,Terug naar clubs,Retour aux clubs,Zurück zu Vereinen
+arc,back_to_search,Back to search,Terug naar zoeken,Retour à la recherche,Zurück zur Suche
+arc,birthdate,Birthdate,Geboortedatum,Date de naissance,Geburtsdatum
+arc,birthyear,Birth Year,Geboortejaar,Année de naissance,Geburtsjahr
+arc,black,Black,Zwart,Noir,Schwarz
+arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
+arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
+arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
+arc,color,Color,Kleur,Couleur,Farbe
+arc,date,Date,Datum,Date,Datum
+arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
+arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
+arc,game_nr,Game No.,Partijnr.,N° de partie,Partienummer
+arc,gender,Gender,Geslacht,Genre,Geschlecht
+arc,last_elo,Last ELO,Laatste ELO,Dernier ELO,Letzte ELO
+arc,latest_game,Latest Game,Laatste partij,Dernière partie,Letzte Partie
+arc,loading,Loading...,Laden...,Chargement...,Laden...
+arc,member_id,Stamnummer,Stamnummer,Matricule,Mitgliedsnummer
+arc,nationality,Nationality,Nationaliteit,Nationalité,Nationalität
+arc,no_clubs,No clubs found.,Geen clubs gevonden.,Aucun club trouvé.,Keine Vereine gefunden.
+arc,no_results,No players found.,Geen spelers gevonden.,Aucun joueur trouvé.,Keine Spieler gefunden.
+arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
+arc,period,Period,Periode,Période,Periode
+arc,player_name,Name,Naam,Nom,Name
+arc,players_count,players,spelers,joueurs,Spieler
+arc,rating,Rating,Rating,Classement,Wertung
+arc,regions_tab,Regions,Regio's,Régions,Regionen
+arc,result,Result,Resultaat,Résultat,Ergebnis
+arc,search_btn,Search,Zoeken,Rechercher,Suchen
+arc,search_club_placeholder,Search club name or number...,Zoek clubnaam of clubnummer...,Rechercher par nom ou numéro de club...,Vereinsname oder Vereinsnummer suchen...
+arc,search_club_tab,Search Club,Club zoeken,Rechercher un club,Verein suchen
+arc,search_placeholder,Search player name or stamnummer...,Zoek spelersnaam of stamnummer...,Rechercher un nom ou un matricule...,Spielername oder Mitgliedsnummer suchen...
+arc,search_player_tab,Search Player,Speler zoeken,Rechercher un joueur,Spieler suchen
+arc,selected_club,Selected Club,Geselecteerde club,Club sélectionné,Ausgewählter Verein
+arc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
+arc,total_games,Total Games,Aantal partijen,Nombre de parties,Anzahl der Partien
+arc,tournament,Tournament,Toernooi,Tournoi,Turnier
+arc,unknown_opponent,Unknown opponent,Onbekende tegenstander,Adversaire inconnu,Unbekannter Gegner
+arc,unknown_opponent_hint,"The opponent's name wasn't kept in the source data. This is usually a foreign or FIDE-rated tournament, where only the opponent's rating was recorded, not their name. These games still counted toward the ELO.","De naam van de tegenstander werd niet in de brongegevens bewaard. Dit is meestal een buitenlands of FIDE-toernooi, waarbij alleen de rating van de tegenstander werd bewaard, niet zijn naam. Deze partijen telden wel degelijk mee voor de ELO.","Le nom de l'adversaire n'a pas été conservé dans les données sources. Il s'agit généralement d'un tournoi étranger ou homologué FIDE, où seul le classement de l'adversaire a été enregistré, pas son nom. Ces parties comptaient bel et bien pour le classement ELO.","Der Name des Gegners wurde in den Quelldaten nicht gespeichert. Meist handelt es sich um ein ausländisches oder FIDE-gewertetes Turnier, bei dem nur die Wertungszahl des Gegners erfasst wurde, nicht sein Name. Diese Partien zählten dennoch für die ELO-Wertung."
+arc,white,White,Wit,Blanc,Weiß
 icn,1group,1 group,1 groep,1 groupe,1 Gruppe
 icn,1series,In 1 series,In 1 reeks,En une seule série,In 1 Einzelserie
 icn,2groups,2 opposite groups,2 tegengestelde groepen,2 groupes opposés,2 entgegengesetzte Gruppen
@@ -32,8 +74,8 @@ icn,pll_edit_elo,Edit assigned Elo,Toegewezen Elo aanpassen,Ajuster l'Elo attrib
 icn,pll_edit_titular,Edit titular,Titularis bewerken,Modifier le titulaire,Anpassen den Titular
 icn,pll_import,Import,Importeren,Importer,Importieren
 icn,pll_import_assign,Import and assign,Importeren en toewijzen,Importer et affectuer,Importieren und zuweisen
-icn,pll_import_only,Import only,Enkel importeren,Importer uniquement,Nur importieren
 icn,pll_import_available,There are members of your club that are not yet on this playerlist. You can import these members and assign them as a player for Interclubs or you can import them and leave them unassigned. You can always assign or unassign members until the closing of the playerlist.,"Er zijn leden van je club die nog niet op de spelerslijst staan. Je kunt deze leden importeren en toewijzen als speler voor Interclubs, of je kunt ze importeren en niet-toegewezen laten. Je kunt altijd leden toewijzen of verwijderen tot de spelerslijst wordt afgesloten.","Certains membres de votre club ne figurent pas encore sur la liste de force. Vous pouvez les importer et les affecter aux Interclubs, ou les importer sans les affecter. Vous pouvez toujours affecter ou désaffecter des membres jusqu'à la fermeture de la liste de force.","Es gibt Mitglieder Ihres Clubs, die noch nicht auf dieser Spielerliste stehen. Sie können diese Mitglieder importieren und ihnen einen Platz als Spieler für Interclubs zuweisen oder sie importieren und ohne Zuweisung lassen. Sie können Mitgliedern bis zum Schließen der Spielerliste jederzeit einen Platz zuweisen oder diesen wieder entziehen."
+icn,pll_import_only,Import only,Enkel importeren,Importer uniquement,Nur importieren
 icn,pll_mindiv,Min. div.,Min. Afd.,Div. min.,Min. Abt.
 icn,pll_notit,No titular,Geen titularis,Pas de titulaire,kein Titular
 icn,pll_notregistered,"This club is not registered for Interclubs 2025-26, so your playerlist can only  contain transfers to another club, that is registered. You can transfer all the members at once to one club. Or you can just import the members and transfer them individually in a 2nd stage. Until the closing of the playerlist, you can do and undo any transfers.","Deze club is niet geregistreerd voor de Interclubs 2025-26, dus de spelerslijst kan alleen transfers bevatten naar een andere club die wel geregistreerd is. Je kunt alle leden in één keer naar één club transfereren. Of je kunt de leden importeren en ze in een tweede fase een voor een overzetten. Tot de spelerslijst afgesloten wordt, kun je transfers uitvoeren en ongedaan maken.",Ce club n'est pas inscrit aux Interclubs 2025-26 ; la liste de force ne peut donc contenir que des transferts vers un autre club inscrit. Vous pouvez transférer tous les membres simultanément vers un seul club. Vous pouvez également importer les membres et les transférer individuellement lors d'une deuxième étape. Vous pouvez effectuer et annuler tous les transferts jusqu'à la clôture de la liste de force.,"Dieser Verein ist nicht für die Interclubs 2025-26 registriert, daher kann die Spielerliste nur Transfers zu einem anderen Verein enthalten, der registriert ist. Sie können alle Mitglieder auf einmal zu einem Verein transferieren. Oder Sie können die Mitglieder importieren und sie in einem zweiten Schritt einzeln übertragen. Bis zum Abschluss der Spielerliste können Sie Transfers durchführen und rückgängig machen."
@@ -66,16 +108,19 @@ icn,ven_2,Venues,Speellokalen,Les salles de jeu,Spielorte
 icn,ven_add,Add a venue,Speellokaal toevoegen,Ajouter une salle de jeu,Spielort hinzufügen
 icn,ven_closed,The management of the planning is currently unavailable,Het beheer van de speelzalen is momenteel niet beschikbaar,La gestion de la liste des salles de jeu est actuellement indisponible,Die Verwaltung der Spielräume ist derzeit nicht verfügbar
 icn,ven_notdefined,No interclub venue is defined yet,Er is nog geen interclublokaal gedefinieerd,Aucune salle de jeux n'est encore définie,Es ist noch kein Interclub-Spielort definiert
+icn,ven_parking,Parking,Parking,Parking,Parken
 icn,ven_round_avail,Available for the ounds,Beschikbaar op ronden,Disponibles aux rondes,Verfügbar in den Runden
 icn,ven_round_sel,Only the rounds,Enkel de ronden,Seulememt les rondes,Nur die Runden
-icn,ven_parking,Parking,Parking,Parking,Parken
-icn,ven_team_sel,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
 icn,ven_save,Save Venues,Speellokalen opslaan,Enregistrer les salles de jeux,Spielorte speichern
 icn,ven_save_fail,Saving venues failed,Opslaan speellokalen mislukt,Sauvegarder les salles de jeu échoué,Speichern Spielorte fehlgeschlagen
 icn,ven_save_ok,Saving venues OK,Opslaan speellokalen OK,Les salles de jeu sont bien enregistrées,Speichern Spielorte OK
+icn,ven_team_sel,Only teams,Enkel teams,Seulememt les équipes,Nur die Mannschaften
 icn,ven_teams_avail,Teams using the venue ,Teams die het lokaal gebruiken,Equipes qui utilisent la salle,"Mannschaften, die den Spielorte nutzen"
 icn,ven_wheelchair,Wheelchair accessible,Toegankelijk voor rolstoel,Accessible aux fauteuils roulants,Barrierefrei
 icn,wishes,Wishes,Wensen,Vœux,Wünsche
+odoo,login,You sign in with your account of the new member management system (Odoo) ,Je meldt je aan met je account van het nieuwe ledenbeheersysteem (Odoo).,Vous vous connectez avec votre compte du nouveau système de gestion des membres (Odoo).,Sie melden sich mit Ihrem Konto des neuen Mitgliederverwaltungssystems (Odoo) an.
+odoo,lostpassword,Password lost?,Wachtwoord kwijt?,Mot de passe oublié ?,Passwort vergessen?
+odoo,noaccount,No Odoo account yet?,Nog geen Odoo account?,Pas encore de compte Odoo?,Noch kein Odoo-Konto?
 ,Access Rights,Access Rights,Toegangsrechten,Droits d'accès,Zugangsrechte
 ,Actions,Actions,Acties,Actions,Aktionen
 ,Active players of club,Active players of club,Actieve clubspelers,Joueurs actifs du club,Aktive Spieler des Vereins
@@ -157,7 +202,7 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Elo too low,Elo too low,Elo te laag,Elo trop bas,Elo zu niedrig
 ,ELO tournaments,ELO tournaments,ELO toernooien,Tournois Elo,ELO Turniere
 ,Email,Email,E-mail,E-mail,E-Mail
-,Email address,Email address,E-mailadress,Adresse e-mail,E-mailadresse
+,Email address,Email address,E-mailadres,Adresse e-mail,E-mailadresse
 ,Email address administration,Email address for administration,E-mailadres voor administratie,Adresse e-mail de l'administration,E-Mail-Adresse für die Verwaltung
 ,Email address finance,Email address for finance,E-mailadres voor financiën,Adresse e-mail pour les finances,E-Mail-Adresse für Finanzen
 ,Email address Interclub,Email address for Interclub,E-mailadres voor Interclub,Adresse e-mail pour les Interclubs,E-Mail-Adresse für Interclub
@@ -347,45 +392,3 @@ icn,wishes,Wishes,Wensen,Vœux,Wünsche
 ,Wrong combination of username and password,Wrong combination of username and password,Verkeerde combinatie van gebruikersnaam en wachtwoord,Mauvaise combinaison de nom d'utilisateur et de mot de passe,Falsche Kombination aus Benutzername und Passwort
 ,Yes,Yes,Ja,Oui,Ja
 ,youth_director,youth director,jeugdleider,directeur de la jeunesse,Jugendleiter
-arc,abbrev,Abbreviation,Afkorting,Abréviation,Abkürzung
-arc,archive_note,"The Belgian ELO archive is historical and runs up to July 2026. For the most recent FIDE game history and rating calculations, please refer to the player's FIDE profile.","Het Belgisch ELO-archief is historisch en loopt tot juli 2026. Voor de meest recente FIDE-speelgeschiedenis en ratingberekeningen, raadpleeg het FIDE-profiel van de speler.","L'archive ELO belge est historique et s'étend jusqu'en juillet 2026. Pour l'historique FIDE le plus récent et les calculs de classement, consultez le profil FIDE du joueur.",Das belgische ELO-Archiv ist historisch und läuft bis Juli 2026. Für die aktuellste FIDE-Spielhistorie und Ratingberechnungen besuchen Sie bitte das FIDE-Profil des Spielers.
-arc,back_to_clubs,Back to clubs,Terug naar clubs,Retour aux clubs,Zurück zu Vereinen
-arc,back_to_search,Back to search,Terug naar zoeken,Retour à la recherche,Zurück zur Suche
-arc,birthdate,Birthdate,Geboortedatum,Date de naissance,Geburtsdatum
-arc,birthyear,Birth Year,Geboortejaar,Année de naissance,Geburtsjahr
-arc,black,Black,Zwart,Noir,Schwarz
-arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
-arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
-arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
-arc,color,Color,Kleur,Couleur,Farbe
-arc,date,Date,Datum,Date,Datum
-arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
-arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
-arc,game_nr,Game No.,Partijnr.,N° de partie,Partienummer
-arc,gender,Gender,Geslacht,Genre,Geschlecht
-arc,last_elo,Last ELO,Laatste ELO,Dernier ELO,Letzte ELO
-arc,latest_game,Latest Game,Laatste partij,Dernière partie,Letzte Partie
-arc,loading,Loading...,Laden...,Chargement...,Laden...
-arc,member_id,Stamnummer,Stamnummer,Matricule,Mitgliedsnummer
-arc,nationality,Nationality,Nationaliteit,Nationalité,Nationalität
-arc,no_clubs,No clubs found.,Geen clubs gevonden.,Aucun club trouvé.,Keine Vereine gefunden.
-arc,no_results,No players found.,Geen spelers gevonden.,Aucun joueur trouvé.,Keine Spieler gefunden.
-arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
-arc,period,Period,Periode,Période,Periode
-arc,player_name,Name,Naam,Nom,Name
-arc,players_count,players,spelers,joueurs,Spieler
-arc,rating,Rating,Rating,Classement,Wertung
-arc,regions_tab,Regions,Regio's,Régions,Regionen
-arc,result,Result,Resultaat,Résultat,Ergebnis
-arc,search_btn,Search,Zoeken,Rechercher,Suchen
-arc,search_club_placeholder,Search club name or number...,Zoek clubnaam of clubnummer...,Rechercher par nom ou numéro de club...,Vereinsname oder Vereinsnummer suchen...
-arc,search_club_tab,Search Club,Club zoeken,Rechercher un club,Verein suchen
-arc,search_placeholder,Search player name or stamnummer...,Zoek spelersnaam of stamnummer...,Rechercher un nom ou un matricule...,Spielername oder Mitgliedsnummer suchen...
-arc,search_player_tab,Search Player,Speler zoeken,Rechercher un joueur,Spieler suchen
-arc,selected_club,Selected Club,Geselecteerde club,Club sélectionné,Ausgewählter Verein
-arc,title,ELO Archive & Game History,ELO-archief & Partijhistoriek,Archives ELO & Historique des parties,ELO-Archiv & Partiehistorie
-arc,total_games,Total Games,Aantal partijen,Nombre de parties,Anzahl der Partien
-arc,tournament,Tournament,Toernooi,Tournoi,Turnier
-arc,unknown_opponent,Unknown opponent,Onbekende tegenstander,Adversaire inconnu,Unbekannter Gegner
-arc,unknown_opponent_hint,"The opponent's name wasn't kept in the source data. This is usually a foreign or FIDE-rated tournament, where only the opponent's rating was recorded, not their name. These games still counted toward the ELO.","De naam van de tegenstander werd niet in de brongegevens bewaard. Dit is meestal een buitenlands of FIDE-toernooi, waarbij alleen de rating van de tegenstander werd bewaard, niet zijn naam. Deze partijen telden wel degelijk mee voor de ELO.","Le nom de l'adversaire n'a pas été conservé dans les données sources. Il s'agit généralement d'un tournoi étranger ou homologué FIDE, où seul le classement de l'adversaire a été enregistré, pas son nom. Ces parties comptaient bel et bien pour le classement ELO.","Der Name des Gegners wurde in den Quelldaten nicht gespeichert. Meist handelt es sich um ein ausländisches oder FIDE-gewertetes Turnier, bei dem nur die Wertungszahl des Gegners erfasst wurde, nicht sein Name. Diese Partien zählten dennoch für die ELO-Wertung."
-arc,white,White,Wit,Blanc,Weiß

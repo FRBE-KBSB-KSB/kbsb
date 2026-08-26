@@ -1,19 +1,20 @@
-import logging
-import hashlib
 import asyncio
-from datetime import datetime, timedelta, date, timezone
+import hashlib
+import logging
+from datetime import date, datetime, timedelta, timezone
 from typing import List
-from kbsb.core.db import get_mysql
-from reddevil.core import (
-    RdNotAuthorized,
-    jwt_encode,
-    get_settings,
-    RdNotFound,
-    RdInternalServerError,
-)
-from kbsb.member.md_member import Member, AnonMember, OldUserPasswordValidator
-from kbsb.member import SALT
 
+from reddevil.core import (
+    RdInternalServerError,
+    RdNotAuthorized,
+    RdNotFound,
+    get_settings,
+    jwt_encode,
+)
+
+from kbsb.core.db import get_mysql
+from kbsb.member import SALT
+from kbsb.member.md_member import AnonMember, Member, OldUserPasswordValidator
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +22,12 @@ logger = logging.getLogger(__name__)
 async def mysql_login(idnumber: str, password: str):
     logger.info(f"mysqllogin {idnumber} ")
     settings = get_settings()
-    if settings.SHORTCUT_INFOMANIAKLOGIN:
+    if settings.SHORTCUT_INFOMANIAKLOGIN:  # type: ignore
         # skip login
         payload = {
             "sub": idnumber,
             "exp": datetime.now(tz=timezone.utc)
-            + timedelta(minutes=settings.TOKEN["timeout"]),
+            + timedelta(minutes=settings.TOKEN["timeout"]),  # type: ignore
         }
         await asyncio.sleep(0)
         return jwt_encode(payload, SALT)
@@ -34,12 +35,11 @@ async def mysql_login(idnumber: str, password: str):
     query = """
         SELECT user, password from p_user WHERE user = %(user)s
     """
-    logger.info(f"idnumber {idnumber}")
     try:
         cursor = cnx.cursor()
         cursor.execute(query, {"user": idnumber})
         user = cursor.fetchone()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -48,14 +48,14 @@ async def mysql_login(idnumber: str, password: str):
         logger.info(f"user empty: idnumber {idnumber} not found")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     dbuser, dbpassword = user
-    logger.info(f"user found {dbuser} {dbpassword}")
+    logger.info(f"user found {dbuser}")
     hash = f"Le guide complet de PHP 5 par Francois-Xavier Bois{password}"
     pwcheck = hashlib.md5(hash.encode("utf-8")).hexdigest()
     if dbpassword == pwcheck:
         payload = {
             "sub": idnumber,
             "exp": datetime.now(tz=timezone.utc)
-            + timedelta(minutes=settings.TOKEN["timeout"]),
+            + timedelta(minutes=settings.TOKEN["timeout"]),  # type: ignore
         }
         await asyncio.sleep(0)
         return jwt_encode(payload, SALT)
@@ -107,7 +107,7 @@ async def mysql_mgmt_getmember(idmember: int) -> Member:
         qf = query.format(elotable=get_elotable())
         cursor.execute(qf, {"idbel": idmember})
         member = cursor.fetchone()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -156,7 +156,7 @@ async def mysql_mgmt_getclubmembers(idclub: int, active: bool = True) -> List[Me
             },
         )
         members = cursor.fetchall()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -192,7 +192,7 @@ async def mysql_anon_getmember(idnumber: int) -> AnonMember:
         qf = query.format(elotable=get_elotable())
         cursor.execute(qf, {"idnumber": idnumber})
         member = cursor.fetchone()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -238,7 +238,7 @@ async def mysql_anon_getclubmembers(idclub: int, active: bool = True):
             },
         )
         members = cursor.fetchall()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -265,7 +265,7 @@ async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
         cursor = cnx.cursor(dictionary=True)
         cursor.execute(query, {"idnumber": idfide})
         member = cursor.fetchone()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:
@@ -303,7 +303,7 @@ async def mysql_anon_belid_from_fideid(idfide) -> int:
         qf = query.format(elotable=get_elotable())
         cursor.execute(qf, {"idfide": idfide})
         m = cursor.fetchone()
-    except Exception as e:
+    except Exception:
         logger.exception("Mysql error")
         raise RdInternalServerError(description="MySQLError")
     finally:

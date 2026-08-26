@@ -1,8 +1,8 @@
 # copyright Ruben Decrop 2012 - 2022
 
+import logging.config
 import os
 from pathlib import Path
-import logging.config
 
 API_BASE_URL = "/api"
 API_KEY = "JeanMarieWampers"
@@ -85,7 +85,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "oldmysql"
+MEMBERDB = "odoo"
+
+ODOO = {
+    "url": "https://frbe-kbsb.odoo.com",
+    "db": "frbe-kbsb",
+}
 
 SECRETS = {
     "mongodb": {
@@ -93,7 +98,7 @@ SECRETS = {
         "manager": "googlejson",
     },
     "mysql": {
-        "name": "kbsb-mysql",
+        "name": "kbsb-mysql-chessdevil",
         "manager": "googlejson",
     },
     "postgres": {
