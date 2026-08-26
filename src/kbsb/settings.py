@@ -1,8 +1,8 @@
 # copyright Ruben Decrop 2012 - 2022
 
+import logging.config
 import os
 from pathlib import Path
-import logging.config
 
 API_BASE_URL = "/api"
 API_KEY = "JeanMarieWampers"
@@ -93,7 +93,7 @@ SECRETS = {
         "manager": "googlejson",
     },
     "mysql": {
-        "name": "kbsb-mysql",
+        "name": "kbsb-mysql-chessdevil",
         "manager": "googlejson",
     },
     "postgres": {
