@@ -18,7 +18,7 @@ SECRETS = {
         "manager": "filejson",
     },
     "mysql": {
-        "name": "kbsb-mysql-infomaniak",
+        "name": "kbsb-mysql-chessdevil",
         "manager": "filejson",
     },
     "gmail": {
@@ -31,7 +31,7 @@ SECRETS = {
     },
 }
 
-SHORTCUT_INFOMANIAKLOGIN = True
+SHORTCUT_INFOMANIAKLOGIN = False
 
 LOG_CONFIG = {
     "version": 1,
