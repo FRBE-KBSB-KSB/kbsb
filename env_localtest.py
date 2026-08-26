@@ -21,6 +21,10 @@ SECRETS = {
         "name": "kbsb-mysql-chessdevil",
         "manager": "filejson",
     },
+    "odoo": {
+        "name": "kbsb-odoo",
+        "manager": "filejson",
+    },
     "gmail": {
         "name": "kbsb-gmail",
         "manager": "filejson",
