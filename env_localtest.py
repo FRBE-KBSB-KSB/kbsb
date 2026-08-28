@@ -35,7 +35,7 @@ SECRETS = {
     },
 }
 
-SHORTCUT_INFOMANIAKLOGIN = True
+SHORTCUT_INFOMANIAKLOGIN = False
 
 LOG_CONFIG = {
     "version": 1,
