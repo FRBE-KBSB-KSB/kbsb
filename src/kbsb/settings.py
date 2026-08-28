@@ -85,7 +85,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "oldmysql"
+MEMBERDB = "odoo"
+
+ODOO = {
+    "url": "https://frbe-kbsb.odoo.com",
+    "db": "frbe-kbsb",
+}
 
 SECRETS = {
     "mongodb": {

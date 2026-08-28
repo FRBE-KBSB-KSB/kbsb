@@ -145,7 +145,7 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
         filter["teams.idclub"] = idclub
     series = []
     async for doc in coll.find(filter, proj):
-        s = encode_model(doc, ICSeries)
+        s = encode_model(ICSeries, doc)
         series.append(s)
     return series
 
@@ -165,7 +165,7 @@ async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     series = []
     cursor = coll.find(filter, proj)
     for doc in await cursor.to_list(length=100):
-        series.append(encode_model(doc, ICSeries))
+        series.append(encode_model(ICSeries, doc))
     return series
 
 
@@ -603,7 +603,7 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
     ):
         try:
             doc["id"] = str(doc["_id"])
-            s = encode_model(doc, ICSeriesDB)
+            s = encode_model(ICSeriesDB, doc)
         except Exception:
             logger.error(f"encoding ICSeriesDB {doc}")
             continue

@@ -2,51 +2,42 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
-from async_lru import alru_cache
-from jose import JWTError, ExpiredSignatureError
-from fastapi.security import HTTPAuthorizationCredentials
 from datetime import datetime, timedelta, timezone
 
+from async_lru import alru_cache
+from fastapi.security import HTTPAuthorizationCredentials
+from jose import ExpiredSignatureError, JWTError
 from reddevil.core import (
-    RdNotAuthorized,
     RdBadRequest,
+    RdNotAuthorized,
     get_secret,
+    get_setting,
     get_settings,
+    jwt_encode,
     jwt_getunverifiedpayload,
     jwt_verify,
-    jwt_encode,
 )
 
 from . import (
+    SALT,
+    AnonMember,
     LoginValidator,
     Member,
-    AnonMember,
-    SALT,
     OldUserPasswordValidator,
 )
-
 from .mysql_member import (
-    mysql_login,
-    mysql_anon_getmember,
-    mysql_mgmt_getmember,
-    mysql_anon_getclubmembers,
-    mysql_mgmt_getclubmembers,
     mysql_anon_belid_from_fideid,
+    mysql_anon_getclubmembers,
     mysql_anon_getfidemember,
+    mysql_anon_getmember,
+    mysql_login,
+    mysql_mgmt_getclubmembers,
+    mysql_mgmt_getmember,
     mysql_old_userpassword,
 )
-
-from .mongo_member import (
-    mongodb_login,
-    mongodb_anon_getmember,
-    mongodb_mgmt_getmember,
-    mongodb_anon_getclubmembers,
-    mongodb_mgmt_getclubmembers,
-    mongodb_anon_belid_from_fideid,
-    mongodb_anon_getfidemember,
-    # mongodb_old_userpassword,
+from .odoo_member import (
+    odoo_login,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +68,13 @@ async def login(ol: LoginValidator) -> str:
     use the mysql database to mimic the old php login procedure
     return a JWT token
     """
-    settings = get_settings()
+    dbmember = get_setting("MEMBERDB")
     if ol.idnumber.startswith("S_"):
         return await superuser_login(ol.idnumber, ol.password)
-    if settings.MEMBERDB == "oldmysql":
+    if dbmember == "oldmysql":
         return await mysql_login(ol.idnumber, ol.password)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_login(ol.idnumber, ol.password)
+    if dbmember == "odoo":
+        return await odoo_login(ol.idnumber, ol.password)
     raise NotImplementedError
 
 

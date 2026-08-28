@@ -179,7 +179,7 @@ function displaySnackbar(text, color) {
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__tools__club_protected?locale=" + locale.value)
+  await router.push("/tools/odoologin?url=__tools__club_protected?locale=" + locale.value)
 }
 
 async function selectClub() {

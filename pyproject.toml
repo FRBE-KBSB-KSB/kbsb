@@ -63,7 +63,7 @@ unfixable = []
 "**/__init__.py" = ["E402"]
 
 [tool.uv.sources]
-reddevil = { path = "libs/reddevil-3.5.5-py3-none-any.whl" }
+reddevil = { path = "libs/reddevil-4.0.1-py3-none-any.whl" }
 
 [build-system]
 requires = ["uv_build>=0.8.13,<0.9.0"]
