@@ -4,7 +4,7 @@ import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
+import { useIdnumberStore } from "~/store/idbel"
 import showdown from "showdown"
 
 import Registration from "~/components/interclubs/Registration.vue"
@@ -26,12 +26,6 @@ const snackbar = ref(null)
 const logindialog = ref(false)
 const login = ref({})
 const idnstore = useIdnumberStore()
-
-// help dialog
-const mdConverter = new showdown.Converter()
-const helptitle = ref("")
-const helpdialog = ref(false)
-const helpcontent = ref("")
 
 // locale
 const { locale, t } = useI18n()
@@ -189,20 +183,6 @@ async function getClubDetails() {
   }
 }
 
-// async function getHelpContent() {
-//   try {
-//     const reply = await $backend("filestore", "anon_get_file", {
-//       group: "data",
-//       name: `help-login.md`,
-//     })
-//     metadata.value = useMarkdown(reply.data).metadata
-//     helptitle.value = metadata.value["title_" + locale.value]
-//     helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-//   } catch (error) {
-//     console.log("failed")
-//   }
-// }
-
 async function processICdata() {
   let reply
   changeDialogCounter(1)
@@ -236,7 +216,6 @@ onMounted(async () => {
   calcPhase()
   getClubs()
   changedTab()
-  // await getHelpContent()
 })
 
 definePageMeta({
@@ -260,12 +239,6 @@ definePageMeta({
         <VCardTitle>
           <VIcon large> mdi-account </VIcon>
           <label class="headline ml-3">{{ $t("Sign in") }}</label>
-          <VBtn
-            icon="mdi-help"
-            color="green"
-            class="float-right"
-            @click="helpdialog = true"
-          />
         </VCardTitle>
         <VDivider />
         <VCardText>
@@ -284,13 +257,6 @@ definePageMeta({
             {{ $t("Submit") }}
           </VBtn>
         </VCardActions>
-      </VCard>
-    </v-dialog>
-    <v-dialog v-model="helpdialog" width="20em">
-      <VCard>
-        <VCardTitle v-html="helptitle" />
-        <VDivider />
-        <VCardText class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
       </VCard>
     </v-dialog>
     <v-card>

@@ -29,7 +29,7 @@ router = APIRouter(prefix="/api/v1/member")
 
 
 @router.post("/login")
-async def api_login(ol: LoginValidator) -> str:
+async def api_login(ol: LoginValidator) -> tuple[int, str]:
     """
     login by using the idnumber, return a JWT token
     """
@@ -43,15 +43,15 @@ async def api_login(ol: LoginValidator) -> str:
 
 
 @router.get("/anon/clubmembers/{idclub}", response_model=List[AnonMember])
-async def api_get_anonclubmembers(idclub: int, active: bool = True):
+async def api_get_anonclubmembers(idclub: int):
     """
     get all members of a club, returns a list of AnonMember (only name, club and rating)
     """
     try:
-        return await anon_getclubmembers(idclub, active)
+        return await anon_getclubmembers(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception as e:
+    except Exception:
         logger.exception("failed api call anon_getclubmembers: {e}")
         raise HTTPException(status_code=500)
 

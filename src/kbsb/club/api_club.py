@@ -2,35 +2,34 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
-
-from fastapi import HTTPException, Depends, BackgroundTasks, APIRouter
-from fastapi.security import HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
 from typing import List
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
     bearer_schema,
-    validate_token,
     jwt_getunverifiedpayload,
+    validate_token,
 )
 
 from kbsb.club import (
+    Club,
+    ClubIn,
+    ClubItem,
+    ClubRoleNature,
+    ClubUpdate,
     create_club,
     delete_club,
-    get_club,
     get_anon_clubs,
-    get_csv_clubs,
+    get_club,
     get_club_idclub,
+    get_csv_clubs,
     mgmt_mailinglist,
     set_club,
     verify_club_access,
-    Club,
-    ClubItem,
-    ClubIn,
-    ClubRoleNature,
-    ClubUpdate,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ async def api_create_club(
     p: ClubIn, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
     try:
-        validate_token(auth)
+        await validate_token(auth)
         return await create_club(p)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -109,8 +108,7 @@ async def api_clb_get_club(
     from kbsb.member import validate_membertoken
 
     try:
-        idnumber = validate_membertoken(auth)
-        await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)
+        validate_membertoken(auth)
         return await get_club({"idclub": idclub})
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -195,6 +193,7 @@ async def api_verify_club_access(
     from kbsb.member import validate_membertoken
 
     try:
+        logger.info(f"api verify_club_access idclub: {idclub}, role: {role}")
         idmember = validate_membertoken(auth)
         logger.info(f"api verify_club_access idmember: {idmember}")
         return await verify_club_access(idclub=idclub, idmember=idmember, role=role)

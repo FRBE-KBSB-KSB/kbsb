@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
+import { useIdbelStore } from "@/store/idbel"
 
 import Details from "@/components/club/Details.vue"
 import Board from "@/components/club/Board.vue"
@@ -23,7 +23,7 @@ const snackbar = ref(null)
 // login
 const logindialog = ref(false)
 const login = ref({})
-const idnstore = useIdnumberStore()
+const idbelstore = useIdbelStore()
 
 // locale
 const { locale, t } = useI18n()
@@ -67,29 +67,6 @@ function checkAuth() {
   if (!token.value) {
     gotoLogin()
   }
-}
-
-async function dologin() {
-  console.log("doing a login")
-  changeDialogCounter(1)
-  let reply
-  try {
-    reply = await $backend("member", "login", {
-      idnumber: login.value.idnumber,
-      password: login.value.password,
-    })
-    console.log("did a login", reply.data)
-  } catch (error) {
-    console.error("failed login", error)
-    displaySnackbar(t(error.message))
-    return
-  } finally {
-    changeDialogCounter(-1)
-  }
-  idstore.updateToken(reply.data)
-  idnstore.updateIdnumber(login.value.idnumber)
-  logindialog.value = false
-  changeTab()
 }
 
 async function getClubs() {
@@ -212,37 +189,6 @@ definePageMeta({
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
       </v-card>
-    </v-dialog>
-    <v-dialog width="25em" v-model="logindialog">
-      <VCard>
-        <VCardTitle>
-          <VIcon large> mdi-account </VIcon>
-          <label class="headline ml-3">{{ $t("Sign in") }}</label>
-          <VBtn
-            icon="mdi-help"
-            color="green"
-            class="float-right"
-            @click="helpdialog = true"
-          />
-        </VCardTitle>
-        <VDivider />
-        <VCardText>
-          <VTextField v-model="login.idnumber" :label="$t('ID number')" />
-          <VTextField
-            v-model="login.password"
-            xs="12"
-            lg="6"
-            :label="$t('Password')"
-            type="password"
-          />
-        </VCardText>
-        <VCardActions>
-          <VSpacer />
-          <VBtn @click="dologin()">
-            {{ $t("Submit") }}
-          </VBtn>
-        </VCardActions>
-      </VCard>
     </v-dialog>
     <v-card>
       <v-card-text>

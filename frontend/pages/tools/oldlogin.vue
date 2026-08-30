@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
+import { useIdnumberStore } from "~/store/idbel"
 import showdown from "showdown"
 
 const { locale, t } = useI18n()

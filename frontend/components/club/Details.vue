@@ -12,12 +12,6 @@ const { token } = storeToRefs(idstore)
 const { $backend } = useNuxtApp()
 const { t } = useI18n()
 
-// help dialog
-// const mdConverter = new showdown.Converter()
-// const helptitle = ref("")
-// const helpdialog = ref(false)
-// const helpcontent = ref("")
-
 //  snackbar and loading widgets
 import ProgressLoading from "@/components/ProgressLoading.vue"
 import SnackbarMessage from "@/components/SnackbarMessage.vue"
@@ -75,20 +69,6 @@ async function saveClub() {
     showLoading(false)
   }
 }
-
-// async function getContent() {
-//   try {
-//     const reply = await $backend("filestore", "anon_get_file", {
-//       group: "pages",
-//       name: `help-club-contact.md`,
-//     })
-//     metadata.value = useMarkdown(reply.data).metadata
-//     helptitle.value = metadata.value["title_" + locale.value]
-//     helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-//   } catch (error) {
-//     console.log("failed")
-//   }
-// }
 
 function setup(club_) {
   console.log("setup details", club_)
@@ -157,13 +137,6 @@ function setup(club_) {
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title class="mt-2">
-                <v-btn
-                  icon="mdi-help"
-                  color="green"
-                  size="small"
-                  class="float-right"
-                  @click="helpdialog = true"
-                />
                 <h4>{{ $t("Contact") }}</h4>
               </v-card-title>
               <v-card-text>
@@ -321,13 +294,6 @@ function setup(club_) {
         </v-row>
       </v-container>
     </div>
-    <v-dialog v-model="helpdialog" width="20em">
-      <v-card>
-        <v-card-title v-html="helptitle" />
-        <v-divider></v-divider>
-        <v-card-text class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 

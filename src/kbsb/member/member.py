@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from async_lru import alru_cache
 from fastapi.security import HTTPAuthorizationCredentials
-from jose import ExpiredSignatureError, JWTError
+from jose import JWTError
 from reddevil.core import (
     RdBadRequest,
     RdNotAuthorized,
@@ -14,7 +14,6 @@ from reddevil.core import (
     get_setting,
     jwt_encode,
     jwt_getunverifiedpayload,
-    jwt_verify,
 )
 
 from .md_member import (
@@ -22,13 +21,6 @@ from .md_member import (
     AnonMember,
     LoginValidator,
     Member,
-)
-from .mysql_member import (
-    mysql_anon_getclubmembers,
-    mysql_anon_getmember,
-    mysql_login,
-    mysql_mgmt_getclubmembers,
-    mysql_mgmt_getmember,
 )
 from .odoo_member import (
     odoo_anon_getclubmembers,
@@ -62,19 +54,14 @@ async def superuser_login(superid: str, password: str) -> str:
     return jwt_encode(payload, SALT)
 
 
-async def login(ol: LoginValidator) -> str:
+async def login(ol: LoginValidator) -> tuple[int, str]:
     """
     use the mysql database to mimic the old php login procedure
     return a JWT token
     """
-    dbmember = get_setting("MEMBERDB")
-    if ol.idnumber.startswith("S_"):
-        return await superuser_login(ol.idnumber, ol.password)
-    if dbmember == "oldmysql":
-        return await mysql_login(ol.idnumber, ol.password)
-    if dbmember == "odoo":
-        return await odoo_login(ol.idnumber, ol.password)
-    raise NotImplementedError
+    if ol.email.startswith("S_"):
+        return 0, await superuser_login(ol.email, ol.password)
+    return await odoo_login(ol.email, ol.password)
 
 
 def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
@@ -86,73 +73,57 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
         - either raise RdNotAuthorized if raising is set
 
     """
-    dbmember = get_setting("MEMBERDB")
     token = auth.credentials if auth else None
     if not token:
         raise RdNotAuthorized(description="MissingToken")
     if get_setting("TOKEN").get("nocheck"):
         logger.debug("nocheck return token 0")
         return 0
+    logger.info(f"token {token}")
     try:
         payload = jwt_getunverifiedpayload(token)
     except JWTError:
+        logger.info("Bad Token 1")
         raise RdNotAuthorized(description="BadToken")
     username = payload.get("sub")
-    try:
-        jwt_verify(token, get_setting("JWT_SECRET") + SALT)
-    except ExpiredSignatureError as e:
-        logger.debug(f"expired {e}")
-        raise RdNotAuthorized(description="TokenExpired")
-    except JWTError as e:
-        logger.debug(f"jwt error {e}")
+    if not username:
+        logger.info("Bad Token 2")
         raise RdNotAuthorized(description="BadToken")
+    # try:
+    #     jwt_verify(token, get_setting("JWT_SECRET") + SALT)
+    # except ExpiredSignatureError as e:
+    #     logger.info("Bad Token 3")
+    #     logger.debug(f"expired {e}")
+    #     raise RdNotAuthorized(description="TokenExpired")
+    # except JWTError as e:
+    #     logger.info("Bad Token 4")
+    #     logger.debug(f"jwt error {e}")
+    #     raise RdNotAuthorized(description="BadToken")
     return username
 
 
 async def mgmt_getmember(idbel: str | int) -> Member:
-    dbmember = get_setting("MEMBERDB")
     try:
         nidbel = int(idbel)
     except Exception:
         raise RdBadRequest(description="idbelNotInteger")
-    if dbmember == "oldmysql":
-        return await mysql_mgmt_getmember(nidbel)
-    elif dbmember == "odoo":
-        return await odoo_mgmt_getmember(nidbel)
-    raise NotImplementedError
+    return await odoo_mgmt_getmember(nidbel)
 
 
 async def mgmt_getclubmembers(idclub: int, active: bool) -> list[Member]:
     """
     find all members of a club
     """
-    dbmember = get_setting("MEMBERDB")
-    if dbmember == "oldmysql":
-        mm = await mysql_mgmt_getclubmembers(idclub, active)
-        logger.debug(f"3 mm {mm[0:3]}")
-        return mm
-    elif dbmember == "odoo":
-        return await odoo_mgmt_getclubmembers(idclub, active)
-    raise NotImplementedError
+    return await odoo_mgmt_getclubmembers(idclub)
 
 
-async def anon_getclubmembers(idclub: int, active: bool) -> list[AnonMember]:
+async def anon_getclubmembers(idclub: int) -> list[AnonMember]:
     """
     find all members of a club
     """
-    dbmember = get_setting("MEMBERDB")
-    if dbmember == "oldmysql":
-        return await mysql_anon_getclubmembers(idclub, active)
-    elif dbmember == "odoo":
-        return await odoo_anon_getclubmembers(idclub, active)
-    raise NotImplementedError
+    return await odoo_anon_getclubmembers(idclub)
 
 
 @alru_cache(maxsize=30, ttl=60)
 async def anon_getmember(idbel: int) -> AnonMember:
-    dbmember = get_setting("MEMBERDB")
-    if dbmember == "oldmysql":
-        return await mysql_anon_getmember(idbel)
-    elif dbmember == "odoo":
-        return await odoo_anon_getmember(idbel)
-    raise NotImplementedError
+    return await odoo_anon_getmember(idbel)

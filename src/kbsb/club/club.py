@@ -135,14 +135,14 @@ async def get_csv_clubs(options: dict = {}) -> io.StringIO:
     return stream
 
 
-async def verify_club_access(idclub: int, idmember: str, role: str) -> bool:
+async def verify_club_access(idclub: int, idmember: str | int, role: str) -> bool:
     """
-    checks if the person identified by idmember belongs to the memberlist
+    checks if the person identified by email belongs to the memberlist
     of role inside a club, identified by idclub (an int) or id (a str),
     if check fails.
     """
     # check for superuser
-    if idmember.startswith("S_") and len(idmember) == 5:
+    if isinstance(idmember, str) and idmember.startswith("S_") and len(idmember) == 5:
         return True
     try:
         idnumber = int(idmember)
@@ -159,7 +159,7 @@ async def verify_club_access(idclub: int, idmember: str, role: str) -> bool:
     logger.info(f"club {club.clubroles}")
     for r in roles:
         # looking for a single matching role
-        for cr in club.clubroles:
+        for cr in club.clubroles:  # type: ignore
             if r == cr.nature.value:
                 if idnumber in cr.memberlist:
                     return True

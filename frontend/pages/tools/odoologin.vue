@@ -2,14 +2,14 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
+import { useIdbelStore } from "~/store/idbel"
 
 const { locale, t } = useI18n()
 const { $backend } = useNuxtApp()
 const router = useRouter()
 const route = useRoute()
-const idstore = useIdtokenStore()
-const idnstore = useIdnumberStore()
+const idtokenstore = useIdtokenStore()
+const idbelstore = useIdbelStore()
 
 const login = ref({})
 const snackbar = ref(null)
@@ -34,7 +34,7 @@ async function dologin() {
   let reply
   try {
     reply = await $backend("member", "login", {
-      idnumber: login.value.idnumber,
+      email: login.value.email,
       password: login.value.password,
     })
     console.log("did a login", reply.data)
@@ -43,15 +43,11 @@ async function dologin() {
     errortext.value = t(error.message)
     snackbar.value = true
     return
-  } finally {
-    console.log("reached finally")
   }
-  idstore.updateToken(reply.data)
-  idnstore.updateIdnumber(login.value.idnumber)
+  idbelstore.updateIdbel(reply.data[0])
+  idtokenstore.updateToken(reply.data[1])
   console.log("redirecting to ", returnUrl)
   await navigateTo(returnUrl)
-  // router.push(returnUrl)
-  console.log("navigated")
 }
 
 definePageMeta({
@@ -70,7 +66,7 @@ definePageMeta({
           <VDivider />
           <VCardText>
             <p>{{ $t("odoo.login") }}</p>
-            <VTextField v-model="login.idnumber" :label="$t('Email address')" />
+            <VTextField v-model="login.email" :label="$t('Email address')" />
             <VTextField
               v-model="login.password"
               xs="12"

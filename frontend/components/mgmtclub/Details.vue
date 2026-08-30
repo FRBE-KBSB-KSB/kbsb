@@ -26,7 +26,6 @@ let showLoading
 
 // datamodel
 const clubdetails = ref(EMPTY_CLUB)
-const helpdialog = ref(false)
 const statuscm = ref(CLUB_STATUS.CONSULTING)
 const status_consulting = computed(() => statuscm.value == CLUB_STATUS.CONSULTING)
 const status_modifying = computed(() => statuscm.value == CLUB_STATUS.MODIFYING)
@@ -136,13 +135,6 @@ onMounted(() => {
           <v-col cols="12" sm="6" md="4" xl="3">
             <v-card>
               <v-card-title class="mt-2">
-                <v-btn
-                  icon="mdi-help"
-                  color="purple"
-                  size="small"
-                  class="float-right"
-                  @click="helpdialog = true"
-                />
                 <h4>{{ $t("Contact") }}</h4>
               </v-card-title>
               <v-card-text>
@@ -289,7 +281,6 @@ onMounted(() => {
         </v-row>
       </v-container>
     </div>
-    <v-dialog v-model="helpdialog" width="20em"> TODO </v-dialog>
   </v-container>
 </template>
 

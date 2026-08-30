@@ -2,7 +2,7 @@ import asyncio
 import logging
 import xmlrpc.client
 from datetime import date, datetime, timedelta, timezone
-from typing import Any
+from typing import Any, cast
 
 import requests
 from reddevil.core import (
@@ -20,6 +20,7 @@ from kbsb.core.db import get_odoo
 from .md_member import SALT, AnonMember, Member
 
 logger = logging.getLogger(__name__)
+
 odoo_settings = get_setting("ODOO")
 token_settings = get_setting("TOKEN")
 odoo_secrets = get_secret("odoo")
@@ -43,24 +44,39 @@ def get_fideelo(id: str | int) -> int:
         return 0
 
 
-async def odoo_login(idmember: int | str, password: str) -> str:
-    if isinstance(idmember, int):
-        idmember = str(idmember)
+async def odoo_login(email: str, password: str) -> tuple[int, str]:
     url = odoo_settings["url"]
     db = odoo_settings["db"]
-    logger.info(f"odoo_login: idmember {idmember} url {url} db {db}")
     common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
-    uid = common.authenticate(db, idmember, password, {})
+    uid = common.authenticate(db, email, password, {})
     if not uid:
-        logger.info(f"user empty: idmember {idmember} not found")
+        logger.info(f"user empty: email {email} not found")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
+    models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
+    # get user profile to find the partner_id
+    user_profile = models.execute_kw(
+        db, uid, password, "res.users", "read", [[uid]], {"fields": ["partner_id"]}
+    )
+    partner_id = user_profile[0]["partner_id"][0]  # type: ignore
+    # get idbel from partner_id
+    partner_profile = models.execute_kw(
+        db,
+        uid,
+        password,
+        "res.partner",
+        "read",
+        [[partner_id]],
+        {"fields": ["x_studio_contact_nationalid_int"]},
+    )
+    idbel = cast(int, partner_profile[0]["x_studio_contact_nationalid_int"])  # type: ignore
+    logger.info(f"odoo_login: user {email} logged in with idbel {idbel}")
     payload = {
-        "sub": idmember,
+        "sub": idbel,
         "exp": datetime.now(tz=timezone.utc)
         + timedelta(minutes=token_settings["timeout"]),
     }
     await asyncio.sleep(0)
-    return jwt_encode(payload, SALT)
+    return (idbel, jwt_encode(payload, SALT))
 
 
 async def odoo_mgmt_getmember(idmember: int | str) -> Member:
@@ -104,7 +120,6 @@ async def odoo_mgmt_getmember(idmember: int | str) -> Member:
         [domain],
         {
             "fields": fields,
-            "limit": 100,  # Paginate responses as needed
             "order": "name asc",
         },
     )
@@ -152,18 +167,18 @@ async def odoo_anon_getmember(idmember: int) -> AnonMember:
     )
 
 
-async def odoo_anon_getclubmembers(idclub: int):
-    odoo_settings = get_odoo()
-    url = odoo_settings["url"]
-    db = odoo_settings["db"]
-    username = odoo_settings["username"]
-    password = odoo_settings["password"]
+async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
+    logger.info(f"get odoo clubmembers for club {idclub}")
+    url = odoo_secrets["url"]
+    db = odoo_secrets["db"]
+    username = odoo_secrets["username"]
+    password = odoo_secrets["password"]
     common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
     uid = common.authenticate(db, username, password, {})
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
     domain = [
         ["x_studio_contact_clubid", "=", idclub],
-        ["x_studio_contact_affiliationyear", "=", current_affiliation_year()],
+        ["x_studio_contact_affiliationyear", "=", 2027],
     ]
     fields = [
         "email_normalized",
@@ -190,16 +205,16 @@ async def odoo_anon_getclubmembers(idclub: int):
         [domain],
         {
             "fields": fields,
+            "limit": 1000,
             "order": "name asc",
         },
     )
     await asyncio.sleep(0)
-
     if not members:
         return []
     return [
         AnonMember(
-            birthyear=member["x_studio_contact_birthday_date"].year,
+            birthyear=date.fromisoformat(member["x_studio_contact_birthday_date"]).year,
             fiderating=get_fideelo(member["x_studio_contact_nationalid_int"]),
             fidetitle=member["x_studio_contact_fidetitle"] or "",
             first_name=member["x_studio_contact_firstname"],
@@ -257,12 +272,11 @@ async def odoo_mgmt_getclubmembers(idclub: int):
         },
     )
     await asyncio.sleep(0)
-
     if not members:
         return []
     return [
         Member(
-            birthdate=member["x_studio_contact_birthday_date"],
+            birthdate=date.fromisoformat(member["x_studio_contact_birthday_date"]),
             date_affiliation=date(current_affiliation_year(), 1, 1),
             deceased=0,
             email=member["email_normalized"],
