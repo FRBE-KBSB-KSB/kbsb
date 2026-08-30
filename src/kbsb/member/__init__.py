@@ -1,31 +1,23 @@
 # copyright Ruben Decrop 2012 - 2022
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
-# these section contains the code to interact with the old mysqldb
+import kbsb.member.api_member
 
 from .md_member import (
+    SALT,
+    AnonMember,
     LoginValidator,
     Member,
-    AnonMember,
     OldUserPasswordValidator,
-    SALT,
 )
-
-from .member import (  # noqa: E402
+from .member import (
     anon_getclubmembers,
     anon_getmember,
-    anon_belid_from_fideid,
-    anon_getfidemember,
     login,
-    mgmt_getmember,
     mgmt_getclubmembers,
-    old_userpassword,
+    mgmt_getmember,
     validate_membertoken,
 )
-
-
-import kbsb.member.api_member  # noqa: E402, F401
-
 
 __all__ = [
     "LoginValidator",
@@ -34,12 +26,9 @@ __all__ = [
     "OldUserPasswordValidator",
     "anon_getclubmembers",
     "anon_getmember",
-    "anon_belid_from_fideid",
-    "anon_getfidemember",
     "login",
     "mgmt_getmember",
     "mgmt_getclubmembers",
-    "old_userpassword",
     "validate_membertoken",
     "SALT",
 ]

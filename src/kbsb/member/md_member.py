@@ -4,9 +4,8 @@
 # we are using pydantic as tool
 
 import logging
-
 from datetime import date
-from typing import Dict, Any, List
+
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
@@ -53,9 +52,10 @@ class Member(BaseModel):
     deceased: int | None = None
     email: str | None = None
     fiderating: int | None = 0
+    fidetitle: str | None = ""
     first_name: str | None = None
     gender: str | None = None
-    idbel: int | None = None
+    idnumber: int | None = None
     idclub: int | None = None
     idfide: int | None = 0
     last_name: str | None = None
@@ -64,7 +64,6 @@ class Member(BaseModel):
     mobile: str | None = None
     nationalitybel: str | None = ""
     nationalityfide: str | None = ""
-    natrating: int | None = 0
     year_affiliation: int | None = None
 
 
@@ -81,14 +80,13 @@ old_role_mapping = {
 
 class AnonMember(BaseModel):
     birthyear: int = 0
-    chesstitle: str | None = ""
     fiderating: int | None = 0
+    fidetitle: str | None = ""
     first_name: str
     gender: str
     idclub: int
-    idnumber: int
     idfide: int | None = 0
+    idnumber: int
     last_name: str
-    nationalitybel: str = ""
     nationalityfide: str = ""
-    natrating: int | None = 0
+    year_affiliation: int | None = 0

@@ -12,31 +12,30 @@ from reddevil.core import (
     RdNotAuthorized,
     get_secret,
     get_setting,
-    get_settings,
     jwt_encode,
     jwt_getunverifiedpayload,
     jwt_verify,
 )
 
-from . import (
+from .md_member import (
     SALT,
     AnonMember,
     LoginValidator,
     Member,
-    OldUserPasswordValidator,
 )
 from .mysql_member import (
-    mysql_anon_belid_from_fideid,
     mysql_anon_getclubmembers,
-    mysql_anon_getfidemember,
     mysql_anon_getmember,
     mysql_login,
     mysql_mgmt_getclubmembers,
     mysql_mgmt_getmember,
-    mysql_old_userpassword,
 )
 from .odoo_member import (
+    odoo_anon_getclubmembers,
+    odoo_anon_getmember,
     odoo_login,
+    odoo_mgmt_getclubmembers,
+    odoo_mgmt_getmember,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ async def superuser_login(superid: str, password: str) -> str:
     Performs a superuser login with the password stored in GCP secret manager
     returns a JWT token
     """
-    settings = get_settings()
+    token_settings = get_setting("TOKEN")
     try:
         su = get_secret(superid)
         logger.info(f"su {su}")
@@ -58,7 +57,7 @@ async def superuser_login(superid: str, password: str) -> str:
     payload = {
         "sub": superid,
         "exp": datetime.now(tz=timezone.utc)
-        + timedelta(minutes=settings.TOKEN["timeout"]),
+        + timedelta(minutes=token_settings["timeout"]),
     }
     return jwt_encode(payload, SALT)
 
@@ -87,11 +86,11 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
         - either raise RdNotAuthorized if raising is set
 
     """
-    settings = get_settings()
+    dbmember = get_setting("MEMBERDB")
     token = auth.credentials if auth else None
     if not token:
         raise RdNotAuthorized(description="MissingToken")
-    if settings.TOKEN.get("nocheck"):
+    if get_setting("TOKEN").get("nocheck"):
         logger.debug("nocheck return token 0")
         return 0
     try:
@@ -100,7 +99,7 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
         raise RdNotAuthorized(description="BadToken")
     username = payload.get("sub")
     try:
-        jwt_verify(token, settings.JWT_SECRET + SALT)
+        jwt_verify(token, get_setting("JWT_SECRET") + SALT)
     except ExpiredSignatureError as e:
         logger.debug(f"expired {e}")
         raise RdNotAuthorized(description="TokenExpired")
@@ -111,15 +110,15 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
 
 
 async def mgmt_getmember(idbel: str | int) -> Member:
-    settings = get_settings()
+    dbmember = get_setting("MEMBERDB")
     try:
         nidbel = int(idbel)
     except Exception:
         raise RdBadRequest(description="idbelNotInteger")
-    if settings.MEMBERDB == "oldmysql":
+    if dbmember == "oldmysql":
         return await mysql_mgmt_getmember(nidbel)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_mgmt_getmember(nidbel)
+    elif dbmember == "odoo":
+        return await odoo_mgmt_getmember(nidbel)
     raise NotImplementedError
 
 
@@ -127,13 +126,13 @@ async def mgmt_getclubmembers(idclub: int, active: bool) -> list[Member]:
     """
     find all members of a club
     """
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
+    dbmember = get_setting("MEMBERDB")
+    if dbmember == "oldmysql":
         mm = await mysql_mgmt_getclubmembers(idclub, active)
         logger.debug(f"3 mm {mm[0:3]}")
         return mm
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_mgmt_getclubmembers(idclub, active)
+    elif dbmember == "odoo":
+        return await odoo_mgmt_getclubmembers(idclub, active)
     raise NotImplementedError
 
 
@@ -141,48 +140,19 @@ async def anon_getclubmembers(idclub: int, active: bool) -> list[AnonMember]:
     """
     find all members of a club
     """
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
+    dbmember = get_setting("MEMBERDB")
+    if dbmember == "oldmysql":
         return await mysql_anon_getclubmembers(idclub, active)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_anon_getclubmembers(idclub, active)
+    elif dbmember == "odoo":
+        return await odoo_anon_getclubmembers(idclub, active)
     raise NotImplementedError
 
 
 @alru_cache(maxsize=30, ttl=60)
 async def anon_getmember(idbel: int) -> AnonMember:
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
+    dbmember = get_setting("MEMBERDB")
+    if dbmember == "oldmysql":
         return await mysql_anon_getmember(idbel)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_anon_getmember(idbel)
-    raise NotImplementedError
-
-
-@alru_cache(maxsize=30, ttl=60)
-async def anon_getfidemember(idfide: int) -> AnonMember:
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
-        return await mysql_anon_getfidemember(idfide)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_anon_getfidemember(idfide)
-    raise NotImplementedError
-
-
-@alru_cache(maxsize=30, ttl=60)
-async def anon_belid_from_fideid(idfide: int) -> int:
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
-        return await mysql_anon_belid_from_fideid(idfide)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_anon_belid_from_fideid(idfide)
-    raise NotImplementedError
-
-
-async def old_userpassword(oupw: OldUserPasswordValidator) -> None:
-    settings = get_settings()
-    if settings.MEMBERDB == "oldmysql":
-        return await mysql_old_userpassword(oupw)
-    elif settings.MEMBERDB == "mongodb":
-        return await mongodb_mgmt_getmember(oupw)
+    elif dbmember == "odoo":
+        return await odoo_anon_getmember(idbel)
     raise NotImplementedError

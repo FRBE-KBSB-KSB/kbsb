@@ -48,3 +48,12 @@ def get_mysql():
         logger.exception(e)
         raise RdInternalServerError(description="Unknown DB error")
     return cnx
+
+
+def get_odoo():
+    """
+    Setup the Odoo database connection.
+    """
+    if not hasattr(get_odoo, "secrets"):
+        get_odoo.secrets = get_secret("odoo")  # type: ignore
+    return get_odoo.secrets  # type: ignore

@@ -13,8 +13,7 @@ from reddevil.core import (
 )
 
 from kbsb.core.db import get_mysql
-from kbsb.member import SALT
-from kbsb.member.md_member import AnonMember, Member, OldUserPasswordValidator
+from kbsb.member.md_member import SALT, AnonMember, Member
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +118,47 @@ async def mysql_mgmt_getmember(idmember: int) -> Member:
     return Member(**member)
 
 
+async def mysql_anon_getmember(idnumber: int) -> AnonMember:
+    logger.info(f"getbel {idnumber}")
+    cnx = get_mysql()
+    query = """
+        SELECT
+            signaletique.Dnaiss as birthdate,
+            fide.Elo as fiderating,
+            fide.Title as chesstitle,
+            signaletique.Prenom as first_name,
+            signaletique.Sexe as gender,
+            signaletique.Club as idclub,
+            {elotable}.Fide as idfide,
+            signaletique.Matricule as idnumber,
+            signaletique.Nom as last_name,
+            signaletique.Nationalite as nationalitybel,
+            signaletique.NatFIDE as nationalityfide,
+            {elotable}.Elo as natrating
+        FROM signaletique
+        LEFT JOIN {elotable} ON  signaletique.Matricule = {elotable}.Matricule
+        LEFT JOIN fide on {elotable}.Fide = fide.ID_NUMBER
+        WHERE signaletique.Matricule = %(idnumber)s
+    """
+    try:
+        cursor = cnx.cursor(dictionary=True)
+        qf = query.format(elotable=get_elotable())
+        cursor.execute(qf, {"idnumber": idnumber})
+        member = cursor.fetchone()
+    except Exception:
+        logger.exception("Mysql error")
+        raise RdInternalServerError(description="MySQLError")
+    finally:
+        cnx.close()
+    if not member:
+        raise RdNotFound(description="MemberNotFound")
+    logger.info(f"member {member}")
+    await asyncio.sleep(0)
+    am = AnonMember(**member)
+    am.birthyear = member["birthdate"].year
+    return am
+
+
 async def mysql_mgmt_getclubmembers(idclub: int, active: bool = True) -> List[Member]:
     cnx = get_mysql()
     qactive = " AND signaletique.AnneeAffilie >= %(year)s " if active else ""
@@ -165,47 +205,6 @@ async def mysql_mgmt_getclubmembers(idclub: int, active: bool = True) -> List[Me
     return [Member(**member) for member in members]
 
 
-async def mysql_anon_getmember(idnumber: int) -> AnonMember:
-    logger.info(f"getbel {idnumber}")
-    cnx = get_mysql()
-    query = """
-        SELECT
-            signaletique.Dnaiss as birthdate,
-            fide.Elo as fiderating,
-            fide.Title as chesstitle,
-            signaletique.Prenom as first_name,
-            signaletique.Sexe as gender,
-            signaletique.Club as idclub,
-            {elotable}.Fide as idfide,
-            signaletique.Matricule as idnumber,
-            signaletique.Nom as last_name,
-            signaletique.Nationalite as nationalitybel,
-            signaletique.NatFIDE as nationalityfide,
-            {elotable}.Elo as natrating
-        FROM signaletique
-        LEFT JOIN {elotable} ON  signaletique.Matricule = {elotable}.Matricule
-        LEFT JOIN fide on {elotable}.Fide = fide.ID_NUMBER
-        WHERE signaletique.Matricule = %(idnumber)s
-    """
-    try:
-        cursor = cnx.cursor(dictionary=True)
-        qf = query.format(elotable=get_elotable())
-        cursor.execute(qf, {"idnumber": idnumber})
-        member = cursor.fetchone()
-    except Exception:
-        logger.exception("Mysql error")
-        raise RdInternalServerError(description="MySQLError")
-    finally:
-        cnx.close()
-    if not member:
-        raise RdNotFound(description="MemberNotFound")
-    logger.info(f"member {member}")
-    await asyncio.sleep(0)
-    am = AnonMember(**member)
-    am.birthyear = member["birthdate"].year
-    return am
-
-
 async def mysql_anon_getclubmembers(idclub: int, active: bool = True):
     cnx = get_mysql()
     qactive = " AND signaletique.AnneeAffilie >= %(year)s " if active else ""
@@ -245,106 +244,3 @@ async def mysql_anon_getclubmembers(idclub: int, active: bool = True):
         cnx.close()
     await asyncio.sleep(0)
     return [AnonMember(**member) for member in members]
-
-
-async def mysql_anon_getfidemember(idfide: int) -> AnonMember:
-    logger.info(f"getfide {idfide}")
-    cnx = get_mysql()
-    query = """
-        SELECT
-            Name as fullname,
-            Elo as fiderating,
-            Country as nationalityfide,            
-            Sex as gender,
-            Title as chesstitle,
-            Birthday as birthday
-        FROM fide
-        WHERE ID_number = %(idnumber)s
-    """
-    try:
-        cursor = cnx.cursor(dictionary=True)
-        cursor.execute(query, {"idnumber": idfide})
-        member = cursor.fetchone()
-    except Exception:
-        logger.exception("Mysql error")
-        raise RdInternalServerError(description="MySQLError")
-    finally:
-        cnx.close()
-    if not member:
-        raise RdNotFound(description="MemberNotFound")
-    await asyncio.sleep(0)
-    nparts = member["fullname"].split(", ")
-    am = AnonMember(
-        idclub=0,
-        idnumber=0,
-        idfide=idfide,
-        chesstitle=member["chesstitle"],
-        first_name=nparts[1] if len(nparts) > 1 else "",
-        fiderating=member["fiderating"],
-        gender=member["gender"],
-        last_name=nparts[0],
-        natrating=0,
-        nationalityfide=member["nationalityfide"],
-    )
-    am.birthyear = member["birthday"].year
-    return am
-
-
-async def mysql_anon_belid_from_fideid(idfide) -> int:
-    logger.info(f"belid from fideid {idfide}")
-    cnx = get_mysql()
-    query = """
-        SELECT Matricule as idbel
-        FROM {elotable}
-        WHERE Fide = %(idfide)s
-    """
-    try:
-        cursor = cnx.cursor(dictionary=True)
-        qf = query.format(elotable=get_elotable())
-        cursor.execute(qf, {"idfide": idfide})
-        m = cursor.fetchone()
-    except Exception:
-        logger.exception("Mysql error")
-        raise RdInternalServerError(description="MySQLError")
-    finally:
-        cnx.close()
-    if m:
-        return m.get("idbel", 0)
-    else:
-        return 0
-
-
-async def mysql_old_userpassword(oup: OldUserPasswordValidator) -> None:
-    """
-    write a new user, or overwrite an existing in the old p_user table
-    """
-    cnx = get_mysql()
-    try:
-        cursor = cnx.cursor()
-        cursor.execute("SELECT user FROM p_user WHERE user = %s ", (oup.user,))
-        found = cursor.fetchone()
-        hash = f"Le guide complet de PHP 5 par Francois-Xavier Bois{oup.password}"
-        pwhashed = hashlib.md5(hash.encode("utf-8")).hexdigest()
-        logger.info(f": password hash {pwhashed} for user {oup.user}")
-        if found:
-            logger.info("updating user password")
-            cursor.execute(
-                """
-                UPDATE p_user SET password = %s, email = %s, club = %s
-                WHERE user = %s
-            """,
-                (pwhashed, oup.email, oup.club, oup.user),
-            )
-        else:
-            logger.info("inserting user with password")
-            cursor.execute(
-                """
-                INSERT INTO p_user (password, email, club, user)
-                VALUES (%s,%s,%s,%s)
-            """,
-                (pwhashed, oup.email, oup.club, oup.user),
-            )
-        cursor.close()
-    finally:
-        cnx.close()
-    await asyncio.sleep(0)

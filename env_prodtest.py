@@ -28,6 +28,10 @@ SECRETS = {
         "name": "known-hosts",
         "manager": "filejson",
     },
+    "odoo": {
+        "name": "kbsb-odoo",
+        "manager": "filejson",
+    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = True
