@@ -354,11 +354,7 @@ text-unidecode==1.3
     # via python-slugify
 toml==0.10.2
     # via kbsb
-<<<<<<< HEAD
 typer==0.27.2
-=======
-typer==0.26.8
->>>>>>> master
     # via
     #   fastapi-cli
     #   fastapi-cloud-cli
