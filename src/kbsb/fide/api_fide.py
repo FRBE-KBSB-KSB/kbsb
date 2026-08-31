@@ -651,8 +651,15 @@ async def generate_fide_form(locale: str, formdata: dict):
         logger.info(
             f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}"
         )
-    except Exception:
+    except Exception as e:
         logger.exception("Failed to send FIDE registration email")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": "Failed to send registration email. Please try again or contact fide@frbe-kbsb-ksb.be directly."
+            }
+        )
 
     # Send confirmation email to invoice_email and contact_email (if provided)
     conf_subject = t_msg.get(

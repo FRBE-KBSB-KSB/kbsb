@@ -635,7 +635,8 @@ async function submitForm() {
 
   } catch (error) {
     console.error(error);
-    errorText.value = "Error submitting form";
+    const msg = error?.message || error?.response?.data?.message;
+    errorText.value = msg || "Error submitting form. The registration email could not be sent. Please try again or contact fide@frbe-kbsb-ksb.be.";
   } finally {
     waitingdialog.value = false;
     // 5-second cooldown to guard against fast re-submits
