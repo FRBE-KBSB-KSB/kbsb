@@ -2,15 +2,15 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "~/store/idbel"
+import { useIdbelStore } from "~/store/idbel"
 import { storeToRefs } from "pinia"
 
 // communication
 defineExpose({ setup })
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
-const idnstore = useIdnumberStore()
-const { idnumber: idn } = storeToRefs(idnstore)
+const idbelstore = useIdbelStore()
+const { idbel: idn } = storeToRefs(idbelstore)
 const { $backend } = useNuxtApp()
 const { t } = useI18n()
 

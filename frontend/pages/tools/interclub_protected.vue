@@ -2,10 +2,9 @@ b
 <script setup>
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRoute } from "vue-router"
+import { useRouter } from "vue-router"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "~/store/idbel"
-import showdown from "showdown"
+import { useIdbelStore } from "@/store/idbel"
 
 import Registration from "~/components/interclubs/Registration.vue"
 import Results from "@/components/interclubs/Results.vue"
@@ -16,6 +15,7 @@ import { parse } from "yaml"
 import { storeToRefs } from "pinia"
 
 // communication
+const router = useRouter()
 const route = useRoute()
 const waitingdialog = ref(false)
 let dialogcounter = 0
@@ -25,7 +25,7 @@ const snackbar = ref(null)
 // login
 const logindialog = ref(false)
 const login = ref({})
-const idnstore = useIdnumberStore()
+const idbelstore = useIdbelStore()
 
 // locale
 const { locale, t } = useI18n()
@@ -33,7 +33,7 @@ const { locale, t } = useI18n()
 // API backend
 const { $backend } = useNuxtApp()
 const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
+const { token } = storeToRefs(idstore)
 
 // data model
 const tab = ref("registration")
@@ -109,38 +109,14 @@ function changedTab() {
 }
 
 function checkAuth() {
-  if (!idtoken.value) {
-    logindialog.value = true
+  if (!token.value) {
+    gotoLogin()
   }
 }
 
 function displaySnackbar(text, color) {
   errortext.value = text
   snackbar.value = true
-}
-
-async function dologin() {
-  console.log("doing a login")
-  changeDialogCounter(1)
-  let reply
-  try {
-    reply = await $backend("member", "login", {
-      idnumber: login.value.idnumber,
-      password: login.value.password,
-    })
-    // console.log("did a login", reply.data)
-  } catch (error) {
-    console.error("failed login", error)
-    displaySnackbar(t(error.message))
-    return
-  } finally {
-    changeDialogCounter(-1)
-  }
-  idstore.updateToken(reply.data)
-  idnstore.updateIdnumber(login.value.idnumber)
-  logindialog.value = false
-  console.log("going to tab", tab.value)
-  changedTab()
 }
 
 async function getClubs() {
@@ -169,7 +145,7 @@ async function getClubDetails() {
   try {
     reply = await $backend("interclub", "clb_getICclub", {
       idclub: idclub.value,
-      token: idtoken.value,
+      token: token.value,
     })
     icclub.value = { idclub: idclub.value, ...(reply.data || {}) }
   } catch (error) {
@@ -181,6 +157,12 @@ async function getClubDetails() {
     changeDialogCounter(-1)
     changedTab()
   }
+}
+
+async function gotoLogin() {
+  await router.push(
+    "/tools/odoologin?url=__tools__interclub_protected?locale=" + locale.value
+  )
 }
 
 async function processICdata() {
@@ -208,7 +190,6 @@ async function selectClub() {
 // startup
 
 onMounted(async () => {
-  console.log("mounted 0", tab.value)
   let l = route.query.locale
   locale.value = l ? l : "nl"
   checkAuth()
