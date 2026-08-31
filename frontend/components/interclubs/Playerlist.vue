@@ -291,19 +291,11 @@ async function getClubMembers() {
 }
 
 function maxelo(p) {
-  if (pll_period == "september") {
-    if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
-    return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
-  } else {
-    return mininmal_assignelo - 1
-  }
+  return p.fiderating ? p.fiderating + 100 : icdata.notrated_elo.max
 }
 
 function minelo(p) {
-  let minrating = p.fiderating
-    ? Math.min(p.fiderating, p.natrating) - 100
-    : p.natrating - 100
-  return Math.max(minrating, icdata.notrated_elo.min)
+  return p.fiderating ? p.fiderating - 100 : icdata.notrated_elo.min
 }
 
 function openAssignPlayer(idnumber) {

@@ -401,7 +401,7 @@ async def clb_validateICPlayers(
         minrating = (
             p.fiderating - 100 if p.fiderating else icdata["notrated_elo"]["min"]
         )
-        if p.assignedrating < max(icdata["notrated_elo"]["min"], minrating):
+        if p.assignedrating < minrating:
             errors.append(
                 ICPlayerValidationError(
                     errortype="ELO",
