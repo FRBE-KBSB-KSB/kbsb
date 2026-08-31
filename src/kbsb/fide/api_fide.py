@@ -112,7 +112,6 @@ MANDATORY_ALWAYS = [
     "expected_players",
     "tournament_system",
     "rounds_reported",
-    "multiple_round_days",
     "female_only",
     "start_date",
     "end_date",
@@ -241,9 +240,12 @@ def fill_workbook(form_data):
         "en": "English (EN)",
     }
     for index, (field_key, _label) in enumerate(FIDE_FIELDS):
-        val = form_data.get(field_key, "")
-        if field_key == "communication_language" and val in lang_labels:
-            val = lang_labels[val]
+        if field_key == "multiple_round_days":
+            val = ""
+        else:
+            val = form_data.get(field_key, "")
+            if field_key == "communication_language" and val in lang_labels:
+                val = lang_labels[val]
         ws[f"B{start_row + index}"] = val
 
     if (
@@ -262,13 +264,9 @@ def fill_workbook(form_data):
         except ValueError:
             n_rounds = 0
 
-        # Communication language dictates round naming (Ronde vs Round)
-        comm_lang = form_data.get("communication_language", "en")
-        round_word = "Ronde" if comm_lang in ("nl", "fr") else "Round"
-
         for i in range(1, n_rounds + 1):
             row = i + 1
-            ws_rounds[f"A{row}"] = f"{round_word} {i} Date"
+            ws_rounds[f"A{row}"] = f"Round {i} Date"
             ws_rounds[f"B{row}"] = form_data.get(f"round{i}_date", "")
             ws_rounds[f"C{row}"] = form_data.get(f"round{i}_report", "")
 
@@ -306,20 +304,6 @@ def validate_form(form, lang):
     trans = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
     t_msg = trans["messages"]
     t_fields = trans["fields"]
-
-    if form.get("tournament_report") == "New long tournament":
-        try:
-            n_rounds = int(form.get("rounds_reported") or 0)
-        except ValueError:
-            n_rounds = 0
-        date_counts = {}
-        for i in range(1, n_rounds + 1):
-            d_val = form.get(f"round{i}_date")
-            if d_val:
-                date_counts[d_val] = date_counts.get(d_val, 0) + 1
-        # Count days that have 2 or more rounds played on the same day
-        multi_days = sum(1 for count in date_counts.values() if count > 1)
-        form["multiple_round_days"] = str(multi_days)
 
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
@@ -367,14 +351,6 @@ def validate_form(form, lang):
         lang,
         min_value=1,
         max_value=2500,
-    )
-    parse_int(
-        form.get("multiple_round_days"),
-        t_fields.get("multiple_round_days", "Number of multiple round days"),
-        errors,
-        lang,
-        min_value=0,
-        max_value=100,
     )
 
     age_limit = form.get("age_limit")

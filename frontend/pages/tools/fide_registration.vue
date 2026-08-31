@@ -283,28 +283,28 @@ function recalculateReportNumbers() {
     form.value.start_date = "";
     form.value.end_date = "";
   }
-
-  // Recalculate multiple round days (count of calendar days with 2 or more rounds)
-  const dateCounts = {};
-  roundsData.forEach(r => {
-    if (r.dateVal) {
-      dateCounts[r.dateVal] = (dateCounts[r.dateVal] || 0) + 1;
-    }
-  });
-  const multiDays = Object.values(dateCounts).filter(c => c > 1).length;
-  form.value.multiple_round_days = String(multiDays);
 }
 
-// Watchers
 watch(() => form.value.time_control_code, () => {
   form.value.time_control_desc = "";
+  form.value.timectl_other_desc = "";
+  form.value.timectl1_moves = "";
+  form.value.timectl1_minutes = "";
+  form.value.timectl1_inc_type = "";
+  form.value.timectl1_inc_seconds = "";
+  form.value.timectl2_moves = "";
+  form.value.timectl2_minutes = "";
+  form.value.timectl2_inc_type = "";
+  form.value.timectl2_inc_seconds = "";
+  form.value.timectl_final_minutes = "";
+  form.value.timectl_final_inc_type = "";
+  form.value.timectl_final_inc_seconds = "";
 });
 
 watch(isLongTournament, (isLong) => {
   if (!isLong) {
     form.value.start_date = "";
     form.value.end_date = "";
-    form.value.multiple_round_days = "0";
     for (let i = 1; i <= 40; i++) {
       form.value[`round${i}_date`] = "";
       form.value[`round${i}_report`] = "";
@@ -790,11 +790,6 @@ definePageMeta({
         <input type="number" v-model="form.rounds_reported" min="0" max="40" required>
       </label>
       
-      <label v-if="!isLongTournament">
-        <span class="required-label">{{ tField('multiple_round_days') }}</span>
-        <input type="number" v-model="form.multiple_round_days" min="0" max="100" required>
-      </label>
-
       <div v-if="isLongTournament" id="long-tournament-block">
         <div class="group-title">{{ tCat('long_tournament_rounds') }}</div>
         <div id="rounds-container">
@@ -811,9 +806,6 @@ definePageMeta({
               <input type="number" v-model="form[`round${i}_report`]" min="1" required readonly>
             </label>
           </div>
-        </div>
-        <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-weight: 500; font-size: 0.95rem; color: var(--accent);">
-          {{ tField('multiple_round_days') }}: {{ form.multiple_round_days }}
         </div>
       </div>
 
@@ -857,10 +849,12 @@ definePageMeta({
           <span class="required-label">
             {{ tField('chief_arbiter_name') }}
             <span v-if="arbiterSearching['chief_arbiter_name']" class="organizer-searching-hint">…</span>
-            <span v-if="arbiterInfo['chief_arbiter_name'] && !noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--accent-dark); font-size: 0.82rem; font-weight: 700; margin-left: 0.5rem; background: var(--accent-soft); padding: 0.1rem 0.4rem; border-radius: 4px;">{{ arbiterInfo['chief_arbiter_name'] }}</span>
-            <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.chief_arbiter_name" autocomplete="off" @input="searchArbiter('chief_arbiter_name')" @blur="hideArbiterResults('chief_arbiter_name')" @keydown.enter.prevent="selectTopArbiterResult('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.chief_arbiter_name" autocomplete="off" @input="searchArbiter('chief_arbiter_name')" @blur="hideArbiterResults('chief_arbiter_name')" @keydown.enter.prevent="selectTopArbiterResult('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+            <span v-if="arbiterInfo['chief_arbiter_name'] && !noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill">{{ arbiterInfo['chief_arbiter_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['chief_arbiter_name'] && arbiterResults['chief_arbiter_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['chief_arbiter_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('chief_arbiter_name', 'chief_arbiter_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -877,9 +871,12 @@ definePageMeta({
           <span>
             {{ tField('dep_chief_arbiter1_name') }}
             <span v-if="arbiterSearching['dep_chief_arbiter1_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.dep_chief_arbiter1_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter1_name')" @blur="hideArbiterResults('dep_chief_arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.dep_chief_arbiter1_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter1_name')" @blur="hideArbiterResults('dep_chief_arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+            <span v-if="arbiterInfo['dep_chief_arbiter1_name'] && !noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter1_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['dep_chief_arbiter1_name'] && arbiterResults['dep_chief_arbiter1_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['dep_chief_arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -896,9 +893,12 @@ definePageMeta({
           <span>
             {{ tField('dep_chief_arbiter2_name') }}
             <span v-if="arbiterSearching['dep_chief_arbiter2_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.dep_chief_arbiter2_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter2_name')" @blur="hideArbiterResults('dep_chief_arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.dep_chief_arbiter2_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter2_name')" @blur="hideArbiterResults('dep_chief_arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+            <span v-if="arbiterInfo['dep_chief_arbiter2_name'] && !noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter2_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['dep_chief_arbiter2_name'] && arbiterResults['dep_chief_arbiter2_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['dep_chief_arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -921,9 +921,12 @@ definePageMeta({
           <span>
             {{ tField('arbiter1_name') }}
             <span v-if="arbiterSearching['arbiter1_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.arbiter1_name" autocomplete="off" @input="searchArbiter('arbiter1_name')" @blur="hideArbiterResults('arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter1_name', 'arbiter1_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter1_name" autocomplete="off" @input="searchArbiter('arbiter1_name')" @blur="hideArbiterResults('arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter1_name', 'arbiter1_fide_id')">
+            <span v-if="arbiterInfo['arbiter1_name'] && !noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['arbiter1_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['arbiter1_name'] && arbiterResults['arbiter1_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter1_name', 'arbiter1_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -937,9 +940,12 @@ definePageMeta({
           <span>
             {{ tField('arbiter2_name') }}
             <span v-if="arbiterSearching['arbiter2_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.arbiter2_name" autocomplete="off" @input="searchArbiter('arbiter2_name')" @blur="hideArbiterResults('arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter2_name', 'arbiter2_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter2_name" autocomplete="off" @input="searchArbiter('arbiter2_name')" @blur="hideArbiterResults('arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter2_name', 'arbiter2_fide_id')">
+            <span v-if="arbiterInfo['arbiter2_name'] && !noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['arbiter2_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['arbiter2_name'] && arbiterResults['arbiter2_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter2_name', 'arbiter2_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -953,9 +959,12 @@ definePageMeta({
           <span>
             {{ tField('arbiter3_name') }}
             <span v-if="arbiterSearching['arbiter3_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.arbiter3_name" autocomplete="off" @input="searchArbiter('arbiter3_name')" @blur="hideArbiterResults('arbiter3_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter3_name', 'arbiter3_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter3_name" autocomplete="off" @input="searchArbiter('arbiter3_name')" @blur="hideArbiterResults('arbiter3_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter3_name', 'arbiter3_fide_id')">
+            <span v-if="arbiterInfo['arbiter3_name'] && !noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill">{{ arbiterInfo['arbiter3_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['arbiter3_name'] && arbiterResults['arbiter3_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter3_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter3_name', 'arbiter3_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -969,9 +978,12 @@ definePageMeta({
           <span>
             {{ tField('arbiter4_name') }}
             <span v-if="arbiterSearching['arbiter4_name']" class="organizer-searching-hint">…</span>
-            <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700; margin-left: 0.5rem;">⚠ No license</span>
           </span>
-          <input type="text" v-model="form.arbiter4_name" autocomplete="off" @input="searchArbiter('arbiter4_name')" @blur="hideArbiterResults('arbiter4_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter4_name', 'arbiter4_fide_id')">
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter4_name" autocomplete="off" @input="searchArbiter('arbiter4_name')" @blur="hideArbiterResults('arbiter4_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter4_name', 'arbiter4_fide_id')">
+            <span v-if="arbiterInfo['arbiter4_name'] && !noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill">{{ arbiterInfo['arbiter4_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
           <ul v-if="arbiterResults['arbiter4_name'] && arbiterResults['arbiter4_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter4_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter4_name', 'arbiter4_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -1042,7 +1054,7 @@ definePageMeta({
           <option v-for="t in lookups.time_control_types" :key="t" :value="t">{{ t }}</option>
         </select>
       </label>
-      <label>
+      <label v-if="form.time_control_code">
         <span class="required-label">{{ tField('time_control_desc') }}</span>
         <select v-model="form.time_control_desc" required>
           <option value="">{{ tUI('select_placeholder') }}</option>
@@ -1306,6 +1318,35 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
   color: var(--muted, #4b5563);
   font-weight: 400;
   margin-left: 0.3rem;
+}
+.input-with-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-badge input {
+  padding-right: 4.5rem;
+}
+.arbiter-pill {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--accent-dark, #1b5e20);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: var(--accent-soft, #e8f5e9);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+  line-height: 1;
+}
+.arbiter-pill.no-license {
+  color: var(--error, #b91c1c);
+  background: #fef2f2;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  font-size: 0.75rem;
 }
 
 @media (max-width: 640px) {
