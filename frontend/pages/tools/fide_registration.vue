@@ -207,6 +207,14 @@ function getFidePeriod(dateString) {
   };
 }
 
+const isSingleReportMultiplePeriods = computed(() => {
+  if (form.value.tournament_report !== 'All rounds in 1 report') return false;
+  if (!form.value.start_date || !form.value.end_date) return false;
+  const p1 = getFidePeriod(form.value.start_date);
+  const p2 = getFidePeriod(form.value.end_date);
+  return !!(p1 && p2 && p1.key !== p2.key);
+});
+
 function getRoundDateError(index) {
   if (index <= 1) return "";
   const currentDate = form.value[`round${index}_date`];
@@ -627,6 +635,14 @@ async function submitForm() {
     return;
   }
 
+  if (isSingleReportMultiplePeriods.value) {
+    errorText.value = tMsg('all_rounds_one_report_period_error');
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    return;
+  }
+
   if (ratingRequirement.value !== 'ok') {
     let confirmKey = '';
     if (ratingRequirement.value === 'not_rateable') confirmKey = 'fide_under_60_confirm';
@@ -855,6 +871,9 @@ definePageMeta({
         <input type="date" v-model="form.end_date" :min="form.start_date" required>
         <div v-if="form.start_date && form.end_date && form.end_date < form.start_date" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('end_date_order_error') }}
+        </div>
+        <div v-if="isSingleReportMultiplePeriods" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tMsg('all_rounds_one_report_period_error') }}
         </div>
       </label>
       <label>

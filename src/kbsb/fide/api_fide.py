@@ -1,7 +1,9 @@
 import json
 import re
+import calendar
 from pathlib import Path
 from io import BytesIO
+from datetime import datetime
 import logging
 import base64
 
@@ -299,6 +301,22 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     return iv
 
 
+def get_fide_period(date_str):
+    if not date_str:
+        return None
+    try:
+        parts = [int(p) for p in str(date_str).split("-")]
+        if len(parts) != 3:
+            return None
+        year, month, day = parts
+        _, last_day = calendar.monthrange(year, month)
+        if day >= last_day - 1:
+            return f"{year}-{month:02d}-late"
+        return f"{year}-{month:02d}"
+    except Exception:
+        return None
+
+
 def validate_form(form, lang):
     errors = []
     trans = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
@@ -316,9 +334,16 @@ def validate_form(form, lang):
 
     start_date = form.get("start_date")
     end_date = form.get("end_date")
-    if start_date and end_date and end_date < start_date:
-        logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
-        errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
+    if start_date and end_date:
+        if end_date < start_date:
+            logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
+            errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
+        elif form.get("tournament_report") == "All rounds in 1 report":
+            p_start = get_fide_period(start_date)
+            p_end = get_fide_period(end_date)
+            if p_start and p_end and p_start != p_end:
+                logger.error(f"Dates {start_date} ({p_start}) and {end_date} ({p_end}) span multiple FIDE periods for 1 report")
+                errors.append(t_msg.get("all_rounds_one_report_period_error", "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'."))
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
