@@ -11,6 +11,8 @@ BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", False)
 
+ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
+
 EMAIL = {
     "backend": "GMAIL",
     "serviceaccountfile": "kbsb-gmail.json",
@@ -84,7 +86,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "oldmysql"
+MEMBERDB = "odoo"
+
+ODOO = {
+    "url": "https://frbe-kbsb.odoo.com",
+    "db": "frbe-kbsb",
+}
 
 SECRETS = {
     "mongodb": {
@@ -92,7 +99,7 @@ SECRETS = {
         "manager": "googlejson",
     },
     "mysql": {
-        "name": "kbsb-mysql",
+        "name": "kbsb-mysql-chessdevil",
         "manager": "googlejson",
     },
     "postgres": {
@@ -105,6 +112,10 @@ SECRETS = {
     },
     "known-hosts": {
         "name": "known-hosts",
+        "manager": "googlejson",
+    },
+    "odoo": {
+        "name": "kbsb-odoo",
         "manager": "googlejson",
     },
 }

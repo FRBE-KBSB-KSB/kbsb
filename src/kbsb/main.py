@@ -1,15 +1,6 @@
 # copyright Ruben Decrop 2015 - 2024
 # copyright Chessdevil Consulting 2015 - 2024
 
-import sys
-
-if sys.platform == "win32":
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
-
 import logging
 import logging.config
 from contextlib import asynccontextmanager
@@ -19,19 +10,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
-from reddevil.core import (
-    close_mongodb,
-    connect_mongodb,
-    register_app,
-)
-from reddevil.core.register import get_setting
+from reddevil.core import a_close_mongodb, a_connect_mongodb, get_setting, register_app
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    connect_mongodb()
+    a_connect_mongodb()
     yield
-    close_mongodb()
+    await a_close_mongodb()
 
 
 from . import version

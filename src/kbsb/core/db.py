@@ -1,12 +1,11 @@
 # copyright Ruben Decrop 2012 - 2020
-from asyncio.constants import SSL_HANDSHAKE_TIMEOUT
 import logging
+from datetime import date, datetime
+
+import mysql.connector
+from reddevil.core import RdInternalServerError, get_secret
 
 logger = logging.getLogger(__name__)
-
-from datetime import datetime, date
-from reddevil.core import get_secret, RdInternalServerError
-import mysql.connector
 
 
 def date2datetime(d: dict, f: str):
@@ -24,24 +23,37 @@ def date2datetime(d: dict, f: str):
 def get_mysql():
     if not hasattr(get_mysql, "params"):
         setattr(get_mysql, "params", get_secret("mysql"))
+    logger.debug(f"mysql host: {get_mysql.params['dbhost']}")  # type: ignore
     try:
         cnx = mysql.connector.connect(
             pool_name="kbsbpool",
             pool_size=5,
-            user=get_mysql.params["dbuser"],
-            password=get_mysql.params["dbpassword"],
-            host=get_mysql.params["dbhost"],
-            database=get_mysql.params["dbname"],
+            user=get_mysql.params["dbuser"],  # type: ignore
+            password=get_mysql.params["dbpassword"],  # type: ignore
+            host=get_mysql.params["dbhost"],  # type: ignore
+            database=get_mysql.params["dbname"],  # type: ignore
             ssl_disabled=True,
         )
     except mysql.connector.Error as err:
-        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+        if err.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:  # type: ignore
             logger.exception("Something is wrong with your user name or password")
             raise RdInternalServerError(description="Invalid DB credentials")
-        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+        elif err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:  # type: ignore
             logger.exception("Database does not exist")
             raise RdInternalServerError(description="Invalid DB")
         else:
             logger.exception(err)
             raise RdInternalServerError(description="Unknown DB error")
+    except Exception as e:
+        logger.exception(e)
+        raise RdInternalServerError(description="Unknown DB error")
     return cnx
+
+
+def get_odoo():
+    """
+    Setup the Odoo database connection.
+    """
+    if not hasattr(get_odoo, "secrets"):
+        get_odoo.secrets = get_secret("odoo")  # type: ignore
+    return get_odoo.secrets  # type: ignore

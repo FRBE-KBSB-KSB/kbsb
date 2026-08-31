@@ -4,34 +4,32 @@
 # this file contains API point that map directly to the old mysql database
 
 import logging
-
-from fastapi import HTTPException, APIRouter, Depends, Security
-from fastapi.security import HTTPAuthorizationCredentials, APIKeyHeader
-from reddevil.core import RdException, bearer_schema, validate_token, get_settings
 from typing import List
-from . import (
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
+from reddevil.core import RdException, bearer_schema, validate_token
+
+from .md_member import (
     AnonMember,
     LoginValidator,
     Member,
-    OldUserPasswordValidator,
+)
+from .member import (
     anon_getclubmembers,
     anon_getmember,
-    anon_getfidemember,
-    anon_belid_from_fideid,
     login,
-    mgmt_getmember,
     mgmt_getclubmembers,
+    mgmt_getmember,
     validate_membertoken,
-    old_userpassword,
 )
-from kbsb.core.apikey import header_schema, validate_header
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/member")
 
 
 @router.post("/login")
-async def api_login(ol: LoginValidator) -> str:
+async def api_login(ol: LoginValidator) -> tuple[int, str]:
     """
     login by using the idnumber, return a JWT token
     """
@@ -41,40 +39,21 @@ async def api_login(ol: LoginValidator) -> str:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call oldlogin")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/userpassword", include_in_schema=False, status_code=201)
-async def api_set_old_userpassword(
-    ol: OldUserPasswordValidator,
-    # apikey: str = Depends(header_schema),
-):
-    """
-    force password on user, creates the user if he does not exist
-    """
-    try:
-        # validate_header(apikey)
-        logger.info(f"Setting user password for {ol.user}")
-        await old_userpassword(ol)
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api call old_userpassword")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500)
 
 
 @router.get("/anon/clubmembers/{idclub}", response_model=List[AnonMember])
-async def api_get_anonclubmembers(idclub: int, active: bool = True):
+async def api_get_anonclubmembers(idclub: int):
     """
     get all members of a club, returns a list of AnonMember (only name, club and rating)
     """
     try:
-        return await anon_getclubmembers(idclub, active)
+        return await anon_getclubmembers(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
-    except:
-        logger.exception("failed api call anon_getclubmembers")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+    except Exception:
+        logger.exception("failed api call anon_getclubmembers: {e}")
+        raise HTTPException(status_code=500)
 
 
 @router.get("/mgmt/clubmembers/{idclub}", response_model=List[Member])
@@ -87,13 +66,13 @@ async def api_mgmt_clubmembers(
     get all members of a club, returns a list of AnonMember (only name, club and rating)
     """
     try:
-        validate_token(auth)
+        await validate_token(auth)
         return await mgmt_getclubmembers(idclub, active)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call anon_getclubmembers")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500)
 
 
 @router.get("/anon/member/{idnumber}", response_model=AnonMember)
@@ -107,21 +86,7 @@ async def api_anon_getmember(idnumber: int):
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call anon_getmember")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.get("/anon/fidemember/{idnumber}", response_model=AnonMember)
-async def api_anon_getfidemember(idnumber: int):
-    """
-    get a member by his idnumber (only name, club and rating)
-    """
-    try:
-        return await anon_getfidemember(idnumber)
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api call anon_getmember")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500)
 
 
 @router.get("/clb/member/{idnumber}", response_model=Member)
@@ -132,24 +97,10 @@ async def api_clb_get_member(
     get full details a member by his idnumber (as in the signaletique)
     """
     try:
-        idnumber = validate_membertoken(auth)
+        validate_membertoken(auth)
         return await mgmt_getmember(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api call get_activemember")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.get("/anon/fideid2belid/{idfide}", response_model=int)
-async def api_anon_belid_from_fideid(idfide: int):
-    """
-    return the id_bel for an id_fide, or 0 if not existing
-    """
-    try:
-        return await anon_belid_from_fideid(idfide)
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api call anon_getmember")
         raise HTTPException(status_code=500, detail="Internal Server Error")

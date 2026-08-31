@@ -2,26 +2,30 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
-import showdown from "showdown"
+import { useIdbelStore } from "~/store/idbel"
 
 const { locale, t } = useI18n()
 const { $backend } = useNuxtApp()
 const router = useRouter()
 const route = useRoute()
-const idstore = useIdtokenStore()
-const idnstore = useIdnumberStore()
-
-// help dialog
-const mdConverter = new showdown.Converter()
-const helptitle = ref("")
-const helpdialog = ref(false)
-const helpcontent = ref("")
+const idtokenstore = useIdtokenStore()
+const idbelstore = useIdbelStore()
 
 const login = ref({})
 const snackbar = ref(null)
 const errortext = ref("")
 const url = route.query.url
+
+function gotoOdoo(i) {
+  console.log("gotoOdoo", i)
+  if (i === 1) {
+    let odooUrl = "https://frbe-kbsb.odoo.com/web/reset_password"
+    window.open(odooUrl, "_blank")
+    return
+  }
+  let odooUrl = "https://frbe-kbsb.odoo.com/"
+  window.open(odooUrl, "_blank")
+}
 
 async function dologin() {
   console.log("doing a login")
@@ -30,7 +34,7 @@ async function dologin() {
   let reply
   try {
     reply = await $backend("member", "login", {
-      idnumber: login.value.idnumber,
+      email: login.value.email,
       password: login.value.password,
     })
     console.log("did a login", reply.data)
@@ -39,34 +43,12 @@ async function dologin() {
     errortext.value = t(error.message)
     snackbar.value = true
     return
-  } finally {
-    console.log("reached finally")
   }
-  idstore.updateToken(reply.data)
-  idnstore.updateIdnumber(login.value.idnumber)
+  idbelstore.updateIdbel(reply.data[0])
+  idtokenstore.updateToken(reply.data[1])
   console.log("redirecting to ", returnUrl)
   await navigateTo(returnUrl)
-  // router.push(returnUrl)
-  console.log("navigated")
 }
-
-async function getContent() {
-  try {
-    const reply = await $backend("filestore", "anon_get_file", {
-      group: "pages",
-      name: `help-login.md`,
-    })
-    metadata.value = useMarkdown(reply.data).metadata
-    helptitle.value = metadata.value["title_" + locale.value]
-    helpcontent.value = mdConverter.makeHtml(metadata.value["content_" + locale.value])
-  } catch (error) {
-    console.log("failed")
-  }
-}
-
-onMounted(() => {
-  getContent()
-})
 
 definePageMeta({
   layout: "nomenu",
@@ -75,21 +57,16 @@ definePageMeta({
 <template>
   <VContainer>
     <VRow align="start">
-      <VCol cols="12" md="6" offset-md="3" lg="6" offset-lg="3">
+      <VCol cols="12" md="8" offset-md="2" lg="8" offset-lg="2">
         <VCard>
           <VCardTitle>
             <VIcon large> mdi-account </VIcon>
             <label class="headline ml-3">{{ $t("Sign in") }}</label>
-            <VBtn
-              icon="mdi-help"
-              color="green"
-              class="float-right"
-              @click="helpdialog = true"
-            />
           </VCardTitle>
           <VDivider />
           <VCardText>
-            <VTextField v-model="login.idnumber" :label="$t('ID number')" />
+            <p>{{ $t("odoo.login") }}</p>
+            <VTextField v-model="login.email" :label="$t('Email address')" />
             <VTextField
               v-model="login.password"
               xs="12"
@@ -100,6 +77,12 @@ definePageMeta({
           </VCardText>
           <VCardActions>
             <VSpacer />
+            <a @click="gotoOdoo(1)">
+              {{ $t("odoo.lostpassword") }}
+            </a>
+            <a @click="gotoOdoo(2)">
+              {{ $t("odoo.noaccount") }}
+            </a>
             <VBtn @click="dologin()">
               {{ $t("Submit") }}
             </VBtn>
@@ -107,13 +90,6 @@ definePageMeta({
         </VCard>
       </VCol>
     </VRow>
-    <VDialog v-model="helpdialog" width="20em">
-      <VCard>
-        <VCardTitle v-html="helptitle" />
-        <VDivider />
-        <VCardText class="pa-3 ma-1 markdowncontent" v-html="helpcontent" />
-      </VCard>
-    </VDialog>
     <VSnackbar v-model="snackbar" timeout="6000">
       {{ errortext }}
       <template v-slot:actions>

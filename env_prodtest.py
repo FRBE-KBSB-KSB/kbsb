@@ -17,7 +17,7 @@ SECRETS = {
         "manager": "filejson",
     },
     "mysql": {
-        "name": "kbsb-mysql-infomaniak",
+        "name": "kbsb-mysql-chessdevil",
         "manager": "filejson",
     },
     "gmail": {
@@ -26,6 +26,10 @@ SECRETS = {
     },
     "known-hosts": {
         "name": "known-hosts",
+        "manager": "filejson",
+    },
+    "odoo": {
+        "name": "kbsb-odoo",
         "manager": "filejson",
     },
 }
