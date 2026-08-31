@@ -15,7 +15,8 @@
       "back_btn": "Back to form",
       "fide_under_60_warning": "Warning: This standard pace total time is less than 60 minutes. It is NOT rateable under FIDE regulations.",
       "fide_under_90_warning": "Warning: At this standard pace (< 90 min), the Max Rating field must be filled in with a value less than 1800.",
-      "fide_under_120_warning": "Warning: At this standard pace (< 120 min), the Max Rating field must be filled in with a value less than 2400."
+      "fide_under_120_warning": "Warning: At this standard pace (< 120 min), the Max Rating field must be filled in with a value less than 2400.",
+      "communication_language_hint": "This language is used for official communications, confirmation emails, and for naming rounds (e.g. Round 1, Ronde 1) for tournaments with multiple reports."
     },
     "categories": {
       "tournament_info": "Tournament Info",
@@ -113,6 +114,7 @@
       "homepage": "Internet Homepage",
       "prize_fund": "Prize Fund",
       "remarks": "Remarks",
+      "communication_language": "Language for communication",
       "round_date": "Round {num} date",
       "round_report": "In which report will Round {num} be?"
     },
@@ -156,7 +158,8 @@
       "back_btn": "Terug naar het formulier",
       "fide_under_60_warning": "Waarschuwing: Bij dit standaardtempo is de totale speeltijd korter dan 60 minuten. Dit is NIET te homologeren volgens FIDE-regels.",
       "fide_under_90_warning": "Waarschuwing: Bij dit standaardtempo (< 90 min) moet de maximale rating ingevuld zijn met een waarde kleiner dan 1800.",
-      "fide_under_120_warning": "Waarschuwing: Bij dit standaardtempo (< 120 min) moet de maximale rating ingevuld zijn met een waarde kleiner dan 2400."
+      "fide_under_120_warning": "Waarschuwing: Bij deze standaard bedenktijd (< 120 min) moet het veld Maximale rating worden ingevuld met een waarde lager dan 2400.",
+      "communication_language_hint": "Deze taal wordt gebruikt voor officiële communicatie, bevestigingsmails en voor de naamgeving van rondes (bijv. Ronde 1, Round 1) bij toernooien met meerdere rapportages."
     },
     "categories": {
       "tournament_info": "Toernooi-informatie",
@@ -254,6 +257,7 @@
       "homepage": "Website",
       "prize_fund": "Prijzenpot",
       "remarks": "Opmerkingen",
+      "communication_language": "Taal voor communicatie",
       "round_date": "Datum van ronde {num}",
       "round_report": "In welk rapport komt ronde {num}?"
     },
@@ -297,7 +301,8 @@
       "back_btn": "Retour au formulaire",
       "fide_under_60_warning": "Attention : À cette cadence standard, le temps total de jeu est inférieur à 60 minutes. Ce tournoi n'est PAS homologable selon les règles FIDE.",
       "fide_under_90_warning": "Attention : À cette cadence standard (< 90 min), le classement maximum doit être renseigné avec une valeur inférieure à 1800.",
-      "fide_under_120_warning": "Attention : À cette cadence standard (< 120 min), le classement maximum doit être renseigné avec une valeur inférieure à 2400."
+      "fide_under_120_warning": "Attention : À cette cadence standard (< 120 min), le champ Classement maximum doit être renseigné avec une valeur inférieure à 2400.",
+      "communication_language_hint": "Cette langue est utilisée pour les communications officielles, les e-mails de confirmation et pour nommer les rondes (ex. Ronde 1, Round 1) pour les tournois avec plusieurs rapports."
     },
     "categories": {
       "tournament_info": "Informations sur le tournoi",
@@ -395,6 +400,7 @@
       "homepage": "Site internet",
       "prize_fund": "Prix",
       "remarks": "Remarques",
+      "communication_language": "Langue de communication",
       "round_date": "Date de la ronde {num}",
       "round_report": "Dans quel rapport sera la ronde {num} ?"
     },

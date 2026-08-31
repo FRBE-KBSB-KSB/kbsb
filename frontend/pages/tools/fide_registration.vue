@@ -75,7 +75,8 @@ const form = ref({
   tiebreak_method: "", tiebreak_other: "",
   software: "", software_other: "", software_version: "",
   pgn_provided: "No",
-  contact_email: "", homepage: "", prize_fund: "", remarks: ""
+  contact_email: "", homepage: "", prize_fund: "", remarks: "",
+  communication_language: ["nl", "fr"].includes(queryLang) ? queryLang : "en"
 });
 
 // Create round fields
@@ -588,7 +589,8 @@ function clearFormData() {
     tiebreak_method: "", tiebreak_other: "",
     software: "", software_other: "", software_version: "",
     pgn_provided: "No",
-    contact_email: "", homepage: "", prize_fund: "", remarks: ""
+    contact_email: "", homepage: "", prize_fund: "", remarks: "",
+    communication_language: ["nl", "fr"].includes(queryLang) ? queryLang : "en"
   };
   for (let i = 1; i <= 100; i++) {
     form.value[`round${i}_date`] = "";
@@ -712,6 +714,17 @@ definePageMeta({
       <label>
         <span class="required-label">{{ tField('invoice_clubnr') }}</span>
         <input type="text" v-model="form.invoice_clubnr" required>
+      </label>
+      <label>
+        <span class="required-label">{{ tField('communication_language') }}</span>
+        <select v-model="form.communication_language" required>
+          <option value="nl">Nederlands</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
+        <span style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('communication_language_hint') }}
+        </span>
       </label>
 
       <div class="group-title">{{ tCat('tournament_info') }}</div>

@@ -95,6 +95,7 @@ FIDE_FIELDS = [
     ("homepage", "Internet Homepage"),
     ("prize_fund", "Prize Fund"),
     ("remarks", "Remarks"),
+    ("communication_language", "Language for communication"),
 ]
 
 MANDATORY_ALWAYS = [
@@ -233,8 +234,17 @@ def fill_workbook(form_data):
     ws["B8"] = form_data.get("invoice_clubnr", "")
 
     start_row = 10
+    lang_labels = {
+        "nl": "Nederlands (NL)",
+        "fr": "Français (FR)",
+        "de": "Deutsch (DE)",
+        "en": "English (EN)",
+    }
     for index, (field_key, _label) in enumerate(FIDE_FIELDS):
-        ws[f"B{start_row + index}"] = form_data.get(field_key, "")
+        val = form_data.get(field_key, "")
+        if field_key == "communication_language" and val in lang_labels:
+            val = lang_labels[val]
+        ws[f"B{start_row + index}"] = val
 
     if (
         form_data.get("tournament_report") == "New long tournament"
@@ -251,9 +261,14 @@ def fill_workbook(form_data):
             n_rounds = int(form_data.get("rounds_reported", 0))
         except ValueError:
             n_rounds = 0
+
+        # Communication language dictates round naming (Ronde vs Round)
+        comm_lang = form_data.get("communication_language", "en")
+        round_word = "Ronde" if comm_lang in ("nl", "fr") else "Round"
+
         for i in range(1, n_rounds + 1):
             row = i + 1
-            ws_rounds[f"A{row}"] = f"Round {i} Date"
+            ws_rounds[f"A{row}"] = f"{round_word} {i} Date"
             ws_rounds[f"B{row}"] = form_data.get(f"round{i}_date", "")
             ws_rounds[f"C{row}"] = form_data.get(f"round{i}_report", "")
 
@@ -627,11 +642,21 @@ async def generate_fide_form(locale: str, formdata: dict):
     if is_unapproved:
         mail_subject = f"[UNAPPROVED] {mail_subject}"
 
+    comm_lang_map = {
+        "nl": "Nederlands (NL)",
+        "fr": "Français (FR)",
+        "de": "Deutsch (DE)",
+        "en": "English (EN)",
+    }
+    comm_lang_code = form.get("communication_language", locale)
+    comm_lang_display = comm_lang_map.get(comm_lang_code, comm_lang_code.upper() if comm_lang_code else "English (EN)")
+
     mail_body = f"""
     {warning_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
     <p><strong>Clubnummer:</strong> {club_number}</p>
+    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {comm_lang_display}</p>
     <br>
     <p>Groetjes!</p>
     """
