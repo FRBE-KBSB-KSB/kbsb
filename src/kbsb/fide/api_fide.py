@@ -95,6 +95,7 @@ FIDE_FIELDS = [
     ("homepage", "Internet Homepage"),
     ("prize_fund", "Prize Fund"),
     ("remarks", "Remarks"),
+    ("communication_language", "Language for communication"),
 ]
 
 MANDATORY_ALWAYS = [
@@ -111,7 +112,6 @@ MANDATORY_ALWAYS = [
     "expected_players",
     "tournament_system",
     "rounds_reported",
-    "multiple_round_days",
     "female_only",
     "start_date",
     "end_date",
@@ -126,7 +126,6 @@ MANDATORY_ALWAYS = [
     "all_digital_clocks",
     "tiebreak_method",
     "software",
-    "software_version",
     "contact_email",
     "homepage",
 ]
@@ -234,8 +233,20 @@ def fill_workbook(form_data):
     ws["B8"] = form_data.get("invoice_clubnr", "")
 
     start_row = 10
+    lang_labels = {
+        "nl": "Nederlands (NL)",
+        "fr": "Français (FR)",
+        "de": "Deutsch (DE)",
+        "en": "English (EN)",
+    }
     for index, (field_key, _label) in enumerate(FIDE_FIELDS):
-        ws[f"B{start_row + index}"] = form_data.get(field_key, "")
+        if field_key == "multiple_round_days":
+            val = ""
+        else:
+            val = form_data.get(field_key, "")
+            if field_key == "communication_language" and val in lang_labels:
+                val = lang_labels[val]
+        ws[f"B{start_row + index}"] = val
 
     if (
         form_data.get("tournament_report") == "New long tournament"
@@ -252,6 +263,7 @@ def fill_workbook(form_data):
             n_rounds = int(form_data.get("rounds_reported", 0))
         except ValueError:
             n_rounds = 0
+
         for i in range(1, n_rounds + 1):
             row = i + 1
             ws_rounds[f"A{row}"] = f"Round {i} Date"
@@ -293,26 +305,20 @@ def validate_form(form, lang):
     t_msg = trans["messages"]
     t_fields = trans["fields"]
 
-    if form.get("tournament_report") == "New long tournament":
-        try:
-            n_rounds = int(form.get("rounds_reported") or 0)
-        except ValueError:
-            n_rounds = 0
-        reports = []
-        for i in range(1, n_rounds + 1):
-            rep_val = form.get(f"round{i}_report")
-            if rep_val:
-                reports.append(rep_val)
-        if reports:
-            form["multiple_round_days"] = str(len(reports) - len(set(reports)))
-        else:
-            form["multiple_round_days"] = "0"
+    if not form.get("country"):
+        form["country"] = "BEL"
 
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
             label = t_fields.get(key, key)
             logger.error(f"value required for {label}")
             errors.append(f"{label} {t_msg['value_required']}")
+
+    start_date = form.get("start_date")
+    end_date = form.get("end_date")
+    if start_date and end_date and end_date < start_date:
+        logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
+        errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
@@ -354,14 +360,6 @@ def validate_form(form, lang):
         lang,
         min_value=1,
         max_value=2500,
-    )
-    parse_int(
-        form.get("multiple_round_days"),
-        t_fields.get("multiple_round_days", "Number of multiple round days"),
-        errors,
-        lang,
-        min_value=0,
-        max_value=100,
     )
 
     age_limit = form.get("age_limit")
@@ -431,7 +429,7 @@ def validate_form(form, lang):
             errors.append(
                 f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}"
             )
-        tc_fields = [
+        tc_fields_required = [
             (
                 "timectl1_moves",
                 t_fields.get("timectl1_moves", "Moves to first time control"),
@@ -446,6 +444,24 @@ def validate_form(form, lang):
                     "timectl1_inc_seconds", "Seconds of Increment/Delay (1st control)"
                 ),
             ),
+        ]
+        for key, label in tc_fields_required:
+            if not form.get(key):
+                dep_msg = (
+                    t_msg["value_required_for"]
+                    .replace(
+                        "{dependency}",
+                        t_fields.get("time_control_desc", "Time Control Description"),
+                    )
+                    .replace("{value}", "Other")
+                )
+                logger.error(f"Time Control Description: {key} field missing")
+                errors.append(f"{label} {dep_msg}")
+            else:
+                parse_int(form.get(key), label, errors, lang, min_value=0)
+
+        # 2nd and final time controls are optional
+        tc_fields_optional = [
             (
                 "timectl2_moves",
                 t_fields.get("timectl2_moves", "Moves to second time control"),
@@ -471,31 +487,19 @@ def validate_form(form, lang):
                 ),
             ),
         ]
-        for key, label in tc_fields:
-            if not form.get(key):
-                dep_msg = (
-                    t_msg["value_required_for"]
-                    .replace(
-                        "{dependency}",
-                        t_fields.get("time_control_desc", "Time Control Description"),
-                    )
-                    .replace("{value}", "Other")
-                )
-                logger.error(f"Time Control Description: {key} field missing")
-                errors.append(f"{label} {dep_msg}")
-            else:
+        for key, label in tc_fields_optional:
+            if form.get(key):
                 parse_int(form.get(key), label, errors, lang, min_value=0)
-        for key in ["timectl1_inc_type", "timectl2_inc_type", "timectl_final_inc_type"]:
-            if not form.get(key):
-                dep_msg = (
-                    t_msg["value_required_for"]
-                    .replace(
-                        "{dependency}",
-                        t_fields.get("time_control_desc", "Time Control Description"),
-                    )
-                    .replace("{value}", "Other")
+        if not form.get("timectl1_inc_type"):
+            dep_msg = (
+                t_msg["value_required_for"]
+                .replace(
+                    "{dependency}",
+                    t_fields.get("time_control_desc", "Time Control Description"),
                 )
-                errors.append(f"{t_fields.get(key, key)} {dep_msg}")
+                .replace("{value}", "Other")
+            )
+            errors.append(f"{t_fields.get('timectl1_inc_type', 'timectl1_inc_type')} {dep_msg}")
 
     if form.get("tournament_report") == "New long tournament":
         n = rounds_reported if rounds_reported is not None else 0
@@ -623,11 +627,21 @@ async def generate_fide_form(locale: str, formdata: dict):
     if is_unapproved:
         mail_subject = f"[UNAPPROVED] {mail_subject}"
 
+    comm_lang_map = {
+        "nl": "Nederlands (NL)",
+        "fr": "Français (FR)",
+        "de": "Deutsch (DE)",
+        "en": "English (EN)",
+    }
+    comm_lang_code = form.get("communication_language", locale)
+    comm_lang_display = comm_lang_map.get(comm_lang_code, comm_lang_code.upper() if comm_lang_code else "English (EN)")
+
     mail_body = f"""
     {warning_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
     <p><strong>Clubnummer:</strong> {club_number}</p>
+    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {comm_lang_display}</p>
     <br>
     <p>Groetjes!</p>
     """
@@ -646,8 +660,15 @@ async def generate_fide_form(locale: str, formdata: dict):
         logger.info(
             f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}"
         )
-    except Exception:
+    except Exception as e:
         logger.exception("Failed to send FIDE registration email")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": "Failed to send registration email. Please try again or contact fide@frbe-kbsb-ksb.be directly."
+            }
+        )
 
     # Send confirmation email to invoice_email and contact_email (if provided)
     conf_subject = t_msg.get(

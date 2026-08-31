@@ -9,6 +9,7 @@ frontend/.output
 frontend/dist
 frontend/node_modules/
 frontend/.nuxt/
+dist/
 
 # general
 *.log*

@@ -10,6 +10,7 @@ const route = useRoute()
 const queryLang = route.query.locale || route.query.lang;
 const lang = ref(["en", "nl", "fr"].includes(queryLang) ? queryLang : "en");
 const waitingdialog = ref(false);
+const submitCooldown = ref(false);
 const errorText = ref("");
 const submitted = ref(false);
 
@@ -46,7 +47,7 @@ const form = ref({
   tournament_system: "",
   rounds_reported: "",
   multiple_round_days: "0",
-  female_only: "",
+  female_only: "No",
   start_date: "",
   end_date: "",
   title_norms: "No",
@@ -70,11 +71,12 @@ const form = ref({
   max_rating: "",
   age_limit: "", age_limit_value: "",
   all_digital_clocks: "Yes",
-  internet_tx: "", internet_tx_boards: "",
+  internet_tx: "No", internet_tx_boards: "",
   tiebreak_method: "", tiebreak_other: "",
   software: "", software_other: "", software_version: "",
   pgn_provided: "No",
-  contact_email: "", homepage: "", prize_fund: "", remarks: ""
+  contact_email: "", homepage: "", prize_fund: "", remarks: "",
+  communication_language: ["nl", "fr"].includes(queryLang) ? queryLang : "en"
 });
 
 // Create round fields
@@ -156,6 +158,19 @@ const ratingRequirement = computed(() => {
     return (!isNaN(val) && val < 2400) ? 'ok' : 'require_2400';
   }
   return 'ok';
+});
+
+const isStartDateTooSoon = computed(() => {
+  if (!form.value.start_date) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const parts = form.value.start_date.split('-');
+  if (parts.length !== 3) return false;
+  const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  if (isNaN(start.getTime())) return false;
+  const diffMs = start.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays < 5;
 });
 
 // Helper functions for round dates and FIDE period logic
@@ -281,29 +296,28 @@ function recalculateReportNumbers() {
     form.value.start_date = "";
     form.value.end_date = "";
   }
-
-  // Recalculate multiple round days
-  const reportValues = roundsData
-    .map(r => form.value[`round${r.index}_report`])
-    .filter(Boolean);
-  if (reportValues.length > 0) {
-    const uniqueReports = new Set(reportValues);
-    form.value.multiple_round_days = String(reportValues.length - uniqueReports.size);
-  } else {
-    form.value.multiple_round_days = "0";
-  }
 }
 
-// Watchers
 watch(() => form.value.time_control_code, () => {
   form.value.time_control_desc = "";
+  form.value.timectl_other_desc = "";
+  form.value.timectl1_moves = "";
+  form.value.timectl1_minutes = "";
+  form.value.timectl1_inc_type = "";
+  form.value.timectl1_inc_seconds = "";
+  form.value.timectl2_moves = "";
+  form.value.timectl2_minutes = "";
+  form.value.timectl2_inc_type = "";
+  form.value.timectl2_inc_seconds = "";
+  form.value.timectl_final_minutes = "";
+  form.value.timectl_final_inc_type = "";
+  form.value.timectl_final_inc_seconds = "";
 });
 
 watch(isLongTournament, (isLong) => {
   if (!isLong) {
     form.value.start_date = "";
     form.value.end_date = "";
-    form.value.multiple_round_days = "0";
     for (let i = 1; i <= 40; i++) {
       form.value[`round${i}_date`] = "";
       form.value[`round${i}_report`] = "";
@@ -348,44 +362,104 @@ CACHED_FIELDS.forEach(field => {
 })
 
 const noLicenseArbiters = ref(new Set())
+const arbiterInfo = ref({})
 
-const fide_people_by_id = computed(() => {
-  const map = {}
-  for (const [name, info] of Object.entries(lookups.value.fide_people || {})) {
-    if (info.id) map[String(info.id)] = { ...info, name }
+// Live arbiters search from kbsb-dataplatform API
+const arbiterResults = ref({})
+const arbiterSearching = ref({})
+const arbiterSearchTimers = {}
+const arbiterAbortControllers = {}
+
+function searchArbiter(nameField) {
+  const q = form.value[nameField]
+  clearTimeout(arbiterSearchTimers[nameField])
+  if (arbiterAbortControllers[nameField]) {
+    arbiterAbortControllers[nameField].abort()
   }
-  return map
-})
 
-const fide_ids_list = computed(() => Object.keys(fide_people_by_id.value))
+  if (!q || q.trim().length < 2) {
+    arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
+    return
+  }
 
-function handleFideNameChange(nameField, idField) {
-  const name = form.value[nameField];
-  const info = lookups.value.fide_people[name];
-  const updated = new Set(noLicenseArbiters.value)
-  updated.delete(nameField)
-  if (info) {
-    form.value[idField] = info.id || "";
-    if (info.license && info.license.toLowerCase() === 'no license') {
-      updated.add(nameField)
+  arbiterSearchTimers[nameField] = setTimeout(async () => {
+    arbiterSearching.value = { ...arbiterSearching.value, [nameField]: true }
+    const controller = new AbortController()
+    arbiterAbortControllers[nameField] = controller
+
+    try {
+      const res = await $backend("arbiters", "search", { q, signal: controller.signal })
+      if (form.value[nameField] !== q) return
+      const list = (res && res.data && res.data.arbiters) || []
+      arbiterResults.value = { ...arbiterResults.value, [nameField]: list.slice(0, 8) }
+    } catch (error) {
+      if (error.name !== 'CanceledError' && error.code !== 'ERR_CANCELED') {
+        console.error(error)
+        if (form.value[nameField] === q) {
+          arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
+        }
+      }
+    } finally {
+      if (form.value[nameField] === q) {
+        arbiterSearching.value = { ...arbiterSearching.value, [nameField]: false }
+      }
     }
+  }, 120)
+}
+
+function selectArbiter(nameField, idField, arbiter) {
+  form.value[nameField] = arbiter.name
+  form.value[idField] = String(arbiter.fide_id)
+  arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
+  
+  // Store badge info (e.g. IA-B, NA, etc.) for UI display only
+  const badge = arbiter.license || arbiter.title || ''
+  arbiterInfo.value = { ...arbiterInfo.value, [nameField]: badge }
+
+  const updated = new Set(noLicenseArbiters.value)
+  if (!arbiter.licensed || !arbiter.active) {
+    updated.add(nameField)
+  } else {
+    updated.delete(nameField)
   }
   noLicenseArbiters.value = updated
 }
 
-function handleFideIdChange(nameField, idField) {
-  const id = String(form.value[idField] || '').trim()
-  if (!id) return
-  const info = fide_people_by_id.value[id]
-  const updated = new Set(noLicenseArbiters.value)
-  updated.delete(nameField)
-  if (info) {
-    form.value[nameField] = info.name || ""
-    if (info.license && info.license.toLowerCase() === 'no license') {
-      updated.add(nameField)
-    }
+function hideArbiterResults(nameField) {
+  // Delay slightly so click event on dropdown item registers
+  setTimeout(() => {
+    arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
+  }, 200)
+}
+
+function selectTopArbiterResult(nameField, idField) {
+  const results = arbiterResults.value[nameField]
+  if (results && results.length) {
+    selectArbiter(nameField, idField, results[0])
   }
-  noLicenseArbiters.value = updated
+}
+
+async function lookupArbiterById(nameField, idField) {
+  const id = String(form.value[idField] || '').trim()
+  if (!id || !/^\d+$/.test(id)) return
+  try {
+    const res = await $backend("arbiters", "lookup", { fide_id: id })
+    if (res && res.data && res.data.success && res.data.arbiter) {
+      const arb = res.data.arbiter
+      form.value[nameField] = arb.name
+      const badge = arb.license || arb.title || ''
+      arbiterInfo.value = { ...arbiterInfo.value, [nameField]: badge }
+      const updated = new Set(noLicenseArbiters.value)
+      if (!arb.licensed || !arb.active) {
+        updated.add(nameField)
+      } else {
+        updated.delete(nameField)
+      }
+      noLicenseArbiters.value = updated
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 // Organizer name/ID autofill: unlike arbiters (small local xlsx list, see
@@ -396,37 +470,44 @@ function handleFideIdChange(nameField, idField) {
 const organizerResults = ref({})
 const organizerSearching = ref({})
 const organizerSearchTimers = {}
+const organizerAbortControllers = {}
 
 function searchOrganizer(nameField) {
   const q = form.value[nameField]
   clearTimeout(organizerSearchTimers[nameField])
-  if (!q || q.trim().length < 3) {
+  if (organizerAbortControllers[nameField]) {
+    organizerAbortControllers[nameField].abort()
+  }
+
+  // 1.9M records: 3 chars causes an expensive 4-second full trigram scan. 4+ chars is sub-second.
+  if (!q || q.trim().length < 4) {
     organizerResults.value = { ...organizerResults.value, [nameField]: [] }
     return
   }
+
   organizerSearchTimers[nameField] = setTimeout(async () => {
     organizerSearching.value = { ...organizerSearching.value, [nameField]: true }
+    const controller = new AbortController()
+    organizerAbortControllers[nameField] = controller
+
     try {
-      const res = await $backend("players_fide", "search", { q })
-      // A slower earlier keystroke's response can resolve after a later one
-      // (e.g. typing "jor" then quickly continuing to "jorian" fires two
-      // overlapping requests) -- only apply this response if the field
-      // still holds the query that triggered it, otherwise it clobbers
-      // fresher results and the dropdown visibly flickers/settles late.
+      const res = await $backend("players_fide", "search", { q, signal: controller.signal })
       if (form.value[nameField] !== q) return
       const players = (res && res.data && res.data.players) || []
       organizerResults.value = { ...organizerResults.value, [nameField]: players.slice(0, 8) }
     } catch (error) {
-      console.error(error)
-      if (form.value[nameField] === q) {
-        organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+      if (error.name !== 'CanceledError' && error.code !== 'ERR_CANCELED') {
+        console.error(error)
+        if (form.value[nameField] === q) {
+          organizerResults.value = { ...organizerResults.value, [nameField]: [] }
+        }
       }
     } finally {
       if (form.value[nameField] === q) {
         organizerSearching.value = { ...organizerSearching.value, [nameField]: false }
       }
     }
-  }, 300)
+  }, 180)
 }
 
 function selectOrganizer(nameField, idField, player) {
@@ -477,40 +558,7 @@ async function loadFormData() {
   }
 }
 
-async function submitForm() {
-  if (ratingRequirement.value !== 'ok') {
-    let confirmKey = '';
-    if (ratingRequirement.value === 'not_rateable') confirmKey = 'fide_under_60_confirm';
-    else if (ratingRequirement.value === 'require_1800') confirmKey = 'fide_under_90_confirm';
-    else if (ratingRequirement.value === 'require_2400') confirmKey = 'fide_under_120_confirm';
-    
-    if (confirmKey) {
-      const proceed = confirm(tMsg(confirmKey));
-      if (!proceed) return;
-    }
-  }
-  waitingdialog.value = true;
-  errorText.value = "";
-  try {
-    const response = await $backend("fide", "generate", {
-      locale: lang.value,
-      formdata: form.value,
-    })
-    console.log("reponse on generate", response)
-    submitted.value = true;
-    if (process.client) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-  } catch (error) {
-    console.error(error);
-    errorText.value = "Error submitting form";
-  } finally {
-    waitingdialog.value = false;
-  }
-}
-
-function resetForm() {
+function clearFormData() {
   form.value = {
     invoice_email: "",
     invoice_clubnr: "",
@@ -526,7 +574,7 @@ function resetForm() {
     tournament_system: "",
     rounds_reported: "",
     multiple_round_days: "0",
-    female_only: "",
+    female_only: "No",
     start_date: "",
     end_date: "",
     title_norms: "No",
@@ -550,16 +598,77 @@ function resetForm() {
     max_rating: "",
     age_limit: "", age_limit_value: "",
     all_digital_clocks: "Yes",
-    internet_tx: "", internet_tx_boards: "",
+    internet_tx: "No", internet_tx_boards: "",
     tiebreak_method: "", tiebreak_other: "",
     software: "", software_other: "", software_version: "",
     pgn_provided: "No",
-    contact_email: "", homepage: "", prize_fund: "", remarks: ""
+    contact_email: "", homepage: "", prize_fund: "", remarks: "",
+    communication_language: ["nl", "fr"].includes(queryLang) ? queryLang : "en"
   };
   for (let i = 1; i <= 100; i++) {
     form.value[`round${i}_date`] = "";
     form.value[`round${i}_report`] = "";
   }
+  // Restore cached organizer/club defaults
+  CACHED_FIELDS.forEach(field => {
+    const cached = localStorage.getItem(`fide_${field}`)
+    if (cached !== null) form.value[field] = cached
+  })
+}
+
+async function submitForm() {
+  if (waitingdialog.value || submitCooldown.value) return;
+
+  if (form.value.start_date && form.value.end_date && form.value.end_date < form.value.start_date) {
+    errorText.value = tMsg('end_date_order_error');
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    return;
+  }
+
+  if (ratingRequirement.value !== 'ok') {
+    let confirmKey = '';
+    if (ratingRequirement.value === 'not_rateable') confirmKey = 'fide_under_60_confirm';
+    else if (ratingRequirement.value === 'require_1800') confirmKey = 'fide_under_90_confirm';
+    else if (ratingRequirement.value === 'require_2400') confirmKey = 'fide_under_120_confirm';
+    
+    if (confirmKey) {
+      const proceed = confirm(tMsg(confirmKey));
+      if (!proceed) return;
+    }
+  }
+  waitingdialog.value = true;
+  submitCooldown.value = true;
+  errorText.value = "";
+  try {
+    const response = await $backend("fide", "generate", {
+      locale: lang.value,
+      formdata: form.value,
+    })
+    console.log("response on generate", response)
+    // Clear the form data immediately on success so it cannot be resubmitted
+    clearFormData();
+    submitted.value = true;
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+  } catch (error) {
+    console.error(error);
+    const msg = error?.message || error?.response?.data?.message;
+    errorText.value = msg || "Error submitting form. The registration email could not be sent. Please try again or contact fide@frbe-kbsb-ksb.be.";
+  } finally {
+    waitingdialog.value = false;
+    // 5-second cooldown to guard against fast re-submits
+    setTimeout(() => {
+      submitCooldown.value = false;
+    }, 5000);
+  }
+}
+
+function resetForm() {
+  clearFormData();
   submitted.value = false;
 }
 onMounted(() => {
@@ -628,6 +737,17 @@ definePageMeta({
         <span class="required-label">{{ tField('invoice_clubnr') }}</span>
         <input type="text" v-model="form.invoice_clubnr" required>
       </label>
+      <label>
+        <span class="required-label">{{ tField('communication_language') }}</span>
+        <select v-model="form.communication_language" required>
+          <option value="nl">Nederlands</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+        </select>
+        <span style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('communication_language_hint') }}
+        </span>
+      </label>
 
       <div class="group-title">{{ tCat('tournament_info') }}</div>
       <p class="note" style="margin-top: 0.5rem; margin-bottom: 1rem; font-style: italic;">{{ tUI('fide_laws_note') }}</p>
@@ -667,18 +787,20 @@ definePageMeta({
         <div v-if="eventNameHasIllegalChars" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
           ⚠ Illegal characters detected. Only letters A–Z, numbers, and spaces are allowed.
         </div>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('event_name_hint') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('city') }}</span>
         <input type="text" v-model="form.city" required>
       </label>
       <label>
-        <span class="required-label">{{ tField('country') }}</span>
-        <input type="text" v-model="form.country" required>
-      </label>
-      <label>
         <span class="required-label">{{ tField('expected_players') }}</span>
         <input type="number" v-model="form.expected_players" min="1" max="2500" required>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('expected_players_hint') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('tournament_system') }}</span>
@@ -692,13 +814,11 @@ definePageMeta({
         <input type="number" v-model="form.rounds_reported" min="0" max="40" required>
       </label>
       
-      <label v-if="!isLongTournament">
-        <span class="required-label">{{ tField('multiple_round_days') }}</span>
-        <input type="number" v-model="form.multiple_round_days" min="0" max="100" required>
-      </label>
-
       <div v-if="isLongTournament" id="long-tournament-block">
         <div class="group-title">{{ tCat('long_tournament_rounds') }}</div>
+        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0.5rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_5days_warning') }}
+        </div>
         <div id="rounds-container">
           <div class="round-row active" v-for="i in roundsCount" :key="i">
             <label>
@@ -714,9 +834,6 @@ definePageMeta({
             </label>
           </div>
         </div>
-        <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-weight: 500; font-size: 0.95rem; color: var(--accent);">
-          {{ tField('multiple_round_days') }}: {{ form.multiple_round_days }}
-        </div>
       </div>
 
       <label>
@@ -729,10 +846,16 @@ definePageMeta({
       <label v-if="!isLongTournament">
         <span class="required-label">{{ tField('start_date') }}</span>
         <input type="date" v-model="form.start_date" required>
+        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_5days_warning') }}
+        </div>
       </label>
       <label v-if="!isLongTournament">
         <span class="required-label">{{ tField('end_date') }}</span>
-        <input type="date" v-model="form.end_date" required>
+        <input type="date" v-model="form.end_date" :min="form.start_date" required>
+        <div v-if="form.start_date && form.end_date && form.end_date < form.start_date" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tMsg('end_date_order_error') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('title_norms') }}</span>
@@ -753,31 +876,67 @@ definePageMeta({
 
       <div class="person-row">
         <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span>
-          <input type="text" v-model="form.chief_arbiter_fide_id" list="fideIds" @change="handleFideIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" @input="handleFideIdChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+          <input type="text" v-model="form.chief_arbiter_fide_id" @blur="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" @keydown.enter.prevent="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
         </label>
-        <label><span class="required-label">{{ tField('chief_arbiter_name') }}</span>
-          <input type="text" v-model="form.chief_arbiter_name" list="fideNames" @change="handleFideNameChange('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
-          <span v-if="noLicenseArbiters.has('chief_arbiter_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label style="position: relative;">
+          <span class="required-label">
+            {{ tField('chief_arbiter_name') }}
+            <span v-if="arbiterSearching['chief_arbiter_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.chief_arbiter_name" autocomplete="off" @input="searchArbiter('chief_arbiter_name')" @blur="hideArbiterResults('chief_arbiter_name')" @keydown.enter.prevent="selectTopArbiterResult('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+            <span v-if="arbiterInfo['chief_arbiter_name'] && !noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill">{{ arbiterInfo['chief_arbiter_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['chief_arbiter_name'] && arbiterResults['chief_arbiter_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['chief_arbiter_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('chief_arbiter_name', 'chief_arbiter_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
 
       <div class="person-row">
         <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" list="fideIds" @change="handleFideIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @input="handleFideIdChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" @blur="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
         </label>
-        <label><span>{{ tField('dep_chief_arbiter1_name') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter1_name" list="fideNames" @change="handleFideNameChange('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
-          <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label style="position: relative;">
+          <span>
+            {{ tField('dep_chief_arbiter1_name') }}
+            <span v-if="arbiterSearching['dep_chief_arbiter1_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.dep_chief_arbiter1_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter1_name')" @blur="hideArbiterResults('dep_chief_arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+            <span v-if="arbiterInfo['dep_chief_arbiter1_name'] && !noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter1_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['dep_chief_arbiter1_name'] && arbiterResults['dep_chief_arbiter1_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['dep_chief_arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
 
       <div class="person-row">
         <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" list="fideIds" @change="handleFideIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @input="handleFideIdChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" @blur="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
         </label>
-        <label><span>{{ tField('dep_chief_arbiter2_name') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter2_name" list="fideNames" @change="handleFideNameChange('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
-          <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label style="position: relative;">
+          <span>
+            {{ tField('dep_chief_arbiter2_name') }}
+            <span v-if="arbiterSearching['dep_chief_arbiter2_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.dep_chief_arbiter2_name" autocomplete="off" @input="searchArbiter('dep_chief_arbiter2_name')" @blur="hideArbiterResults('dep_chief_arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+            <span v-if="arbiterInfo['dep_chief_arbiter2_name'] && !noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter2_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['dep_chief_arbiter2_name'] && arbiterResults['dep_chief_arbiter2_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['dep_chief_arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
 
@@ -790,35 +949,79 @@ definePageMeta({
       </label>
 
       <div class="person-row">
-        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" list="fideIds" @change="handleFideIdChange('arbiter1_name', 'arbiter1_fide_id')" @input="handleFideIdChange('arbiter1_name', 'arbiter1_fide_id')"></label>
-        <label>
-          <span>{{ tField('arbiter1_name') }}</span>
-          <input type="text" v-model="form.arbiter1_name" list="fideNames" @change="handleFideNameChange('arbiter1_name', 'arbiter1_fide_id')">
-          <span v-if="noLicenseArbiters.has('arbiter1_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" @blur="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')"></label>
+        <label style="position: relative;">
+          <span>
+            {{ tField('arbiter1_name') }}
+            <span v-if="arbiterSearching['arbiter1_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter1_name" autocomplete="off" @input="searchArbiter('arbiter1_name')" @blur="hideArbiterResults('arbiter1_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter1_name', 'arbiter1_fide_id')">
+            <span v-if="arbiterInfo['arbiter1_name'] && !noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['arbiter1_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['arbiter1_name'] && arbiterResults['arbiter1_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter1_name', 'arbiter1_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" list="fideIds" @change="handleFideIdChange('arbiter2_name', 'arbiter2_fide_id')" @input="handleFideIdChange('arbiter2_name', 'arbiter2_fide_id')"></label>
-        <label>
-          <span>{{ tField('arbiter2_name') }}</span>
-          <input type="text" v-model="form.arbiter2_name" list="fideNames" @change="handleFideNameChange('arbiter2_name', 'arbiter2_fide_id')">
-          <span v-if="noLicenseArbiters.has('arbiter2_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" @blur="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')"></label>
+        <label style="position: relative;">
+          <span>
+            {{ tField('arbiter2_name') }}
+            <span v-if="arbiterSearching['arbiter2_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter2_name" autocomplete="off" @input="searchArbiter('arbiter2_name')" @blur="hideArbiterResults('arbiter2_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter2_name', 'arbiter2_fide_id')">
+            <span v-if="arbiterInfo['arbiter2_name'] && !noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['arbiter2_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['arbiter2_name'] && arbiterResults['arbiter2_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter2_name', 'arbiter2_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" list="fideIds" @change="handleFideIdChange('arbiter3_name', 'arbiter3_fide_id')" @input="handleFideIdChange('arbiter3_name', 'arbiter3_fide_id')"></label>
-        <label>
-          <span>{{ tField('arbiter3_name') }}</span>
-          <input type="text" v-model="form.arbiter3_name" list="fideNames" @change="handleFideNameChange('arbiter3_name', 'arbiter3_fide_id')">
-          <span v-if="noLicenseArbiters.has('arbiter3_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" @blur="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')"></label>
+        <label style="position: relative;">
+          <span>
+            {{ tField('arbiter3_name') }}
+            <span v-if="arbiterSearching['arbiter3_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter3_name" autocomplete="off" @input="searchArbiter('arbiter3_name')" @blur="hideArbiterResults('arbiter3_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter3_name', 'arbiter3_fide_id')">
+            <span v-if="arbiterInfo['arbiter3_name'] && !noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill">{{ arbiterInfo['arbiter3_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['arbiter3_name'] && arbiterResults['arbiter3_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['arbiter3_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter3_name', 'arbiter3_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" list="fideIds" @change="handleFideIdChange('arbiter4_name', 'arbiter4_fide_id')" @input="handleFideIdChange('arbiter4_name', 'arbiter4_fide_id')"></label>
-        <label>
-          <span>{{ tField('arbiter4_name') }}</span>
-          <input type="text" v-model="form.arbiter4_name" list="fideNames" @change="handleFideNameChange('arbiter4_name', 'arbiter4_fide_id')">
-          <span v-if="noLicenseArbiters.has('arbiter4_name')" style="color: var(--error); font-size: 0.85rem; font-weight: 700;">⚠ No license</span>
+        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" @blur="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')"></label>
+        <label style="position: relative;">
+          <span>
+            {{ tField('arbiter4_name') }}
+            <span v-if="arbiterSearching['arbiter4_name']" class="organizer-searching-hint">…</span>
+          </span>
+          <div class="input-with-badge">
+            <input type="text" v-model="form.arbiter4_name" autocomplete="off" @input="searchArbiter('arbiter4_name')" @blur="hideArbiterResults('arbiter4_name')" @keydown.enter.prevent="selectTopArbiterResult('arbiter4_name', 'arbiter4_fide_id')">
+            <span v-if="arbiterInfo['arbiter4_name'] && !noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill">{{ arbiterInfo['arbiter4_name'] }}</span>
+            <span v-if="noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill no-license">⚠ No license</span>
+          </div>
+          <ul v-if="arbiterResults['arbiter4_name'] && arbiterResults['arbiter4_name'].length" class="organizer-dropdown">
+            <li v-for="a in arbiterResults['arbiter4_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter4_name', 'arbiter4_fide_id', a)">
+              {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
+            </li>
+          </ul>
         </label>
       </div>
 
@@ -884,7 +1087,7 @@ definePageMeta({
           <option v-for="t in lookups.time_control_types" :key="t" :value="t">{{ t }}</option>
         </select>
       </label>
-      <label>
+      <label v-if="form.time_control_code">
         <span class="required-label">{{ tField('time_control_desc') }}</span>
         <select v-model="form.time_control_desc" required>
           <option value="">{{ tUI('select_placeholder') }}</option>
@@ -905,24 +1108,24 @@ definePageMeta({
         </label>
         <label><span class="required-label">{{ tField('timectl1_inc_seconds') }}</span><input type="number" v-model="form.timectl1_inc_seconds" min="0" required></label>
         
-        <label><span class="required-label">{{ tField('timectl2_moves') }}</span><input type="number" v-model="form.timectl2_moves" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl2_minutes') }}</span><input type="number" v-model="form.timectl2_minutes" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl2_inc_type') }}</span>
-          <select v-model="form.timectl2_inc_type" required>
+        <label><span>{{ tField('timectl2_moves') }}</span><input type="number" v-model="form.timectl2_moves" min="0"></label>
+        <label><span>{{ tField('timectl2_minutes') }}</span><input type="number" v-model="form.timectl2_minutes" min="0"></label>
+        <label><span>{{ tField('timectl2_inc_type') }}</span>
+          <select v-model="form.timectl2_inc_type">
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
         </label>
-        <label><span class="required-label">{{ tField('timectl2_inc_seconds') }}</span><input type="number" v-model="form.timectl2_inc_seconds" min="0" required></label>
+        <label><span>{{ tField('timectl2_inc_seconds') }}</span><input type="number" v-model="form.timectl2_inc_seconds" min="0"></label>
         
-        <label><span class="required-label">{{ tField('timectl_final_minutes') }}</span><input type="number" v-model="form.timectl_final_minutes" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl_final_inc_type') }}</span>
-          <select v-model="form.timectl_final_inc_type" required>
+        <label><span>{{ tField('timectl_final_minutes') }}</span><input type="number" v-model="form.timectl_final_minutes" min="0"></label>
+        <label><span>{{ tField('timectl_final_inc_type') }}</span>
+          <select v-model="form.timectl_final_inc_type">
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
         </label>
-        <label><span class="required-label">{{ tField('timectl_final_inc_seconds') }}</span><input type="number" v-model="form.timectl_final_inc_seconds" min="0" required></label>
+        <label><span>{{ tField('timectl_final_inc_seconds') }}</span><input type="number" v-model="form.timectl_final_inc_seconds" min="0"></label>
       </div>
 
       <div class="group-title">{{ tCat('other_parameters') }}</div>
@@ -990,7 +1193,7 @@ definePageMeta({
         <span class="required-label">{{ tField('software_other') }}</span><input type="text" v-model="form.software_other" required>
       </label>
 
-      <label><span class="required-label">{{ tField('software_version') }}</span><input type="text" v-model="form.software_version" required></label>
+      <label><span>{{ tField('software_version') }}</span><input type="text" v-model="form.software_version"></label>
       
       <label>
         <span>{{ tField('pgn_provided') }}</span>
@@ -1015,16 +1218,9 @@ definePageMeta({
       <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
-      <button type="submit">{{ tUI('export_btn') }}</button>
-
-      <datalist id="fideNames">
-        <option v-for="name in lookups.fide_names" :key="name" :value="name"></option>
-      </datalist>
-      <datalist id="fideIds">
-        <option v-for="id in fide_ids_list" :key="id" :value="id">
-          {{ fide_people_by_id[id]?.name || '' }}
-        </option>
-      </datalist>
+      <button type="submit" :disabled="waitingdialog || submitCooldown">
+        {{ waitingdialog ? '...' : (submitCooldown ? 'Submitted' : tUI('export_btn')) }}
+      </button>
     </form>
   </div>
 </template>
@@ -1114,7 +1310,11 @@ button[type="submit"] {
   color: #ffffff;
   cursor: pointer;
 }
-button[type="submit"]:hover { background-color: var(--accent-dark, #1b5e20); }
+button[type="submit"]:hover:not(:disabled) { background-color: var(--accent-dark, #1b5e20); }
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -1151,6 +1351,35 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
   color: var(--muted, #4b5563);
   font-weight: 400;
   margin-left: 0.3rem;
+}
+.input-with-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-badge input {
+  padding-right: 4.5rem;
+}
+.arbiter-pill {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--accent-dark, #1b5e20);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: var(--accent-soft, #e8f5e9);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(46, 125, 50, 0.25);
+  line-height: 1;
+}
+.arbiter-pill.no-license {
+  color: var(--error, #b91c1c);
+  background: #fef2f2;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+  font-size: 0.75rem;
 }
 
 @media (max-width: 640px) {

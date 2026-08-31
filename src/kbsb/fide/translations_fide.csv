@@ -1,0 +1,148 @@
+section,key,en,nl,fr
+ui,title,Fide Registration Form,Fide Registration Form,Fide Registration Form
+ui,dark_mode,Dark mode,Donkere modus,Mode sombre
+ui,light_mode,Light mode,Lichte modus,Mode clair
+ui,mandatory_note,Fields in bold are mandatory. Fields that appear only for certain options are mandatory whenever they are shown.,Velden in het vet zijn verplicht. Velden die enkel verschijnen voor specifieke opties zijn verplicht zodra ze getoond worden.,Les champs en gras sont obligatoires. Les champs qui n'apparaissent que pour certaines options sont obligatoires lorsqu'ils sont affichés.
+ui,dark_mode_note,"In dark mode, mandatory fields also have a light blue bar on the left.",In donkere modus hebben verplichte velden ook een lichtblauwe balk aan de linkerkant.,"En mode sombre, les champs obligatoires ont également une barre bleu clair sur la gauche."
+ui,export_btn,Submit,Indienen,Soumettre
+ui,select_placeholder,--select--,--selecteer--,--sélectionner--
+ui,more_arbiters_note,"If there are more than 4 arbiters, mention so in the Remarks at the end of the form.","Als er meer dan 4 arbiters zijn, vermeld dit dan in de Opmerkingen aan het einde van het formulier.","S'il y a plus de 4 arbitres, veuillez le mentionner dans les remarques à la fin du formulaire."
+ui,fide_laws_note,By filling in the form you accept that FIDE Laws will be followed.,"Door dit formulier in te vullen, accepteert u dat de FIDE-regels worden gevolgd.","En remplissant le formulaire, vous acceptez que les règles de la FIDE soient suivies."
+ui,submitted_title,Form Submitted Successfully!,Formulier succesvol verzonden!,Formulaire soumis avec succès !
+ui,submitted_msg,"The FIDE registration form has been successfully sent to fide@frbe-kbsb-ksb.be. Please note: your tournament registration is only officially confirmed once you receive your confirmation email. If you do not receive a confirmation email within 24 hours, please contact fide@frbe-kbsb-ksb.be.","Het FIDE-registratieformulier is succesvol verzonden naar fide@frbe-kbsb-ksb.be. Let op: uw toernooiregistratie is pas officieel geldig zodra u de bevestigingsmail hebt ontvangen. Hebt u binnen 24 uur geen mail ontvangen, neem dan contact op via fide@frbe-kbsb-ksb.be.","Le formulaire d'inscription FIDE a été envoyé avec succès à fide@frbe-kbsb-ksb.be. Attention : l'enregistrement de votre tournoi n'est officiellement validé qu'une fois l'e-mail de confirmation reçu. Si vous ne recevez pas de confirmation d'ici 24h, veuillez contacter fide@frbe-kbsb-ksb.be."
+ui,back_btn,Back to form,Terug naar het formulier,Retour au formulaire
+ui,fide_under_60_warning,Warning: This standard pace total time is less than 60 minutes. It is NOT rateable under FIDE regulations.,Waarschuwing: Bij dit standaardtempo is de totale speeltijd korter dan 60 minuten. Dit is NIET te homologeren volgens FIDE-regels.,"Attention : À cette cadence standard, le temps total de jeu est inférieur à 60 minutes. Ce tournoi n'est PAS homologable selon les règles FIDE."
+ui,fide_under_90_warning,"Warning: At this standard pace (< 90 min), the Max Rating field must be filled in with a value less than 1800.",Waarschuwing: Bij dit standaardtempo (< 90 min) moet de maximale rating ingevuld zijn met een waarde kleiner dan 1800.,"Attention : À cette cadence standard (< 90 min), le classement maximum doit être renseigné avec une valeur inférieure à 1800."
+ui,fide_under_120_warning,"Warning: At this standard pace (< 120 min), the Max Rating field must be filled in with a value less than 2400.",Waarschuwing: Bij deze standaard bedenktijd (< 120 min) moet het veld Maximale rating worden ingevuld met een waarde lager dan 2400.,"Attention : À cette cadence standard (< 120 min), le champ Classement maximum doit être renseigné avec une valeur inférieure à 2400."
+ui,event_name_hint,"Make sure to include a differentiating name with the year and your club (e.g. Club Championship 2026 SK Deurne).","Zorg voor een onderscheidende naam met het jaartal en uw club (bijv. Clubkampioenschap 2026 SK Deurne).","Veillez à inclure un nom distinctif avec l'année et votre club (ex. Championnat de club 2026 SK Deurne)."
+ui,expected_players_hint,"Does not have to be exact, but an estimate / fair guess.","Hoeft niet exact te zijn, maar een realistische schatting.","Ne doit pas être exact, mais une estimation réaliste."
+ui,start_date_5days_warning,"Warning: Start date is less than 5 days away. FIDE registrations should ideally be submitted well in advance.","Waarschuwing: De startdatum is binnen minder dan 5 dagen. FIDE-registraties moeten tijdig worden ingediend.","Attention : La date de début est dans moins de 5 jours. Les inscriptions FIDE doivent idéalement être soumises bien à l'avance."
+ui,communication_language_hint,This language is used for official communications and confirmation emails.,Deze taal wordt gebruikt voor officiële communicatie en bevestigingsmails.,Cette langue est utilisée pour les communications officielles et les e-mails de confirmation.
+categories,tournament_info,Tournament Info,Toernooi-informatie,Informations sur le tournoi
+categories,long_tournament_rounds,New long tournament rounds,Rondes voor nieuw lang toernooi,Rondes pour nouveau tournoi long
+categories,arbiters,Arbiters,Arbiters,Arbiters
+categories,organizers,Organizers,Organizers,Organizers
+categories,time_control,Time Control,Bedenktijd,Contrôle du temps
+categories,other_parameters,Other Parameters,Overige parameters,Autres paramètres
+fields,invoice_email,E-mailaddress (for communication and invoicing reasons),E-mailadres (voor communicatie en facturatie),Adresse e-mail (pour des raisons de communication et de facturation)
+fields,invoice_clubnr,Clubnr.,Clubnummer,Numéro de club
+fields,fide_laws_followed,Will FIDE Laws be followed?,Worden de FIDE-regels gevolgd?,Les règles de la FIDE seront-elles suivies ?
+fields,national_championship_143a,National Championship 1.43a,Nationaal Kampioenschap 1.43a,Championnat national 1.43a
+fields,on_fide_calendar,Is information on FIDE Calendar?,Staat de informatie op de FIDE-kalender?,L'information est-elle sur le calendrier FIDE ?
+fields,tournament_report,Tournament report,Toernooiverslag (Tournament report),Rapport de tournoi (Tournament report)
+fields,tournament_type,Tournament type,Type toernooi,Type de tournoi
+fields,tournament_system,Tournament system,Toernooisysteem,Système de tournoi
+fields,event_name,Event Name,Naam van het evenement,Nom de l'événement
+fields,city,City,Stad,Ville
+fields,country,Country,Land,Pays
+fields,expected_players,Expected number of players,Verwacht aantal spelers,Nombre attendu de joueurs
+fields,rounds_reported,Number of rounds,Aantal ronden,Nombre de rondes
+fields,multiple_round_days,Number of multiple round days,Aantal dagen met meerdere ronden,Nombre de jours avec plusieurs rondes
+fields,female_only,Female players only,Alleen vrouwelijke spelers,Joueuses féminines uniquement
+fields,start_date,Start Date,Startdatum,Date de début
+fields,end_date,End Date,Einddatum,Date de fin
+fields,title_norms,Title Norms available,Titelnormen beschikbaar,Normes de titre disponibles
+fields,gm_wgm_norms,GM/WGM Norms available,GM/WGM-normen beschikbaar,Normes GM/WGM disponibles
+fields,chief_arbiter_name,Chief Arbiter Name,Chief Arbiter Name,Chief Arbiter Name
+fields,chief_arbiter_fide_id,Chief Arbiter FIDE-ID,Chief Arbiter FIDE-ID,Chief Arbiter FIDE-ID
+fields,dep_chief_arbiter1_name,Deputy Chief Arbiter 1 Name,Deputy Chief Arbiter 1 Name,Deputy Chief Arbiter 1 Name
+fields,dep_chief_arbiter1_fide_id,Deputy Chief Arbiter 1 FIDE-ID,Deputy Chief Arbiter 1 FIDE-ID,Deputy Chief Arbiter 1 FIDE-ID
+fields,dep_chief_arbiter2_name,Deputy Chief Arbiter 2 Name,Deputy Chief Arbiter 2 Name,Deputy Chief Arbiter 2 Name
+fields,dep_chief_arbiter2_fide_id,Deputy Chief Arbiter 2 FIDE-ID,Deputy Chief Arbiter 2 FIDE-ID,Deputy Chief Arbiter 2 FIDE-ID
+fields,kind_of_arbiters,Kind of Arbiters,Kind of Arbiters,Kind of Arbiters
+fields,arbiter1_name,Arbiter 1 Name,Arbiter 1 Name,Arbiter 1 Name
+fields,arbiter1_fide_id,Arbiter 1 FIDE-ID,Arbiter 1 FIDE-ID,Arbiter 1 FIDE-ID
+fields,arbiter2_name,Arbiter 2 Name,Arbiter 2 Name,Arbiter 2 Name
+fields,arbiter2_fide_id,Arbiter 2 FIDE-ID,Arbiter 2 FIDE-ID,Arbiter 2 FIDE-ID
+fields,arbiter3_name,Arbiter 3 Name,Arbiter 3 Name,Arbiter 3 Name
+fields,arbiter3_fide_id,Arbiter 3 FIDE-ID,Arbiter 3 FIDE-ID,Arbiter 3 FIDE-ID
+fields,arbiter4_name,Arbiter 4 Name,Arbiter 4 Name,Arbiter 4 Name
+fields,arbiter4_fide_id,Arbiter 4 FIDE-ID,Arbiter 4 FIDE-ID,Arbiter 4 FIDE-ID
+fields,chief_organizer_name,Chief Organizer Name,Chief Organizer Name,Chief Organizer Name
+fields,chief_organizer_fide_id,Chief Organizer FIDE-ID,Chief Organizer FIDE-ID,Chief Organizer FIDE-ID
+fields,organizer1_name,Organizer 1 Name,Organizer 1 Name,Organizer 1 Name
+fields,organizer1_fide_id,Organizer 1 FIDE-ID,Organizer 1 FIDE-ID,Organizer 1 FIDE-ID
+fields,organizer2_name,Organizer 2 Name,Organizer 2 Name,Organizer 2 Name
+fields,organizer2_fide_id,Organizer 2 FIDE-ID,Organizer 2 FIDE-ID,Organizer 2 FIDE-ID
+fields,organizer3_name,Organizer 3 Name,Organizer 3 Name,Organizer 3 Name
+fields,organizer3_fide_id,Organizer 3 FIDE-ID,Organizer 3 FIDE-ID,Organizer 3 FIDE-ID
+fields,time_control_code,Time Control,Bedenktijd,Cadence de jeu
+fields,time_control_desc,Time Control Description,Omschrijving bedenktijd,Description de la cadence
+fields,timectl_other_desc,Time Control Description if not listed,Omschrijving bedenktijd indien niet in de lijst,Description de la cadence si non répertoriée
+fields,timectl1_moves,Moves to first time control,Zetten tot eerste tijdscontrole,Coups pour le premier contrôle
+fields,timectl1_minutes,Minutes to first time control,Minuten tot eerste tijdscontrole,Minutes pour le premier contrôle
+fields,timectl1_inc_type,Increment/Delay (1st control),Increment/Delay (1e controle),Incrément/Délai (1er contrôle)
+fields,timectl1_inc_seconds,Seconds of Increment/Delay (1st control),Seconden Increment/Delay (1e controle),Secondes d'incrément/délai (1er contrôle)
+fields,timectl2_moves,Moves to second time control,Zetten tot tweede tijdscontrole,Coups pour le second contrôle
+fields,timectl2_minutes,Minutes to second time control,Minuten tot tweede tijdscontrole,Minutes pour le second contrôle
+fields,timectl2_inc_type,Increment/Delay (2nd control),Increment/Delay (2e controle),Incrément/Délai (2nd contrôle)
+fields,timectl2_inc_seconds,Seconds of Increment/Delay (2nd control),Seconden Increment/Delay (2e controle),Secondes d'incrément/délai (2nd contrôle)
+fields,timectl_final_minutes,Minutes for final session,Minuten voor de finale sessie,Minutes pour la session finale
+fields,timectl_final_inc_type,Increment/Delay (final),Increment/Delay (finale),Incrément/Délai (finale)
+fields,timectl_final_inc_seconds,Seconds of Increment/Delay (final),Seconden Increment/Delay (finale),Secondes d'incrément/délai (finale)
+fields,max_rating,Max Rating,Maximale rating,Classement maximum
+fields,age_limit,Age Limit,Leeftijdsgrens,Limite d'âge
+fields,age_limit_value,Age Limit Value,Waarde leeftijdsgrens,Valeur de la limite d'âge
+fields,all_digital_clocks,All Digital Clocks,Allemaal digitale klokken,Toutes pendules électroniques
+fields,internet_tx,Internet Transmission,Internettransmissie,Transmission Internet
+fields,internet_tx_boards,Enter number of boards,Aantal borden invullen,Entrer le nombre d'échiquiers
+fields,tiebreak_method,Tiebreak Method,Tiebreak-methode,Système de départage
+fields,tiebreak_other,"If Tiebreak Method = 'Other', specify 'Other'","Indien Tiebreak-methode = 'Overige', specificeer 'Overige'","Si Système de départage = 'Autre', spécifiez 'Autre'"
+fields,software,Software,Software,Logiciel
+fields,software_other,"If Software = 'Other', specify 'Other'","Indien Software = 'Overige', specificeer 'Overige'","Si Logiciel = 'Autre', spécifiez 'Autre'"
+fields,software_version,Version Software,Softwareversie,Version du logiciel
+fields,pgn_provided,Will PGN be provided?,Wordt PGN geleverd?,Le PGN sera-t-il fourni ?
+fields,contact_email,Contact E-mail (organizer or organization),Contact e-mail (organisator of organisatie),E-mail de contact (organisateur ou organisation)
+fields,homepage,Internet Homepage,Website,Site internet
+fields,prize_fund,Prize Fund,Prijzenpot,Prix
+fields,remarks,Remarks,Opmerkingen,Remarques
+fields,communication_language,Language for communication,Taal voor communicatie,Langue de communication
+fields,round_date,Round {num} date,Datum van ronde {num},Date de la ronde {num}
+fields,round_report,In which report will Round {num} be?,In welk rapport komt ronde {num}?,Dans quel rapport sera la ronde {num} ?
+messages,template_not_found,Excel template not found at {path}. Put your workbook there as template_fide_form.xlsx.,Excel-sjabloon niet gevonden op {path}. Plaats uw werkmap daar als template_fide_form.xlsx.,Modèle Excel introuvable à {path}. Placez votre classeur à cet endroit sous le nom de template_fide_form.xlsx.
+messages,no_license_confirm,has NO LICENSE. Are you sure you want to use this arbiter?,heeft GEEN LICENTIE. Weet u zeker dat u deze arbiter wilt gebruiken?,n'a PAS DE LICENCE. Êtes-vous sûr de vouloir utiliser cet arbitre ?
+messages,fide_laws_error,"You want to register a FIDE tournament, but not follow the rules? Nuh uh, we don't do that here. Also: you must accept the FIDE Laws.","U wilt een FIDE-toernooi registreren, maar de FIDE-regels niet volgen? Nuh uh, dat doen we hier niet. Ook: u moet de FIDE-regels accepteren.","Vous voulez enregistrer un tournoi FIDE, mais pas suivre les règles ? Nuh uh, on ne fait pas ça ici. De plus : vous devez accepter les règles de la FIDE."
+messages,only_letters_numbers_spaces,"may only contain letters A-Z, numbers, and spaces (no accents or special characters).","mag alleen letters A-Z, cijfers en spaties bevatten (geen accenten of speciale tekens).","ne peut contenir que des lettres A-Z, des chiffres et des espaces (pas d'accents ni de caractères spéciaux)."
+messages,value_required_for,is required when {dependency} is '{value}'.,is verplicht wanneer {dependency} '{value}' is.,est obligatoire lorsque {dependency} est '{value}'.
+messages,value_required,is required.,is verplicht.,est obligatoire.
+messages,field_must_be_integer,must be an integer.,moet een geheel getal zijn.,doit être un nombre entier.
+messages,field_must_be_number,must be a number.,moet een getal zijn.,doit être un nombre.
+messages,field_must_be_at_least,must be at least {min}.,moet minimaal {min} zijn.,doit être au moins {min}.
+messages,field_must_be_at_most,must be at most {max}.,mag maximaal {max} zijn.,doit être au plus {max}.
+messages,round_date_required,Round {num} date is required for New long tournament.,Datum van ronde {num} is verplicht voor nieuw lang toernooi.,La date de la ronde {num} est obligatoire pour un nouveau tournoi long.
+messages,round_report_required,The report number for Round {num} is required for New long tournament.,Het rapportnummer voor Ronde {num} is verplicht voor nieuw lang toernooi.,Le numéro de rapport pour la ronde {num} est obligatoire pour un nouveau tournoi long.
+messages,round_dates_order_error,Round {num} date must not be earlier than Round {prev_num} date.,Datum van ronde {num} mag niet vroeger zijn dan datum van ronde {prev_num}.,La date de la ronde {num} ne doit pas être antérieure à la date de la ronde {prev_num}.
+messages,end_date_order_error,End Date cannot be earlier than Start Date.,Einddatum mag niet vóór de startdatum liggen.,La date de fin ne peut pas être antérieure à la date de début.
+messages,conf_subject,FIDE Registration Confirmation: {event_name},FIDE-registratiebevestiging: {event_name},Confirmation d'inscription FIDE : {event_name}
+messages,conf_body,"<p>Dear Organizer / Arbiter,</p><p>Thank you for submitting the FIDE registration form for the tournament: <strong>{event_name}</strong>.</p><p>Your request has been received and sent to the FIDE rating officer.</p><p>Best regards,</p><p>Jorian Burssens</p>","<p>Beste organisator / scheidsrechter,</p><p>Bedankt voor het indienen van het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p><p>Uw aanvraag is ontvangen en verzonden naar de FIDE rating officer.</p><p>Met vriendelijke groet,</p><p>Jorian Burssens</p>","<p>Cher organisateur / arbitre,</p><p>Merci d'avoir soumis le formulaire d'inscription FIDE pour le tournoi : <strong>{event_name}</strong>.</p><p>Votre demande a été reçue et envoyée au responsable des classements FIDE.</p><p>Cordialement,</p><p>Jorian Burssens</p>"
+messages,fide_under_60_confirm,"This standard time control is less than 60 minutes, which is not rateable under FIDE rules.
+
+We will submit this to the federation, but it will NOT be approved. Do you want to proceed?","Deze standaard bedenktijd is korter dan 60 minuten, wat niet te homologeren is volgens de FIDE-regels.
+
+We sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?","Cette cadence standard est inférieure à 60 minutes, ce qui n'est pas homologable selon les règles FIDE.
+
+Nous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?"
+messages,fide_under_90_confirm,"This standard time control under 90 minutes is only rateable if all players are rated below 1800. Your Max Rating is either empty or >= 1800.
+
+We will submit this to the federation, but it will NOT be approved. Do you want to proceed?","De combinatie van een standaard bedenktijd korter dan 90 minuten en een maximale rating die leeg of >= 1800 is, is incorrect volgens de FIDE-regels.
+
+We sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?","La combinaison d'une cadence standard inférieure à 90 minutes et d'un classement maximum vide ou >= 1800 est incorrecte selon les règles FIDE.
+
+Nous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?"
+messages,fide_under_120_confirm,"This standard time control under 120 minutes is only rateable if all players are rated below 2400. Your Max Rating is either empty or >= 2400.
+
+We will submit this to the federation, but it will NOT be approved. Do you want to proceed?","De combinatie van een standaard bedenktijd korter dan 120 minuten en een maximale rating die leeg of >= 2400 is, is incorrect volgens de FIDE-regels.
+
+We sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?","La combinaison d'une cadence standard inférieure à 120 minutes et d'un classement maximum vide ou >= 2400 est incorrecte selon les règles FIDE.
+
+Nous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?"
+messages,fide_under_60_email,"WARNING: This tournament uses a standard time control under 60 minutes. This is not rateable under FIDE regulations, and this registration is NOT approved.","WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 60 minuten. Dit is niet te homologeren volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.","ATTENTION : Ce tournoi utilise une cadence standard inférieure à 60 minutes. Ce n'est pas homologable selon les règles FIDE, et cette inscription n'est PAS approuvée."
+messages,fide_under_90_email,"WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This is incorrect under FIDE regulations, and this registration is NOT approved.","WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 90 minuten, maar de maximale rating is niet ingevuld of is >= 1800. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.","ATTENTION : Ce tournoi utilise une cadence standard inférieure à 90 minutes mais le classement maximum n'est pas renseigné ou est >= 1800. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée."
+messages,fide_under_120_email,"WARNING: This tournament uses a standard time control under 120 minutes but the Max Rating is either not set or is >= 2400. This is incorrect under FIDE regulations, and this registration is NOT approved.","WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 120 minuten, maar de maximale rating is niet ingevuld of is >= 2400. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.","ATTENTION : Ce tournoi utilise une cadence standard inférieure à 120 minutes mais le classement maximum n'est pas renseigné ou est >= 2400. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée."
+options.yes_no,Yes,Yes,Ja,Oui
+options.yes_no,No,No,Nee,Non
+options.age_limit,None,None,Geen,Aucune
+options.age_limit,Under,Under,Onder,Moins de
+options.age_limit,Over,Over,Boven,Plus de
+options.inc_delay,Increment,Increment,Increment,Incrément
+options.inc_delay,Delay,Delay,Delay,Délai

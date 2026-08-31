@@ -6,7 +6,7 @@ from google.cloud import secretmanager
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/players_fide", tags=["players_fide"])
+router = APIRouter(prefix="/api/v1/arbiters", tags=["arbiters"])
 
 _api_key_cache = None
 
@@ -24,10 +24,8 @@ def get_api_key() -> str:
         pass
 
     client = secretmanager.SecretManagerServiceClient()
-    # players_fide is only reachable with the master-scoped key (see
-    # kbsb-dataplatform's apps/dataplatform_api/server.js ROLES) — the
-    # oldelo key used by api_national_elo_archive.py is deliberately
-    # restricted to national_elo_archive and cannot reach this scope.
+    # arbiters is reachable with the master-scoped key (see
+    # kbsb-dataplatform's apps/dataplatform_api/server.js ROLES)
     name = f"projects/{project_id}/secrets/hetzner-api-master/versions/latest"
 
     try:
@@ -38,12 +36,11 @@ def get_api_key() -> str:
         logger.exception("Failed to fetch master API key from Secret Manager")
         raise HTTPException(status_code=500, detail="Could not retrieve API key for backend")
 
-TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/players_fide"
+TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/arbiters"
 
-# Read-only lookup (FIDE search + FIDE-ID lookup for tournament organizer
+# Read-only lookup (FIDE arbiters search + FIDE-ID lookup for tournament arbiter
 # autofill), so only safe methods are forwarded. Mirrors
-# api_national_elo_archive.py's proxy_to_vps almost exactly, just pointed
-# at players_fide with the master-scoped key instead of oldelo.
+# api_players_fide.py proxy to VPS.
 _client: httpx.AsyncClient | None = None
 
 def get_client() -> httpx.AsyncClient:
