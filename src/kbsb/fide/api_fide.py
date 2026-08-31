@@ -126,7 +126,6 @@ MANDATORY_ALWAYS = [
     "all_digital_clocks",
     "tiebreak_method",
     "software",
-    "software_version",
     "contact_email",
     "homepage",
 ]
@@ -298,15 +297,14 @@ def validate_form(form, lang):
             n_rounds = int(form.get("rounds_reported") or 0)
         except ValueError:
             n_rounds = 0
-        reports = []
+        date_counts = {}
         for i in range(1, n_rounds + 1):
-            rep_val = form.get(f"round{i}_report")
-            if rep_val:
-                reports.append(rep_val)
-        if reports:
-            form["multiple_round_days"] = str(len(reports) - len(set(reports)))
-        else:
-            form["multiple_round_days"] = "0"
+            d_val = form.get(f"round{i}_date")
+            if d_val:
+                date_counts[d_val] = date_counts.get(d_val, 0) + 1
+        # Count days that have 2 or more rounds played on the same day
+        multi_days = sum(1 for count in date_counts.values() if count > 1)
+        form["multiple_round_days"] = str(multi_days)
 
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
@@ -431,7 +429,7 @@ def validate_form(form, lang):
             errors.append(
                 f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}"
             )
-        tc_fields = [
+        tc_fields_required = [
             (
                 "timectl1_moves",
                 t_fields.get("timectl1_moves", "Moves to first time control"),
@@ -446,6 +444,24 @@ def validate_form(form, lang):
                     "timectl1_inc_seconds", "Seconds of Increment/Delay (1st control)"
                 ),
             ),
+        ]
+        for key, label in tc_fields_required:
+            if not form.get(key):
+                dep_msg = (
+                    t_msg["value_required_for"]
+                    .replace(
+                        "{dependency}",
+                        t_fields.get("time_control_desc", "Time Control Description"),
+                    )
+                    .replace("{value}", "Other")
+                )
+                logger.error(f"Time Control Description: {key} field missing")
+                errors.append(f"{label} {dep_msg}")
+            else:
+                parse_int(form.get(key), label, errors, lang, min_value=0)
+
+        # 2nd and final time controls are optional
+        tc_fields_optional = [
             (
                 "timectl2_moves",
                 t_fields.get("timectl2_moves", "Moves to second time control"),
@@ -471,31 +487,19 @@ def validate_form(form, lang):
                 ),
             ),
         ]
-        for key, label in tc_fields:
-            if not form.get(key):
-                dep_msg = (
-                    t_msg["value_required_for"]
-                    .replace(
-                        "{dependency}",
-                        t_fields.get("time_control_desc", "Time Control Description"),
-                    )
-                    .replace("{value}", "Other")
-                )
-                logger.error(f"Time Control Description: {key} field missing")
-                errors.append(f"{label} {dep_msg}")
-            else:
+        for key, label in tc_fields_optional:
+            if form.get(key):
                 parse_int(form.get(key), label, errors, lang, min_value=0)
-        for key in ["timectl1_inc_type", "timectl2_inc_type", "timectl_final_inc_type"]:
-            if not form.get(key):
-                dep_msg = (
-                    t_msg["value_required_for"]
-                    .replace(
-                        "{dependency}",
-                        t_fields.get("time_control_desc", "Time Control Description"),
-                    )
-                    .replace("{value}", "Other")
+        if not form.get("timectl1_inc_type"):
+            dep_msg = (
+                t_msg["value_required_for"]
+                .replace(
+                    "{dependency}",
+                    t_fields.get("time_control_desc", "Time Control Description"),
                 )
-                errors.append(f"{t_fields.get(key, key)} {dep_msg}")
+                .replace("{value}", "Other")
+            )
+            errors.append(f"{t_fields.get('timectl1_inc_type', 'timectl1_inc_type')} {dep_msg}")
 
     if form.get("tournament_report") == "New long tournament":
         n = rounds_reported if rounds_reported is not None else 0

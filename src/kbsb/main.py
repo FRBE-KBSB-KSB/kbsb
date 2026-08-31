@@ -80,6 +80,9 @@ from kbsb.national_elo_archive import api_national_elo_archive
 logger.info("loading api_players_fide")
 from kbsb.players_fide import api_players_fide
 
+logger.info("loading api_arbiters")
+from kbsb.arbiters import api_arbiters
+
 logger.info("loading api_tournament_registrations")
 from kbsb.tournament_registrations import api_tournament_registrations
 
@@ -92,6 +95,7 @@ app.include_router(api_oldsite.router)
 app.include_router(api_fide.router)
 app.include_router(api_national_elo_archive.router)
 app.include_router(api_players_fide.router)
+app.include_router(api_arbiters.router)
 app.include_router(api_tournament_registrations.router)
 
 logger.info("Api's loaded")
