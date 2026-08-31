@@ -2,15 +2,15 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "@/store/idnumber"
+import { useIdbelStore } from "~/store/idbel"
 import { storeToRefs } from "pinia"
 
 // communication
 defineExpose({ setup })
 const idstore = useIdtokenStore()
 const { token: idtoken } = storeToRefs(idstore)
-const idnstore = useIdnumberStore()
-const { idnumber: idn } = storeToRefs(idnstore)
+const idbelstore = useIdbelStore()
+const { idbel: idn } = storeToRefs(idbelstore)
 const { $backend } = useNuxtApp()
 const { t } = useI18n()
 
@@ -64,9 +64,9 @@ async function calcstatus() {
     return
   }
   const now = new Date().valueOf()
-  const opened = new Date(icdata.rounds[round] + "T15:00").valueOf()
+  const opened = new Date(icdata.rounds11[round] + "T15:00").valueOf()
   const closed = opened + 3600000 * (9 + 24)
-  console.log("dates", new Date(), new Date(icdata.rounds[round] + "T15:00"))
+  console.log("dates", new Date(), new Date(icdata.rounds11[round] + "T15:00"))
   if (now < opened) {
     rsl_status.value = "notopenyet"
     playerlist_buffer.value = {}

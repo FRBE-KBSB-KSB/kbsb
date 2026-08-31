@@ -7,10 +7,11 @@ from pathlib import Path
 API_BASE_URL = "/api"
 API_KEY = "JeanMarieWampers"
 
-BOOKS_CC = "ruben@kosk.be"
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", False)
+
+ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
 
 EMAIL = {
     "backend": "GMAIL",
@@ -85,7 +86,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "oldmysql"
+MEMBERDB = "odoo"
+
+ODOO = {
+    "url": "https://frbe-kbsb.odoo.com",
+    "db": "frbe-kbsb",
+}
 
 SECRETS = {
     "mongodb": {
@@ -106,6 +112,10 @@ SECRETS = {
     },
     "known-hosts": {
         "name": "known-hosts",
+        "manager": "googlejson",
+    },
+    "odoo": {
+        "name": "kbsb-odoo",
         "manager": "googlejson",
     },
 }
@@ -136,6 +146,9 @@ if KBSB_MODE == "prodtest":
 if KBSB_MODE == "localtest":
     from env_localtest import *  # noqa F403
 
+if KBSB_MODE == "testing":
+    from tests.settings import *  # noqa F403
+
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
 
@@ -146,5 +159,6 @@ settings_message = {
     "local": "env_local settings loaded",
     "prodtest": "env_prodtest settings loaded",
     "localtest": "env_localtest settings loaded",
+    "testing": "tests.settings loaded",
 }
 logger.info(settings_message.get(KBSB_MODE, "no local settings loaded"))

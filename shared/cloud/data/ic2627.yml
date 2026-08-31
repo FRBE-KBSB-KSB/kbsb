@@ -55,13 +55,13 @@ max_elo:
   3: 2050
   4: 1950
   5: 1800
-  6: 1600
+  6: 1700
 notrated_elo:
   min: 1000
   max: 1800
 playerlist_data:
   - period: september
-    start: 2026-08-04
+    start: 2026-07-31
     end: 2026-09-16
   - period: november
     start: 2026-11-01

@@ -14,11 +14,15 @@ ICDATA = "local"
 
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-local",
+        "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
     "mysql": {
         "name": "kbsb-mysql-chessdevil",
+        "manager": "filejson",
+    },
+    "odoo": {
+        "name": "kbsb-odoo",
         "manager": "filejson",
     },
     "gmail": {

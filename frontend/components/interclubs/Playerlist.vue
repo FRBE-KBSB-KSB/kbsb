@@ -6,8 +6,8 @@ import { storeToRefs } from "pinia"
 
 // communication
 defineExpose({ setup })
-const idstore = useIdtokenStore()
-const { token: idtoken } = storeToRefs(idstore)
+const tokenstore = useIdtokenStore()
+const { token } = storeToRefs(tokenstore)
 const { $backend } = useNuxtApp()
 const { t } = useI18n()
 
@@ -59,11 +59,11 @@ const headers = [
   { title: t("Name"), key: "fullname" },
   { title: t("ID number"), key: "idnumber", sortable: false },
   { title: "ELO", key: "assignedrating" },
-  { title: "F-ELO", key: "fiderating" },
-  { title: "B-ELO", key: "natrating" },
+  { title: "Fide", key: "fiderating" },
   { title: "Club", key: "idcluborig" },
   { title: t("Titular"), key: "titular" },
   { title: t("icn.pll_mindiv"), key: "mindiv" },
+  { title: t("Period"), key: "period" },
   { title: t("Actions"), key: "action" },
 ]
 const itemsPerPage = 50
@@ -119,9 +119,10 @@ function canAssign(idnumber) {
 
 function canEditElo(idnumber) {
   if (pll_period == "september") {
-    return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-      playersindexed[idnumber].nature
-    )
+    // return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+    //   playersindexed[idnumber].period == "september"
+    // )
+    return true
   }
   if (pll_period == "november") {
     return (
@@ -133,6 +134,12 @@ function canEditElo(idnumber) {
     return (
       playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
       playersindexed[idnumber].period == "january"
+    )
+  }
+  if (pll_period == "february") {
+    return (
+      playersindexed[idnumber].nature == PLAYERSTATUS.unassigned &&
+      playersindexed[idnumber].period == "february"
     )
   }
 }
@@ -169,14 +176,14 @@ function canUndoTransfer(idnumber) {
 
 async function checkAccess() {
   let reply
-  if (!idtoken.value) return false
+  if (!token.value) return false
   showLoading(true)
   console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
       role: "InterclubAdmin,InterclubCaptain",
-      token: idtoken.value,
+      token: token.value,
     })
     return true
   } catch (error) {
@@ -248,7 +255,7 @@ function fillinPlayerList(nature) {
 }
 
 async function getClubMembers() {
-  // get club members for member database currently on old site
+  // get club members for member database currently on odoo
   if (!idclub.value) {
     clubmembers.value = []
     return
@@ -284,19 +291,11 @@ async function getClubMembers() {
 }
 
 function maxelo(p) {
-  if (pll_period == "september") {
-    if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
-    return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
-  } else {
-    return mininmal_assignelo - 1
-  }
+  return p.fiderating ? p.fiderating + 100 : icdata.notrated_elo.max
 }
 
 function minelo(p) {
-  let minrating = p.fiderating
-    ? Math.min(p.fiderating, p.natrating) - 100
-    : p.natrating - 100
-  return Math.max(minrating, icdata.notrated_elo.min)
+  return p.fiderating ? p.fiderating - 100 : icdata.notrated_elo.min
 }
 
 function openAssignPlayer(idnumber) {
@@ -417,7 +416,7 @@ async function savePlayerlist() {
   try {
     showLoading(true)
     reply = await $backend("interclub", "clb_setICclub", {
-      token: idtoken.value,
+      token: token.value,
       idclub: idclub.value,
       players: players.value,
     })
@@ -440,7 +439,7 @@ async function validatePlayerlist() {
   try {
     showLoading(true)
     reply = await $backend("interclub", "clb_validateICplayers", {
-      token: idtoken.value,
+      token: token.value,
       idclub: idclub.value,
       players: players.value,
     })

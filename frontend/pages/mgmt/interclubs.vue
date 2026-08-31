@@ -188,9 +188,7 @@ async function processICdata() {
     changeDialogCounter(-1)
   }
   icdata.value = reply.data
-  ic_rounds.value = Object.keys(icdata.value.rounds11).map((x) => {
-    return { value: x, title: `R${x}: ${icdata.value.rounds11[x]}` }
-  })
+  ic_rounds.value = round_selector(icdata.value)
   changedTab()
 }
 

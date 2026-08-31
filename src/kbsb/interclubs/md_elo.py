@@ -88,7 +88,7 @@ class TrfRecord(BaseModel):
 
 
 class DbICTrfRecord(DbBase):
-    COLLECTION = "ic2425trf"
+    COLLECTION = "ic2526trf"
     DOCUMENTTYPE = TrfRecord
     VERSION = 1
     IDGENERATOR = "uuid"

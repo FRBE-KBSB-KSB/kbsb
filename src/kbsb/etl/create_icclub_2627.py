@@ -1,19 +1,20 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from reddevil.core import (
-    register_app,
-    get_settings,
-    connect_mongodb,
     close_mongodb,
-    get_mongodb,
+    connect_mongodb,
+    get_settings,
+    register_app,
 )
-from kbsb.interclubs.registrations import get_icregistrations
+
+from kbsb.club import Club, get_clubs
 from kbsb.interclubs.icclubs import create_icclub
 from kbsb.interclubs.md_interclubs import ICClubDB
-from kbsb.club import get_clubs, Club
-from dotenv import load_dotenv
+from kbsb.interclubs.registrations import get_icregistrations
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",

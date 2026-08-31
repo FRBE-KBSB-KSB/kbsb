@@ -1,0 +1,83 @@
+EMAIL = {
+    "backend": "SMTP",
+    "host": "server.chessdevil.be",
+    "port": "1025",
+    "sender": "ruben.decrop@frbe-kbsb-ksb.be",
+}
+
+ICDATA = "local"
+
+SECRETS = {
+    "mongodb": {
+        "name": "kbsb-mongodb-test",
+        "manager": "filejson",
+    },
+    "mysql": {
+        "name": "kbsb-mysql-infomaniak",
+        "manager": "filejson",
+    },
+    "gmail": {
+        "name": "kbsb-gmail",
+        "manager": "filejson",
+    },
+    "known-hosts": {
+        "name": "known-hosts",
+        "manager": "filejson",
+    },
+}
+
+SHORTCUT_INFOMANIAKLOGIN = True
+
+LOG_CONFIG = {
+    "version": 1,
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s: %(asctime)s - %(name)s - %(message)s",
+        },
+        "color": {
+            "format": "%(log_color)s%(levelname)s%(reset)s: %(asctime)s %(bold)s%(name)s%(reset)s %(message)s",
+            "()": "reddevil.core.colorlogfactory.c_factory",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "color",
+            "stream": "ext://sys.stderr",
+        }
+    },
+    "loggers": {
+        "kbsb": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "reddevil": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "fastapi": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "uvicorn": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+TEMPLATES_PATH = "./src/kbsb/templates"
+
+TESTING = True
+
+TOKEN = {
+    "timeout": 180,  # timeout in minutes
+    "secret": "Pakjezakjemaggoan,jangtvierkantmeklootnuut",
+    "algorithm": "HS256",
+    "nocheck": False,
+}

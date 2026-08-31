@@ -387,26 +387,21 @@ async def clb_validateICPlayers(
     """
 
     icdata = await load_icdata()
+    assert icdata
     errors = []
     players = [p for p in pi.players if p.nature in ONPLAYERLIST]
     # check for valid elo
     elos = set()
     for p in players:
-        fidenotset = False
-        natnotset = False
-        if not p.natrating:
-            natnotset = True
-            p.natrating = 0
         if not p.fiderating:
-            fidenotset = True
             p.fiderating = 0
-        if 1150 > p.natrating > 0:
-            p.natrating = 1150
-        # now we have healthy values for fiderating (0 or value)
-        # and natrating is minimal 1150
-        maxrating = max(p.fiderating, p.natrating) + 100
-        minrating = min(p.fiderating or 3000, p.natrating) - 100
-        if p.assignedrating < max(icdata["notrated_elo"]["min"], minrating):
+        maxrating = (
+            p.fiderating + 100 if p.fiderating else icdata["notrated_elo"]["max"]
+        )
+        minrating = (
+            p.fiderating - 100 if p.fiderating else icdata["notrated_elo"]["min"]
+        )
+        if p.assignedrating < minrating:
             errors.append(
                 ICPlayerValidationError(
                     errortype="ELO",
@@ -415,16 +410,6 @@ async def clb_validateICPlayers(
                     detail=p.idnumber,
                 )
             )
-        if natnotset and fidenotset:
-            if p.assignedrating > icdata["notrated_elo"]["max"]:
-                errors.append(
-                    ICPlayerValidationError(
-                        errortype="ELO",
-                        idclub=idclub,
-                        message="Elo too high",
-                        detail=p.idnumber,
-                    )
-                )
         elif p.assignedrating > maxrating:
             errors.append(
                 ICPlayerValidationError(
@@ -445,8 +430,10 @@ async def clb_validateICPlayers(
             )
         else:
             elos.add(p.assignedrating)
+    # check for titulars
     titulars = {}
     registration = await find_icregistration(idclub)
+    assert registration
     ix = 1
     for t in range(registration.teams1):
         titulars[f"{registration.name} {ix}"] = {
@@ -488,6 +475,14 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
+    for t in range(registration.teams6):
+        titulars[f"{registration.name} {ix}"] = {
+            "division": 6,
+            "ntitulars": icdata["ntitulars"][6],
+            "maxtitulars": icdata["maxtitulars"][6],
+            "counter": 0,
+        }
+        ix += 1
     for p in players:
         if p.titular and p.titular in titulars:
             titulars[p.titular]["counter"] += 1
@@ -510,7 +505,6 @@ async def clb_validateICPlayers(
                     detail=team,
                 )
             )
-
     return errors
 
 

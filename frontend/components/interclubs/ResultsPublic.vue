@@ -147,8 +147,8 @@ function setup(icdata_) {
   icdata = icdata_ || {}
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  ic_rounds.value = Object.keys(icdata.rounds || []).map((r) => {
-    return { value: r, title: `R${r}: ${icdata.rounds[r]}` }
+  ic_rounds.value = Object.keys(icdata.rounds11 || []).map((r) => {
+    return { value: r, title: `R${r}: ${icdata.rounds11[r]}` }
   })
   getClubs()
 }

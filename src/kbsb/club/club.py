@@ -1,24 +1,24 @@
 # copyright Ruben Decrop 2012 - 2022
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
-import logging
-
-from typing import cast, Optional, List
-import io
 import csv
-import openpyxl
+import io
+import logging
 from tempfile import NamedTemporaryFile
-from fastapi.responses import Response
+from typing import List, Optional, cast
 
-from reddevil.core import (
-    encode_model,
-    RdNotFound,
-    get_settings,
-    RdBadRequest,
-)
-from reddevil.mail import sendEmail, MailParams
-
+import openpyxl
 from fastapi import BackgroundTasks
+from fastapi.responses import Response
+from reddevil.core import (
+    RdBadRequest,
+    RdNotFound,
+    encode_model,
+    get_settings,
+)
+from reddevil.mail import MailParams, sendEmail
+
+from kbsb.core import RdForbidden
 
 from .md_club import (
     Club,
@@ -27,7 +27,6 @@ from .md_club import (
     ClubRoleNature,
     DbClub,
 )
-from kbsb.core import RdForbidden
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ async def get_club(options: dict = {}) -> Club:
     _class = options.pop("_class", Club)
     filter = dict(**options)
     fdict = await DbClub.find_single(filter)
-    club = encode_model(fdict, _class)
+    club = encode_model(_class, fdict)
     if club.address is None:
         club.address = ""
     return club
@@ -72,7 +71,7 @@ async def get_clubs(options: dict = {}) -> List[ClubItem]:
     logger.info("get_clubs")
     _class = options.pop("_class", ClubItem)
     docs = await DbClub.find_multiple(options)
-    clubs = [encode_model(d, _class) for d in docs]
+    clubs = [encode_model(_class, d) for d in docs]
     return clubs
 
 
@@ -83,7 +82,7 @@ async def update_club(idclub: int, updates: dict, options: dict = {}) -> Club:
 
     validator = options.pop("_class", Club)
     cdict = await DbClub.update({"idclub": idclub}, updates, options)
-    return cast(Club, encode_model(cdict, validator))
+    return cast(Club, encode_model(validator, cdict))
 
 
 # business  calls
@@ -136,14 +135,14 @@ async def get_csv_clubs(options: dict = {}) -> io.StringIO:
     return stream
 
 
-async def verify_club_access(idclub: int, idmember: str, role: str) -> bool:
+async def verify_club_access(idclub: int, idmember: str | int, role: str) -> bool:
     """
-    checks if the person identified by idmember belongs to the memberlist
+    checks if the person identified by email belongs to the memberlist
     of role inside a club, identified by idclub (an int) or id (a str),
     if check fails.
     """
     # check for superuser
-    if idmember.startswith("S_") and len(idmember) == 5:
+    if isinstance(idmember, str) and idmember.startswith("S_") and len(idmember) == 5:
         return True
     try:
         idnumber = int(idmember)
@@ -160,7 +159,7 @@ async def verify_club_access(idclub: int, idmember: str, role: str) -> bool:
     logger.info(f"club {club.clubroles}")
     for r in roles:
         # looking for a single matching role
-        for cr in club.clubroles:
+        for cr in club.clubroles:  # type: ignore
             if r == cr.nature.value:
                 if idnumber in cr.memberlist:
                     return True
