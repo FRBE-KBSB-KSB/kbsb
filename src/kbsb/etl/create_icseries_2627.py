@@ -1,24 +1,26 @@
 import asyncio
-import aiofiles
-import aiocsv
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from reddevil.core import (
-    register_app,
-    connect_mongodb,
-    close_mongodb,
-    get_settings,
-)
-from dotenv import load_dotenv
 import logging
-from kbsb import ROOT_DIR
-from kbsb.interclubs.series import (
-    script_addteam_icseries,
-    get_icseries2,
-    update_icseries,
-    ICSeriesUpdate,
+from contextlib import asynccontextmanager
+
+import aiocsv
+import aiofiles
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from reddevil.core import (
+    close_mongodb,
+    connect_mongodb,
+    get_settings,
+    register_app,
 )
+
+from kbsb import ROOT_DIR
 from kbsb.interclubs.registrations import get_icregistrations
+from kbsb.interclubs.series import (
+    ICSeriesUpdate,
+    get_icseries2,
+    script_addteam_icseries,
+    update_icseries,
+)
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",

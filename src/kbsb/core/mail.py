@@ -7,20 +7,14 @@
 # for any other use a written agreement is required by Chessdevil Consulting
 
 import logging
-from markdown2 import Markdown
-from io import BytesIO
-from typing import List, Any
-import os.path
-from email.message import EmailMessage
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email import encoders
+
+from markdown2 import Markdown
+
 from kbsb import settings
 
 # from kbsb.models.md_book100 import Book100Optional
-
 from .mailbackend import backends
 
 log = logging.getLogger(__name__)
