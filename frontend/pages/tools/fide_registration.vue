@@ -47,7 +47,7 @@ const form = ref({
   tournament_system: "",
   rounds_reported: "",
   multiple_round_days: "0",
-  female_only: "",
+  female_only: "No",
   start_date: "",
   end_date: "",
   title_norms: "No",
@@ -71,7 +71,7 @@ const form = ref({
   max_rating: "",
   age_limit: "", age_limit_value: "",
   all_digital_clocks: "Yes",
-  internet_tx: "", internet_tx_boards: "",
+  internet_tx: "No", internet_tx_boards: "",
   tiebreak_method: "", tiebreak_other: "",
   software: "", software_other: "", software_version: "",
   pgn_provided: "No",
@@ -158,6 +158,19 @@ const ratingRequirement = computed(() => {
     return (!isNaN(val) && val < 2400) ? 'ok' : 'require_2400';
   }
   return 'ok';
+});
+
+const isStartDateTooSoon = computed(() => {
+  if (!form.value.start_date) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const parts = form.value.start_date.split('-');
+  if (parts.length !== 3) return false;
+  const start = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  if (isNaN(start.getTime())) return false;
+  const diffMs = start.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays < 5;
 });
 
 // Helper functions for round dates and FIDE period logic
@@ -561,7 +574,7 @@ function clearFormData() {
     tournament_system: "",
     rounds_reported: "",
     multiple_round_days: "0",
-    female_only: "",
+    female_only: "No",
     start_date: "",
     end_date: "",
     title_norms: "No",
@@ -585,7 +598,7 @@ function clearFormData() {
     max_rating: "",
     age_limit: "", age_limit_value: "",
     all_digital_clocks: "Yes",
-    internet_tx: "", internet_tx_boards: "",
+    internet_tx: "No", internet_tx_boards: "",
     tiebreak_method: "", tiebreak_other: "",
     software: "", software_other: "", software_version: "",
     pgn_provided: "No",
@@ -605,6 +618,14 @@ function clearFormData() {
 
 async function submitForm() {
   if (waitingdialog.value || submitCooldown.value) return;
+
+  if (form.value.start_date && form.value.end_date && form.value.end_date < form.value.start_date) {
+    errorText.value = tMsg('end_date_order_error');
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    return;
+  }
 
   if (ratingRequirement.value !== 'ok') {
     let confirmKey = '';
@@ -766,18 +787,20 @@ definePageMeta({
         <div v-if="eventNameHasIllegalChars" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
           ⚠ Illegal characters detected. Only letters A–Z, numbers, and spaces are allowed.
         </div>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('event_name_hint') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('city') }}</span>
         <input type="text" v-model="form.city" required>
       </label>
       <label>
-        <span class="required-label">{{ tField('country') }}</span>
-        <input type="text" v-model="form.country" required>
-      </label>
-      <label>
         <span class="required-label">{{ tField('expected_players') }}</span>
         <input type="number" v-model="form.expected_players" min="1" max="2500" required>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
+          {{ tUI('expected_players_hint') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('tournament_system') }}</span>
@@ -793,6 +816,9 @@ definePageMeta({
       
       <div v-if="isLongTournament" id="long-tournament-block">
         <div class="group-title">{{ tCat('long_tournament_rounds') }}</div>
+        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0.5rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_5days_warning') }}
+        </div>
         <div id="rounds-container">
           <div class="round-row active" v-for="i in roundsCount" :key="i">
             <label>
@@ -820,10 +846,16 @@ definePageMeta({
       <label v-if="!isLongTournament">
         <span class="required-label">{{ tField('start_date') }}</span>
         <input type="date" v-model="form.start_date" required>
+        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_5days_warning') }}
+        </div>
       </label>
       <label v-if="!isLongTournament">
         <span class="required-label">{{ tField('end_date') }}</span>
-        <input type="date" v-model="form.end_date" required>
+        <input type="date" v-model="form.end_date" :min="form.start_date" required>
+        <div v-if="form.start_date && form.end_date && form.end_date < form.start_date" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tMsg('end_date_order_error') }}
+        </div>
       </label>
       <label>
         <span class="required-label">{{ tField('title_norms') }}</span>

@@ -305,11 +305,20 @@ def validate_form(form, lang):
     t_msg = trans["messages"]
     t_fields = trans["fields"]
 
+    if not form.get("country"):
+        form["country"] = "BEL"
+
     for key in MANDATORY_ALWAYS:
         if not form.get(key):
             label = t_fields.get(key, key)
             logger.error(f"value required for {label}")
             errors.append(f"{label} {t_msg['value_required']}")
+
+    start_date = form.get("start_date")
+    end_date = form.get("end_date")
+    if start_date and end_date and end_date < start_date:
+        logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
+        errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
