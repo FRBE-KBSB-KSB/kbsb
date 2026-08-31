@@ -336,6 +336,16 @@ function openUndoTransfer(idnumber) {
 function playerEdit2Player() {
   // copy the data of Player Edit back to the Player
   // we splice the players array and add the playeredit to trigger a repaint of the table
+  let calrating = playeredit.value.fiderating > 0 ? playeredit.value.fiderating : (playeredit.value.natrating || 0)
+  let mindiv = ""
+  if (icdata && icdata.max_elo) {
+    for (const [div, minelo] of Object.entries(icdata.max_elo)) {
+      if (calrating <= minelo) {
+        mindiv = div
+      }
+    }
+  }
+  playeredit.value.mindiv = mindiv
   const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
   players.value.splice(aix, 1, playeredit.value)
   playersindexed[playeredit.value.idnumber] = players.value[aix]
@@ -392,6 +402,19 @@ function readICclub() {
   idclub.value = icclub.value.idclub || 0
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
+  players.value.forEach((p) => {
+    let calrating = p.fiderating > 0 ? p.fiderating : (p.natrating || 0)
+    let mindiv = ""
+    if (icdata && icdata.max_elo) {
+      for (const [div, minelo] of Object.entries(icdata.max_elo)) {
+        if (calrating <= minelo) {
+          mindiv = div
+        }
+      }
+    }
+    p.mindiv = mindiv
+    p.fullname = p.fullname || `${p.last_name}, ${p.first_name}`
+  })
   playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
   titularchoices.splice(1, titularchoices.length - 1)
   if (icclub.value.teams) {
