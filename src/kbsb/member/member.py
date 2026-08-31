@@ -82,8 +82,8 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     logger.info(f"token {token}")
     try:
         payload = jwt_getunverifiedpayload(token)
-    except JWTError:
-        logger.info("Bad Token 1")
+    except JWTError as e:
+        logger.info(f"Bad Token 1 {e}")
         raise RdNotAuthorized(description="BadToken")
     username = payload.get("sub")
     if not username:

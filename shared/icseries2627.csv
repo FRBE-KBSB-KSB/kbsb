@@ -1,0 +1,431 @@
+ClubId,TeamName,Division,PairingNumber
+601,CRELEL 1,1,1
+231,Dolle Toren Leuven 1,1,2
+607,KSK Rochade 1,1,3
+621,Standard de Liège 1,1,4
+239,Boitsfort 1,1,5
+303,KBSK Brugge 1,1,6
+471,SDP Wachtebeke 1,1,7
+432,Wetteren 1,1,8
+176,Rokade Westerlo 1,1,9
+401,KGSRL 1,1,10
+230,Leuven Centraal 1,1,11
+166,TSM Mechelen 1,1,12
+109,Borgerhout 1,2A,1
+472,de Mercatel 1,2A,2
+174,Brasschaat 1,2A,3
+401,KGSRL 2,2A,4
+462,Zottegem 1,2A,5
+261,Gambiet Opwijk 1,2A,6
+301,KOSK 1,2A,7
+432,Wetteren 2,2A,8
+124,Deurne 1,2A,9
+244,Brussels 1,2A,10
+402,Jean Jaures Gent 1,2A,11
+436,LSV-Chesspirant 1,2A,12
+501,CREC Charleroi 1,2B,1
+278,Ixelles CC 1,2B,2
+607,KSK Rochade 2,2B,3
+207,2 Fous d'Etterbeek 1,2B,4
+901,Namur Echecs 1,2B,5
+604,KSK47-Eynatten 1,2B,6
+209,The Belgian CC 1,2B,7
+114,Mechelen 1,2B,8
+952,CE Wavre 1,2B,9
+514,MCC 1,2B,10
+703,Eisden/MSK-Dilsen 1,2B,11
+226,Europchess 1,2B,12
+109,Borgerhout 2,3A,1
+278,Ixelles CC 2,3A,2
+401,KGSRL 3,3A,3
+130,Moretus 1,3A,4
+128,Beveren 1,3A,5
+261,Gambiet Opwijk 2,3A,6
+425,Dendermonde 1,3A,7
+114,Mechelen 2,3A,8
+124,Deurne 2,3A,9
+194,ChessLooks Lier 1,3A,10
+132,SK Oude God 1,3A,11
+166,TSM Mechelen 2,3A,12
+109,Borgerhout 3,3B,1
+436,LSV-Chesspirant 2,3B,2
+302,KISK Ieper 1,3B,3
+430,Landegem 1,3B,4
+422,MSV 1,3B,5
+303,KBSK Brugge 2,3B,6
+471,SDP Wachtebeke 2,3B,7
+364,Meense Leie Schakers 1,3B,8
+401,KGSRL 4,3B,9
+465,SK Artevelde 1,3B,10
+313,Waregem 1,3B,11
+301,KOSK 2,3B,12
+109,Borgerhout 4,3C,1
+278,Ixelles CC 3,3C,2
+521,Tournai 1,3C,3
+541,Leuze-En-Hainaut 1,3C,4
+239,Boitsfort 2,3C,5
+902,CES 1,3C,6
+548,Caissa Europe 1,3C,7
+228,Dworp 1,3C,8
+961,Braine Echecs 1,3C,9
+201,CREB Bruxelles 1,3C,10
+525,CELB Anderlues 1,3C,11
+548,Caissa Europe 2,3C,12
+601,CRELEL 2,3D,1
+231,Dolle Toren Leuven 2,3D,2
+727,Midden Limburg 1,3D,3
+811,Arlon Echecs 1,3D,4
+239,Boitsfort 3,3D,5
+604,KSK47-Eynatten 2,3D,6
+135,Geel 1,3D,7
+708,NLS Lommel 1,3D,8
+230,Leuven Centraal 2,3D,9
+618,Royal Echiquier Mosan 1,3D,10
+622,Herve 1,3D,11
+601,CRELEL 3,3D,12
+601,CRELEL 4,4A,1
+727,Midden Limburg 2,4A,2
+607,KSK Rochade 3,4A,3
+621,Standard de Liège 2,4A,4
+901,Namur Echecs 2,4A,5
+703,Eisden/MSK-Dilsen 2,4A,6
+604,KSK47-Eynatten 3,4A,7
+810,Marche en Famenne 1,4A,8
+627,SF Wirtzfeld 1,4A,9
+618,Royal Echiquier Mosan 2,4A,10
+712,Landen 1,4A,11
+609,Anthisnes 1,4A,12
+340,Izegem 1,4B,1
+472,de Mercatel 2,4B,2
+307,Bredene 1,4B,3
+401,KGSRL 5,4B,4
+305,KSGK 1,4B,5
+303,KBSK Brugge 3,4B,6
+460,Oudenaarde 1,4B,7
+432,Wetteren 3,4B,8
+304,Tielt 1,4B,9
+309,KRST 1,4B,10
+301,KOSK 3,4B,11
+475,Rapid Aalter 1,4B,12
+260,Kapelle-op-den Bos 1,4C,1
+278,Ixelles CC 4,4C,2
+230,Leuven Centraal 3,4C,3
+401,KGSRL 7,4C,4
+548,Caissa Europe 3,4C,5
+233,DZD Halle 1,4C,6
+209,The Belgian CC 2,4C,7
+401,KGSRL 6,4C,8
+244,Brussels 2,4C,9
+201,CREB Bruxelles 2,4C,10
+261,Gambiet Opwijk 3,4C,11
+226,Europchess 2,4C,12
+501,CREC Charleroi 2,4D,1
+278,Ixelles CC 5,4D,2
+901,Namur Echecs 3,4D,3
+901,Namur Echecs 4,4D,4
+239,Boitsfort 4,4D,5
+902,CES 2,4D,6
+548,Caissa Europe 4,4D,7
+228,Dworp 2,4D,8
+511,EDC 1,4D,9
+514,MCC 2,4D,10
+525,CELB Anderlues 2,4D,11
+551,HCC Jurbise 1,4D,12
+443,Boey Temse 1,4E,1
+727,Midden Limburg 3,4E,2
+174,Brasschaat 2,4E,3
+230,Leuven Centraal 4,4E,4
+714,Pelt 1,4E,5
+121,Turnhout 1,4E,6
+135,Geel 2,4E,7
+114,Mechelen 3,4E,8
+176,Rokade Westerlo 2,4E,9
+194,ChessLooks Lier 2,4E,10
+132,SK Oude God 2,4E,11
+195,SKilled Chezzmates 1,4E,12
+340,Izegem 2,4F,1
+438,Deinze 1,4F,2
+401,KGSRL 8,4F,3
+541,Leuze-En-Hainaut 2,4F,4
+462,Zottegem 2,4F,5
+303,KBSK Brugge 4,4F,6
+471,SDP Wachtebeke 3,4F,7
+432,Wetteren 4,4F,8
+304,Tielt 2,4F,9
+418,VPTD Geraardsbergen 1,4F,10
+313,Waregem 2,4F,11
+460,Oudenaarde 2,4F,12
+443,Boey Temse 2,4G,1
+436,LSV-Chesspirant 3,4G,2
+230,Leuven Centraal 5,4G,3
+410,Sint-Niklaas 1,4G,4
+462,Zottegem 3,4G,5
+121,Turnhout 2,4G,6
+471,SDP Wachtebeke 4,4G,7
+417,Pion-Aalst 1,4G,8
+401,KGSRL 9,4G,9
+465,SK Artevelde 2,4G,10
+261,Gambiet Opwijk 4,4G,11
+166,TSM Mechelen 3,4G,12
+601,CRELEL 5,4H,1
+278,Ixelles CC 6,4H,2
+607,KSK Rochade 4,4H,3
+207,2 Fous d'Etterbeek 2,4H,4
+901,Namur Echecs 5,4H,5
+229,Caïssa Woluwé 1,4H,6
+952,CE Wavre 2,4H,7
+962,CCBBE 1,4H,8
+230,Leuven Centraal 6,4H,9
+244,Brussels 3,4H,10
+548,Caissa Europe 5,4H,11
+231,Dolle Toren Leuven 3,4H,12
+601,CRELEL 6,5A,1
+278,Ixelles CC 7,5A,2
+607,KSK Rochade 5,5A,3
+901,Namur Echecs 6,5A,4
+909,Philippeville 1,5A,5
+549,Saint-Ghislain 1,5A,6
+230,Leuven Centraal 7,5A,7
+952,CE Wavre 3,5A,8
+511,EDC 2,5A,9
+244,Brussels 4,5A,10
+525,CELB Anderlues 3,5A,11
+548,Caissa Europe 6,5A,12
+436,LSV-Chesspirant 4,5B,1
+472,de Mercatel 3,5B,2
+521,Tournai 2,5B,3
+541,Leuze-En-Hainaut 3,5B,4
+462,Zottegem 4,5B,5
+303,KBSK Brugge 5,5B,6
+422,MSV 2,5B,7
+404,De 3 Torens Gent 1,5B,8
+401,KGSRL 10,5B,9
+465,SK Artevelde 3,5B,10
+402,Jean Jaures Gent 2,5B,11
+301,KOSK 4,5B,12
+436,LSV-Chesspirant 5,5C,1
+472,de Mercatel 4,5C,2
+302,KISK Ieper 2,5C,3
+430,Landegem 2,5C,4
+422,MSV 3,5C,5
+303,KBSK Brugge 6,5C,6
+301,KOSK 5,5C,7
+301,KOSK 6,5C,8
+304,Tielt 3,5C,9
+322,KVSK Veurne 1,5C,10
+313,Waregem 3,5C,11
+351,Knokke Schaak 1,5C,12
+601,CRELEL 7,5D,1
+727,Midden Limburg 4,5D,2
+174,Brasschaat 3,5D,3
+130,Moretus 2,5D,4
+703,Eisden/MSK-Dilsen 3,5D,5
+230,Leuven Centraal 8,5D,6
+135,Geel 3,5D,7
+114,Mechelen 4,5D,8
+176,Rokade Westerlo 3,5D,9
+162,Mol 1,5D,10
+132,SK Oude God 3,5D,11
+166,TSM Mechelen 4,5D,12
+601,CRELEL 8,5E,1
+814,Gaume Etalle 1,5E,2
+607,KSK Rochade 6,5E,3
+621,Standard de Liège 3,5E,4
+906,T.S.M. Ave et Auffe 1,5E,5
+703,Eisden/MSK-Dilsen 4,5E,6
+604,KSK47-Eynatten 4,5E,7
+609,Anthisnes 2,5E,8
+627,SF Wirtzfeld 2,5E,9
+623,Sankt Vith 1,5E,10
+712,Landen 2,5E,11
+666,Le 666 1,5E,12
+601,CRELEL 9,5F,1
+727,Midden Limburg 5,5F,2
+607,KSK Rochade 7,5F,3
+230,Leuven Centraal 9,5F,4
+703,Eisden/MSK-Dilsen 5,5F,5
+229,Caïssa Woluwé 2,5F,6
+952,CE Wavre 4,5F,7
+962,CCBBE 2,5F,8
+961,Braine Echecs 2,5F,9
+202,Woluwe 1200 1,5F,10
+712,Landen 3,5F,11
+226,Europchess 3,5F,12
+260,Kapelle-op-den Bos 2,5G,1
+230,Leuven Centraal 10,5G,2
+174,Brasschaat 4,5G,3
+130,Moretus 3,5G,4
+128,Beveren 2,5G,5
+121,Turnhout 3,5G,6
+209,The Belgian CC 3,5G,7
+114,Mechelen 5,5G,8
+176,Rokade Westerlo 4,5G,9
+194,ChessLooks Lier 3,5G,10
+132,SK Oude God 4,5G,11
+166,TSM Mechelen 5,5G,12
+518,Soignies 1,5H,1
+278,Ixelles CC 8,5H,2
+230,Leuven Centraal 11,5H,3
+541,Leuze-En-Hainaut 4,5H,4
+909,Philippeville 2,5H,5
+549,Saint-Ghislain 2,5H,6
+953,Nivelles 1,5H,7
+228,Dworp 3,5H,8
+511,EDC 3,5H,9
+418,VPTD Geraardsbergen 2,5H,10
+525,CELB Anderlues 4,5H,11
+551,HCC Jurbise 2,5H,12
+109,Borgerhout 5,5I,1
+401,KGSRL 12,5I,2
+174,Brasschaat 5,5I,3
+410,Sint-Niklaas 2,5I,4
+401,KGSRL 11,5I,5
+128,Beveren 3,5I,6
+425,Dendermonde 2,5I,7
+432,Wetteren 5,5I,8
+124,Deurne 3,5I,9
+230,Leuven Centraal 12,5I,10
+132,SK Oude God 5,5I,11
+195,SKilled Chezzmates 2,5I,12
+260,Kapelle-op-den Bos 3,5J,1
+278,Ixelles CC 9,5J,2
+174,Brasschaat 6,5J,3
+207,2 Fous d'Etterbeek 3,5J,4
+204,Excelsior 1,5J,5
+229,Caïssa Woluwé 3,5J,6
+209,The Belgian CC 4,5J,7
+230,Leuven Centraal 13,5J,8
+244,Brussels 5,5J,9
+201,CREB Bruxelles 3,5J,10
+132,SK Oude God 6,5J,11
+226,Europchess 4,5J,12
+601,CRELEL 10,6A,1
+603,CREV Verviers 1,6A,2
+621,Standard de Liège 4,6A,3
+619,Welkenraedt 1,6A,4
+604,KSK47-Eynatten 5,6A,5
+604,KSK47-Eynatten 6,6A,6
+641,Malmedy 1,6A,7
+627,SF Wirtzfeld 3,6A,8
+622,Herve 2,6A,9
+601,CRELEL 11,6A,10
+231,Dolle Toren Leuven 4,6B,1
+231,Dolle Toren Leuven 5,6B,2
+207,2 Fous d'Etterbeek 4,6B,3
+230,Leuven Centraal 14,6B,4
+238,Het Pientere Paard 1,6B,5
+238,Het Pientere Paard 2,6B,6
+230,Leuven Centraal 15,6B,7
+176,Rokade Westerlo 5,6B,8
+230,Leuven Centraal 16,6B,9
+0,Bye 1,6B,10
+733,STSC 1,6C,1
+727,Midden Limburg 6,6C,2
+0,Bye 2,6C,3
+714,Pelt 2,6C,4
+121,Turnhout 4,6C,5
+121,Turnhout 5,6C,6
+708,NLS Lommel 2,6C,7
+162,Mol 2,6C,8
+162,Mol 3,6C,9
+736,SC Heusden 1,6C,10
+501,CREC Charleroi 3,6D,1
+0,Bye 3,6D,2
+901,Namur Echecs 7,6D,3
+901,Namur Echecs 8,6D,4
+902,CES 3,6D,5
+902,CES 4,6D,6
+618,Royal Echiquier Mosan 4,6D,7
+618,Royal Echiquier Mosan 3,6D,8
+514,MCC 3,6D,9
+501,CREC Charleroi 4,6D,10
+443,Boey Temse 3,6E,1
+436,LSV-Chesspirant 6,6E,2
+190,Burcht 1,6E,3
+128,Beveren 4,6E,4
+422,MSV 4,6E,5
+128,Beveren 5,6E,6
+114,Mechelen 6,6E,7
+194,ChessLooks Lier 4,6E,8
+0,Bye 4,6E,9
+443,Boey Temse 4,6E,10
+551,HCC Jurbise 3,6F,1
+278,Ixelles CC 10,6F,2
+207,2 Fous d'Etterbeek 5,6F,3
+239,Boitsfort 5,6F,4
+233,DZD Halle 2,6F,5
+953,Nivelles 2,6F,6
+228,Dworp 4,6F,7
+952,CE Wavre 5,6F,8
+261,Gambiet Opwijk 5,6F,9
+230,Leuven Centraal 17,6F,10
+436,LSV-Chesspirant 7,6G,1
+438,Deinze 2,6G,2
+401,KGSRL 13,6G,3
+462,Zottegem 5,6G,4
+303,KBSK Brugge 7,6G,5
+460,Oudenaarde 3,6G,6
+401,KGSRL 14,6G,7
+0,Bye 5,6G,8
+313,Waregem 4,6G,9
+0,Bye 6,6G,10
+231,Dolle Toren Leuven 6,6H,1
+278,Ixelles CC 11,6H,2
+207,2 Fous d'Etterbeek 6,6H,3
+239,Boitsfort 6,6H,4
+204,Excelsior 2,6H,5
+209,The Belgian CC 5,6H,6
+417,Pion-Aalst 2,6H,7
+244,Brussels 6,6H,8
+261,Gambiet Opwijk 6,6H,9
+204,Excelsior 3,6H,10
+501,CREC Charleroi 5,6I,1
+548,Caissa Europe 7,6I,2
+541,Leuze-En-Hainaut 5,6I,3
+547,Binche 1,6I,4
+549,Saint-Ghislain 3,6I,5
+0,Bye 7,6I,6
+0,Bye 8,6I,7
+514,MCC 4,6I,8
+514,MCC 5,6I,9
+0,Bye 9,6I,10
+0,Bye 10,6J,1
+609,Anthisnes 3,6J,2
+811,Arlon Echecs 3,6J,3
+811,Arlon Echecs 2,6J,4
+0,Bye 11,6J,5
+0,Bye 12,6J,6
+814,Gaume Etalle 2,6J,7
+0,Bye 13,6J,8
+0,Bye 14,6J,9
+0,Bye 15,6J,10
+340,Izegem 3,6K,1
+0,Bye 16,6K,2
+302,KISK Ieper 3,6K,3
+305,KSGK 2,6K,4
+364,Meense Leie Schakers 2,6K,5
+364,Meense Leie Schakers 3,6K,6
+364,Meense Leie Schakers 4,6K,7
+322,KVSK Veurne 2,6K,8
+313,Waregem 5,6K,9
+340,Izegem 4,6K,10
+195,SKilled Chezzmates 3,6L,1
+182,Noorderwijk 1,6L,2
+174,Brasschaat 7,6L,3
+128,Beveren 6,6L,4
+128,Beveren 7,6L,5
+471,SDP Wachtebeke 5,6L,6
+114,Mechelen 7,6L,7
+194,ChessLooks Lier 5,6L,8
+132,SK Oude God 7,6L,9
+195,SKilled Chezzmates 4,6L,10
+436,LSV-Chesspirant 9,6M,1
+436,LSV-Chesspirant 8,6M,2
+460,Oudenaarde 4,6M,3
+422,MSV 5,6M,4
+128,Beveren 8,6M,5
+471,SDP Wachtebeke 6,6M,6
+401,KGSRL 16,6M,7
+401,KGSRL 15,6M,8
+436,LSV-Chesspirant 10,6M,9
+475,Rapid Aalter 2,6M,10

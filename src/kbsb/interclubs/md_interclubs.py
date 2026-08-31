@@ -505,13 +505,10 @@ class DbICSeries2324(DbICSeries):
 
 class DbICSeries2425(DbICSeries):
     COLLECTION = "ic_2425_series"
-<<<<<<< HEAD
 
 
 class DbICSeries2526(DbICSeries):
     COLLECTION = "ic_2526_series"
-=======
->>>>>>> bugfix/teamforfieit
 
 
 class DbICStandings(DbBase):
@@ -527,13 +524,10 @@ class DbICStandings2324(DbICStandings):
 
 class DbICStandings2425(DbICStandings):
     COLLECTION = "ic_2425_standings"
-<<<<<<< HEAD
 
 
 class DbICStandings2526(DbICStandings):
     COLLECTION = "ic_2526_standings"
-=======
->>>>>>> bugfix/teamforfieit
 
 
 class DbICVenue(DbBase):

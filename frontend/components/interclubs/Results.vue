@@ -64,9 +64,9 @@ async function calcstatus() {
     return
   }
   const now = new Date().valueOf()
-  const opened = new Date(icdata.rounds[round] + "T15:00").valueOf()
+  const opened = new Date(icdata.rounds11[round] + "T15:00").valueOf()
   const closed = opened + 3600000 * (9 + 24)
-  console.log("dates", new Date(), new Date(icdata.rounds[round] + "T15:00"))
+  console.log("dates", new Date(), new Date(icdata.rounds11[round] + "T15:00"))
   if (now < opened) {
     rsl_status.value = "notopenyet"
     playerlist_buffer.value = {}

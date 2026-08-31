@@ -71,7 +71,7 @@ async def odoo_login(email: str, password: str) -> tuple[int, str]:
     idbel = cast(int, partner_profile[0]["x_studio_contact_nationalid_int"])  # type: ignore
     logger.info(f"odoo_login: user {email} logged in with idbel {idbel}")
     payload = {
-        "sub": idbel,
+        "sub": str(idbel),
         "exp": datetime.now(tz=timezone.utc)
         + timedelta(minutes=token_settings["timeout"]),
     }

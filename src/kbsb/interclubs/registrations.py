@@ -66,7 +66,8 @@ async def update_icregistration(
     options1["_model"] = options1.pop("_model", ICRegistration)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
-    return cast(ICRegistration, await DbICRegistration.update(id, iudict, options1))
+    upd = await DbICRegistration.update(id, iudict, options1)
+    return cast(ICRegistration, upd)
 
 
 # business methods

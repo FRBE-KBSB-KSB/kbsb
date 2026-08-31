@@ -270,7 +270,7 @@ async def api_clb_getICclub(
     idclub: int,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    logger.info(f"api_clb_getICclub {idclub} {auth}")
+    logger.info(f"api_clb_getICclub {idclub}")
     try:
         validate_membertoken(auth)
         return await clb_getICclub(idclub)
