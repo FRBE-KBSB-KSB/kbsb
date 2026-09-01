@@ -36,7 +36,7 @@ const players = ref([])
 const playeredit = ref({})
 const exportallvisit = ref(0)
 const titnotit = ref("notit")
-const titularchoices = []
+let titularchoices = []
 const pll_status = ref("closed")
 let pll_period
 let pll_startdate
@@ -57,7 +57,6 @@ const headers = [
   { title: "ID number", key: "idnumber", sortable: false },
   { title: "ELO", key: "assignedrating" },
   { title: "F-ELO", key: "fiderating" },
-  { title: "B-ELO", key: "natrating" },
   { title: "Club", key: "idcluborig" },
   { title: "Titular", key: "titular" },
   { title: "Min div", key: "mindiv" },
@@ -178,7 +177,6 @@ function fillinPlayerList() {
         idcluborig: m.idclub,
         idclubvisit: 0,
         last_name: m.last_name,
-        natrating: m.natrating,
         nature: pnature,
         titular: "",
         transfer: null,
@@ -188,10 +186,9 @@ function fillinPlayerList() {
     }
   })
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating
     let mindiv = ""
     for (const [div, minelo] of Object.entries(icdata.max_elo)) {
-      if (calrating <= minelo) {
+      if (p.fiderating <= minelo) {
         mindiv = div
       }
     }
@@ -359,10 +356,10 @@ function processUnassignPlayer() {
 
 function readICclub() {
   idclub.value = icclub.value.idclub || 0
+  titularchoices = [{ value: "", title: "No titular" }]
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
   playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
-  titularchoices.splice(1, titularchoices.length - 1)
   if (icclub.value.teams) {
     icclub.value.teams.forEach((t) => {
       titularchoices.push({ title: t.name, value: t.name })
@@ -659,15 +656,7 @@ async function setup(icclub_, icdata_) {
         </VCardTitle>
         <VCardText>
           <h4>Titular</h4>
-          <v-radio-group v-model="titnotit">
-            <v-radio label="No titular" value="notit"></v-radio>
-            <v-radio label="Titular" value="tit"></v-radio>
-          </v-radio-group>
-          <VSelect
-            :items="titularchoices"
-            v-model="playeredit.titular"
-            v-show="titnotit == 'tit'"
-          ></VSelect>
+          <VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
         </VCardText>
         <VCardActions>
           <VSpacer />

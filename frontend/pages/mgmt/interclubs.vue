@@ -203,7 +203,7 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "registration"
+  tab.value = "playerlist"
   changedTab()
 })
 </script>
@@ -250,10 +250,10 @@ onMounted(async () => {
     <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
+        <VTab value="playerlist">Player lists</VTab>
         <VTab value="registration">Registration</VTab>
         <VTab value="venues">Venues</VTab>
-        <!-- <VTab value="playerlist">Player lists</VTab>
-        <VTab value="results">Results</VTab>
+        <!-- <VTab value="results">Results</VTab>
         <VTab value="standings">Standings</VTab>
         <VTab value="reports">Reports</VTab> -->
         <VTab value="downloads">Downloads</VTab>

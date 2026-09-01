@@ -63,7 +63,7 @@ LOG_CONFIG = {
         },
         "reddevil": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": "DEBUG",
             "propagate": False,
         },
         "fastapi": {

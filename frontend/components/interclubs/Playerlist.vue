@@ -100,13 +100,11 @@ async function calc_status() {
   // - noaccess
   if (!idclub.value) {
     pll_status.value = "noclub"
-    console.log("calc_status noclub")
     return
   }
   let access = await checkAccess()
   if (!access) {
     pll_status.value = "noaccess"
-    console.log("calc_status noaccess")
     return
   }
   pll_status.value = pll ? "open" : "closed"
@@ -336,7 +334,10 @@ function openUndoTransfer(idnumber) {
 function playerEdit2Player() {
   // copy the data of Player Edit back to the Player
   // we splice the players array and add the playeredit to trigger a repaint of the table
-  let calrating = playeredit.value.fiderating > 0 ? playeredit.value.fiderating : (playeredit.value.natrating || 0)
+  let calrating =
+    playeredit.value.fiderating > 0
+      ? playeredit.value.fiderating
+      : playeredit.value.natrating || 0
   let mindiv = ""
   if (icdata && icdata.max_elo) {
     for (const [div, minelo] of Object.entries(icdata.max_elo)) {
@@ -403,7 +404,7 @@ function readICclub() {
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating : (p.natrating || 0)
+    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating || 0
     let mindiv = ""
     if (icdata && icdata.max_elo) {
       for (const [div, minelo] of Object.entries(icdata.max_elo)) {

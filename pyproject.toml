@@ -74,4 +74,4 @@ env = [
 ]
 
 [tool.uv.sources]
-reddevil = { path = "libs/reddevil-4.0.2-py3-none-any.whl" }
+reddevil = { path = "libs/reddevil-4.0.3-py3-none-any.whl" }
