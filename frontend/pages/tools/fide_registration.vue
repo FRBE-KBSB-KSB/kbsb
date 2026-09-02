@@ -160,7 +160,7 @@ const ratingRequirement = computed(() => {
   return 'ok';
 });
 
-const isStartDateTooSoon = computed(() => {
+const isLateRegistration = computed(() => {
   if (!form.value.start_date) return false;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -170,7 +170,7 @@ const isStartDateTooSoon = computed(() => {
   if (isNaN(start.getTime())) return false;
   const diffMs = start.getTime() - today.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  return diffDays < 5;
+  return diffDays < 14;
 });
 
 // Helper functions for round dates and FIDE period logic
@@ -832,8 +832,8 @@ definePageMeta({
       
       <div v-if="isLongTournament" id="long-tournament-block">
         <div class="group-title">{{ tCat('long_tournament_rounds') }}</div>
-        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0.5rem; font-weight: 500;">
-          ⚠ {{ tUI('start_date_5days_warning') }}
+        <div v-if="isLateRegistration" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0.5rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_14days_warning') }}
         </div>
         <div id="rounds-container">
           <div class="round-row active" v-for="i in roundsCount" :key="i">
@@ -862,8 +862,8 @@ definePageMeta({
       <label v-if="!isLongTournament">
         <span class="required-label">{{ tField('start_date') }}</span>
         <input type="date" v-model="form.start_date" required>
-        <div v-if="isStartDateTooSoon" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
-          ⚠ {{ tUI('start_date_5days_warning') }}
+        <div v-if="isLateRegistration" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+          ⚠ {{ tUI('start_date_14days_warning') }}
         </div>
       </label>
       <label v-if="!isLongTournament">

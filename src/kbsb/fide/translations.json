@@ -18,7 +18,7 @@
       "fide_under_120_warning": "Warning: At this standard pace (< 120 min), the Max Rating field must be filled in with a value less than 2400.",
       "event_name_hint": "Make sure to include a differentiating name with the year and your club (e.g. Club Championship 2026 SK Deurne).",
       "expected_players_hint": "Does not have to be exact, but an estimate / fair guess.",
-      "start_date_5days_warning": "Warning: Start date is less than 5 days away. FIDE registrations should ideally be submitted well in advance.",
+      "start_date_14days_warning": "Warning: This is a late registration (< 14 days before the start). Submitting is possible, but timely processing cannot be guaranteed.",
       "communication_language_hint": "This language is used for official communications and confirmation emails."
     },
     "categories": {
@@ -139,9 +139,9 @@
       "all_rounds_one_report_period_error": "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'.",
       "conf_subject": "FIDE Registration Confirmation: {event_name}",
       "conf_body": "<p>Dear Organizer / Arbiter,</p><p>Thank you for submitting the FIDE registration form for the tournament: <strong>{event_name}</strong>.</p><p>Your request has been received and sent to the FIDE rating officer.</p><p>Best regards,</p><p>Jorian Burssens</p>",
-      "fide_under_60_confirm": "This standard time control is less than 60 minutes, which is not rateable under FIDE rules.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
-      "fide_under_90_confirm": "This standard time control under 90 minutes is only rateable if all players are rated below 1800. Your Max Rating is either empty or >= 1800.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
-      "fide_under_120_confirm": "This standard time control under 120 minutes is only rateable if all players are rated below 2400. Your Max Rating is either empty or >= 2400.\n\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_60_confirm": "This standard time control is less than 60 minutes, which is not rateable under FIDE rules.\r\n\r\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_90_confirm": "This standard time control under 90 minutes is only rateable if all players are rated below 1800. Your Max Rating is either empty or >= 1800.\r\n\r\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
+      "fide_under_120_confirm": "This standard time control under 120 minutes is only rateable if all players are rated below 2400. Your Max Rating is either empty or >= 2400.\r\n\r\nWe will submit this to the federation, but it will NOT be approved. Do you want to proceed?",
       "fide_under_60_email": "WARNING: This tournament uses a standard time control under 60 minutes. This is not rateable under FIDE regulations, and this registration is NOT approved.",
       "fide_under_90_email": "WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This is incorrect under FIDE regulations, and this registration is NOT approved.",
       "fide_under_120_email": "WARNING: This tournament uses a standard time control under 120 minutes but the Max Rating is either not set or is >= 2400. This is incorrect under FIDE regulations, and this registration is NOT approved."
@@ -166,7 +166,7 @@
       "fide_under_120_warning": "Waarschuwing: Bij deze standaard bedenktijd (< 120 min) moet het veld Maximale rating worden ingevuld met een waarde lager dan 2400.",
       "event_name_hint": "Zorg voor een onderscheidende naam met het jaartal en uw club (bijv. Clubkampioenschap 2026 SK Deurne).",
       "expected_players_hint": "Hoeft niet exact te zijn, maar een realistische schatting.",
-      "start_date_5days_warning": "Waarschuwing: De startdatum is binnen minder dan 5 dagen. FIDE-registraties moeten tijdig worden ingediend.",
+      "start_date_14days_warning": "Waarschuwing: Dit is een late registratie (< 14 dagen voor aanvang). Indienen is mogelijk, maar tijdige verwerking kan niet worden gegarandeerd.",
       "communication_language_hint": "Deze taal wordt gebruikt voor officiële communicatie en bevestigingsmails."
     },
     "categories": {
@@ -287,9 +287,9 @@
       "all_rounds_one_report_period_error": "De datums overspannen meerdere FIDE-ratingperiodes. Voor toernooien over meerdere maanden of maandeinden dient u 'Nieuw lang toernooi' te selecteren.",
       "conf_subject": "FIDE-registratiebevestiging: {event_name}",
       "conf_body": "<p>Beste organisator / scheidsrechter,</p><p>Bedankt voor het indienen van het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p><p>Uw aanvraag is ontvangen en verzonden naar de FIDE rating officer.</p><p>Met vriendelijke groet,</p><p>Jorian Burssens</p>",
-      "fide_under_60_confirm": "Deze standaard bedenktijd is korter dan 60 minuten, wat niet te homologeren is volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
-      "fide_under_90_confirm": "De combinatie van een standaard bedenktijd korter dan 90 minuten en een maximale rating die leeg of >= 1800 is, is incorrect volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
-      "fide_under_120_confirm": "De combinatie van een standaard bedenktijd korter dan 120 minuten en een maximale rating die leeg of >= 2400 is, is incorrect volgens de FIDE-regels.\n\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_60_confirm": "Deze standaard bedenktijd is korter dan 60 minuten, wat niet te homologeren is volgens de FIDE-regels.\r\n\r\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_90_confirm": "De combinatie van een standaard bedenktijd korter dan 90 minuten en een maximale rating die leeg of >= 1800 is, is incorrect volgens de FIDE-regels.\r\n\r\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
+      "fide_under_120_confirm": "De combinatie van een standaard bedenktijd korter dan 120 minuten en een maximale rating die leeg of >= 2400 is, is incorrect volgens de FIDE-regels.\r\n\r\nWe sturen dit door naar de bond, maar het zal NIET worden goedgekeurd. Wilt u toch doorgaan?",
       "fide_under_60_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 60 minuten. Dit is niet te homologeren volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.",
       "fide_under_90_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 90 minuten, maar de maximale rating is niet ingevuld of is >= 1800. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd.",
       "fide_under_120_email": "WAARSCHUWING: Dit toernooi gebruikt een standaard bedenktijd korter dan 120 minuten, maar de maximale rating is niet ingevuld of is >= 2400. Deze combinatie is incorrect volgens de FIDE-regels, en deze registratie is NIET goedgekeurd."
@@ -314,7 +314,7 @@
       "fide_under_120_warning": "Attention : À cette cadence standard (< 120 min), le champ Classement maximum doit être renseigné avec une valeur inférieure à 2400.",
       "event_name_hint": "Veillez à inclure un nom distinctif avec l'année et votre club (ex. Championnat de club 2026 SK Deurne).",
       "expected_players_hint": "Ne doit pas être exact, mais une estimation réaliste.",
-      "start_date_5days_warning": "Attention : La date de début est dans moins de 5 jours. Les inscriptions FIDE doivent idéalement être soumises bien à l'avance.",
+      "start_date_14days_warning": "Attention : Il s'agit d'une inscription tardive (< 14 jours avant le début). La soumission est possible, mais le traitement à temps n'est pas garanti.",
       "communication_language_hint": "Cette langue est utilisée pour les communications officielles et les e-mails de confirmation."
     },
     "categories": {
@@ -435,9 +435,9 @@
       "all_rounds_one_report_period_error": "Les dates s'étendent sur plusieurs périodes de classement FIDE. Pour les tournois sur plusieurs mois ou fins de mois, veuillez sélectionner 'Nouveau tournoi long'.",
       "conf_subject": "Confirmation d'inscription FIDE : {event_name}",
       "conf_body": "<p>Cher organisateur / arbitre,</p><p>Merci d'avoir soumis le formulaire d'inscription FIDE pour le tournoi : <strong>{event_name}</strong>.</p><p>Votre demande a été reçue et envoyée au responsable des classements FIDE.</p><p>Cordialement,</p><p>Jorian Burssens</p>",
-      "fide_under_60_confirm": "Cette cadence standard est inférieure à 60 minutes, ce qui n'est pas homologable selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
-      "fide_under_90_confirm": "La combinaison d'une cadence standard inférieure à 90 minutes et d'un classement maximum vide ou >= 1800 est incorrecte selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
-      "fide_under_120_confirm": "La combinaison d'une cadence standard inférieure à 120 minutes et d'un classement maximum vide ou >= 2400 est incorrecte selon les règles FIDE.\n\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_60_confirm": "Cette cadence standard est inférieure à 60 minutes, ce qui n'est pas homologable selon les règles FIDE.\r\n\r\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_90_confirm": "La combinaison d'une cadence standard inférieure à 90 minutes et d'un classement maximum vide ou >= 1800 est incorrecte selon les règles FIDE.\r\n\r\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
+      "fide_under_120_confirm": "La combinaison d'une cadence standard inférieure à 120 minutes et d'un classement maximum vide ou >= 2400 est incorrecte selon les règles FIDE.\r\n\r\nNous allons soumettre ceci à la fédération, mais cela ne sera PAS approuvé. Voulez-vous continuer ?",
       "fide_under_60_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 60 minutes. Ce n'est pas homologable selon les règles FIDE, et cette inscription n'est PAS approuvée.",
       "fide_under_90_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 90 minutes mais le classement maximum n'est pas renseigné ou est >= 1800. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée.",
       "fide_under_120_email": "ATTENTION : Ce tournoi utilise une cadence standard inférieure à 120 minutes mais le classement maximum n'est pas renseigné ou est >= 2400. Cette combinaison est incorrecte selon les règles FIDE, et cette inscription n'est PAS approuvée."

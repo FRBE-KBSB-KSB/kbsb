@@ -584,10 +584,24 @@ async def generate_fide_form(locale: str, formdata: dict):
             status_code=400, content={"success": False, "errors": errors}
         )
 
+    start_date_str = form.get("start_date", "").strip()
+    is_late = False
+    if start_date_str:
+        try:
+            start_date_val = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            if (start_date_val - today).days < 14:
+                is_late = True
+        except Exception:
+            pass
+
     filled = fill_workbook(form)
     event_name = form.get("event_name", "").strip()
     safe_event = re.sub(r"\s+", "_", event_name) or "Unknown"
     filename = f"Tournament_Registration_{safe_event}.xlsx"
+    if is_late:
+        filename = f"LATE_{filename}"
+
     # Send email with FIDE registration Excel attachment
     excel_content = filled.getvalue()
     encoded_excel = base64.b64encode(excel_content)
@@ -648,7 +662,13 @@ async def generate_fide_form(locale: str, formdata: dict):
         )
         warning_banner = f'<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2;">{email_warn_msg}</div>'
 
+    late_banner = ""
+    if is_late:
+        late_banner = '<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2; font-size: 1.05rem;">WARNING: THIS IS A LATE REGISTRATION (STARTS IN LESS THAN 14 DAYS). TIMELY PROCESSING IS NOT GUARANTEED.</div>'
+
     mail_subject = f"{event_name} - Fide registration form"
+    if is_late:
+        mail_subject = f"[LATE REGISTRATION] {mail_subject}"
     if is_unapproved:
         mail_subject = f"[UNAPPROVED] {mail_subject}"
 
@@ -663,6 +683,7 @@ async def generate_fide_form(locale: str, formdata: dict):
 
     mail_body = f"""
     {warning_banner}
+    {late_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
     <p><strong>Clubnummer:</strong> {club_number}</p>
