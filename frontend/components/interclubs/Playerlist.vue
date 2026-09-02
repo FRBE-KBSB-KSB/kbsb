@@ -37,8 +37,7 @@ let playersindexed = {}
 const players = ref([])
 const playeredit = ref({})
 const exportallvisit = ref(0)
-const titnotit = ref("notit")
-const titularchoices = []
+let titularchoices = []
 const pll_status = ref("closed")
 const importavailable = ref(false)
 let pll_period
@@ -221,7 +220,6 @@ function fillinPlayerList(nature) {
         idcluborig: m.idclub,
         idclubvisit: 0,
         last_name: m.last_name,
-        natrating: natrating,
         nature: nature,
         period: pll_period,
         titular: "",
@@ -308,7 +306,6 @@ function openEditElo(idnumber) {
 
 function openEditTitular(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  titnotit.value = playeredit.value.titular ? "tit" : "notit"
   edittitulardialog.value = true
 }
 
@@ -365,9 +362,6 @@ function processEditElo() {
 }
 
 function processEditTitular() {
-  if (titnotit.value == "notit") {
-    playeredit.value.titular = ""
-  }
   playerEdit2Player()
   edittitulardialog.value = false
 }
@@ -401,14 +395,14 @@ function processUndoTransfer() {
 
 function readICclub() {
   idclub.value = icclub.value.idclub || 0
+  titularchoices = [{ value: "", title: t("icn.pll_notit") }]
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating || 0
     let mindiv = ""
     if (icdata && icdata.max_elo) {
       for (const [div, minelo] of Object.entries(icdata.max_elo)) {
-        if (calrating <= minelo) {
+        if (p.fiderating <= minelo) {
           mindiv = div
         }
       }
@@ -417,7 +411,6 @@ function readICclub() {
     p.fullname = p.fullname || `${p.last_name}, ${p.first_name}`
   })
   playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
-  titularchoices.splice(1, titularchoices.length - 1)
   if (icclub.value.teams) {
     icclub.value.teams.forEach((t) => {
       titularchoices.push({ title: t.name, value: t.name })
@@ -709,15 +702,7 @@ async function setup(icclub_, icdata_) {
         </VCardTitle>
         <VCardText>
           <h4>{{ t("Titular") }}</h4>
-          <v-radio-group v-model="titnotit">
-            <v-radio :label="t('icn.pll_notit')" value="notit"></v-radio>
-            <v-radio :label="t('icn.pll_tit')" value="tit"></v-radio>
-          </v-radio-group>
-          <VSelect
-            :items="titularchoices"
-            v-model="playeredit.titular"
-            v-show="titnotit == 'tit'"
-          ></VSelect>
+          <VSelect :items="titularchoices" v-model="playeredit.titular"></VSelect>
         </VCardText>
         <VCardActions>
           <VSpacer />

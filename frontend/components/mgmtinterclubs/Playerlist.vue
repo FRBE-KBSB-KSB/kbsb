@@ -35,7 +35,6 @@ let playersindexed = {}
 const players = ref([])
 const playeredit = ref({})
 const exportallvisit = ref(0)
-const titnotit = ref("notit")
 let titularchoices = []
 const pll_status = ref("closed")
 let pll_period
@@ -265,7 +264,6 @@ function openEditElo(idnumber) {
 
 function openEditTitular(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
-  titnotit.value = playeredit.value.titular ? "tit" : "notit"
   edittitulardialog.value = true
 }
 
@@ -309,9 +307,6 @@ function processEditElo() {
 }
 
 function processEditTitular() {
-  if (titnotit.value == "notit") {
-    playeredit.value.titular = ""
-  }
   playerEdit2Player()
   edittitulardialog.value = false
 }
@@ -359,6 +354,18 @@ function readICclub() {
   titularchoices = [{ value: "", title: "No titular" }]
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
+  players.value.forEach((p) => {
+    let mindiv = ""
+    if (icdata && icdata.max_elo) {
+      for (const [div, minelo] of Object.entries(icdata.max_elo)) {
+        if (p.fiderating <= minelo) {
+          mindiv = div
+        }
+      }
+    }
+    p.mindiv = mindiv
+    p.fullname = p.fullname || `${p.last_name}, ${p.first_name}`
+  })
   playersindexed = Object.fromEntries(players.value.map((x) => [x.idnumber, x]))
   if (icclub.value.teams) {
     icclub.value.teams.forEach((t) => {
