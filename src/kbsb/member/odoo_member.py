@@ -35,16 +35,21 @@ def current_affiliation_year() -> int:
 
 
 def get_fideelo(id: str | int) -> int:
+    if not id:
+        return 0
     elo_server = get_setting("ELO_SERVER")
     try:
-        response = requests.get(f"{elo_server}/{id}")
-        try:
-            r = response.json()
-            return r["rating"]["standard"]
-        except (ValueError, KeyError) as e:
-            logger.error(f"Error parsing FIDE ELO response for id {id}: {e}")
-            return 0
-    except requests.RequestException as e:
+        response = requests.get(f"{elo_server}/{id}", timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, dict):
+                rating = data.get("rating")
+                if isinstance(rating, dict):
+                    std = rating.get("standard")
+                    if isinstance(std, (int, float)):
+                        return int(std)
+        return 0
+    except Exception as e:
         logger.error(f"Error fetching FIDE ELO for id {id}: {e}")
         return 0
 
