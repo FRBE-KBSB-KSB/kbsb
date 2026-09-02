@@ -1210,7 +1210,7 @@ wheels = [
 
 [[package]]
 name = "kbsb"
-version = "3.8.1"
+version = "3.8.2"
 source = { editable = "." }
 dependencies = [
     { name = "aiocsv" },

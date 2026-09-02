@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import xmlrpc.client
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from typing import Any, cast
 
 import requests
@@ -72,8 +72,7 @@ async def odoo_login(email: str, password: str) -> tuple[int, str]:
     logger.info(f"odoo_login: user {email} logged in with idbel {idbel}")
     payload = {
         "sub": str(idbel),
-        "exp": datetime.now(tz=timezone.utc)
-        + timedelta(minutes=token_settings["timeout"]),
+        "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
     await asyncio.sleep(0)
     return (idbel, jwt_encode(payload, SALT))
@@ -101,7 +100,7 @@ async def odoo_mgmt_getmember(idmember: int | str) -> Member:
         "phone_sanitized",
         "x_studio_contact_affiliationyear",
         "x_studio_contact_birthday_date",
-        "x_studio_contact_clubid",
+        "x_studio_contact_clubid_link",
         "x_studio_contact_fideid_int",
         "x_studio_contact_fidenat_id",
         "x_studio_contact_fidetitle",
@@ -137,7 +136,7 @@ async def odoo_mgmt_getmember(idmember: int | str) -> Member:
         fidetitle=member["x_studio_contact_fidetitle"] or "",
         first_name=member["x_studio_contact_firstname"],
         gender=member["x_studio_contact_gender"],
-        idclub=member["x_studio_contact_clubid"],
+        idclub=member["x_studio_contact_clubid_link"],
         idfide=member["x_studio_contact_fideid_int"],
         idnumber=idmember,
         last_name=member["x_studio_contact_name"],
@@ -177,7 +176,7 @@ async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
     uid = common.authenticate(db, username, password, {})
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
     domain = [
-        ["x_studio_contact_clubid", "=", idclub],
+        ["x_studio_contact_clubid_link", "=", idclub],
         ["x_studio_contact_affiliationyear", "=", 2027],
     ]
     fields = [
@@ -186,7 +185,7 @@ async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
         "phone_sanitized",
         "x_studio_contact_affiliationyear",
         "x_studio_contact_birthday_date",
-        "x_studio_contact_clubid",
+        "x_studio_contact_clubid_link",
         "x_studio_contact_fideid_int",
         "x_studio_contact_fidenat_id",
         "x_studio_contact_fidetitle",
@@ -219,7 +218,7 @@ async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
             fidetitle=member["x_studio_contact_fidetitle"] or "",
             first_name=member["x_studio_contact_firstname"],
             gender=member["x_studio_contact_gender"],
-            idclub=member["x_studio_contact_clubid"],
+            idclub=member["x_studio_contact_clubid_link"],
             idfide=member["x_studio_contact_fideid_int"],
             idnumber=member["x_studio_contact_nationalid_int"],
             last_name=member["x_studio_contact_name"],
@@ -240,7 +239,7 @@ async def odoo_mgmt_getclubmembers(idclub: int):
     uid = common.authenticate(db, username, password, {})
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
     domain = [
-        ["x_studio_contact_clubid", "=", idclub],
+        ["x_studio_contact_clubid_link", "=", idclub],
         ["x_studio_contact_affiliationyear", "=", current_affiliation_year()],
     ]
     fields = [
@@ -249,7 +248,7 @@ async def odoo_mgmt_getclubmembers(idclub: int):
         "phone_sanitized",
         "x_studio_contact_affiliationyear",
         "x_studio_contact_birthday_date",
-        "x_studio_contact_clubid",
+        "x_studio_contact_clubid_link",
         "x_studio_contact_fideid_int",
         "x_studio_contact_fidenat_id",
         "x_studio_contact_fidetitle",
@@ -284,7 +283,7 @@ async def odoo_mgmt_getclubmembers(idclub: int):
             fidetitle=member["x_studio_contact_fidetitle"] or "",
             first_name=member["x_studio_contact_firstname"],
             gender=member["x_studio_contact_gender"],
-            idclub=member["x_studio_contact_clubid"],
+            idclub=member["x_studio_contact_clubid_link"],
             idfide=member["x_studio_contact_fideid_int"],
             idnumber=member["x_studio_contact_nationalid_int"],
             last_name=member["x_studio_contact_name"],
