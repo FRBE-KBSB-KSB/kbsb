@@ -38,7 +38,12 @@ def get_fideelo(id: str | int) -> int:
     elo_server = get_setting("ELO_SERVER")
     try:
         response = requests.get(f"{elo_server}/{id}")
-        return response.json()["rating"]["standard"]
+        try:
+            r = response.json()
+            return r["rating"]["standard"]
+        except (ValueError, KeyError) as e:
+            logger.error(f"Error parsing FIDE ELO response for id {id}: {e}")
+            return 0
     except requests.RequestException as e:
         logger.error(f"Error fetching FIDE ELO for id {id}: {e}")
         return 0
