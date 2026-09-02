@@ -627,6 +627,18 @@ function clearFormData() {
 async function submitForm() {
   if (waitingdialog.value || submitCooldown.value) return;
 
+  const invEmail = (form.value.invoice_email || '').trim();
+  if (invEmail !== 'JORIAN.INTERNAL' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail)) {
+    errorText.value = "Please enter a valid email address for invoice / communication.";
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
+    }
+    return;
+  }
+
   if (form.value.start_date && form.value.end_date && form.value.end_date < form.value.start_date) {
     errorText.value = tMsg('end_date_order_error');
     if (process.client) {
@@ -712,18 +724,36 @@ onMounted(() => {
 
   // Send message to parent iframe if embedded
   if (typeof window !== "undefined" && window.parent !== window) {
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        window.parent.postMessage({
-          type: "kbsb-iframe-resize",
-          height: entry.target.scrollHeight
-        }, "*")
-      }
+    const postHeight = () => {
+      const shell = document.querySelector('.form-shell');
+      const h = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+      window.parent.postMessage({
+        type: "kbsb-iframe-resize",
+        height: h
+      }, "*")
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      postHeight();
     })
     resizeObserver.observe(document.body)
+    nextTick(() => postHeight())
+
     onUnmounted(() => {
       resizeObserver.disconnect()
     })
+  }
+});
+
+watch([submitted, translations], async () => {
+  await nextTick();
+  if (typeof window !== "undefined" && window.parent !== window) {
+    const shell = document.querySelector('.form-shell');
+    const h = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+    window.parent.postMessage({
+      type: "kbsb-iframe-resize",
+      height: h
+    }, "*");
   }
 });
 
@@ -762,7 +792,7 @@ definePageMeta({
     <form @submit.prevent="submitForm">
       <label>
         <span class="required-label">{{ tField('invoice_email') }}</span>
-        <input type="email" v-model="form.invoice_email" required>
+        <input type="text" v-model="form.invoice_email" autocomplete="email" inputmode="email" required>
       </label>
       <label>
         <span class="required-label">{{ tField('invoice_clubnr') }}</span>
@@ -1414,6 +1444,12 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
   background: #fef2f2;
   border: 1px solid rgba(185, 28, 28, 0.25);
   font-size: 0.75rem;
+}
+
+:deep(.v-application),
+:deep(.v-application__wrap) {
+  min-height: auto !important;
+  background: transparent !important;
 }
 
 @media (max-width: 640px) {

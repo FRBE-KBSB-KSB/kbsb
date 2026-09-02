@@ -692,11 +692,15 @@ async def generate_fide_form(locale: str, formdata: dict):
     <p>Groetjes!</p>
     """
 
+    invoice_email = form.get("invoice_email", "").strip()
+    is_internal_test = (invoice_email == "JORIAN.INTERNAL")
+    fide_receiver = "jorian.burssens@frbe-kbsb-ksb.be" if is_internal_test else "fide@frbe-kbsb-ksb.be"
+
     mail_params = MailParams(
         locale=locale,
-        receiver="fide@frbe-kbsb-ksb.be",
+        receiver=fide_receiver,
         sender=sender_email,
-        subject=mail_subject,
+        subject=mail_subject if not is_internal_test else f"[INTERNAL TEST] {mail_subject}",
         template=mail_body,
         attachments=[excel_attachment],
     )
@@ -704,10 +708,10 @@ async def generate_fide_form(locale: str, formdata: dict):
     try:
         sendEmailMessage(mail_params)
         logger.info(
-            f"FIDE Registration email sent to fide@frbe-kbsb-ksb.be from {sender_email}"
+            f"FIDE Registration email sent to {fide_receiver} from {sender_email}"
         )
     except Exception as e:
-        logger.exception("Failed to send FIDE registration email")
+        logger.exception(f"Failed to send FIDE registration email to {fide_receiver}")
         return JSONResponse(
             status_code=500,
             content={
@@ -728,12 +732,14 @@ async def generate_fide_form(locale: str, formdata: dict):
         conf_body = warning_banner + conf_body
 
     recipients = []
-    invoice_email = form.get("invoice_email", "").strip()
     contact_email = form.get("contact_email", "").strip()
-    if invoice_email:
-        recipients.append(invoice_email)
-    if contact_email and contact_email != invoice_email:
-        recipients.append(contact_email)
+    if is_internal_test:
+        recipients.append("jorian.burssens@frbe-kbsb-ksb.be")
+    else:
+        if invoice_email:
+            recipients.append(invoice_email)
+        if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
+            recipients.append(contact_email)
 
     for recipient in recipients:
         conf_params = MailParams(
