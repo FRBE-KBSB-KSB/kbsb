@@ -92,7 +92,9 @@ def get_mail_bridge_secret() -> str:
 class SendConfirmationPayload(BaseModel):
     subject: str
     html: str
-    bcc: List[str]
+    to: List[str] = []
+    cc: List[str] = []
+    bcc: List[str] = []
 
 
 # Website-local endpoint -- unlike every other route on this router, this one
@@ -102,23 +104,8 @@ class SendConfirmationPayload(BaseModel):
 # fide_registration) -- see docs/VPS_tournament_registrations.md §6. Node
 # builds the real email content (buildConfirmationEmail() in routes/
 # tournament_registrations.js); this endpoint's only job is to relay a
-# pre-built {subject, html, bcc} payload through sendEmailMessage(), gated by
+# pre-built {subject, html, to, cc, bcc} payload through sendEmailMessage(), gated by
 # the shared secret above.
-#
-# BCC-only, by explicit request -- matches the legacy PHP tool's own
-# email_registrations.php exactly: every recipient (arbiters, the registrant,
-# organizer, copy addresses) is blind-copied so none of them see each
-# other's address. There is deliberately no real "To" recipient here either,
-# same as legacy's own zero-AddAddress()-calls PHPMailer send -- see the
-# empty receiver="" below (an earlier draft set this to the sender's own
-# address, which meant that real inbox got a genuine copy of every
-# confirmation email; fixed).
-#
-# MUST be registered before the catch-all proxy_to_vps routes below: FastAPI/
-# Starlette matches routes in registration order, and "/{path:path}" would
-# otherwise match "/send-confirmation" first and forward it uselessly to the
-# VPS, which has no matching route there. Same ordering issue, same fix, as
-# kbsb-dataplatform's own GET /lookup being registered ahead of GET /:id.
 @router.post("/send-confirmation")
 async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     presented = request.headers.get("x-mail-bridge-secret", "")
@@ -126,33 +113,32 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     if not hmac.compare_digest(presented.encode("utf-8"), expected.encode("utf-8")):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    if not payload.bcc:
-        raise HTTPException(status_code=400, detail="bcc must not be empty")
+    all_recipients = payload.to + payload.cc + payload.bcc
+    if not all_recipients:
+        raise HTTPException(status_code=400, detail="At least one recipient (to, cc, or bcc) must not be empty")
 
     settings = get_settings()
     sender_email = settings.EMAIL.get("sender", "noreply@frbe-kbsb-ksb.be")
 
-    # Deliberately empty, not sender_email -- an earlier version set this to
-    # the sender's own address to satisfy MailParams.receiver's required-
-    # field constraint, but that address is a real inbox (settings.EMAIL
-    # ["sender"]) that would then genuinely receive a copy of every
-    # confirmation email, unrelated to any of these registrations. An empty
-    # string renders as a bare "To:" header (verified: email.message.
-    # EmailMessage tolerates this fine) -- no visible recipient at all,
-    # matching legacy's own zero-AddAddress()-calls behavior. Real
-    # recipients live only in bcc.
+    to_str = ", ".join([r.strip() for r in payload.to if r.strip()])
+    cc_str = ", ".join([r.strip() for r in payload.cc if r.strip()])
+    bcc_str = ", ".join([r.strip() for r in payload.bcc if r.strip()])
+
     mail_params = MailParams(
         locale="nl",
-        receiver="",
+        receiver=to_str,
         sender=sender_email,
         subject=payload.subject,
         template=payload.html,
-        bcc=", ".join(payload.bcc),
+        cc=cc_str,
+        bcc=bcc_str,
     )
 
     try:
         sendEmailMessage(mail_params)
-        logger.info(f"tournament_registrations confirmation email sent, bcc count={len(payload.bcc)}")
+        logger.info(
+            f"tournament_registrations confirmation email sent (to={len(payload.to)}, cc={len(payload.cc)}, bcc={len(payload.bcc)})"
+        )
     except Exception:
         logger.exception("Failed to send tournament_registrations confirmation email")
         raise HTTPException(status_code=502, detail="Failed to send confirmation email")
