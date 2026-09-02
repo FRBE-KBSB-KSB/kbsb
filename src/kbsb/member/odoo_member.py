@@ -34,12 +34,18 @@ def current_affiliation_year() -> int:
     return year
 
 
+_elo_session = requests.Session()
+_adapter = requests.adapters.HTTPAdapter(pool_connections=30, pool_maxsize=30)
+_elo_session.mount("https://", _adapter)
+_elo_session.mount("http://", _adapter)
+
+
 def get_fideelo(id: str | int) -> int:
     if not id:
         return 0
     elo_server = get_setting("ELO_SERVER")
     try:
-        response = requests.get(f"{elo_server}/{id}", timeout=5)
+        response = _elo_session.get(f"{elo_server}/{id}", timeout=5)
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, dict):
@@ -221,21 +227,30 @@ async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
     await asyncio.sleep(0)
     if not members:
         return []
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    def fetch_rating(m: dict[str, Any]) -> int:
+        return get_fideelo(m.get("x_studio_contact_nationalid_int"))
+
+    with ThreadPoolExecutor(max_workers=20) as executor:
+        ratings = list(executor.map(fetch_rating, members))
+
     return [
         AnonMember(
-            birthyear=date.fromisoformat(member["x_studio_contact_birthday_date"]).year,
-            fiderating=get_fideelo(member["x_studio_contact_nationalid_int"]),
+            birthyear=date.fromisoformat(member["x_studio_contact_birthday_date"]).year if member.get("x_studio_contact_birthday_date") else 0,
+            fiderating=rating,
             fidetitle=member["x_studio_contact_fidetitle"] or "",
-            first_name=member["x_studio_contact_firstname"],
-            gender=member["x_studio_contact_gender"],
-            idclub=member["x_studio_contact_clubid_link"],
-            idfide=member["x_studio_contact_fideid_int"],
-            idnumber=member["x_studio_contact_nationalid_int"],
-            last_name=member["x_studio_contact_name"],
-            nationalityfide=member["x_studio_contact_fidenat_id"][1][0:3],
-            year_affiliation=member["x_studio_contact_affiliationyear"],
+            first_name=member["x_studio_contact_firstname"] or "",
+            gender=member["x_studio_contact_gender"] or "",
+            idclub=member.get("x_studio_contact_clubid_link") or idclub,
+            idfide=member.get("x_studio_contact_fideid_int") or 0,
+            idnumber=member.get("x_studio_contact_nationalid_int") or 0,
+            last_name=member.get("x_studio_contact_name") or "",
+            nationalityfide=member["x_studio_contact_fidenat_id"][1][0:3] if member.get("x_studio_contact_fidenat_id") else "",
+            year_affiliation=member.get("x_studio_contact_affiliationyear") or 0,
         )
-        for member in members  # type: ignore
+        for member, rating in zip(members, ratings)  # type: ignore
     ]
 
 
