@@ -738,7 +738,8 @@ onMounted(() => {
   if (typeof window !== "undefined" && window.parent !== window) {
     const postHeight = () => {
       const shell = document.querySelector('.form-shell');
-      const h = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+      const baseHeight = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+      const h = baseHeight + 45; // 45px buffer for margins, padding, and focus rings
       window.parent.postMessage({
         type: "kbsb-iframe-resize",
         height: h
@@ -761,7 +762,8 @@ watch([submitted, translations], async () => {
   await nextTick();
   if (typeof window !== "undefined" && window.parent !== window) {
     const shell = document.querySelector('.form-shell');
-    const h = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+    const baseHeight = shell ? Math.ceil(shell.getBoundingClientRect().height) : document.body.scrollHeight;
+    const h = baseHeight + 45;
     window.parent.postMessage({
       type: "kbsb-iframe-resize",
       height: h
