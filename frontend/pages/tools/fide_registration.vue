@@ -639,6 +639,18 @@ async function submitForm() {
     return;
   }
 
+  const conEmail = (form.value.contact_email || '').trim();
+  if (conEmail && conEmail !== 'JORIAN.INTERNAL' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(conEmail)) {
+    errorText.value = "Please enter a valid contact email address.";
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
+    }
+    return;
+  }
+
   if (form.value.start_date && form.value.end_date && form.value.end_date < form.value.start_date) {
     errorText.value = tMsg('end_date_order_error');
     if (process.client) {
@@ -1269,7 +1281,7 @@ definePageMeta({
       
       <label>
         <span class="required-label">{{ tField('contact_email') }}</span>
-        <input type="email" v-model="form.contact_email" required>
+        <input type="text" v-model="form.contact_email" autocomplete="email" inputmode="email" required>
         <div style="font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; font-style: italic;">A confirmation email will be sent to this address. This is typically the email of the organising club.</div>
       </label>
       <label>
