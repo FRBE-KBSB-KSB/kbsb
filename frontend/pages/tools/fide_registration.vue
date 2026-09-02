@@ -631,6 +631,9 @@ async function submitForm() {
     errorText.value = tMsg('end_date_order_error');
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
     }
     return;
   }
@@ -639,6 +642,9 @@ async function submitForm() {
     errorText.value = tMsg('all_rounds_one_report_period_error');
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
     }
     return;
   }
@@ -668,12 +674,18 @@ async function submitForm() {
     submitted.value = true;
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
     }
 
   } catch (error) {
     console.error(error);
     const msg = error?.message || error?.response?.data?.message;
     errorText.value = msg || "Error submitting form. The registration email could not be sent. Please try again or contact fide@frbe-kbsb-ksb.be.";
+    if (process.client && window.parent !== window) {
+      window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+    }
   } finally {
     waitingdialog.value = false;
     // 5-second cooldown to guard against fast re-submits
@@ -686,6 +698,9 @@ async function submitForm() {
 function resetForm() {
   clearFormData();
   submitted.value = false;
+  if (process.client && window.parent !== window) {
+    window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+  }
 }
 onMounted(() => {
   loadFormData();

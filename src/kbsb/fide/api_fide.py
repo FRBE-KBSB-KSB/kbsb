@@ -664,7 +664,7 @@ async def generate_fide_form(locale: str, formdata: dict):
 
     late_banner = ""
     if is_late:
-        late_banner = '<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2; font-size: 1.05rem;">WARNING: THIS IS A LATE REGISTRATION (STARTS IN LESS THAN 14 DAYS). TIMELY PROCESSING IS NOT GUARANTEED.</div>'
+        late_banner = '<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2; font-size: 1.05rem;">WARNING: THIS IS A LATE REGISTRATION (STARTS IN LESS THAN 14 DAYS).</div>'
 
     mail_subject = f"{event_name} - Fide registration form"
     if is_late:
