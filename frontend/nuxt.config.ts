@@ -55,7 +55,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.API_URL || (process.env.NODE_ENV === 'production' ? '/' : 'http://127.0.0.1:8000/'),
-      statamicurl: process.env.STATAMIC_URL || 'http://127.0.0.1:8000/',
       repo_branch: 'master',
     },
   },
