@@ -1,18 +1,19 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRoute } from "vue-router"
-import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
-import Standings from "@/components/interclubs/Standings.vue"
+import { useRouter } from "vue-router"
+// import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
+// import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
-import Contact from "@/components/interclubs/Contact.vue"
+// import Contact from "@/components/interclubs/Contact.vue"
 
 // locale
 const { locale, t } = useI18n()
 
 // communication
 const route = useRoute()
+const router = useRouter()
 const waitingdialog = ref(false)
 let dialogcounter = 0
 const errortext = ref(null)
@@ -22,12 +23,12 @@ const snackbar = ref(null)
 const { $backend } = useNuxtApp()
 
 // datamodel
-const tab = ref(null)
-const refresults = ref(null)
-const refstandings = ref(null)
+const tab = ref("playerlist")
+// const refresults = ref(null)
+// const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
-const refcontact = ref(null)
+// const refcontact = ref(null)
 const clubs = ref([])
 const idclub = ref(null)
 const icdata = ref({})
@@ -44,21 +45,21 @@ function changeDialogCounter(i) {
 function changedTab() {
   console.log("changedTab", tab.value)
   switch (tab.value) {
-    case "results":
-      refresults.value.setup(icdata.value)
-      break
-    case "standings":
-      refstandings.value.setup(icdata.value)
-      break
+    // case "results":
+    //   refresults.value.setup(icdata.value)
+    //   break
+    // case "standings":
+    //   refstandings.value.setup(icdata.value)
+    //   break
     case "playerlist":
-      refplayerlist.value.setup()
+      refplayerlist.value.setup(idclub.value)
       break
     case "venues":
       refvenues.value.setup(idclub.value, icdata.value)
       break
-    case "contact":
-      refcontact.value.setup(idclub.value)
-      break
+    // case "contact":
+    //   refcontact.value.setup(idclub.value)
+    //   break
   }
 }
 
@@ -115,7 +116,6 @@ onMounted(async () => {
   locale.value = l ? l : "nl"
   await processICdata()
   await getICClubs()
-  tab.value = "venues"
   changedTab()
 })
 
@@ -158,26 +158,26 @@ definePageMeta({
     <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
       <!-- <v-tab value="results">{{ t("Results") }}</v-tab> -->
       <!-- <v-tab value="standings">{{ t("Standings") }}</v-tab> -->
-      <!-- <v-tab value="playerlist">{{ t("Player list") }}</v-tab>  -->
+      <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
-      <v-tab value="contact">{{ t("Contact") }}</v-tab>
+      <!-- <v-tab value="contact">{{ t("Contact") }}</v-tab> -->
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
-      <v-window-item :eager="true" value="results">
+      <!-- <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>
       <v-window-item :eager="true" value="standings">
         <Standings ref="refstandings" />
-      </v-window-item>
+      </v-window-item> -->
       <v-window-item :eager="true" value="playerlist">
         <PlayerlistPublic ref="refplayerlist" />
       </v-window-item>
       <v-window-item :eager="true" value="venues">
         <VenuePublic ref="refvenues" />
       </v-window-item>
-      <v-window-item :eager="true" value="contact">
+      <!-- <v-window-item :eager="true" value="contact">
         <Contact ref="refcontact" />
-      </v-window-item>
+      </v-window-item> -->
     </v-window>
   </v-container>
 </template>
