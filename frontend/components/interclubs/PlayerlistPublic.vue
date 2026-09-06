@@ -52,7 +52,7 @@ async function download() {
     showLoading(false)
   }
   const link = document.createElement("a")
-  link.download = "playerlists_2425.xlsx"
+  link.download = `playerlist_${idclub.value}_2627.xlsx`
   link.href = "data:application/excel;base64," + xls
   document.body.appendChild(link)
   link.click()
@@ -68,23 +68,6 @@ function filterPlayers() {
   players.value = icclub.value.players.filter((p) => p.nature != "exported")
   players.value.forEach((p) => {
     p.fullname = `${p.last_name}, ${p.first_name}`
-  })
-}
-
-async function getClubs() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("club", "anon_get_clubs", {})
-  } catch (error) {
-    showSnackbar(t(error.message))
-    return
-  } finally {
-    showLoading(false)
-  }
-  clubs.value = reply.data
-  clubs.value.forEach((p) => {
-    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
 }
 
@@ -105,15 +88,12 @@ async function getICPlayerlist() {
   filterPlayers()
 }
 
-function selectClub() {
-  getICPlayerlist()
-}
-
-async function setup() {
+async function setup(idclub_) {
   console.log("setup playerlist public")
+  idclub.value = idclub_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  getClubs()
+  await getICPlayerlist()
 }
 </script>
 
@@ -122,22 +102,6 @@ async function setup() {
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
     <h2>{{ $t("Player list") }}</h2>
-    <v-card>
-      <v-card-text>
-        {{ $t("Select the club") }} ({{ $t("Start typing number or name") }})
-        <VAutocomplete
-          v-model="idclub"
-          :items="clubs"
-          item-title="merged"
-          item-value="idclub"
-          color="green"
-          label="Club"
-          clearable
-          @update:model-value="selectClub"
-        >
-        </VAutocomplete>
-      </v-card-text>
-    </v-card>
     <div v-if="idclub">
       <VBtn @click="download" class="mt-2" color="green">{{ $t("Download") }}</VBtn>
       <VDataTable
