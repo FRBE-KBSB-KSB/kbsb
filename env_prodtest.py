@@ -16,10 +16,6 @@ SECRETS = {
         "name": "kbsb-mongodb-prod",
         "manager": "filejson",
     },
-    "mysql": {
-        "name": "kbsb-mysql-chessdevil",
-        "manager": "filejson",
-    },
     "gmail": {
         "name": "kbsb-gmail",
         "manager": "filejson",

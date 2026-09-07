@@ -214,8 +214,6 @@ mypy-extensions==1.1.0
     # via
     #   black
     #   mypy
-mysql-connector-python==26.7.0
-    # via kbsb
 openpyxl==3.1.5
     # via kbsb
 packaging==26.3

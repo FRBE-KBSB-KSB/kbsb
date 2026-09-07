@@ -98,10 +98,6 @@ SECRETS = {
         "name": "kbsb-mongodb",
         "manager": "googlejson",
     },
-    "mysql": {
-        "name": "kbsb-mysql-chessdevil",
-        "manager": "googlejson",
-    },
     "postgres": {
         "name": "testing-vps-postgres",
         "manager": "googlejson",

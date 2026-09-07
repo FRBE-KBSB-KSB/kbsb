@@ -1,22 +1,21 @@
-import logging
-
 import asyncio
+import logging
 from csv import DictReader, DictWriter
-from typing import List
-from unidecode import unidecode
-from operator import attrgetter
 from datetime import date
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
+from operator import attrgetter
+
+from reddevil.core import RdInternalServerError, RdNotFound
 from reddevil.filestore.filestore import (
-    write_bucket_content,
-    read_bucket_content,
     list_bucket_files,
+    read_bucket_content,
+    write_bucket_content,
 )
-from reddevil.core import RdNotFound, RdInternalServerError
-from kbsb.core.db import get_mysql
-from .md_elo import EloGame, EloPlayer, DbICTrfRecord, TrfRound
-from .md_interclubs import DbICSeries
+from unidecode import unidecode
+
 from .helpers import load_icdata
+from .md_elo import DbICTrfRecord, EloGame, EloPlayer, TrfRound
+from .md_interclubs import DbICSeries
 
 logger = logging.getLogger(__name__)
 icdata = None
@@ -89,78 +88,76 @@ async def write_eloprocessing():
     Reads elo data from infomaniak server and write it down in a csv file
     in the cloud
     """
-    logger.info("writing eloprocessing")
-    cnx = get_mysql()
-    query = """
-        select `esyy_frbekbsbbe`.`signaletique`.`Matricule` AS `idnumber`,
-               `esyy_frbekbsbbe`.`signaletique`.`Nom`       AS `last_name`,
-               `esyy_frbekbsbbe`.`signaletique`.`Prenom`    AS `first_name`,
-               `esyy_frbekbsbbe`.`signaletique`.`MatFIDE`   AS `idfide`,
-               `esyy_frbekbsbbe`.`signaletique`.`NatFIDE`   AS `natfide`,
-               `esyy_frbekbsbbe`.`signaletique`.`Dnaiss`    AS `birthday`,
-               `esyy_frbekbsbbe`.`fide`.`NAME`              AS `fullname`,
-               `esyy_frbekbsbbe`.`fide`.`TITLE`             AS `title`,
-               `esyy_frbekbsbbe`.`fide`.`ELO`               AS `fiderating`,
-               `esyy_frbekbsbbe`.`fide`.`SEX`               AS `gender`,
-               `esyy_frbekbsbbe`.`signaletique`.`Sexe`      AS `gender2`,
-               `esyy_frbekbsbbe`.`signaletique`.`Club`      AS `idclub`,
-               `esyy_frbekbsbbe`.`{elotable}`.`Elo`     AS `belrating`
-        from ((`esyy_frbekbsbbe`.`signaletique` left join `esyy_frbekbsbbe`.`fide`
-               on ((`esyy_frbekbsbbe`.`signaletique`.`MatFIDE` =
-                    `esyy_frbekbsbbe`.`fide`.`ID_NUMBER`))) left join `esyy_frbekbsbbe`.`{elotable}`
-              on ((`esyy_frbekbsbbe`.`signaletique`.`Matricule` = `esyy_frbekbsbbe`.`{elotable}`.`Matricule`)))
-        where (`esyy_frbekbsbbe`.`signaletique`.`AnneeAffilie` >= 2025);
+    pass
+    # TODO change the query using odoo
+    # logger.info("writing eloprocessing")
+    # cnx = get_myZsql()
+    # query = """
+    #     select `esyy_frbekbsbbe`.`signaletique`.`Matricule` AS `idnumber`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`Nom`       AS `last_name`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`Prenom`    AS `first_name`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`MatFIDE`   AS `idfide`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`NatFIDE`   AS `natfide`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`Dnaiss`    AS `birthday`,
+    #            `esyy_frbekbsbbe`.`fide`.`NAME`              AS `fullname`,
+    #            `esyy_frbekbsbbe`.`fide`.`TITLE`             AS `title`,
+    #            `esyy_frbekbsbbe`.`fide`.`ELO`               AS `fiderating`,
+    #            `esyy_frbekbsbbe`.`fide`.`SEX`               AS `gender`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`Sexe`      AS `gender2`,
+    #            `esyy_frbekbsbbe`.`signaletique`.`Club`      AS `idclub`,
+    #            `esyy_frbekbsbbe`.`{elotable}`.`Elo`     AS `belrating`
+    #     from ((`esyy_frbekbsbbe`.`signaletique` left join `esyy_frbekbsbbe`.`fide`
+    #            on ((`esyy_frbekbsbbe`.`signaletique`.`MatFIDE` =
+    #                 `esyy_frbekbsbbe`.`fide`.`ID_NUMBER`))) left join `esyy_frbekbsbbe`.`{elotable}`
+    #           on ((`esyy_frbekbsbbe`.`signaletique`.`Matricule` = `esyy_frbekbsbbe`.`{elotable}`.`Matricule`)))
+    #     where (`esyy_frbekbsbbe`.`signaletique`.`AnneeAffilie` >= 2025);
 
-    """
-    try:
-        cursor = cnx.cursor(dictionary=True)
-        qf = query.format(elotable=get_elotable())
-        cursor.execute(qf)
-        players = cursor.fetchall()
-    except Exception as e:  # noqa E741
-        logger.exception("Cannot get players from Infomaniak")
-        raise RdInternalServerError(description="MySQLError")
-    finally:
-        cnx.close()
-    csvelo = StringIO()
-    fields = [
-        "idnumber",
-        "last_name",
-        "first_name",
-        "idfide",
-        "natfide",
-        "birthday",
-        "fullname",
-        "title",
-        "fiderating",
-        "gender",
-        "gender2",
-        "idclub",
-        "belrating",
-    ]
-    writer = DictWriter(csvelo, fields, restval="NULL")
-    writer.writeheader()
-    for p in players:
-        p["first_name"] = unidecode(p["first_name"])
-        p["last_name"] = unidecode(p["last_name"])
-    writer.writerows(players)
-    csvelo.seek(0)
-    csvBytes = BytesIO(initial_bytes=csvelo.read().encode("utf-8"))
-    csvelo.close()
-    rd = date.today().strftime("%Y%m%d")
-    try:
-        write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)
-    except Exception as e:
-        logger.info("failed to write test file")
-        logger.exception(e)
-    finally:
-        csvBytes.close()
-    await asyncio.sleep(0)
-    # fname = ROOT_DIR / "kbsb" / "eloprocessing.csv"
-    # logger.info(f"writing {fname}")
-    # with open(fname, "w") as f:
-    #     f.write(csvelo.read())
-    logger.info(f"eloprocessing/{rd}.csv written")
+    # """
+    # try:
+    #     cursor = cnx.cursor(dictionary=True)
+    #     qf = query.format(elotable=get_elotable())
+    #     cursor.execute(qf)
+    #     players = cursor.fetchall()
+    # except Exception as e:  # noqa E741
+    #     logger.exception("Cannot get players from Infomaniak")
+    #     raise RdInternalServerError(description="MyZSQLError")
+    # finally:
+    #     cnx.close()
+    # csvelo = StringIO()
+    # fields = [
+    #     "idnumber",
+    #     "last_name",
+    #     "first_name",
+    #     "idfide",
+    #     "natfide",
+    #     "birthday",
+    #     "fullname",
+    #     "title",
+    #     "fiderating",
+    #     "gender",
+    #     "gender2",
+    #     "idclub",
+    #     "belrating",
+    # ]
+    # writer = DictWriter(csvelo, fields, restval="NULL")
+    # writer.writeheader()
+    # for p in players:
+    #     p["first_name"] = unidecode(p["first_name"])
+    #     p["last_name"] = unidecode(p["last_name"])
+    # writer.writerows(players)
+    # csvelo.seek(0)
+    # csvBytes = BytesIO(initial_bytes=csvelo.read().encode("utf-8"))
+    # csvelo.close()
+    # rd = date.today().strftime("%Y%m%d")
+    # try:
+    #     write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)
+    # except Exception as e:
+    #     logger.info("failed to write test file")
+    #     logger.exception(e)
+    # finally:
+    #     csvBytes.close()
+    # await asyncio.sleep(0)
+    # logger.info(f"eloprocessing/{rd}.csv written")
 
 
 def read_eloprocessing(path: str):
@@ -280,7 +277,7 @@ async def get_games_bel(round):
     return games1, games2
 
 
-def generate_belgian_report(records: List[EloGame], label: str, round: int):
+def generate_belgian_report(records: list[EloGame], label: str, round: int):
     """
     writing a list EloGame records in a Belgian ELO file
     """
@@ -679,16 +676,16 @@ def generate_fide_report(round: int):
         pl = elopl[key]
         ls = " " * 100
         ls = replaceAt(ls, 0, "001")
-        ls = replaceAt(ls, 4, "{:4d}".format(pl.myix))
-        ls = replaceAt(ls, 9, "{:1s}".format(pl.gender.lower()))
-        ls = replaceAt(ls, 10, "{:>3s}".format(pl.title))
-        ls = replaceAt(ls, 14, "{:33s}".format(pl.fullname))
-        ls = replaceAt(ls, 48, "{:4d}".format(pl.fiderating))
+        ls = replaceAt(ls, 4, f"{pl.myix:4d}")
+        ls = replaceAt(ls, 9, f"{pl.gender.lower():1s}")
+        ls = replaceAt(ls, 10, f"{pl.title:>3s}")
+        ls = replaceAt(ls, 14, f"{pl.fullname:33s}")
+        ls = replaceAt(ls, 48, f"{pl.fiderating:4d}")
         ls = replaceAt(ls, 53, pl.natfide)
-        ls = replaceAt(ls, 57, "{:11d}".format(pl.idfide))
-        ls = replaceAt(ls, 69, "{:10s}".format(pl.birthday))
-        ls = replaceAt(ls, 80, "{:4.1f}".format(pl.sc1))
-        ls = replaceAt(ls, 91, "{:4d}".format(pl.oppix))
+        ls = replaceAt(ls, 57, f"{pl.idfide:11d}")
+        ls = replaceAt(ls, 69, f"{pl.birthday:10s}")
+        ls = replaceAt(ls, 80, f"{pl.sc1:4.1f}")
+        ls = replaceAt(ls, 91, f"{pl.oppix:4d}")
         ls = replaceAt(ls, 96, pl.color)
         ls = replaceAt(ls, 98, pl.sc2)
         if "`" in ls:
@@ -701,7 +698,7 @@ def generate_fide_report(round: int):
         ls = replaceAt(ls, 0, "013")
         ls = replaceAt(ls, 5, tk)
         for ix, pl in enumerate(tlines[tk]):
-            ls = replaceAt(ls, 36 + 6 * ix, "{:4d}".format(pl))
+            ls = replaceAt(ls, 36 + 6 * ix, f"{pl:4d}")
         f.write(ls)
         f.write(linefeed)
     f.seek(0)
@@ -962,17 +959,17 @@ async def trf_generate() -> None:
             pl.fullname = f"*** {pl.idbel} ***"
         ls = " " * (90 + 10 * 11)
         ls = replaceAt(ls, 0, "001")
-        ls = replaceAt(ls, 4, "{:4d}".format(pl.player_ix))
+        ls = replaceAt(ls, 4, f"{pl.player_ix:4d}")
         ls = replaceAt(ls, 9, "{:1s}".format(pl.gender or "X"))
         ls = replaceAt(ls, 10, "{:>3s}".format(pl.chesstitle or ""))
-        ls = replaceAt(ls, 14, "{:33s}".format(pl.fullname))
-        ls = replaceAt(ls, 48, "{:4d}".format(pl.fiderating or 0))
+        ls = replaceAt(ls, 14, f"{pl.fullname:33s}")
+        ls = replaceAt(ls, 48, f"{pl.fiderating or 0:4d}")
         ls = replaceAt(ls, 53, pl.federation)
-        ls = replaceAt(ls, 57, "{:11d}".format(pl.idfide or 0))
+        ls = replaceAt(ls, 57, f"{pl.idfide or 0:11d}")
         ls = replaceAt(ls, 69, "{:10s}".format(pl.birthdate or ""))
-        ls = replaceAt(ls, 80, "{:4.1f}".format(pl.points or 0.0))
+        ls = replaceAt(ls, 80, f"{pl.points or 0.0:4.1f}")
         for r in pl.rounds:
-            ls = replaceAt(ls, 81 + r.round * 10, "{:4d}".format(r.opponent_ix))
+            ls = replaceAt(ls, 81 + r.round * 10, f"{r.opponent_ix:4d}")
             ls = replaceAt(ls, 86 + r.round * 10, r.color)
             ls = replaceAt(ls, 88 + r.round * 10, r.scorestr)
         if "`" in ls:

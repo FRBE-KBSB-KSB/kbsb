@@ -56,7 +56,6 @@ async def superuser_login(superid: str, password: str) -> str:
 
 async def login(ol: LoginValidator) -> tuple[int, str]:
     """
-    use the mysql database to mimic the old php login procedure
     return a JWT token
     """
     if ol.email.startswith("S_"):
