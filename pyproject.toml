@@ -1,6 +1,6 @@
 [project]
 name = "kbsb"
-version = "3.8.5"
+version = "3.8.6"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
 authors = [
@@ -22,7 +22,6 @@ dependencies = [
     "google-cloud-storage>=3.2.0",
     "gunicorn>=23.0.0",
     "jinja2>=3.1.6",
-    "mysql-connector-python>=9.4.0",
     "openpyxl>=3.1.5",
     "psycopg-pool>=3.3.1",
     "psycopg[binary]>=3.3.4",

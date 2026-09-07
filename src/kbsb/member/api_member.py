@@ -1,10 +1,8 @@
 # copyright Chessdevil Consulting BVBA 2018 - 2020
 # copyright Ruben Decrop 2020 - 2022
 
-# this file contains API point that map directly to the old mysql database
 
 import logging
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
@@ -42,7 +40,7 @@ async def api_login(ol: LoginValidator) -> tuple[int, str]:
         raise HTTPException(status_code=500)
 
 
-@router.get("/anon/clubmembers/{idclub}", response_model=List[AnonMember])
+@router.get("/anon/clubmembers/{idclub}", response_model=list[AnonMember])
 async def api_get_anonclubmembers(idclub: int):
     """
     get all members of a club, returns a list of AnonMember (only name, club and rating)
@@ -56,7 +54,7 @@ async def api_get_anonclubmembers(idclub: int):
         raise HTTPException(status_code=500)
 
 
-@router.get("/mgmt/clubmembers/{idclub}", response_model=List[Member])
+@router.get("/mgmt/clubmembers/{idclub}", response_model=list[Member])
 async def api_mgmt_clubmembers(
     idclub: int,
     active: bool = True,

@@ -12,10 +12,6 @@ SECRETS = {
         "name": "kbsb-mongodb-test",
         "manager": "filejson",
     },
-    "mysql": {
-        "name": "kbsb-mysql-infomaniak",
-        "manager": "filejson",
-    },
     "gmail": {
         "name": "kbsb-gmail",
         "manager": "filejson",

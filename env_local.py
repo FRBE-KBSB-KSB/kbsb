@@ -12,8 +12,8 @@ SECRETS = {
         "name": "kbsb-mongodb-local",
         "manager": "filejson",
     },
-    "mysql": {
-        "name": "kbsb-mysql-chessdevil",
+    "odoo": {
+        "name": "kbsb-odoo",
         "manager": "filejson",
     },
     "gdrive": {
