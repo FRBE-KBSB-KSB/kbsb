@@ -1,6 +1,6 @@
 [project]
 name = "kbsb"
-version = "3.8.5"
+version = "3.8.6"
 description = "API Website FRBE-KBSB-KSB"
 readme = "README.md"
 authors = [
