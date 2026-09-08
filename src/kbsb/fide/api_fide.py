@@ -560,6 +560,57 @@ def validate_form(form, lang):
     return errors
 
 
+def calculate_standard_total_minutes(form: dict) -> float:
+    tc_code = form.get("time_control_code")
+    if tc_code != "Standard":
+        return 0.0
+
+    tc_desc = form.get("time_control_desc", "")
+    if tc_desc == "Other":
+        try:
+            m1 = int(form.get("timectl1_minutes") or 0)
+        except ValueError:
+            m1 = 0
+        try:
+            m2 = int(form.get("timectl2_minutes") or 0)
+        except ValueError:
+            m2 = 0
+        try:
+            m3 = int(form.get("timectl_final_minutes") or 0)
+        except ValueError:
+            m3 = 0
+        try:
+            inc = int(form.get("timectl1_inc_seconds") or 0)
+        except ValueError:
+            inc = 0
+        return float(m1 + m2 + m3 + inc)
+
+    if not tc_desc:
+        return 0.0
+
+    total_mins = 0.0
+    for match in re.finditer(r"(\d+)min", tc_desc):
+        try:
+            total_mins += int(match.group(1))
+        except ValueError:
+            pass
+
+    inc_mins = 0.0
+    inc_match = re.search(r"(\d+)sec(?:\s+DELAY)?/move(?: from move (\d+))?", tc_desc)
+    if inc_match:
+        try:
+            sec = int(inc_match.group(1))
+            start_move = int(inc_match.group(2)) if inc_match.group(2) else 1
+            if start_move == 1:
+                inc_mins = float(sec)
+            elif start_move < 60:
+                inc_mins = (sec * (60 - start_move)) / 60.0
+        except ValueError:
+            pass
+
+    return total_mins + inc_mins
+
+
 @router.post("/generate")
 async def generate_fide_form(locale: str, formdata: dict):
     locale = locale or "en"
@@ -616,50 +667,45 @@ async def generate_fide_form(locale: str, formdata: dict):
     sender_email = settings.EMAIL.get("sender", "noreply@frbe-kbsb-ksb.be")
     club_number = form.get("invoice_clubnr", "N/A")
 
-    # Check if this is a short standard time control (<90 minutes)
-    is_short_standard = False
+    # Check FIDE Rating Regulations B.02 Article 1.1 time control vs max rating constraints
     tc_code = form.get("time_control_code")
-    tc_desc = form.get("time_control_desc")
+    total_mins = calculate_standard_total_minutes(form)
+    unapproved_key = None
 
-    if tc_code == "Standard":
-        if tc_desc == "Other":
+    if tc_code == "Standard" and total_mins > 0:
+        max_rating_str = str(form.get("max_rating", "")).strip()
+        max_rating_val = None
+        if max_rating_str:
             try:
-                mins = int(form.get("timectl1_minutes", 0))
-                if mins < 90:
-                    is_short_standard = True
+                max_rating_val = int(float(max_rating_str))
             except ValueError:
                 pass
-        elif tc_desc:
-            match = re.match(r"^(\d+)min", tc_desc)
-            if match:
-                try:
-                    mins = int(match.group(1))
-                    if mins < 90:
-                        is_short_standard = True
-                except ValueError:
-                    pass
 
-    # Check if max_rating is valid (< 1800)
-    max_rating_str = str(form.get("max_rating", "")).strip()
-    is_rating_valid = False
-    if max_rating_str:
-        try:
-            max_rating_val = int(float(max_rating_str))
-            if max_rating_val < 1800:
-                is_rating_valid = True
-        except ValueError:
-            pass
+        if total_mins < 60:
+            unapproved_key = "fide_under_60_email"
+        elif total_mins < 90:
+            if max_rating_val is None or max_rating_val >= 1800:
+                unapproved_key = "fide_under_90_email"
+        elif total_mins < 120:
+            if max_rating_val is None or max_rating_val >= 2400:
+                unapproved_key = "fide_under_120_email"
 
-    is_unapproved = is_short_standard and not is_rating_valid
+    is_unapproved = bool(unapproved_key)
 
     t_msg = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
 
     warning_banner = ""
     if is_unapproved:
-        email_warn_msg = t_msg.get(
-            "email_unapproved_warning",
-            "WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This combination is incorrect under FIDE rules, and this registration is NOT approved."
+        default_warn = (
+            "WARNING: This tournament uses a standard time control under 60 minutes. This is not rateable under FIDE regulations, and this registration is NOT approved."
+            if unapproved_key == "fide_under_60_email"
+            else (
+                "WARNING: This tournament uses a standard time control under 90 minutes but the Max Rating is either not set or is >= 1800. This is incorrect under FIDE regulations, and this registration is NOT approved."
+                if unapproved_key == "fide_under_90_email"
+                else "WARNING: This tournament uses a standard time control under 120 minutes but the Max Rating is either not set or is >= 2400. This is incorrect under FIDE regulations, and this registration is NOT approved."
+            )
         )
+        email_warn_msg = t_msg.get(unapproved_key, default_warn)
         warning_banner = f'<div style="color: #b91c1c; font-weight: bold; border: 2px solid #b91c1c; padding: 1rem; margin-bottom: 1.5rem; background-color: #fef2f2;">{email_warn_msg}</div>'
 
     late_banner = ""
