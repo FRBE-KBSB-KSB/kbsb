@@ -346,9 +346,9 @@ def validate_form(form, lang):
                 errors.append(t_msg.get("all_rounds_one_report_period_error", "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'."))
 
     event_name = form.get("event_name", "")
-    if event_name and not re.fullmatch(r"[A-Za-z0-9 ]+", event_name):
+    if event_name and not re.fullmatch(r"[A-Za-z0-9 -]+", event_name):
         logger.error(
-            f"Event name: {event_name} can only contain letters, number or spaces"
+            f"Event name: {event_name} can only contain letters, number, hyphens or spaces"
         )
         errors.append(
             f"{t_fields.get('event_name', 'Event Name')} {t_msg['only_letters_numbers_spaces']}"

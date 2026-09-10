@@ -100,7 +100,7 @@ const isLongTournament = computed(() => form.value.tournament_report === 'New lo
 const roundsCount = computed(() => parseInt(form.value.rounds_reported) || 0);
 
 const eventNameHasIllegalChars = computed(() =>
-  form.value.event_name ? /[^A-Za-z0-9 ]/.test(form.value.event_name) : false
+  form.value.event_name ? /[^A-Za-z0-9 -]/.test(form.value.event_name) : false
 );
 
 const timeControlDescOptions = computed(() => {
@@ -860,7 +860,7 @@ definePageMeta({
         <span class="required-label">{{ tField('event_name') }}</span>
         <input type="text" v-model="form.event_name" :class="{ 'input-error': eventNameHasIllegalChars }" required>
         <div v-if="eventNameHasIllegalChars" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
-          ⚠ Illegal characters detected. Only letters A–Z, numbers, and spaces are allowed.
+          ⚠ Illegal characters detected. Only letters A–Z, numbers, hyphens (-), and spaces are allowed.
         </div>
         <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
           {{ tUI('event_name_hint') }}
