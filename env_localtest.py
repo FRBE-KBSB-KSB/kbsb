@@ -25,10 +25,6 @@ SECRETS = {
         "name": "kbsb-gmail",
         "manager": "filejson",
     },
-    "known-hosts": {
-        "name": "known-hosts",
-        "manager": "filejson",
-    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = False

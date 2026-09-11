@@ -20,10 +20,6 @@ SECRETS = {
         "name": "kbsb-gdrive-staging",
         "manager": "filejson",
     },
-    "known-hosts": {
-        "name": "known-hosts",
-        "manager": "filejson",
-    },
 }
 
 TOKEN = {
