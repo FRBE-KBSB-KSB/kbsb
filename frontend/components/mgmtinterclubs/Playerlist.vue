@@ -133,12 +133,10 @@ function canUnassign(idnumber) {
 
 function fillinPlayerList() {
   // add new members to the playerlist
-  console.log("fillinPlayerList pll_period", pll_period)
   let pnature =
     registered.value && !players.value.length
       ? PLAYERSTATUS.assigned
       : PLAYERSTATUS.unassigned
-  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
   // first fix period of already assigned players
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
@@ -174,12 +172,11 @@ function fillinPlayerList() {
 }
 
 async function getClubMembers() {
-  // get club members for member database currently on old site
+  // get club members for odoo member database
   if (!idclub) {
     clubmembers.value = []
     return
   }
-  console.log("getting Club Members from signaletique")
   if (idclub == clubmembers_cache_idclub) {
     console.log("using cached version of members")
   }
