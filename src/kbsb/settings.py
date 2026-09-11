@@ -106,10 +106,6 @@ SECRETS = {
         "name": "kbsb-gmail",
         "manager": "googlejson",
     },
-    "known-hosts": {
-        "name": "known-hosts",
-        "manager": "googlejson",
-    },
     "odoo": {
         "name": "kbsb-odoo",
         "manager": "googlejson",

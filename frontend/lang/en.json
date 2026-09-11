@@ -74,7 +74,7 @@
 "icn.pll_edit_titular": "Edit titular",
 "icn.pll_import": "Import",
 "icn.pll_import_assign": "Import and assign",
-"icn.pll_import_available": "There are members of your club that are not yet on this playerlist. You can import these members and assign them as a player for Interclubs or you can import them and leave them unassigned. You can always assign or unassign members until the closing of the playerlist.",
+"icn.pll_import_available": "There are $1 member(s) of your club that are not yet on this playerlist. You can import these members and assign them as a player for Interclubs or you can import them and leave them unassigned. You can always assign or unassign members until the closing of the playerlist.",
 "icn.pll_import_only": "Import only",
 "icn.pll_mindiv": "Min. div.",
 "icn.pll_notit": "No titular",
