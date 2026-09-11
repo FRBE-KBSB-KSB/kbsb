@@ -74,7 +74,7 @@
 "icn.pll_edit_titular": "Titularis bewerken",
 "icn.pll_import": "Importeren",
 "icn.pll_import_assign": "Importeren en toewijzen",
-"icn.pll_import_available": "Er zijn leden van je club die nog niet op de spelerslijst staan. Je kunt deze leden importeren en toewijzen als speler voor Interclubs, of je kunt ze importeren en niet-toegewezen laten. Je kunt altijd leden toewijzen of verwijderen tot de spelerslijst wordt afgesloten.",
+"icn.pll_import_available": "Er zijn $1 lid/leden van je club die nog niet op de spelerslijst staan. Je kunt deze leden importeren en toewijzen als speler voor Interclubs, of je kunt ze importeren en niet-toegewezen laten. Je kunt altijd leden toewijzen of verwijderen tot de spelerslijst wordt afgesloten.",
 "icn.pll_import_only": "Enkel importeren",
 "icn.pll_mindiv": "Min. Afd.",
 "icn.pll_notit": "Geen titularis",

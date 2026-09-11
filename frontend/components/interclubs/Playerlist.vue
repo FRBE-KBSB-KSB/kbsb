@@ -29,9 +29,10 @@ const unassigndialog = ref(false)
 const undotransferdialog = ref(false)
 
 // datamodel
+let availableimports = []
 const clubmembers = ref([])
 const icclub = ref({})
-const idclub = ref(0)
+let idclub = 0
 const registered = ref(null)
 let playersindexed = {}
 const players = ref([])
@@ -44,7 +45,6 @@ let pll_period
 let pll_startdate
 let pll_enddate
 let pll = false
-let mininmal_assignelo = 3000
 let icdata = { playerlist_data: [] }
 let clubmembers_cache_idclub = null
 
@@ -97,7 +97,7 @@ async function calc_status() {
   // - closed
   // - noclub
   // - noaccess
-  if (!idclub.value) {
+  if (!idclub) {
     pll_status.value = "noclub"
     return
   }
@@ -116,10 +116,11 @@ function canAssign(idnumber) {
 
 function canEditElo(idnumber) {
   if (pll_period == "september") {
-    // return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
-    //   playersindexed[idnumber].period == "september"
-    // )
-    return true
+    return (
+      [PLAYERSTATUS.unassigned, PLAYERSTATUS.imported, PLAYERSTATUS.assigned].includes(
+        playersindexed[idnumber].nature
+      ) && playersindexed[idnumber].period == "september"
+    )
   }
   if (pll_period == "november") {
     return (
@@ -172,13 +173,12 @@ function canUndoTransfer(idnumber) {
 }
 
 async function checkAccess() {
-  let reply
-  if (!token.value) return false
+  console.log("checkAccess idclub", idclub)
+  if (!token.value || !idclub) return false
   showLoading(true)
-  console.log("checkAccess idclub", icclub.idclub)
   try {
-    reply = await $backend("club", "verify_club_access", {
-      idclub: icclub.value.idclub,
+    await $backend("club", "verify_club_access", {
+      idclub: idclub,
       role: "InterclubAdmin,InterclubCaptain",
       token: token.value,
     })
@@ -194,25 +194,25 @@ async function checkAccess() {
 
 function checkImport() {
   importavailable.value = false
+  availableimports = []
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       importavailable.value = true
+      availableimports.push(m)
     }
   })
+  console.log("Importing players:", availableimports)
 }
 
 function fillinPlayerList(nature) {
   console.log("fillinPlayerList nature", nature)
   // add new members to the playerlist
-  mininmal_assignelo = 3000
   console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       let fiderating = m.fiderating ? m.fiderating : 0
-      let natrating = m.natrating ? m.natrating : 0
-      let calcrating = fiderating > 0 ? fiderating : natrating
       let newplayer = {
-        assignedrating: calcrating,
+        assignedrating: fiderating,
         fiderating: fiderating,
         fullname: `${m.last_name}, ${m.first_name}`,
         first_name: m.first_name,
@@ -230,7 +230,7 @@ function fillinPlayerList(nature) {
     }
   })
   players.value.forEach((p) => {
-    let calrating = p.fiderating > 0 ? p.fiderating : p.natrating
+    let calrating = p.fiderating > 0 ? p.fiderating : 0
     let mindiv = ""
     for (const [div, minelo] of Object.entries(icdata.max_elo)) {
       if (calrating <= minelo) {
@@ -239,25 +239,18 @@ function fillinPlayerList(nature) {
     }
     p.mindiv = mindiv
     p.fullname = `${p.last_name}, ${p.first_name}`
-    if (
-      p.assignedrating > 0 &&
-      p.assignedrating < mininmal_assignelo &&
-      p.period == "september"
-    ) {
-      mininmal_assignelo = p.assignedrating
-    }
   })
   importavailable.value = false
 }
 
 async function getClubMembers() {
   // get club members for member database currently on odoo
-  if (!idclub.value) {
+  if (!idclub) {
     clubmembers.value = []
     return
   }
-  console.log("getting Club Members from signaletique")
-  if (idclub.value == clubmembers_cache_idclub) {
+  console.log("getting Club Members from odoo")
+  if (idclub == clubmembers_cache_idclub) {
     console.log("using cached version of members")
     return
   }
@@ -266,7 +259,7 @@ async function getClubMembers() {
   clubmembers.value = []
   try {
     reply = await $backend("member", "anon_getclubmembers", {
-      idclub: idclub.value,
+      idclub: idclub,
     })
   } catch (error) {
     console.log("getClubMembers error")
@@ -275,7 +268,7 @@ async function getClubMembers() {
   } finally {
     showLoading(false)
   }
-  clubmembers_cache_idclub = idclub.value
+  clubmembers_cache_idclub = idclub
   const members = reply.data
   members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
@@ -331,19 +324,6 @@ function openUndoTransfer(idnumber) {
 function playerEdit2Player() {
   // copy the data of Player Edit back to the Player
   // we splice the players array and add the playeredit to trigger a repaint of the table
-  let calrating =
-    playeredit.value.fiderating > 0
-      ? playeredit.value.fiderating
-      : playeredit.value.natrating || 0
-  let mindiv = ""
-  if (icdata && icdata.max_elo) {
-    for (const [div, minelo] of Object.entries(icdata.max_elo)) {
-      if (calrating <= minelo) {
-        mindiv = div
-      }
-    }
-  }
-  playeredit.value.mindiv = mindiv
   const aix = players.value.findIndex((p) => p.idnumber == playeredit.value.idnumber)
   players.value.splice(aix, 1, playeredit.value)
   playersindexed[playeredit.value.idnumber] = players.value[aix]
@@ -394,7 +374,7 @@ function processUndoTransfer() {
 }
 
 function readICclub() {
-  idclub.value = icclub.value.idclub || 0
+  idclub = icclub.value.idclub || 0
   titularchoices = [{ value: "", title: t("icn.pll_notit") }]
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
@@ -434,7 +414,7 @@ async function savePlayerlist() {
     showLoading(true)
     reply = await $backend("interclub", "clb_setICclub", {
       token: token.value,
-      idclub: idclub.value,
+      idclub: idclub,
       players: players.value,
     })
   } catch (error) {
@@ -457,7 +437,7 @@ async function validatePlayerlist() {
     showLoading(true)
     reply = await $backend("interclub", "clb_validateICplayers", {
       token: token.value,
-      idclub: idclub.value,
+      idclub: idclub,
       players: players.value,
     })
   } catch (error) {
@@ -480,7 +460,7 @@ async function setup(icclub_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
-  idclub.value = icclub_.idclub || 0
+  idclub = icclub_.idclub || 0
   if (icdata_.playerlist_data) {
     icdata = icdata_
     calc_period()
@@ -531,7 +511,7 @@ async function setup(icclub_, icdata_) {
         </VBtn>
       </div>
       <div v-if="registered && importavailable" class="mb-3">
-        <p>{{ t("icn.pll_import_available") }}</p>
+        <p>{{ t("icn.pll_import_available").replace("$1", availableimports.length) }}</p>
         <VBtn
           @click="fillinPlayerList(PLAYERSTATUS.assigned)"
           color="primary"

@@ -21,7 +21,6 @@ let showLoading
 const assigndialog = ref(false)
 const editelodialog = ref(false)
 const edittitulardialog = ref(false)
-const transferalldialog = ref(false)
 const transferdialog = ref(false)
 const unassigndialog = ref(false)
 const supereditdialog = ref(false)
@@ -29,7 +28,7 @@ const supereditdialog = ref(false)
 // datamodel
 const clubmembers = ref([])
 const icclub = ref({})
-const idclub = ref(0)
+let idclub = 0
 const registered = ref(null)
 let playersindexed = {}
 const players = ref([])
@@ -41,7 +40,6 @@ let pll_period
 let pll_startdate
 let pll_enddate
 let pll = false
-let mininmal_assignelo = 3000
 let icdata = { playerlist_data: [] }
 let clubmembers_cache_idclub = null
 
@@ -110,7 +108,7 @@ function canAssign(idnumber) {
 }
 
 function canEditElo(idnumber) {
-  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported].includes(
+  return [PLAYERSTATUS.assigned, PLAYERSTATUS.imported, PLAYERSTATUS.unassigned].includes(
     playersindexed[idnumber].nature
   )
 }
@@ -135,41 +133,19 @@ function canUnassign(idnumber) {
 
 function fillinPlayerList() {
   // add new members to the playerlist
-  console.log("fillinPlayerList")
-  pll_period = "unknown"
-  const now = new Date()
-  icdata.playerlist_data.forEach((p) => {
-    let start = new Date(p.start)
-    let end = new Date(p.end)
-    if (now.valueOf() > start.valueOf() && now.valueOf() < end.valueOf()) {
-      pll_status.value = "open"
-      pll_period = p.period
-      pll_startdate = p.start
-      pll_enddate = p.end
-      return
-    }
-  })
-  console.log("pll_period", pll_period)
-  let pnature = PLAYERSTATUS.unassigned
-  mininmal_assignelo = 3000
-  if (registered.value && !players.value.length) {
-    // automatically make players assigned at the start of the Interclubs
-    pnature = PLAYERSTATUS.assigned
-  }
+  console.log("fillinPlayerList pll_period", pll_period)
+  let pnature =
+    registered.value && !players.value.length
+      ? PLAYERSTATUS.assigned
+      : PLAYERSTATUS.unassigned
   console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
   // first fix period of already assigned players
-  players.value.forEach((p) => {
-    if (p.period == "unknown") {
-      p.period = "september"
-    }
-  })
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
-      m.fiderating = m.fiderating || 0
-      let calcrating = m.fiderating > 0 ? m.fiderating : m.natrating
+      let fiderating = m.fiderating ? m.fiderating : 0
       let newplayer = {
-        assignedrating: calcrating,
-        fiderating: m.fiderating,
+        assignedrating: fiderating,
+        fiderating: fiderating,
         fullname: `${m.last_name}, ${m.first_name}`,
         first_name: m.first_name,
         idnumber: m.idnumber,
@@ -177,6 +153,7 @@ function fillinPlayerList() {
         idclubvisit: 0,
         last_name: m.last_name,
         nature: pnature,
+        period: pll_period,
         titular: "",
         transfer: null,
       }
@@ -193,24 +170,17 @@ function fillinPlayerList() {
     }
     p.mindiv = mindiv
     p.fullname = `${p.last_name}, ${p.first_name}`
-    if (
-      p.assignedrating > 0 &&
-      p.assignedrating < mininmal_assignelo &&
-      p.period == "september"
-    ) {
-      mininmal_assignelo = p.assignedrating
-    }
   })
 }
 
 async function getClubMembers() {
   // get club members for member database currently on old site
-  if (!idclub.value) {
+  if (!idclub) {
     clubmembers.value = []
     return
   }
   console.log("getting Club Members from signaletique")
-  if (idclub.value == clubmembers_cache_idclub) {
+  if (idclub == clubmembers_cache_idclub) {
     console.log("using cached version of members")
   }
   showLoading(true)
@@ -218,7 +188,7 @@ async function getClubMembers() {
   clubmembers.value = []
   try {
     reply = await $backend("member", "anon_getclubmembers", {
-      idclub: idclub.value,
+      idclub: idclub,
     })
   } catch (error) {
     console.log("getClubMembers error")
@@ -227,29 +197,20 @@ async function getClubMembers() {
   } finally {
     showLoading(false)
   }
-  clubmembers_cache_idclub = idclub.value
+  clubmembers_cache_idclub = idclub
   const members = reply.data
   members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
   })
   clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
-  fillinPlayerList()
 }
 
 function maxelo(p) {
-  if (pll_period == "september") {
-    if (!p.fiderating && !p.natrating) return icdata.notrated_elo.max
-    return p.fiderating ? Math.max(p.fiderating, p.natrating) + 100 : p.natrating + 100
-  } else {
-    return mininmal_assignelo - 1
-  }
+  return p.fiderating ? p.fiderating + 100 : icdata.notrated_elo.max
 }
 
 function minelo(p) {
-  let minrating = p.fiderating
-    ? Math.min(p.fiderating, p.natrating) - 100
-    : p.natrating - 100
-  return Math.max(minrating, icdata.notrated_elo.min)
+  return p.fiderating ? p.fiderating - 100 : icdata.notrated_elo.min
 }
 
 function openAssignPlayer(idnumber) {
@@ -270,10 +231,6 @@ function openEditTitular(idnumber) {
 function openSuperEdit(idnumber) {
   playeredit.value = { ...playersindexed[idnumber] }
   supereditdialog.value = true
-}
-
-function openTransferAll() {
-  transferalldialog.value = true
 }
 
 function openTransferPlayer(idnumber) {
@@ -328,14 +285,6 @@ function processSuperEdit() {
   supereditdialog.value = false
 }
 
-function processTransferAll() {
-  players.value.forEach((m) => {
-    m.nature = PLAYERSTATUS.exported
-    m.idclubvisit = parseInt(exportallvisit.value) + 0
-  })
-  transferalldialog.value = false
-}
-
 function processTransferPlayer() {
   playeredit.value.nature = PLAYERSTATUS.exported
   playeredit.value.idclubvisit = parseInt(playeredit.value.idclubvisit) + 0
@@ -350,7 +299,7 @@ function processUnassignPlayer() {
 }
 
 function readICclub() {
-  idclub.value = icclub.value.idclub || 0
+  idclub = icclub.value.idclub || 0
   titularchoices = [{ value: "", title: "No titular" }]
   registered.value = icclub.value.registered || false
   players.value = icclub.value.players ? [...icclub.value.players] : []
@@ -391,7 +340,7 @@ async function savePlayerlist() {
     showLoading(true)
     reply = await $backend("interclub", "mgmt_setICclub", {
       token: idtoken.value,
-      idclub: idclub.value,
+      idclub: idclub,
       players: players.value,
     })
   } catch (error) {
@@ -404,11 +353,6 @@ async function savePlayerlist() {
   showSnackbar("Playerlist saved")
 }
 
-function visitingclub(idnumber) {
-  const pl = playersindexed[idnumber]
-  return pl ? pl.idclubvisit : ""
-}
-
 async function validatePlayerlist() {
   if (!registered.value) {
     savePlayerlist()
@@ -419,7 +363,7 @@ async function validatePlayerlist() {
     showLoading(true)
     reply = await $backend("interclub", "mgmt_validateICplayers", {
       token: idtoken.value,
-      idclub: idclub.value,
+      idclub: idclub,
       players: players.value,
     })
   } catch (error) {
@@ -443,13 +387,14 @@ async function setup(icclub_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
-  idclub.value = icclub_.idclub || 0
+  idclub = icclub_.idclub || 0
   if (icdata_.playerlist_data) {
     icdata = icdata_
     calc_period()
     await calc_status()
     readICclub()
     await getClubMembers()
+    fillinPlayerList()
   }
 }
 </script>
@@ -704,24 +649,6 @@ async function setup(icclub_, icdata_) {
           <VSpacer />
           <VBtn @click="processUnassignPlayer">OK</VBtn>
           <VBtn @click="unassigndialog = false">Cancel</VBtn>
-        </VCardActions>
-      </VCard>
-    </VDialog>
-
-    <VDialog v-model="transferalldialog" width="30em">
-      <VCard>
-        <VCardTitle>
-          Export all players
-          <VDivider />
-        </VCardTitle>
-        <VCardText>
-          <p>Exporting all players to another club</p>
-          <VTextField label="Club number" v-model="exportallvisit" />
-        </VCardText>
-        <VCardActions>
-          <VSpacer />
-          <VBtn @click="processTransferAll">OK</VBtn>
-          <VBtn @click="transferalldialog = false">Cancel</VBtn>
         </VCardActions>
       </VCard>
     </VDialog>

@@ -74,7 +74,7 @@
 "icn.pll_edit_titular": "Anpassen den Titular",
 "icn.pll_import": "Importieren",
 "icn.pll_import_assign": "Importieren und zuweisen",
-"icn.pll_import_available": "Es gibt Mitglieder Ihres Clubs, die noch nicht auf dieser Spielerliste stehen. Sie können diese Mitglieder importieren und ihnen einen Platz als Spieler für Interclubs zuweisen oder sie importieren und ohne Zuweisung lassen. Sie können Mitgliedern bis zum Schließen der Spielerliste jederzeit einen Platz zuweisen oder diesen wieder entziehen.",
+"icn.pll_import_available": "Es gibt $1 Mitglieder Ihres Clubs, die noch nicht auf dieser Spielerliste stehen. Sie können diese Mitglieder importieren und ihnen einen Platz als Spieler für Interclubs zuweisen oder sie importieren und ohne Zuweisung lassen. Sie können Mitgliedern bis zum Schließen der Spielerliste jederzeit einen Platz zuweisen oder diesen wieder entziehen.",
 "icn.pll_import_only": "Nur importieren",
 "icn.pll_mindiv": "Min. Abt.",
 "icn.pll_notit": "kein Titular",

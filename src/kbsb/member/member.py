@@ -2,7 +2,7 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from async_lru import alru_cache
 from fastapi.security import HTTPAuthorizationCredentials
@@ -44,12 +44,12 @@ async def superuser_login(superid: str, password: str) -> str:
         logger.info(f"su {su}")
         if su.get("password") != password:
             raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
-    except Exception:
+    except Exception as e:
+        logger.exception(f"Superuser login failed: {e}")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     payload = {
         "sub": superid,
-        "exp": datetime.now(tz=timezone.utc)
-        + timedelta(minutes=token_settings["timeout"]),
+        "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
     return jwt_encode(payload, SALT)
 
@@ -67,9 +67,7 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     """
     checks a JWT token for validity
     return an str with the if of the member if the token is correctly validated,
-    if token is not valid the function :
-        - either returns None
-        - either raise RdNotAuthorized if raising is set
+    if token validation fails, the function raises RdNotAuthorized
 
     """
     token = auth.credentials if auth else None
@@ -77,16 +75,16 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
         raise RdNotAuthorized(description="MissingToken")
     if get_setting("TOKEN").get("nocheck"):
         logger.debug("nocheck return token 0")
-        return 0
-    logger.info(f"token {token}")
+        return "0"
+    logger.debug(f"token {token}")
     try:
         payload = jwt_getunverifiedpayload(token)
     except JWTError as e:
-        logger.info(f"Bad Token 1 {e}")
+        logger.info(f"Bad Token: {e}")
         raise RdNotAuthorized(description="BadToken")
     username = payload.get("sub")
     if not username:
-        logger.info("Bad Token 2")
+        logger.info("Bad Token: empty sub")
         raise RdNotAuthorized(description="BadToken")
     # try:
     #     jwt_verify(token, get_setting("JWT_SECRET") + SALT)
@@ -104,7 +102,7 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
 async def mgmt_getmember(idbel: str | int) -> Member:
     try:
         nidbel = int(idbel)
-    except Exception:
+    except ValueError:
         raise RdBadRequest(description="idbelNotInteger")
     return await odoo_mgmt_getmember(nidbel)
 
@@ -123,6 +121,6 @@ async def anon_getclubmembers(idclub: int) -> list[AnonMember]:
     return await odoo_anon_getclubmembers(idclub)
 
 
-@alru_cache(maxsize=30, ttl=60)
+@alru_cache(maxsize=150, ttl=60)
 async def anon_getmember(idbel: int) -> AnonMember:
     return await odoo_anon_getmember(idbel)

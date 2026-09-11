@@ -144,6 +144,7 @@ async function getClubDetails() {
   icclub.value = { idclub: idclub.value }
   changeDialogCounter(1)
   try {
+    if (!idclub.value) return
     reply = await $backend("interclub", "clb_getICclub", {
       idclub: idclub.value,
       token: token.value,

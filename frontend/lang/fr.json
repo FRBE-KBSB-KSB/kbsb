@@ -74,7 +74,7 @@
 "icn.pll_edit_titular": "Modifier le titulaire",
 "icn.pll_import": "Importer",
 "icn.pll_import_assign": "Importer et affectuer",
-"icn.pll_import_available": "Certains membres de votre club ne figurent pas encore sur la liste de force. Vous pouvez les importer et les affecter aux Interclubs, ou les importer sans les affecter. Vous pouvez toujours affecter ou désaffecter des membres jusqu'à la fermeture de la liste de force.",
+"icn.pll_import_available": "Il y a $1 membre(s) de votre club ne figurent pas encore sur la liste de force. Vous pouvez les importer et les affecter aux Interclubs, ou les importer sans les affecter. Vous pouvez toujours affecter ou désaffecter des membres jusqu'à la fermeture de la liste de force.",
 "icn.pll_import_only": "Importer uniquement",
 "icn.pll_mindiv": "Div. min.",
 "icn.pll_notit": "Pas de titulaire",
