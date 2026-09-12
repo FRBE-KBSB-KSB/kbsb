@@ -13,6 +13,8 @@ const waitingdialog = ref(false);
 const submitCooldown = ref(false);
 const errorText = ref("");
 const submitted = ref(false);
+// Addresses the backend could not send the registration copy to.
+const confirmationFailed = ref("");
 
 // Lookups and Translations
 const lookups = ref({
@@ -693,6 +695,10 @@ async function submitForm() {
       formdata: form.value,
     })
     console.log("response on generate", response)
+    // The registration reached fide@ even when a copy did not reach the
+    // organiser, so this stays a success, with a notice naming the address.
+    const failedCopies = response?.headers?.["x-confirmation-failed"];
+    confirmationFailed.value = failedCopies ? decodeURIComponent(failedCopies) : "";
     // Clear the form data immediately on success so it cannot be resubmitted
     clearFormData();
     submitted.value = true;
@@ -705,8 +711,14 @@ async function submitForm() {
 
   } catch (error) {
     console.error(error);
-    const msg = error?.message || error?.response?.data?.message;
-    errorText.value = msg || "Error submitting form. The registration email could not be sent. Please try again or contact fide@frbe-kbsb-ksb.be.";
+    // The request asks for a file (responseType "blob"), so the backend's JSON
+    // error arrives as a Blob the shared interceptor cannot read, and its text
+    // falls back to "General server error". A 5xx from this endpoint means the
+    // registration email was not sent, so say exactly that, and what to do.
+    const serverError = error?.code >= 500 && error?.code < 600;
+    errorText.value = serverError
+      ? tMsg('send_failed')
+      : (error?.message || tMsg('send_failed'));
     if (process.client && window.parent !== window) {
       window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
     }
@@ -722,6 +734,7 @@ async function submitForm() {
 function resetForm() {
   clearFormData();
   submitted.value = false;
+  confirmationFailed.value = "";
   if (process.client && window.parent !== window) {
     window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
   }
@@ -788,6 +801,9 @@ definePageMeta({
     </h2>
     <p style="font-size: 1.05rem; color: var(--muted, #4b5563); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6;">
       {{ tUI('submitted_msg') }}
+    </p>
+    <p v-if="confirmationFailed" style="font-size: 1rem; color: #92400e; background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; max-width: 600px; margin: 0 auto 2.5rem; padding: 0.9rem 1.1rem; line-height: 1.5;">
+      {{ tMsg('confirmation_failed').replace('{emails}', confirmationFailed) }}
     </p>
     <button @click="resetForm" style="padding: 0.6rem 1.8rem; font-weight: 600; border-radius: 999px; border: none; background-color: var(--accent, #2e7d32); color: #ffffff; cursor: pointer; transition: background-color 0.2s;">
       {{ tUI('back_btn') }}

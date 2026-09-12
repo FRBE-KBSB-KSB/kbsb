@@ -6,6 +6,7 @@ from io import BytesIO
 from datetime import datetime
 import logging
 import base64
+from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -19,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 # The form's mail goes through zerotwocloud.mail: sent as noreply-jorian@ over
 # keyless Gmail delegation, and a failed send raises. It matters here more than
-# anywhere. A registration exists only as the mail to fide@ and the organiser's
-# own download, and reddevil.mail reported a failed send as sent, so the form's
-# "Failed to send registration email" answer below could never appear.
+# anywhere. A registration exists only as the mail to fide@, and the organiser's
+# only copy is their confirmation mail: the page does not save the workbook.
+# reddevil.mail reported a failed send as sent, so the form's "Failed to send
+# registration email" answer below could never appear.
 FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
 
@@ -801,6 +803,7 @@ async def generate_fide_form(locale: str, formdata: dict):
         if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
             recipients.append(contact_email)
 
+    failed_confirmations = []
     for recipient in recipients:
         conf_params = MailParams(
             locale=locale,
@@ -818,8 +821,16 @@ async def generate_fide_form(locale: str, formdata: dict):
             )
         except Exception:
             logger.exception(f"Failed to send FIDE registration confirmation email to {recipient}")
+            failed_confirmations.append(recipient)
 
     headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
+    if failed_confirmations:
+        # Still a success: the registration reached fide@. But this confirmation
+        # is the organiser's only copy, so the page names the addresses that did
+        # not get one. Percent-encoded: organisers type these, and they must not
+        # be able to break or add a response header.
+        headers["X-Confirmation-Failed"] = quote(", ".join(failed_confirmations))
+        headers["Access-Control-Expose-Headers"] = "X-Confirmation-Failed"
 
     return StreamingResponse(
         iter([filled.getvalue()]),
