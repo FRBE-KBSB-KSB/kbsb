@@ -3,7 +3,7 @@
 -e .
 ./libs/reddevil-4.0.3-py3-none-any.whl
     # via kbsb
-./libs/zerotwocloud-0.1.0-py3-none-any.whl
+./libs/zerotwocloud-0.2.0-py3-none-any.whl
     # via kbsb
 agent-detector==1.1.0
     # via fastapi-cloud-cli

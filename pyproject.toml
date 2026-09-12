@@ -75,4 +75,4 @@ env = [
 
 [tool.uv.sources]
 reddevil = { path = "libs/reddevil-4.0.3-py3-none-any.whl" }
-zerotwocloud = { path = "libs/zerotwocloud-0.1.0-py3-none-any.whl" }
+zerotwocloud = { path = "libs/zerotwocloud-0.2.0-py3-none-any.whl" }

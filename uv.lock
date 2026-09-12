@@ -1284,7 +1284,7 @@ requires-dist = [
     { name = "toml", specifier = ">=0.10.2" },
     { name = "unidecode", specifier = ">=1.4.0" },
     { name = "uvicorn", specifier = ">=0.35.0" },
-    { name = "zerotwocloud", path = "libs/zerotwocloud-0.1.0-py3-none-any.whl" },
+    { name = "zerotwocloud", path = "libs/zerotwocloud-0.2.0-py3-none-any.whl" },
 ]
 
 [package.metadata.requires-dev]
@@ -2715,8 +2715,8 @@ wheels = [
 
 [[package]]
 name = "zerotwocloud"
-version = "0.1.0"
-source = { path = "libs/zerotwocloud-0.1.0-py3-none-any.whl" }
+version = "0.2.0"
+source = { path = "libs/zerotwocloud-0.2.0-py3-none-any.whl" }
 dependencies = [
     { name = "fastapi" },
     { name = "google-auth" },
@@ -2726,7 +2726,7 @@ dependencies = [
     { name = "requests" },
 ]
 wheels = [
-    { filename = "zerotwocloud-0.1.0-py3-none-any.whl", hash = "sha256:c81b27afdaf71c4034864115affd0cac0118af0e3e712a76796290dc89439441" },
+    { filename = "zerotwocloud-0.2.0-py3-none-any.whl", hash = "sha256:da1f9ded5d787bb5f04b234358beee8e2ba3c7fedb54c5dc0cd5fdc099a20aaa" },
 ]
 
 [package.metadata]
