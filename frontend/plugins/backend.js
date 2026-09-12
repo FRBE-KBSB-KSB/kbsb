@@ -9,7 +9,6 @@ import interclub from "@/api/interclub"
 import member from "@/api/member"
 import players_fide from "@/api/players_fide"
 import test from "@/api/test"
-import tournament_registrations from "@/api/tournament_registrations"
 
 axios.defaults.withCredentials = true
 
@@ -36,12 +35,10 @@ axios.interceptors.response.use(
   (error) => {
     if (error.response) {
       // `detail` is the FastAPI convention (HTTPException(detail=...)), used
-      // by every proxied-to-FastAPI feature. tournament_registrations is
-      // Node-backed and returns {message: "..."} instead -- without this
-      // fallback, every validation/conflict error from that whole feature
-      // (400s, 409s, all of it) silently resolved to `undefined` and every
-      // form just showed its generic "...failed" fallback string, with no
-      // way to tell why. error_messages has no 400 entry either, so the
+      // by every proxied-to-FastAPI feature. A Node-backed endpoint returns
+      // {message: "..."} instead, so that is the fallback; without it such an
+      // error resolves to `undefined` and the form can only show a generic
+      // "...failed" string. error_messages has no 400 entry either, so the
       // final fallback covers that gap too instead of leaving `message`
       // undefined.
       const detail = error.response.data.detail
@@ -56,9 +53,8 @@ axios.interceptors.response.use(
         code: error.response.status,
         // Stable, language-independent machine code for callers that need
         // to branch on a specific failure reason without string-matching
-        // English backend text (e.g. tournament_registrations' distinct
-        // registrations_not_open / registrations_closed) -- undefined for
-        // every response that doesn't set one, same as today.
+        // English backend text; undefined for every response that doesn't
+        // set one.
         errorCode: error.response.data.code,
         headers: error.response.headers,
         message:
@@ -94,7 +90,6 @@ const factories = {
   member,
   players_fide,
   test,
-  tournament_registrations,
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
