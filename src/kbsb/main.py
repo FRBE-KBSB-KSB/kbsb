@@ -78,6 +78,9 @@ from kbsb.arbiters import api_arbiters
 logger.info("loading api_tournament_registrations")
 from kbsb.tournament_registrations import api_tournament_registrations
 
+logger.info("loading api_zerotwocloud_mail")
+from zerotwocloud.mail import api as api_zerotwocloud_mail
+
 app.include_router(api_account.router)
 app.include_router(api_club.router)
 app.include_router(api_filestore.router)
@@ -89,6 +92,7 @@ app.include_router(api_national_elo_archive.router)
 app.include_router(api_players_fide.router)
 app.include_router(api_arbiters.router)
 app.include_router(api_tournament_registrations.router)
+app.include_router(api_zerotwocloud_mail.router)
 
 logger.info("Api's loaded")
 

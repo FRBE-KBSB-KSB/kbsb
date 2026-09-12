@@ -3,6 +3,8 @@
 -e .
 ./libs/reddevil-4.0.3-py3-none-any.whl
     # via kbsb
+./libs/zerotwocloud-0.1.0-py3-none-any.whl
+    # via kbsb
 agent-detector==1.1.0
     # via fastapi-cloud-cli
 aiocsv==1.4.1
@@ -93,6 +95,7 @@ fastapi==0.141.1
     # via
     #   kbsb
     #   reddevil
+    #   zerotwocloud
 fastapi-cli==0.0.32
     # via fastapi
 fastapi-cloud-cli==0.24.0
@@ -126,6 +129,7 @@ google-auth==2.57.0
     #   google-cloud-storage
     #   kbsb
     #   reddevil
+    #   zerotwocloud
 google-auth-httplib2==0.4.2
     # via google-api-python-client
 google-cloud-core==2.7.0
@@ -193,6 +197,7 @@ jinja2==3.1.6
     #   fastapi
     #   kbsb
     #   reddevil
+    #   zerotwocloud
 jsbeautifier==2.0.3
     # via
     #   cssbeautifier
@@ -204,7 +209,9 @@ librt==0.15.0 ; platform_python_implementation != 'PyPy'
 markdown-it-py==4.2.0
     # via rich
 markdown2==2.5.5
-    # via reddevil
+    # via
+    #   reddevil
+    #   zerotwocloud
 markupsafe==3.0.3
     # via jinja2
 mdurl==0.1.2
@@ -268,6 +275,7 @@ pydantic==2.13.5
     #   pydantic-extra-types
     #   pydantic-settings
     #   reddevil
+    #   zerotwocloud
 pydantic-core==2.46.5
     # via pydantic
 pydantic-extra-types==2.11.1
@@ -323,6 +331,7 @@ requests==2.34.2
     #   google-api-core
     #   google-cloud-storage
     #   kbsb
+    #   zerotwocloud
 rich==15.0.0
     # via
     #   rich-toolkit
