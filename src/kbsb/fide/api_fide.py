@@ -14,8 +14,42 @@ from openpyxl import load_workbook
 from reddevil.core import get_settings
 from reddevil.mail import MailParams, MailAttachment
 from reddevil.mail.mail import sendEmailMessage
+import zerotwocloud.mail as zerotwocloud_mail
+from zerotwocloud.mail.mail import sendEmailMessage as zerotwocloud_sendEmailMessage
 
 logger = logging.getLogger(__name__)
+
+# Submissions made with the JORIAN.INTERNAL test code send through
+# zerotwocloud.mail: as noreply-jorian@ over keyless Gmail delegation, and a
+# failed send raises instead of being reported as sent. Real registrations stay
+# on reddevil.mail until the new path has proven itself on these test
+# submissions; then they move too, and this switch goes.
+INTERNAL_TEST_REPLY_TO = "jorian.burssens@frbe-kbsb-ksb.be"
+
+
+def send_fide_mail(mp: MailParams, internal_test: bool):
+    if not internal_test:
+        return sendEmailMessage(mp)
+    return zerotwocloud_sendEmailMessage(
+        zerotwocloud_mail.MailParams(
+            locale=mp.locale,
+            receiver=mp.receiver,
+            sender=mp.sender,
+            subject=mp.subject,
+            template=mp.template,
+            attachments=[
+                zerotwocloud_mail.MailAttachment(
+                    filename=a.filename,
+                    mimetype=a.mimetype,
+                    content_base64=a.content_base64,
+                )
+                for a in mp.attachments
+            ],
+            bcc=mp.bcc,
+            cc=mp.cc,
+            reply_to=INTERNAL_TEST_REPLY_TO,
+        )
+    )
 
 router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
 
@@ -741,6 +775,10 @@ async def generate_fide_form(locale: str, formdata: dict):
     invoice_email = form.get("invoice_email", "").strip()
     is_internal_test = (invoice_email == "JORIAN.INTERNAL")
     fide_receiver = "jorian.burssens@frbe-kbsb-ksb.be" if is_internal_test else "fide@frbe-kbsb-ksb.be"
+    if is_internal_test:
+        # zerotwocloud.mail only sends as the mailbox it acts as: Gmail would
+        # silently rewrite any other From, so it refuses one.
+        sender_email = zerotwocloud_mail.get_setting("EMAIL")["account"]
 
     mail_params = MailParams(
         locale=locale,
@@ -752,7 +790,7 @@ async def generate_fide_form(locale: str, formdata: dict):
     )
 
     try:
-        sendEmailMessage(mail_params)
+        send_fide_mail(mail_params, is_internal_test)
         logger.info(
             f"FIDE Registration email sent to {fide_receiver} from {sender_email}"
         )
@@ -797,7 +835,7 @@ async def generate_fide_form(locale: str, formdata: dict):
             attachments=[excel_attachment],
         )
         try:
-            sendEmailMessage(conf_params)
+            send_fide_mail(conf_params, is_internal_test)
             logger.info(
                 f"FIDE Registration confirmation email sent to {recipient} from {sender_email}"
             )
