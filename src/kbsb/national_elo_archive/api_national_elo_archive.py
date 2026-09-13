@@ -41,7 +41,10 @@ def get_api_key() -> str:
 TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/national_elo_archive"
 
 # The archive is read-only, so this credential-injecting proxy only forwards
-# safe methods. Keep it bound to localhost -- it must never be exposed publicly.
+# safe methods. It is public on purpose: it is the archive's only way in for
+# browsers, and it attaches the oldelo key for every caller, so anyone can
+# read the archive through it. The key only keeps callers from going around
+# the website to the VPS directly; it does not limit what they can read here.
 @router.api_route("/{path:path}", methods=["GET", "HEAD"])
 @router.api_route("", methods=["GET", "HEAD"])
 async def proxy_to_vps(request: Request, path: str = ""):
@@ -59,6 +62,16 @@ async def proxy_to_vps(request: Request, path: str = ""):
     headers.pop("cookie", None)
     headers.pop("authorization", None)
     headers["x-api-key"] = api_key
+    # Every request reaches the VPS from Google's egress IPs, so on its own
+    # the API sees one caller for the whole internet. Tell it who the visitor
+    # is, so it can rate limit per visitor. X-Appengine-User-IP is set by App
+    # Engine itself and cannot be supplied by the browser; this header is set
+    # after copying the request headers, so a browser sending its own
+    # x-archive-client-ip is overwritten. Local runs fall back to the socket.
+    client_ip = request.headers.get("x-appengine-user-ip") or (
+        request.client.host if request.client else ""
+    )
+    headers["x-archive-client-ip"] = client_ip
     # Force uncompressed upstream: httpx cannot decode br/zstd without extra
     # codecs, and we strip Content-Encoding below, so any compressed body would
     # reach the browser as undecodable bytes. Ask the VPS for identity instead.
