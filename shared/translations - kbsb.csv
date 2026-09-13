@@ -10,6 +10,7 @@ arc,club_id,Club Number,Clubnummer,Numéro du club,Vereinsnummer
 arc,club_name,Club Name,Clubnaam,Nom du club,Vereinsname
 arc,club_players_count,Active Members,Ledental,Membres actifs,Aktive Mitglieder
 arc,color,Color,Kleur,Couleur,Farbe
+arc,daily_limit,You have reached today's limit for the ELO archive. Please try again tomorrow.,U hebt de daglimiet van het ELO-archief bereikt. Probeer het morgen opnieuw.,Vous avez atteint la limite quotidienne de l'archive ELO. Veuillez réessayer demain.,Sie haben das Tageslimit des ELO-Archivs erreicht. Bitte versuchen Sie es morgen erneut.
 arc,date,Date,Datum,Date,Datum
 arc,elo_evolution,ELO rating evolution,Verloop ELO-rating,Évolution du classement ELO,ELO-Entwicklung
 arc,game_history,Game History,Partijhistoriek,Historique des parties,Partiehistorie
@@ -26,6 +27,7 @@ arc,opponent,Opponent,Tegenstander,Adversaire,Gegner
 arc,period,Period,Periode,Période,Periode
 arc,player_name,Name,Naam,Nom,Name
 arc,players_count,players,spelers,joueurs,Spieler
+arc,rate_limited,Too many requests in a short time. Please wait a minute and try again.,Te veel aanvragen in korte tijd. Wacht een minuut en probeer het opnieuw.,Trop de requêtes en peu de temps. Veuillez patienter une minute et réessayer.,Zu viele Anfragen in kurzer Zeit. Bitte warten Sie eine Minute und versuchen Sie es erneut.
 arc,rating,Rating,Rating,Classement,Wertung
 arc,regions_tab,Regions,Regio's,Régions,Regionen
 arc,result,Result,Resultaat,Résultat,Ergebnis

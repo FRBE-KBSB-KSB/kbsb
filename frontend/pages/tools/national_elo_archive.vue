@@ -29,6 +29,16 @@ const players = ref([])
 const hasSearched = ref(false)
 const errorText = ref("")
 
+// The archive API limits each visitor (requests per minute, different
+// profiles and clubs per day) and answers 429 with a code saying which.
+// Show that in the visitor's language instead of the API's English text.
+function archiveErrorText(error, fallback) {
+  if (error?.code === 429) {
+    return error.errorCode === "daily_limit" ? t("arc.daily_limit") : t("arc.rate_limited")
+  }
+  return error?.message || fallback
+}
+
 // Club search state
 const clubSearchQuery = ref("")
 const searchingClubs = ref(false)
@@ -87,7 +97,7 @@ async function handleSearch() {
     }
   } catch (error) {
     console.error(error)
-    errorText.value = error.message || "An error occurred during search"
+    errorText.value = archiveErrorText(error, "An error occurred during search")
   } finally {
     searching.value = false
   }
@@ -110,7 +120,7 @@ async function handleClubSearch() {
     }
   } catch (error) {
     console.error(error)
-    errorText.value = error.message || "An error occurred during club search"
+    errorText.value = archiveErrorText(error, "An error occurred during club search")
   } finally {
     searchingClubs.value = false
   }
@@ -131,7 +141,7 @@ async function selectClub(club) {
     }
   } catch (error) {
     console.error(error)
-    errorText.value = error.message || "An error occurred fetching club players"
+    errorText.value = archiveErrorText(error, "An error occurred fetching club players")
   } finally {
     loadingClubPlayers.value = false
   }
@@ -160,7 +170,7 @@ async function selectPlayer(memberId) {
     }
   } catch (error) {
     console.error(error)
-    errorText.value = error.message || "An error occurred fetching player details"
+    errorText.value = archiveErrorText(error, "An error occurred fetching player details")
   } finally {
     profileLoading.value = false
   }
