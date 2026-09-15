@@ -224,9 +224,9 @@ async function setup(icclub_, round_, icdata_) {
     <v-btn @click="download_registrations">Download registrations</v-btn>
     <h3>Venues</h3>
     <v-btn @click="download_venues">Download venues</v-btn>
-    <!-- <h3>Playerlists</h3>
+    <h3>Playerlists</h3>
     <v-btn @click="download_playerlists">Download playerlists</v-btn>
-    <h3>Belgian Elo reports</h3>
+    <!-- <h3>Belgian Elo reports</h3>
     <v-row>
       <v-col cols="12" sm="6" md="4" lg="3" v-for="br in bel_reports">
         <v-btn @click="get_bel_report(br)">{{ br }}</v-btn>
