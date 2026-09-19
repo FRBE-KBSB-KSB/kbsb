@@ -1,16 +1,18 @@
 import asyncio
-import aiofiles
-import aiocsv
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from reddevil.core import (
-    register_app,
-    connect_mongodb,
-    close_mongodb,
-    get_settings,
-)
-from dotenv import load_dotenv
 import logging
+from contextlib import asynccontextmanager
+
+import aiocsv
+import aiofiles
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from reddevil.core import (
+    close_mongodb,
+    connect_mongodb,
+    get_settings,
+    register_app,
+)
+
 from kbsb import ROOT_DIR
 from kbsb.interclubs import DbICSeries
 

@@ -1,7 +1,7 @@
-# copyright Ruben Decrop 2012 - 2026
-# copyright Chessdevil Consulting BVBA 2015 - 2022
+# copyright Ruben Decrop 2012 - 2015
+# copyright Chessdevil Consulting BVBA 2015 - 2026
 
-# we are using pydantic models (and not dicts) to represent
+# we are using pydantic models (and not dicts)
 # to represent business obejcts
 
 from datetime import datetime
@@ -41,9 +41,6 @@ class PlayerlistNature(StrEnum):
     EXPORTED = auto()
     LOCKED = auto()
     REMOVED = auto()
-    # deprecated
-    REQUESTEDIN = auto()
-    CONFIRMEDOUT = auto()
 
 
 class PlayerPeriod(StrEnum):
@@ -473,6 +470,7 @@ class ICVenueItem(BaseModel):
 
 class ICVenueIn(BaseModel):
     """
+
     an input validator for the IC Venues
     """
 
@@ -511,11 +509,19 @@ class DbICSeries2526(DbICSeries):
     COLLECTION = "ic_2526_series"
 
 
+class DbICSeries2627(DbICSeries):
+    COLLECTION = "ic_2627_series"
+
+
 class DbICStandings(DbBase):
     COLLECTION = "ic_2627_standings"
     DOCUMENTTYPE = ICStandingsDB
     VERSION = 1
     IDGENERATOR = "uuid"
+
+
+class DbICStandings2627(DbICStandings):
+    COLLECTION = "ic_2627_standings"
 
 
 class DbICStandings2324(DbICStandings):
@@ -556,6 +562,10 @@ class DbICClub2425(DbICClub):
 
 class DbICClub2526(DbICClub):
     COLLECTION = "ic_2526_club"
+
+
+class DbICClub2627(DbICClub):
+    COLLECTION = "ic_2627_club"
 
 
 class DbICRegistration(DbBase):

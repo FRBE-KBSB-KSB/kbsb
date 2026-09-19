@@ -1,18 +1,15 @@
 import asyncio
-import aiofiles
-import aiocsv
-from fastapi import FastAPI
+import logging
 from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from reddevil.core import (
     register_app,
+    get_settings,
     connect_mongodb,
     close_mongodb,
-    get_settings,
 )
+from kbsb.interclubs.registrations import create_icregistration, ICRegistration
 from dotenv import load_dotenv
-import logging
-from kbsb import ROOT_DIR
-from kbsb.interclubs.series import script_create_encounters
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",
@@ -34,8 +31,18 @@ async def lifespan(app: FastAPI):
 
 
 async def main():
-    async with lifespan(app) as writer:
-        await script_create_encounters()
+    async with lifespan(app) as _:
+        await create_icregistration(
+            ICRegistration(
+                name="Woluwe 1200",
+                idclub=202,
+                teams1=0,
+                teams2=0,
+                teams3=0,
+                teams4=0,
+                teams5=1,
+            )
+        )
 
 
 if __name__ == "__main__":

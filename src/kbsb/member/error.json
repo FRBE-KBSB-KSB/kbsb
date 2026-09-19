@@ -1,0 +1,117 @@
+[
+    {
+        "type": "missing",
+        "loc": [
+            "body",
+            "players",
+            38,
+            "assignedrating"
+        ],
+        "msg": "Field required",
+        "input": {
+            "fiderating": 0,
+            "fullname": "Armitage, Dale",
+            "first_name": "Dale",
+            "idnumber": 63889,
+            "idcluborig": 182,
+            "idclubvisit": 0,
+            "last_name": "Armitage",
+            "nature": "unassigned",
+            "titular": "",
+            "transfer": null,
+            "mindiv": "6"
+        }
+    },
+    {
+        "type": "missing",
+        "loc": [
+            "body",
+            "players",
+            39,
+            "assignedrating"
+        ],
+        "msg": "Field required",
+        "input": {
+            "fiderating": 0,
+            "fullname": "Diels, Alex",
+            "first_name": "Alex",
+            "idnumber": 18992,
+            "idcluborig": 182,
+            "idclubvisit": 0,
+            "last_name": "Diels",
+            "nature": "unassigned",
+            "titular": "",
+            "transfer": null,
+            "mindiv": "6"
+        }
+    },
+    {
+        "type": "missing",
+        "loc": [
+            "body",
+            "players",
+            40,
+            "assignedrating"
+        ],
+        "msg": "Field required",
+        "input": {
+            "fiderating": 0,
+            "fullname": "Stausens, Mathieu",
+            "first_name": "Mathieu",
+            "idnumber": 20726,
+            "idcluborig": 182,
+            "idclubvisit": 0,
+            "last_name": "Stausens",
+            "nature": "unassigned",
+            "titular": "",
+            "transfer": null,
+            "mindiv": "6"
+        }
+    },
+    {
+        "type": "missing",
+        "loc": [
+            "body",
+            "players",
+            41,
+            "assignedrating"
+        ],
+        "msg": "Field required",
+        "input": {
+            "fiderating": 0,
+            "fullname": "Stausens, Nick",
+            "first_name": "Nick",
+            "idnumber": 32751,
+            "idcluborig": 182,
+            "idclubvisit": 0,
+            "last_name": "Stausens",
+            "nature": "unassigned",
+            "titular": "",
+            "transfer": null,
+            "mindiv": "6"
+        }
+    },
+    {
+        "type": "missing",
+        "loc": [
+            "body",
+            "players",
+            42,
+            "assignedrating"
+        ],
+        "msg": "Field required",
+        "input": {
+            "fiderating": 0,
+            "fullname": "Van Grieken, Bas",
+            "first_name": "Bas",
+            "idnumber": 11803,
+            "idcluborig": 182,
+            "idclubvisit": 0,
+            "last_name": "Van Grieken",
+            "nature": "unassigned",
+            "titular": "",
+            "transfer": null,
+            "mindiv": "6"
+        }
+    }
+]
