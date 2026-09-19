@@ -55,7 +55,7 @@ from .md_elo import (
     EloPlayer,
 )
 
-from .helpers import load_icdata, ptable12
+from .helpers import load_icdata, ptable12, ptable10
 from .icclubs import (
     anon_getICteams,
     anon_getICclub,
@@ -204,6 +204,7 @@ __all__ = [
     "mgmt_register_teamforfeit",
     "mgmt_saveICresults",
     "mgmt_updateICplayers",
+    "ptable10",
     "ptable12",
     "set_icregistration",
     "set_interclubvenues",

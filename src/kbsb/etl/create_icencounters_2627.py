@@ -11,8 +11,6 @@ from reddevil.core import (
     register_app,
 )
 
-from kbsb.interclubs.series import script_create_encounters
-
 app = FastAPI(
     title="FRBE-KBSB-KSB",
     description="Website Belgian Chess federation FRBE KBSB KSB",
@@ -33,6 +31,8 @@ async def lifespan(app: FastAPI):
 
 
 async def main():
+    from kbsb.interclubs.series import script_create_encounters
+
     async with lifespan(app):
         await script_create_encounters()
 
