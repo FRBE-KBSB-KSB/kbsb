@@ -266,9 +266,13 @@ def fill_workbook(form_data):
     ):
         ws_rounds = wb["Rounds_Long_Tournament"]
         ws_rounds["B1"] = form_data.get("event_name", "")
+        # D1 is free in the template, so the optional end date gets its own
+        # labelled column next to the report number.
+        ws_rounds["D1"] = "End Date (optional)"
         for r in range(2, 150):
             ws_rounds[f"B{r}"] = None
             ws_rounds[f"C{r}"] = None
+            ws_rounds[f"D{r}"] = None
             if r > 12:
                 ws_rounds[f"A{r}"] = None
         try:
@@ -281,6 +285,9 @@ def fill_workbook(form_data):
             ws_rounds[f"A{row}"] = f"Round {i} Date"
             ws_rounds[f"B{row}"] = form_data.get(f"round{i}_date", "")
             ws_rounds[f"C{row}"] = form_data.get(f"round{i}_report", "")
+            # A one day round leaves D empty, which is the normal case.
+            end_date = (form_data.get(f"round{i}_end_date") or "").strip()
+            ws_rounds[f"D{row}"] = end_date or None
 
     buf = BytesIO()
     wb.save(buf)
@@ -543,7 +550,27 @@ def validate_form(form, lang):
         for i in range(1, n + 1):
             date_key = f"round{i}_date"
             report_key = f"round{i}_report"
+            end_date_key = f"round{i}_end_date"
             date_val = form.get(date_key)
+            # The round end date is optional: absent means a one day round,
+            # which keeps older submissions valid.
+            end_date_val = (form.get(end_date_key) or "").strip()
+            if end_date_val:
+                try:
+                    datetime.strptime(end_date_val, "%Y-%m-%d")
+                except ValueError:
+                    logger.error(f"Round {i} end date {end_date_val} is not a valid date")
+                    errors.append(
+                        t_msg["round_end_date_invalid"].replace("{num}", str(i))
+                    )
+                else:
+                    if date_val and end_date_val < date_val:
+                        logger.error(
+                            f"Round {i} end date {end_date_val} is earlier than round date {date_val}"
+                        )
+                        errors.append(
+                            t_msg["round_end_date_order_error"].replace("{num}", str(i))
+                        )
             if not date_val:
                 errors.append(t_msg["round_date_required"].replace("{num}", str(i)))
             else:
