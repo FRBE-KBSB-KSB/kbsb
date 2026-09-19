@@ -1,17 +1,16 @@
 import asyncio
-import aiofiles
-import aiocsv
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from reddevil.core import (
-    register_app,
-    connect_mongodb,
-    close_mongodb,
-    get_settings,
-)
-from dotenv import load_dotenv
 import logging
-from kbsb import ROOT_DIR
+from contextlib import asynccontextmanager
+
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from reddevil.core import (
+    a_close_mongodb,
+    a_connect_mongodb,
+    get_settings,
+    register_app,
+)
+
 from kbsb.interclubs.series import script_create_encounters
 
 app = FastAPI(
@@ -28,13 +27,13 @@ logger.info("Started")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    connect_mongodb()
+    a_connect_mongodb()
     yield
-    close_mongodb()
+    await a_close_mongodb()
 
 
 async def main():
-    async with lifespan(app) as writer:
+    async with lifespan(app):
         await script_create_encounters()
 
 

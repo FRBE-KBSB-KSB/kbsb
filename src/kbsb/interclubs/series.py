@@ -2,7 +2,7 @@
 
 import logging
 import os
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from typing import Any, cast
 
 import pymongo
@@ -21,10 +21,12 @@ from . import (
     DbICSeries2324,
     DbICSeries2425,
     DbICSeries2526,
+    DbICSeries2627,
     DbICStandings,
     DbICStandings2324,
     DbICStandings2425,
     DbICStandings2526,
+    DbICStandings2627,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -42,6 +44,7 @@ from . import (
     anon_getICclub,
     anon_getICclub_archive,
     load_icdata,
+    ptable10,
     ptable12,
 )
 from .validation import LineUpValidation
@@ -552,8 +555,8 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
         options["teams.idclub"] = idclub
     docs = await DbICStandings.find_multiple(options)
     for ix, d in enumerate(docs):
-        dirty = d.dirtytime.replace(tzinfo=timezone.utc) if d.dirtytime else None
-        if dirty and dirty < datetime.now(timezone.utc) - timedelta(minutes=5):
+        dirty = d.dirtytime.replace(tzinfo=UTC) if d.dirtytime else None
+        if dirty and dirty < datetime.now(UTC) - timedelta(minutes=5):
             logger.info("recalc standings")
             series = await DbICSeries.find_single(
                 {"division": d.division, "index": d.index, "_model": ICSeries}
@@ -566,11 +569,13 @@ dbseasons = {
     "2324": DbICStandings2324,
     "2425": DbICStandings2425,
     "2526": DbICStandings2526,
+    "2627": DbICStandings2627,
 }
 dbseries = {
     "2324": DbICSeries2324,
     "2425": DbICSeries2425,
     "2526": DbICSeries2526,
+    "2627": DbICSeries2627,
 }
 
 
@@ -715,7 +720,7 @@ async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> Non
 
 
 async def script_addteam_icseries(
-    division: int, index: str | None, name: str, idclub: int, pairingnumber: int
+    division: int, index: str, name: str, idclub: int, pairingnumber: int
 ):
     """
     Add a team to a division
@@ -747,6 +752,7 @@ async def script_addteam_icseries(
     await update_icseries(division, index or "", ICSeriesUpdate(teams=s.teams))
     if idclub != 0:
         icclub = await get_icclub({"idclub": idclub})
+        assert icclub and icclub.teams
         for t in icclub.teams:
             if t.name == name:
                 break
@@ -760,29 +766,50 @@ async def script_create_encounters():
     create all encounters
     """
     icdata = await load_icdata()
+    assert icdata and "rounds11" in icdata and "rounds9" in icdata
     ss = await get_icseries_all()
-    logger.info(f"found {len(ss)} series")
     for s in ss:
         rounds = []
         if s.rounds:
             continue
         logger.info(f"filling series {s.division} {s.index}")
-        for r in range(11):  # adding all rounds
-            encounters = []
-            tm_indexed = {t.pairingnumber: t for t in s.teams}
-            for home, visit in ptable12[r]:
-                enc = ICEncounter(
-                    icclub_home=tm_indexed[home].idclub,
-                    icclub_visit=tm_indexed[visit].idclub,
-                    pairingnr_home=home,
-                    pairingnr_visit=visit,
+        if s.division < 6:
+            for r in range(11):  # adding all rounds
+                encounters = []
+                tm_indexed = {t.pairingnumber: t for t in s.teams}
+                for home, visit in ptable12[r]:
+                    enc = ICEncounter(
+                        icclub_home=tm_indexed[home].idclub,
+                        icclub_visit=tm_indexed[visit].idclub,
+                        pairingnr_home=home,
+                        pairingnr_visit=visit,
+                    )
+                    encounters.append(enc)
+                rounds.append(
+                    ICRound(
+                        round=r + 1,
+                        rdate=icdata["rounds11"][r + 1].isoformat()[0:10],
+                        encounters=encounters,
+                    )
                 )
-                encounters.append(enc)
-            rounds.append(
-                ICRound(
-                    round=r + 1,
-                    rdate=icdata["rounds"][r + 1].isoformat()[0:10],
-                    encounters=encounters,
+            await update_icseries(s.division, s.index, ICSeriesUpdate(rounds=rounds))
+        else:  # dvision 6
+            for r in range(9):  # adding all rounds
+                encounters = []
+                tm_indexed = {t.pairingnumber: t for t in s.teams}
+                for home, visit in ptable10[r]:
+                    enc = ICEncounter(
+                        icclub_home=tm_indexed[home].idclub,
+                        icclub_visit=tm_indexed[visit].idclub,
+                        pairingnr_home=home,
+                        pairingnr_visit=visit,
+                    )
+                    encounters.append(enc)
+                rounds.append(
+                    ICRound(
+                        round=r + 1,
+                        rdate=icdata["rounds9"][r + 1].isoformat()[0:10],
+                        encounters=encounters,
+                    )
                 )
-            )
-        await update_icseries(s.division, s.index, ICSeriesUpdate(rounds=rounds))
+            await update_icseries(s.division, s.index, ICSeriesUpdate(rounds=rounds))

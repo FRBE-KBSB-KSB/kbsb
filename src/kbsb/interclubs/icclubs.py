@@ -38,7 +38,6 @@ settings = get_settings()
 ONPLAYERLIST = [
     PlayerlistNature.ASSIGNED,
     PlayerlistNature.IMPORTED,
-    PlayerlistNature.REQUESTEDIN,
 ]
 
 # archive
