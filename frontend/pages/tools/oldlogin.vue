@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdnumberStore } from "~/store/idbel"
+import { useIdbelStore } from "~/store/idbel"
 import showdown from "showdown"
 
 const { locale, t } = useI18n()
@@ -10,7 +10,7 @@ const { $backend } = useNuxtApp()
 const router = useRouter()
 const route = useRoute()
 const idstore = useIdtokenStore()
-const idnstore = useIdnumberStore()
+const idbelstore = useIdbelStore()
 
 // help dialog
 const mdConverter = new showdown.Converter()
@@ -43,7 +43,7 @@ async function dologin() {
     console.log("reached finally")
   }
   idstore.updateToken(reply.data)
-  idnstore.updateIdnumber(login.value.idnumber)
+  idbelstore.updateIdbel(login.value.idnumber)
   console.log("redirecting to ", returnUrl)
   await navigateTo(returnUrl)
   // router.push(returnUrl)
