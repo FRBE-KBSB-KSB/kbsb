@@ -19,6 +19,8 @@
       "event_name_hint": "Make sure to include a differentiating name with the year and your club (e.g. Club Championship 2026 SK Deurne).",
       "expected_players_hint": "Does not have to be exact, but an estimate / fair guess.",
       "start_date_14days_warning": "Warning: This is a late registration (< 14 days before the start). Submitting is possible, but timely processing cannot be guaranteed.",
+      "report_per_round_hint": "Tick this if your pairing program writes one report per round and the reports cannot be merged. The reports are then numbered 1, 2, 3, ... instead of grouped by FIDE rating period.",
+      "round_end_date_hint": "Leave empty for a round played on one day. Fill it in only when the round runs until a later date.",
       "communication_language_hint": "This language is used for official communications and confirmation emails."
     },
     "categories": {
@@ -119,7 +121,9 @@
       "remarks": "Remarks",
       "communication_language": "Language for communication",
       "round_date": "Round {num} date",
-      "round_report": "In which report will Round {num} be?"
+      "round_report": "In which report will Round {num} be?",
+      "round_end_date": "Round {num} until (optional)",
+      "report_per_round": "Report each round separately?"
     },
     "messages": {
       "template_not_found": "Excel template not found at {path}. Put your workbook there as template_fide_form.xlsx.",
@@ -135,6 +139,8 @@
       "round_date_required": "Round {num} date is required for New long tournament.",
       "round_report_required": "The report number for Round {num} is required for New long tournament.",
       "round_dates_order_error": "Round {num} date must not be earlier than Round {prev_num} date.",
+      "round_end_date_order_error": "The end date of Round {num} may not be earlier than the date of Round {num}.",
+      "round_end_date_invalid": "The end date of Round {num} is not a valid date (YYYY-MM-DD).",
       "end_date_order_error": "End Date cannot be earlier than Start Date.",
       "all_rounds_one_report_period_error": "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'.",
       "conf_subject": "FIDE Registration Confirmation: {event_name}",
@@ -169,6 +175,8 @@
       "event_name_hint": "Zorg voor een onderscheidende naam met het jaartal en uw club (bijv. Clubkampioenschap 2026 SK Deurne).",
       "expected_players_hint": "Hoeft niet exact te zijn, maar een realistische schatting.",
       "start_date_14days_warning": "Waarschuwing: Dit is een late registratie (< 14 dagen voor aanvang). Indienen is mogelijk, maar tijdige verwerking kan niet worden gegarandeerd.",
+      "report_per_round_hint": "Vink dit aan als uw paringsprogramma één rapport per ronde schrijft en de rapporten niet samengevoegd kunnen worden. De rapporten worden dan genummerd 1, 2, 3, ... in plaats van gegroepeerd per FIDE-ratingperiode.",
+      "round_end_date_hint": "Laat leeg voor een ronde die op één dag wordt gespeeld. Vul dit alleen in als de ronde tot een latere datum loopt.",
       "communication_language_hint": "Deze taal wordt gebruikt voor officiële communicatie en bevestigingsmails."
     },
     "categories": {
@@ -269,7 +277,9 @@
       "remarks": "Opmerkingen",
       "communication_language": "Taal voor communicatie",
       "round_date": "Datum van ronde {num}",
-      "round_report": "In welk rapport komt ronde {num}?"
+      "round_report": "In welk rapport komt ronde {num}?",
+      "round_end_date": "Ronde {num} tot (optioneel)",
+      "report_per_round": "Elke ronde apart rapporteren?"
     },
     "messages": {
       "template_not_found": "Excel-sjabloon niet gevonden op {path}. Plaats uw werkmap daar als template_fide_form.xlsx.",
@@ -285,6 +295,8 @@
       "round_date_required": "Datum van ronde {num} is verplicht voor nieuw lang toernooi.",
       "round_report_required": "Het rapportnummer voor Ronde {num} is verplicht voor nieuw lang toernooi.",
       "round_dates_order_error": "Datum van ronde {num} mag niet vroeger zijn dan datum van ronde {prev_num}.",
+      "round_end_date_order_error": "De einddatum van ronde {num} mag niet vroeger zijn dan de datum van ronde {num}.",
+      "round_end_date_invalid": "De einddatum van ronde {num} is geen geldige datum (JJJJ-MM-DD).",
       "end_date_order_error": "Einddatum mag niet vóór de startdatum liggen.",
       "all_rounds_one_report_period_error": "De datums overspannen meerdere FIDE-ratingperiodes. Voor toernooien over meerdere maanden of maandeinden dient u 'Nieuw lang toernooi' te selecteren.",
       "conf_subject": "FIDE-registratiebevestiging: {event_name}",
@@ -319,6 +331,8 @@
       "event_name_hint": "Veillez à inclure un nom distinctif avec l'année et votre club (ex. Championnat de club 2026 SK Deurne).",
       "expected_players_hint": "Ne doit pas être exact, mais une estimation réaliste.",
       "start_date_14days_warning": "Attention : Il s'agit d'une inscription tardive (< 14 jours avant le début). La soumission est possible, mais le traitement à temps n'est pas garanti.",
+      "report_per_round_hint": "Cochez ceci si votre logiciel d'appariement écrit un rapport par ronde et que les rapports ne peuvent pas être fusionnés. Les rapports sont alors numérotés 1, 2, 3, ... au lieu d'être groupés par période de classement FIDE.",
+      "round_end_date_hint": "Laissez vide pour une ronde jouée en un seul jour. Ne le remplissez que si la ronde se poursuit jusqu'à une date ultérieure.",
       "communication_language_hint": "Cette langue est utilisée pour les communications officielles et les e-mails de confirmation."
     },
     "categories": {
@@ -419,7 +433,9 @@
       "remarks": "Remarques",
       "communication_language": "Langue de communication",
       "round_date": "Date de la ronde {num}",
-      "round_report": "Dans quel rapport sera la ronde {num} ?"
+      "round_report": "Dans quel rapport sera la ronde {num} ?",
+      "round_end_date": "Ronde {num} jusqu'au (facultatif)",
+      "report_per_round": "Rapporter chaque ronde séparément ?"
     },
     "messages": {
       "template_not_found": "Modèle Excel introuvable à {path}. Placez votre classeur à cet endroit sous le nom de template_fide_form.xlsx.",
@@ -435,6 +451,8 @@
       "round_date_required": "La date de la ronde {num} est obligatoire pour un nouveau tournoi long.",
       "round_report_required": "Le numéro de rapport pour la ronde {num} est obligatoire pour un nouveau tournoi long.",
       "round_dates_order_error": "La date de la ronde {num} ne doit pas être antérieure à la date de la ronde {prev_num}.",
+      "round_end_date_order_error": "La date de fin de la ronde {num} ne peut pas être antérieure à la date de la ronde {num}.",
+      "round_end_date_invalid": "La date de fin de la ronde {num} n'est pas une date valide (AAAA-MM-JJ).",
       "end_date_order_error": "La date de fin ne peut pas être antérieure à la date de début.",
       "all_rounds_one_report_period_error": "Les dates s'étendent sur plusieurs périodes de classement FIDE. Pour les tournois sur plusieurs mois ou fins de mois, veuillez sélectionner 'Nouveau tournoi long'.",
       "conf_subject": "Confirmation d'inscription FIDE : {event_name}",

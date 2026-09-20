@@ -49,6 +49,7 @@ const form = ref({
   tournament_system: "",
   rounds_reported: "",
   multiple_round_days: "0",
+  report_per_round: false,
   female_only: "No",
   start_date: "",
   end_date: "",
@@ -84,6 +85,7 @@ const form = ref({
 // Create round fields
 for (let i = 1; i <= 40; i++) {
   form.value[`round${i}_date`] = "";
+  form.value[`round${i}_end_date`] = "";
   form.value[`round${i}_report`] = "";
 }
 
@@ -241,6 +243,17 @@ function getRoundDateError(index) {
   return "";
 }
 
+// The optional end date of a round: empty means a one day round.
+function getRoundEndDateError(index) {
+  const startDate = form.value[`round${index}_date`];
+  const endDate = form.value[`round${index}_end_date`];
+  if (!startDate || !endDate) return "";
+  if (endDate < startDate) {
+    return tMsg('round_end_date_order_error').replace(/\{num\}/g, index);
+  }
+  return "";
+}
+
 function recalculateReportNumbers() {
   if (!isLongTournament.value) return;
 
@@ -278,16 +291,24 @@ function recalculateReportNumbers() {
   });
 
   // Assign report numbers
+  // Some leagues have pairing software that writes one report per round, and
+  // those reports cannot be merged: then the rounds are simply numbered
+  // 1, 2, 3, ... instead of grouped per FIDE rating period.
+  const perRound = form.value.report_per_round === true;
   for (let i = 1; i <= 40; i++) {
     if (i <= count) {
       const dateVal = form.value[`round${i}_date`];
       if (dateVal) {
-        const item = roundsData.find(r => r.index === i);
-        if (item && item.period) {
-          const idx = uniquePeriods.findIndex(p => p.key === item.period.key);
-          form.value[`round${i}_report`] = String(idx + 1);
+        if (perRound) {
+          form.value[`round${i}_report`] = String(i);
         } else {
-          form.value[`round${i}_report`] = "";
+          const item = roundsData.find(r => r.index === i);
+          if (item && item.period) {
+            const idx = uniquePeriods.findIndex(p => p.key === item.period.key);
+            form.value[`round${i}_report`] = String(idx + 1);
+          } else {
+            form.value[`round${i}_report`] = "";
+          }
         }
       } else {
         form.value[`round${i}_report`] = "";
@@ -297,8 +318,11 @@ function recalculateReportNumbers() {
     }
   }
 
-  // Recalculate start and end dates
-  const activeDates = roundsData.map(r => r.dateVal).filter(Boolean).sort();
+  // Recalculate start and end dates, a round end date counts as a played date
+  const activeDates = roundsData
+    .flatMap(r => [r.dateVal, form.value[`round${r.index}_end_date`]])
+    .filter(Boolean)
+    .sort();
   if (activeDates.length > 0) {
     form.value.start_date = activeDates[0];
     form.value.end_date = activeDates[activeDates.length - 1];
@@ -328,8 +352,10 @@ watch(isLongTournament, (isLong) => {
   if (!isLong) {
     form.value.start_date = "";
     form.value.end_date = "";
+    form.value.report_per_round = false;
     for (let i = 1; i <= 40; i++) {
       form.value[`round${i}_date`] = "";
+      form.value[`round${i}_end_date`] = "";
       form.value[`round${i}_report`] = "";
     }
   } else {
@@ -341,6 +367,10 @@ watch(roundsCount, () => {
   recalculateReportNumbers();
 });
 
+watch(() => form.value.report_per_round, () => {
+  recalculateReportNumbers();
+});
+
 // Watch active round date fields reactively
 watch(
   () => {
@@ -348,6 +378,7 @@ watch(
     const dates = [];
     for (let i = 1; i <= count; i++) {
       dates.push(form.value[`round${i}_date`]);
+      dates.push(form.value[`round${i}_end_date`]);
     }
     return dates;
   },
@@ -584,6 +615,7 @@ function clearFormData() {
     tournament_system: "",
     rounds_reported: "",
     multiple_round_days: "0",
+    report_per_round: false,
     female_only: "No",
     start_date: "",
     end_date: "",
@@ -617,6 +649,7 @@ function clearFormData() {
   };
   for (let i = 1; i <= 100; i++) {
     form.value[`round${i}_date`] = "";
+    form.value[`round${i}_end_date`] = "";
     form.value[`round${i}_report`] = "";
   }
   // Restore cached organizer/club defaults
@@ -662,6 +695,22 @@ async function submitForm() {
       }
     }
     return;
+  }
+
+  if (isLongTournament.value) {
+    for (let i = 1; i <= roundsCount.value; i++) {
+      const roundEndError = getRoundEndDateError(i);
+      if (roundEndError) {
+        errorText.value = roundEndError;
+        if (process.client) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (window.parent !== window) {
+            window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+          }
+        }
+        return;
+      }
+    }
   }
 
   if (isSingleReportMultiplePeriods.value) {
@@ -910,6 +959,18 @@ definePageMeta({
         <div v-if="isLateRegistration" style="color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0.5rem; font-weight: 500;">
           ⚠ {{ tUI('start_date_14days_warning') }}
         </div>
+        <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <input type="checkbox" v-model="form.report_per_round" style="width: auto; margin-top: 0.2rem;">
+          <span>
+            {{ tField('report_per_round') }}
+            <span style="display: block; font-size: 0.8rem; color: var(--muted); font-style: italic;">
+              {{ tUI('report_per_round_hint') }}
+            </span>
+          </span>
+        </label>
+        <div style="font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; font-style: italic;">
+          {{ tUI('round_end_date_hint') }}
+        </div>
         <div id="rounds-container">
           <div class="round-row active" v-for="i in roundsCount" :key="i">
             <label>
@@ -917,6 +978,13 @@ definePageMeta({
               <input type="date" v-model="form[`round${i}_date`]" required>
               <div v-if="getRoundDateError(i)" class="error-msg" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
                 {{ getRoundDateError(i) }}
+              </div>
+            </label>
+            <label>
+              <span>{{ tField('round_end_date').replace('{num}', i) }}</span>
+              <input type="date" v-model="form[`round${i}_end_date`]" :min="form[`round${i}_date`]">
+              <div v-if="getRoundEndDateError(i)" class="error-msg" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+                {{ getRoundEndDateError(i) }}
               </div>
             </label>
             <label>
@@ -1411,7 +1479,7 @@ button[type="submit"]:disabled {
 }
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
-.round-row.active { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.round-row.active { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
 .person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
 .organizer-dropdown {
   position: absolute;
