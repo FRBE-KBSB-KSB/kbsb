@@ -1,10 +1,12 @@
 # copyright Ruben Decrop 2012 - 2024
 import logging
 from asyncio import sleep
-from . import MailRelayValidator
+
+from reddevil.core import get_setting
 from reddevil.mail import MailParams
 from reddevil.mail.mail import sendEmailMessage
-from reddevil.core import get_settings
+
+from . import MailRelayValidator
 
 logger = logging.getLogger("kbsb")
 
@@ -16,15 +18,15 @@ async def mail_relay(mrv: MailRelayValidator):
     :param mrv: Description
     :type mrv: MailRelayValidator
     """
-    settings = get_settings()
+    email_settings = get_setting("EMAIL")
     mp = MailParams(
         receiver=mrv.receiver,
         sender="noreply@frbe-kbsb-ksb.be",
-        bcc=settings.EMAIL.get("bcc", ""),
+        bcc=email_settings.get("bcc", ""),
         template=mrv.content,
-        locale=None,
+        locale="",
         subject=mrv.subject,
-        attachments=mrv.attachments,
+        attachments=mrv.attachments or [],
     )
     try:
         sendEmailMessage(mp)

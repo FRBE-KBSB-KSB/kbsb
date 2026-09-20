@@ -23,8 +23,6 @@ const errortext = ref(null)
 const snackbar = ref(null)
 
 // login
-const logindialog = ref(false)
-const login = ref({})
 const idbelstore = useIdbelStore()
 
 // locale
@@ -214,31 +212,6 @@ definePageMeta({
           <v-progress-circular indeterminate color="green" />
         </v-card-text>
       </v-card>
-    </v-dialog>
-    <v-dialog width="25em" v-model="logindialog">
-      <VCard>
-        <VCardTitle>
-          <VIcon large> mdi-account </VIcon>
-          <label class="headline ml-3">{{ $t("Sign in") }}</label>
-        </VCardTitle>
-        <VDivider />
-        <VCardText>
-          <VTextField v-model="login.idnumber" :label="$t('ID number')" />
-          <VTextField
-            v-model="login.password"
-            xs="12"
-            lg="6"
-            :label="$t('Password')"
-            type="password"
-          />
-        </VCardText>
-        <VCardActions>
-          <VSpacer />
-          <VBtn @click="dologin()">
-            {{ $t("Submit") }}
-          </VBtn>
-        </VCardActions>
-      </VCard>
     </v-dialog>
     <v-card>
       <v-card-text>

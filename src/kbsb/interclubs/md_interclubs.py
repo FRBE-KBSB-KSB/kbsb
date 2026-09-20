@@ -66,9 +66,9 @@ class ICTeam(BaseModel):
     division: int
     titular: list[int] | None = Field(default_factory=list)
     idclub: int
-    index: str | None = ""
+    index: str = ""
     name: str  # includes numbercat like "KOSK 1"
-    pairingnumber: int | None = 0
+    pairingnumber: int = 0
     teamforfeit: bool = False
 
 

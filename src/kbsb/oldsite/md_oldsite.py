@@ -4,6 +4,8 @@
 # we are using pydantic models (and not dicts) to represent
 # to represent business obejcts
 
+from dataclasses import field
+
 from pydantic import BaseModel
 from reddevil.mail import MailAttachment
 
@@ -15,7 +17,7 @@ class MailRelayValidator(BaseModel):
 
     bcc: str = ""
     cc: str = ""
-    attachments: list[MailAttachment] = None
+    attachments: list[MailAttachment] = field(default_factory=list)
     content: str
     receiver: str
     sender: str

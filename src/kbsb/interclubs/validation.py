@@ -1,13 +1,15 @@
 import logging
-from datetime import datetime, timedelta, timezone, time
+from datetime import UTC, datetime, time, timedelta
+
 from reddevil.core import RdInternalServerError
+
+from .helpers import load_all_icclubs, load_icdata
 from .md_interclubs import (
-    ICSeries,
-    ICRound,
-    ICValidationError,
     DbICSeries,
+    ICRound,
+    ICSeries,
+    ICValidationError,
 )
-from .helpers import load_icdata, load_all_icclubs
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,7 @@ class LineUpValidation:
             self.fideratings,
         ) = await load_all_icclubs()
         self.icdata = await load_icdata()
+        assert self.icdata
 
     def _get_round(self, s: ICSeries, round: int) -> ICRound:
         for rnd in s.rounds:
@@ -64,12 +67,13 @@ class LineUpValidation:
         self,
         reason: str,
         s: ICSeries,
-        round: int,
         encix: int,
         idclub: int,
         pairingnr: int | None = None,
         gameix: int | None = None,
+        round: int | None = None,
     ) -> ICValidationError:
+        round = round or 0
         rnd = self._get_round(s, round)
         enc = rnd.encounters[encix]
         nameteams = {t.pairingnumber: t.name for t in s.teams}
@@ -82,20 +86,20 @@ class LineUpValidation:
         pnr_opponent = enc.pairingnr_visit if playing_home else enc.pairingnr_home
         icclub_opponent = enc.icclub_visit if playing_home else enc.icclub_home
         boardnr = gameix + 1 if gameix is not None else None
-        self.validationerrors.append(
-            ICValidationError(
-                boardnr=boardnr,
-                division=s.division,
-                errormessage=reason,
-                icclub_offender=idclub,
-                icclub_opponent=icclub_opponent,
-                index=s.index,
-                name=nameteams.get(pnr_offender, "###"),
-                name_opponent=nameteams.get(pnr_opponent, "###"),
-                pnr_offender=pnr_offender,
-                round=round,
-            )
+        valerr = ICValidationError(
+            boardnr=boardnr,
+            division=s.division,
+            errormessage=reason,
+            icclub_offender=idclub,
+            icclub_opponent=icclub_opponent,
+            index=s.index,
+            name=nameteams.get(pnr_offender, "###"),
+            name_opponent=nameteams.get(pnr_opponent, "###"),
+            pnr_offender=pnr_offender,
+            round=round,
         )
+        self.validationerrors.append(valerr)
+        return valerr
 
     def check_forfaits(self, round: int, idclub: int):
         for s in self.seriesdict.values():
@@ -131,8 +135,8 @@ class LineUpValidation:
         for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
             nextday = self.icdata["rounds"][round] + timedelta(days=1)
-            homesigndate = datetime.combine(nextday, time(0)).astimezone(timezone.utc)
-            visitsigndate = datetime.combine(nextday, time(12)).astimezone(timezone.utc)
+            homesigndate = datetime.combine(nextday, time(0)).astimezone(UTC)
+            visitsigndate = datetime.combine(nextday, time(12)).astimezone(UTC)
             for encix, enc in enumerate(rnd.encounters):
                 if enc.icclub_home == 0 or enc.icclub_visit == 0:
                     continue
@@ -149,7 +153,7 @@ class LineUpValidation:
                         )
                     else:
                         if (
-                            enc.signhome_ts.astimezone(timezone.utc) > homesigndate
+                            enc.signhome_ts.astimezone(UTC) > homesigndate
                             and idclub == enc.icclub_home
                         ):
                             self.create_issue(
@@ -170,7 +174,7 @@ class LineUpValidation:
                         )
                     else:
                         if (
-                            enc.signvisit_ts.astimezone(timezone.utc) > visitsigndate
+                            enc.signvisit_ts.astimezone(UTC) > visitsigndate
                             and idclub == enc.icclub_visit
                         ):
                             self.create_issue(
@@ -216,7 +220,7 @@ class LineUpValidation:
                         )
                     if notfilled:
                         continue
-                    diff = len(homeratings) // 2
+                    diff = len(homeratings) // 2 - 1
                     hs = sorted(homeratings, key=lambda x: x["rating"], reverse=True)
                     for i, hr in enumerate(hs):
                         if hr["ix"] < i - diff or hr["ix"] > i + diff:
@@ -255,7 +259,7 @@ class LineUpValidation:
                         )
                     if notfilled:
                         continue
-                    diff = len(visitratings) / 2
+                    diff = len(visitratings) // 2 - 1
                     vs = sorted(visitratings, key=lambda x: x["rating"], reverse=True)
                     for i, vr in enumerate(vs):
                         if vr["ix"] < i - diff or vr["ix"] > i + diff:
@@ -405,7 +409,7 @@ class LineUpValidation:
                             idclub=idclub,
                         )
                         return
-        except Exception as e:
+        except Exception:
             logger.exception("Exception in check_average_elo")
 
     def check_titular_ok(self, round: int, idclub: int):
@@ -498,21 +502,16 @@ class LineUpValidation:
                     continue
                 if pnr1 in (enc.pairingnr_home, enc.pairingnr_visit):
                     for gix, g in enumerate(enc.games):
-                        if pnr1 == enc.pairingnr_home and g.idnumber_home in players2:
-                            self.create_issue(
-                                reason=f"reserve already played in other team of series",
-                                s=series,
-                                round=round,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=pnr1,
-                                gameix=gix,
+                        if (
+                            pnr1 == enc.pairingnr_home
+                            and g.idnumber_home in players2
+                            or (
+                                pnr1 == enc.pairingnr_visit
+                                and g.idnumber_visit in players2
                             )
-                        elif (
-                            pnr1 == enc.pairingnr_visit and g.idnumber_visit in players2
                         ):
                             self.create_issue(
-                                reason=f"reserve already played in other team of series",
+                                reason="reserve already played in other team of series",
                                 s=series,
                                 round=round,
                                 encix=encix,
@@ -545,49 +544,57 @@ class LineUpValidation:
                                 gameix=gix,
                             )
 
-    def check_elotoohigh(self, round: int, idclub: int):
+    def check_elotoohigh(self, round: int, idclub: int) -> None:
         try:
             for sr in self.seriesdict.values():
-                maxelo = self.icdata["max_elo"][sr.division]
+                maxelo = self.icdata["max_elo"][sr.division]  # pyright: ignore[reportOptionalSubscript]
                 rnd = self._get_round(sr, round)
-            for encix, enc in enumerate(rnd.encounters):
-                if enc.icclub_home == 0 or enc.icclub_visit == 0:
-                    continue
-                if idclub not in (enc.icclub_home, enc.icclub_visit):
-                    continue
-                for gix, g in enumerate(enc.games):
-                    # if player is titular for the team skip
-                    if g.idnumber_home in self.titulars:
-                        tit = self.titulars[g.idnumber_home]
-                        if tit["division"] == sr.division and tit["index"] == sr.index:
-                            continue
-                    if g.idnumber_visit in self.titulars:
-                        tit = self.titulars[g.idnumber_visit]
-                        if tit["division"] == sr.division and tit["index"] == sr.index:
-                            continue
-                    # now check the elo
-                    fide_home = self.fideratings.get(g.idnumber_home, 0)
-                    if fide_home > maxelo:
-                        self.create_issue(
-                            reason="fide rating too high",
-                            s=sr,
-                            round=round,
-                            encix=encix,
-                            idclub=idclub,
-                            gameix=gix,
-                            pairingnr=enc.pairingnr_home,
-                        )
-                    fide_visit = self.fideratings.get(g.idnumber_visit, 0)
-                    if fide_visit > maxelo:
-                        self.create_issue(
-                            reason="fide rating too high",
-                            s=sr,
-                            round=round,
-                            encix=encix,
-                            idclub=idclub,
-                            gameix=gix,
-                            pairingnr=enc.pairingnr_visit,
-                        )
+                if not rnd:
+                    return
+                for encix, enc in enumerate(rnd.encounters):
+                    if enc.icclub_home == 0 or enc.icclub_visit == 0:
+                        continue
+                    if idclub not in (enc.icclub_home, enc.icclub_visit):
+                        continue
+                    for gix, g in enumerate(enc.games):
+                        # if player is titular for the team skip
+                        if g.idnumber_home in self.titulars:
+                            tit = self.titulars[g.idnumber_home]
+                            if (
+                                tit["division"] == sr.division
+                                and tit["index"] == sr.index
+                            ):
+                                continue
+                        if g.idnumber_visit in self.titulars:
+                            tit = self.titulars[g.idnumber_visit]
+                            if (
+                                tit["division"] == sr.division
+                                and tit["index"] == sr.index
+                            ):
+                                continue
+                        # now check the elo
+                        fide_home = self.fideratings.get(g.idnumber_home, 0)
+                        if fide_home > maxelo:
+                            self.create_issue(
+                                reason="fide rating too high",
+                                s=sr,
+                                round=round,
+                                encix=encix,
+                                idclub=idclub,
+                                gameix=gix,
+                                pairingnr=enc.pairingnr_home,
+                            )
+                        fide_visit = self.fideratings.get(g.idnumber_visit, 0)
+                        if fide_visit > maxelo:
+                            self.create_issue(
+                                reason="fide rating too high",
+                                s=sr,
+                                round=round,
+                                encix=encix,
+                                idclub=idclub,
+                                gameix=gix,
+                                pairingnr=enc.pairingnr_visit,
+                            )
         except Exception as e:
             logger.exception("Exception in check_elotoohigh")
             raise e
@@ -616,6 +623,7 @@ class LineUpValidation:
         self.check_titular_ok(round, idclub)
         self.check_reserves_in_single_series(round, idclub)
         self.check_elotoohigh(round, idclub)
+        return self.validationerrors
 
     async def validate_results(
         self, idclub: int, round: int

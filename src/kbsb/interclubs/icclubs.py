@@ -2,10 +2,11 @@
 
 import logging
 from tempfile import NamedTemporaryFile
-from typing import Any, cast
+from typing import Any
 
 import openpyxl
 from reddevil.core import (
+    RdException,
     RdNotFound,
     get_settings,
 )
@@ -59,7 +60,7 @@ async def create_icclub(icclub: ICClubDB) -> str:
     return await DbICClub.add(icclubdict)  # pyright: ignore[reportReturnType]
 
 
-async def get_icclub(options: dict | None = None) -> ICClubDB | None:
+async def get_icclub(options: dict | None = None) -> ICClubDB:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
@@ -67,7 +68,7 @@ async def get_icclub(options: dict | None = None) -> ICClubDB | None:
     filter = options.copy() if options else {}
     filter["_model"] = filter.get("_model", ICClubDB)
     logger.info(f"get icclub {filter}")
-    club = await DbICClub.find_single(filter)
+    club: ICClubDB = await DbICClub.find_single(filter)  # pyright: ignore[reportAssignmentType]
     return club
 
 
@@ -81,19 +82,20 @@ async def update_icclub(
     options1 = options.copy() if options else {}
     options1["_model"] = options1.pop("_model", ICClubDB)
     iudict = iu.model_dump(exclude_unset=True)
-    return cast(
-        ICClubDB,
-        await DbICClub.update({"idclub": iu.idclub}, iudict, options1),
-    )
+    club: ICClubDB = await DbICClub.update({"idclub": iu.idclub}, iudict, options1)  # pyright: ignore[reportAssignmentType]
+    return club
 
 
 # Business methods
 
 
-async def anon_getICteams(idclub: int, options: dict = {}) -> list[ICTeam]:
+async def anon_getICteams(
+    idclub: int, options: dict[str, Any] | None = None
+) -> list[ICTeam]:
     """
     get all the interclub teams for a club available in all divisions
     """
+    options = options or {}
     series = await DbICSeries.find_multiple({"teams.idclub": idclub})
     teams = []
     for s in series:
@@ -103,22 +105,24 @@ async def anon_getICteams(idclub: int, options: dict = {}) -> list[ICTeam]:
     return teams
 
 
-async def anon_getICclub(idclub: int, options: dict[str, Any] = {}) -> ICClubDB | None:
+async def anon_getICclub(
+    idclub: int, options: dict[str, Any] | None = None
+) -> ICClubDB:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
     """
-    filter = options.copy()
+    filter = options.copy() if options else {}
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
-    club = await DbICClub.find_single(filter)
-    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]  # pyright: ignore[reportAttributeAccessIssue]
-    return club  # pyright: ignore[reportReturnType]
+    club: ICClubDB = await DbICClub.find_single(filter)  # pyright: ignore[reportAssignmentType]
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]  # pyright: ignore[reportOptionalIterable]
+    return club
 
 
 async def anon_getICclub_archive(
     season: str, idclub: int, options: dict[str, Any] | None = None
-) -> ICClubDB | None:
+) -> ICClubDB:
     """
     get IC club by idclub, returns None if nothing found
     filter players for active players
@@ -127,21 +131,22 @@ async def anon_getICclub_archive(
     filter = options.copy() if options else {}
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
-    club = await dbclub.find_single(filter)
-    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
+    club: ICClubDB = await dbclub.find_single(filter)  # pyright: ignore[reportAssignmentType]
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]  # pyright: ignore[reportOptionalIterable]
     return club
 
 
-async def anon_getICclubs() -> list[ICClubItem] | None:
+async def anon_getICclubs() -> list[ICClubItem]:
     """
     get IC club by idclub, returns None if nothing found
     """
     options = {
         "_model": ICClubItem,
         "registered": True,
-        "_fieldlist": {i: 1 for i in ICClubItem.model_fields.keys()},
+        "_fieldlist": {i: 1 for i in ICClubItem.model_fields},
     }
-    return await DbICClub.find_multiple(options)  # pyright: ignore[reportReturnType]
+    clubs: list[ICClubItem] = await DbICClub.find_multiple(options)  # pyright: ignore[reportAssignmentType]
+    return clubs
 
 
 async def mgmt_getICclubs() -> list[ICClubDB]:
@@ -149,10 +154,11 @@ async def mgmt_getICclubs() -> list[ICClubDB]:
     get IC club by idclub, returns None if nothing found
     """
     options = {"_model": ICClubDB}
-    return await DbICClub.find_multiple(options)  # pyright: ignore[reportReturnType]
+    clubs: list[ICClubDB] = await DbICClub.find_multiple(options)  # pyright: ignore[reportAssignmentType]
+    return clubs
 
 
-async def clb_getICclub(idclub: int) -> ICClubDB | None:
+async def clb_getICclub(idclub: int) -> ICClubDB:
     """
     get IC club by idclub
     if the registration of the club exists but the club has no icclub record
@@ -170,6 +176,7 @@ async def clb_getICclub(idclub: int) -> ICClubDB | None:
             "creating a non registered icclub record"
         )
         clb = await get_club_idclub(idclub)
+        assert clb
         icc = ICClubDB(
             name=clb.name_short,
             idclub=idclub,
@@ -247,11 +254,12 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     update the the player list of a club
     """
     logger.info(f"clb_updateICplayers {idclub}")
-    icc = await clb_getICclub(idclub)
+    icc: ICClubDB = await clb_getICclub(idclub)
+    assert icc.players is not None
     players = pi.players
     transfersout = []
     transferdeletes = []
-    oldplsix = {p.idnumber: p for p in icc.players}  # pyright: ignore[reportOptionalMemberAccess]
+    oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     for p in newplsix.values():
         idn = p.idnumber
@@ -271,10 +279,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     logger.info(f"player {p} moved to transferdeletes")
                     # the transfer is removed
                     transferdeletes.append(p)
-                if p.nature in [
-                    PlayerlistNature.EXPORTED,
-                    PlayerlistNature.CONFIRMEDOUT,
-                ]:
+                if p.nature in [PlayerlistNature.EXPORTED]:
                     transfersout.append(p)
     dictplayers = [p.model_dump() for p in players]
     await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
@@ -309,7 +314,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]  # pyright: ignore[reportOptionalIterable]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
-        except Exception as e:
+        except RdException as e:
             logger.error(f"Error updating receiving club: {e}")
 
 
@@ -345,7 +350,6 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     transferdeletes.append(p)
                 if p.nature in [
                     PlayerlistNature.EXPORTED,
-                    PlayerlistNature.CONFIRMEDOUT,
                 ]:
                     transfersout.append(p)
     dictplayers = [p.model_dump() for p in players]
@@ -381,7 +385,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
             trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]  # pyright: ignore[reportOptionalIterable]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
-        except Exception as e:
+        except RdException as e:
             logger.error(f"Error updating receiving club: {e}")
 
 

@@ -26,7 +26,7 @@ async def load_icdata():
             icdata_path = ROOT_DIR / "shared" / "cloud" / "data" / "ic2627.yml"
             icdata = yaml.load(icdata_path.read_text(), Loader=yaml.SafeLoader)
             logger.info("loaded icdata from local")
-        setattr(load_icdata, "icdata", icdata)
+        load_icdata.icdata = icdata
     return icdata
 
 
@@ -65,10 +65,10 @@ async def load_all_icclubs():
                             "index": t.index,
                             "pairingnumber": t.pairingnumber,
                         }
-            setattr(load_all_icclubs, "playerratings", playerratings)
-            setattr(load_all_icclubs, "fideratings", fideratings)
-            setattr(load_all_icclubs, "clubs", clubs)
-            setattr(load_all_icclubs, "titulars", titulars)
+            load_all_icclubs.playerratings = playerratings  # pyright: ignore[reportFunctionMemberAccess]
+            load_all_icclubs.fideratings = fideratings  # pyright: ignore[reportFunctionMemberAccess]
+            load_all_icclubs.clubs = clubs  # pyright: ignore[reportFunctionMemberAccess]
+            load_all_icclubs.titulars = titulars  # pyright: ignore[reportFunctionMemberAccess]
     return (playerratings, clubs, titulars, fideratings)
 
 

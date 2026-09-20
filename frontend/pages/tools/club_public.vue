@@ -1,88 +1,87 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref, onMounted } from "vue"
+import { useI18n } from "vue-i18n"
 
-import { EMPTY_CLUB } from "@/util/club";
+import { EMPTY_CLUB } from "@/util/club"
 
-const route = useRoute();
-const { locale, t: $t } = useI18n();
-const { $backend } = useNuxtApp();
-const boardmembers = ref({});
-const club = ref({ ...EMPTY_CLUB });
-const clubs = ref([]);
+const route = useRoute()
+const { locale, t: $t } = useI18n()
+const { $backend } = useNuxtApp()
+const boardmembers = ref({})
+const club = ref({ ...EMPTY_CLUB })
+const clubs = ref([])
 
-const idclub = ref(null);
+const idclub = ref(null)
 
 // wating dialog
-let dialogcounter = 0;
-const waitingdialog = ref(false);
+let dialogcounter = 0
+const waitingdialog = ref(false)
 function changeDialogCounter(i) {
-  dialogcounter += i;
-  waitingdialog.value = dialogcounter > 0;
+  dialogcounter += i
+  waitingdialog.value = dialogcounter > 0
 }
 
 // snackbar
-const errortext = ref(null);
-const snackbar = ref(null);
+const errortext = ref(null)
+const snackbar = ref(null)
 function displaySnackbar(text, color) {
-  errortext.value = text;
-  snackbar.value = true;
+  errortext.value = text
+  snackbar.value = true
 }
 
 async function getClubs() {
-  let reply;
-  console.log(1);
-  changeDialogCounter(1);
-  console.log(2);
+  let reply
+  console.log(1)
+  changeDialogCounter(1)
+  console.log(2)
   try {
-    reply = await $backend("club", "anon_get_clubs", {});
-    console.log(3);
+    reply = await $backend("club", "anon_get_clubs", {})
+    console.log(3)
   } catch (error) {
-    if (error.code == 401) gotoLogin();
-    displaySnackbar($t(error.message));
-    return;
+    displaySnackbar($t(error.message))
+    return
   } finally {
-    changeDialogCounter(-1);
+    changeDialogCounter(-1)
   }
-  clubs.value = reply.data;
+  clubs.value = reply.data
   clubs.value.forEach((p) => {
-    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`;
-  });
+    p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
+  })
 }
 
 async function getClubDetails() {
-  let reply;
-  club.value = EMPTY_CLUB;
+  let reply
+  club.value = EMPTY_CLUB
   if (idclub.value) {
-    changeDialogCounter(1);
+    changeDialogCounter(1)
     try {
       reply = await $backend("club", "anon_get_club", {
         idclub: idclub.value,
-      });
+      })
     } catch (error) {
-      displaySnackbar(t(t(error.message)));
-      return;
+      displaySnackbar(t(t(error.message)))
+      return
     } finally {
-      changeDialogCounter(-1);
+      changeDialogCounter(-1)
     }
-    club.value = reply.data;
+    club.value = reply.data
   }
 }
 
 function selectclub() {
-  getClubDetails();
+  getClubDetails()
 }
 
 onMounted(() => {
-  let l = route.query.locale;
-  console.log("query locale", l);
-  locale.value = l ? l : "nl";
-  getClubs();
-});
+  let l = route.query.locale
+  console.log("query locale", l)
+  locale.value = l ? l : "nl"
+  getClubs()
+})
 
 definePageMeta({
   layout: "nomenu",
-});
+})
 </script>
 
 <template>

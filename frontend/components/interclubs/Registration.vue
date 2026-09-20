@@ -141,7 +141,7 @@ async function find_interclubregistration() {
 }
 
 async function gotoLogin() {
-  await router.push("/tools/oldlogin?url=__interclubs__manager")
+  await router.push("/tools/odoologin?url=__interclubs__manager")
 }
 
 async function modifyRegistration() {
