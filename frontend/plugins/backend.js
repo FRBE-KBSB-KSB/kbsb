@@ -4,7 +4,6 @@ import arbiters from "@/api/arbiters"
 import national_elo_archive from "@/api/national_elo_archive"
 import club from "@/api/club"
 import fide from "@/api/fide"
-import filestore from "@/api/filestore"
 import interclub from "@/api/interclub"
 import member from "@/api/member"
 import players_fide from "@/api/players_fide"
@@ -85,7 +84,6 @@ const factories = {
   national_elo_archive,
   club,
   fide,
-  filestore,
   interclub,
   member,
   players_fide,
