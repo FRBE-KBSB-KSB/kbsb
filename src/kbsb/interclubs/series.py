@@ -1,16 +1,17 @@
 # copyright Ruben Decrop 2012 - 2024
 
 import logging
-import os
 from datetime import UTC, datetime, time, timedelta
 from typing import Any, cast
+from zoneinfo import ZoneInfo
 
 import pymongo
 from reddevil.core import (
     RdBadRequest,
+    RdException,
     RdNotFound,
+    a_get_mongodb,
     encode_model,
-    get_mongodb,
     get_settings,
 )
 
@@ -53,19 +54,19 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-os.environ["TZ"] = "Europe/Brussels"
+belzone = ZoneInfo("Europe/Brussels")
 
 # CRUD
 
 
-async def create_icseries(division: str, index: str | None) -> str:
+async def create_icseries(division: int, index: str | None) -> str:
     """
     create a new InterclubSeries returning its id
     """
     logger.debug("create icseries")
     doc = {"division": division, "index": index or "", "teams": []}
     logger.debug("create series {doc}")
-    return await DbICSeries.add(doc)
+    return await DbICSeries.add(doc)  # type: ignore
 
 
 async def get_icseries(id: str, options: dict | None = None) -> ICSeries:
@@ -124,11 +125,13 @@ async def isRoundOpen(round: int):
     returns True is we passed 15h of the day of the round
     """
     icdata = await load_icdata()
+    assert icdata
     rounddate = icdata["rounds"].get(round)
     if not rounddate:
         return False
-    rounddatetime = datetime.combine(rounddate, time(14))
-    return datetime.now() > rounddatetime
+    now = datetime.now(tz=belzone)
+    rounddatetime = datetime.combine(rounddate, time(hour=14), tzinfo=belzone)
+    return now > rounddatetime
 
 
 async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]:
@@ -138,9 +141,9 @@ async def anon_get_icseries_clubround(idclub: int, round: int) -> list[ICSeries]
     if not await isRoundOpen(round):
         logger.info("XXXXXX round not open yet")
         return []
-    db = get_mongodb()
+    db = a_get_mongodb()
     coll = db[DbICSeries.COLLECTION]
-    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
     filter = {}
@@ -157,9 +160,11 @@ async def clb_getICseries(idclub: int, round: int) -> list[ICSeries] | None:
     """
     get IC club by idclub, returns None if nothing found
     """
-    db = get_mongodb()
+    if not round:
+        return []
+    db = a_get_mongodb()
     coll = db[DbICSeries.COLLECTION]
-    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields}
     if round:
         proj["rounds"] = {"$elemMatch": {"round": round}}
     filter = {}
@@ -184,6 +189,7 @@ async def _apply_planning(icplanning: ICPlanning) -> dict:
             sr = await DbICSeries.find_single(
                 {"division": plan.division, "index": plan.index, "_model": ICSeries}
             )
+            assert isinstance(sr, ICSeries)
         curround = None
         for r in sr.rounds:
             if r.round == icplanning.round:
@@ -243,7 +249,7 @@ async def clb_validateICplanning(
     icplanning: ICPlanning,
 ) -> list[ICValidationError]:
     """
-    save a lists of pleanning per team
+    save a lists of planning per team
     """
     seriesdict = await _apply_planning(icplanning)
     lineUpValidation = LineUpValidation()
@@ -260,8 +266,9 @@ async def mgmt_saveICresults(results: list[ICResultItem]) -> None:
     """
     for res in results:
         s = await DbICSeries.find_single(
-            {"division": res.division, "index": res.index, "_model": ICSeries}
+            {"division": res.division, "index": res.index, "_model": ICSeriesDB}
         )
+        assert isinstance(s, ICSeriesDB)
         curround = None
         for r in s.rounds:
             if r.round == res.round:
@@ -307,8 +314,9 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
     # TODO check for time
     for res in results:
         s = await DbICSeries.find_single(
-            {"division": res.division, "index": res.index, "_model": ICSeries}
+            {"division": res.division, "index": res.index, "_model": ICSeriesDB}
         )
+        assert isinstance(s, ICSeriesDB)
         curround = None
         for r in s.rounds:
             if r.round == res.round:
@@ -352,6 +360,7 @@ async def anon_getICresults(division: str, index: int) -> ICSeries | None:
         s = await DbICSeries.find_single(
             {"division": division, "index": index, "_model": ICSeries}
         )
+        assert isinstance(s, ICSeries)
         return s
     except RdNotFound:
         return None
@@ -417,6 +426,7 @@ async def anon_getICencounterdetails(
             "index": index,
         }
     )
+    assert isinstance(icserie, ICSeries)
     details = []
     for r in icserie.rounds:
         if r.round == round:
@@ -430,8 +440,10 @@ async def anon_getICencounterdetails(
                     and enc.pairingnr_visit == pairingnr_visit
                 ):
                     homeclub = await anon_getICclub(icclub_home)
+                    assert homeclub and homeclub.players
                     homeplayers = {p.idnumber: p for p in homeclub.players}
                     visitclub = await anon_getICclub(icclub_visit)
+                    assert visitclub and visitclub.players
                     visitplayers = {p.idnumber: p for p in visitclub.players}
                     for g in enc.games:
                         if not g.idnumber_home or not g.idnumber_visit:
@@ -453,7 +465,7 @@ async def anon_getICencounterdetails(
     return details
 
 
-async def calc_standings(series: ICSeries) -> ICStandingsDB:
+async def calc_standings(series: ICSeriesDB) -> ICStandingsDB:
     """
     calculates and persists standings of a series
     """
@@ -466,6 +478,7 @@ async def calc_standings(series: ICSeries) -> ICStandingsDB:
                 "_model": ICStandingsDB,
             }
         )
+        assert isinstance(standings, ICStandingsDB)
     except RdNotFound:
         standings = ICStandingsDB(
             division=series.division,
@@ -499,6 +512,8 @@ async def calc_standings(series: ICSeries) -> ICStandingsDB:
                 (x for x in standings.teams if x.pairingnumber == enc.pairingnr_visit),
                 None,
             )
+            if not team_home or not team_visit:
+                continue
             game_home = next(
                 (
                     x
@@ -543,24 +558,26 @@ async def calc_standings(series: ICSeries) -> ICStandingsDB:
         },
         standings.model_dump(),
         {"_model": ICStandingsDB},
-    )
+    )  # type: ignore
 
 
 async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
     """
     get the Standings by club
     """
-    options = {"_model": ICStandingsDB}
+    options: dict[str, Any] = {"_model": ICStandingsDB}
     if idclub:
         options["teams.idclub"] = idclub
-    docs = await DbICStandings.find_multiple(options)
+    docs: list[ICStandingsDB] = await DbICStandings.find_multiple(options)  # pyright: ignore[reportAssignmentType]
     for ix, d in enumerate(docs):
+        assert isinstance(d, ICStandingsDB)
         dirty = d.dirtytime.replace(tzinfo=UTC) if d.dirtytime else None
         if dirty and dirty < datetime.now(UTC) - timedelta(minutes=5):
             logger.info("recalc standings")
             series = await DbICSeries.find_single(
-                {"division": d.division, "index": d.index, "_model": ICSeries}
+                {"division": d.division, "index": d.index, "_model": ICSeriesDB}
             )
+            assert isinstance(series, ICSeriesDB)
             docs[ix] = await calc_standings(series)
     return docs
 
@@ -596,10 +613,10 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
     get IC results from a season for a round
     """
     dbresult = dbseries[season]
-    db = get_mongodb()
+    db = a_get_mongodb()
     coll = db[dbresult.COLLECTION]
     logger.info(f"coll {coll}")
-    proj: dict = {i: 1 for i in ICSeries.model_fields.keys()}
+    proj: dict = {i: 1 for i in ICSeries.model_fields}
     proj["rounds"] = {"$elemMatch": {"round": round}}
     logger.info(f"proj {proj}")
     series = []
@@ -609,7 +626,7 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
         try:
             doc["id"] = str(doc["_id"])
             s = encode_model(ICSeriesDB, doc)
-        except Exception:
+        except RdException:
             logger.error(f"encoding ICSeriesDB {doc}")
             continue
         series.append(s)
@@ -687,6 +704,7 @@ async def mgmt_register_teamforfeit(division: int, index: str, name: str) -> Non
             "_model": ICSeriesDB,
         }
     )
+    assert isinstance(series, ICSeriesDB)
     logger.info(f"found series {series.division} {series.index}")
     for t in series.teams:
         if t.name == name:

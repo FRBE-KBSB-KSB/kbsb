@@ -7,6 +7,6 @@ export default {
     return await axios.post(`${prefix1}/anon/login`, options);
   },
   odoologin: async function(options) {
-    return await axios.post(`${prefix2}/anon/login`, options);
+    return await axios.post(`${prefix2}/login`, options);
   },
 };
