@@ -111,7 +111,7 @@ function deleteInterclubCaptain(m) {
 }
 
 function gotoLogin() {
-  navigateTo(localePath('/tools/oldlogin?url=__club__manager'))
+  navigateTo(localePath('/tools/odoologin?url=__club__manager'))
 }
 
 async function modifyAccess() {

@@ -33,7 +33,7 @@ async function dologin() {
   console.log("return URL", returnUrl)
   let reply
   try {
-    reply = await $backend("member", "login", {
+    reply = await $backend("accounts", "odoologin", {
       email: login.value.email,
       password: login.value.password,
     })

@@ -1,8 +1,12 @@
 import axios from "axios";
 
-const prefix = "/api/v1/accounts";
+const prefix1 = "/api/v1/accounts";   // google account in reddevil/account
+const prefix2 = "/api/v1/member";     // odoo account in member
 export default {
-  login: async function(options) {
-    return await axios.post(`${prefix}/anon/login`, options);
+  googlelogin: async function(options) {
+    return await axios.post(`${prefix1}/anon/login`, options);
+  },
+  odoologin: async function(options) {
+    return await axios.post(`${prefix2}/anon/login`, options);
   },
 };

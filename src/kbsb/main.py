@@ -51,9 +51,6 @@ from reddevil.account import api_account
 logger.info("loading api_club")
 from kbsb.club import api_club
 
-logger.info("loading api_filestore")
-from reddevil.filestore import api_filestore
-
 logger.info("loading api_interclubs")
 from kbsb.interclubs import api_interclubs
 
@@ -80,7 +77,6 @@ from zerotwocloud.mail import api as api_zerotwocloud_mail
 
 app.include_router(api_account.router)
 app.include_router(api_club.router)
-app.include_router(api_filestore.router)
 app.include_router(api_interclubs.router)
 app.include_router(api_member.router)
 app.include_router(api_oldsite.router)

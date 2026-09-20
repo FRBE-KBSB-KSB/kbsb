@@ -1,8 +1,10 @@
 import logging
 
-from fastapi import HTTPException, APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from reddevil.core import RdException
+
 from kbsb.core.apikey import header_schema, validate_header
+
 from . import MailRelayValidator, mail_relay
 
 logger = logging.getLogger("kbsb")

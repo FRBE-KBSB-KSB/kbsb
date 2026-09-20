@@ -36,6 +36,10 @@ function cancelClub() {
   statuscm.value = CLUB_STATUS.CONSULTING
 }
 
+function gotoLogin() {
+  navigateTo(localePath("/tools/odoologin?url=__club__manager"))
+}
+
 async function modifyClub() {
   statuscm.value = CLUB_STATUS.MODIFYING
 }

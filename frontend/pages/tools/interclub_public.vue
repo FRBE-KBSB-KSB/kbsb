@@ -75,7 +75,6 @@ async function getICClubs() {
     reply = await $backend("interclub", "anon_getICclubs", {})
     console.log("reply", reply)
   } catch (error) {
-    if (error.code == 401) gotoLogin()
     displaySnackbar(error.message)
     return
   } finally {
