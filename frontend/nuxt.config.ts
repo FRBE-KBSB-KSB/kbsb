@@ -49,6 +49,9 @@ export default defineNuxtConfig({
     prerender: {
       crawlLinks: true,
       failOnError: false,
+      // Not linked from any page the crawler visits, so without this it is
+      // never generated and App Engine answers 404 for it.
+      routes: ['/tools/tournament_registrations'],
     }
   },
 
