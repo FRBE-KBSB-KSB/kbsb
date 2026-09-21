@@ -34,7 +34,6 @@ const { person } = storeToRefs(personstore)
 const tab = ref(null)
 const refregistration = ref(null)
 const refplayerlist = ref(null)
-// const refplanning = ref(null)
 const refresults = ref(null)
 const refreports = ref(null)
 const refvenues = ref(null)
@@ -250,15 +249,18 @@ onMounted(async () => {
     <h3 class="mt-2">Selected club: {{ icclub.idclub }} {{ icclub.name }}</h3>
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
+        <VTab value="results">Results</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="registration">Registration</VTab>
         <VTab value="venues">Venues</VTab>
-        <!-- <VTab value="results">Results</VTab>
-        <VTab value="standings">Standings</VTab>
+        <!-- <VTab value="standings">Standings</VTab>
         <VTab value="reports">Reports</VTab> -->
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changedTab">
+        <VWindowItem value="results" :eager="true">
+          <Results ref="refresults" />
+        </VWindowItem>
         <VWindowItem value="registration" :eager="true">
           <Registration ref="refregistration" />
         </VWindowItem>
@@ -268,15 +270,12 @@ onMounted(async () => {
         <VWindowItem value="playerlist" :eager="true">
           <Playerlist ref="refplayerlist" />
         </VWindowItem>
-        <VWindowItem value="results" :eager="true">
-          <Results ref="refresults" />
-        </VWindowItem>
-        <VWindowItem value="standings" :eager="true">
+        <!-- <VWindowItem value="standings" :eager="true">
           <Standings ref="refstandings" />
         </VWindowItem>
         <VWindowItem value="reports" :eager="true">
           <Reports ref="refreports" />
-        </VWindowItem>
+        </VWindowItem> -->
         <VWindowItem value="downloads" :eager="true">
           <Downloads ref="refdownloads" />
         </VWindowItem>

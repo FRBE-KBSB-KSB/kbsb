@@ -318,7 +318,7 @@ idclub,name,division,pairingnumber
 230,Leuven Centraal 15,6B,7
 176,Rokade Westerlo 5,6B,8
 230,Leuven Centraal 16,6B,9
-0,Bye 2,6B,10
+230,Leuven Centraal 17,6B,10
 733,STSC 1,6C,1
 727,Midden Limburg 6,6C,2
 182,Noorderwijk 1,6C,3
@@ -330,11 +330,11 @@ idclub,name,division,pairingnumber
 162,Mol 3,6C,9
 736,SC Heusden 1,6C,10
 501,CREC Charleroi 3,6D,1
-0,Bye 3,6D,2
+0,Bye 2,6D,2
 901,Namur Echecs 7,6D,3
 901,Namur Echecs 8,6D,4
 902,CES 3,6D,5
-902,CES 4,6D,6
+549,Saint-Ghislain 3,6D,6
 618,Royal Echiquier Mosan 4,6D,7
 618,Royal Echiquier Mosan 3,6D,8
 514,MCC 3,6D,9
@@ -347,7 +347,7 @@ idclub,name,division,pairingnumber
 128,Beveren 5,6E,6
 114,Mechelen 6,6E,7
 194,ChessLooks Lier 4,6E,8
-0,Bye 4,6E,9
+0,Bye 3,6E,9
 195,SKilled Chezzmates 3,6E,10
 551,HCC Jurbise 3,6F,1
 278,Ixelles CC 10,6F,2
@@ -358,7 +358,7 @@ idclub,name,division,pairingnumber
 228,Dworp 4,6F,7
 952,CE Wavre 5,6F,8
 261,Gambiet Opwijk 5,6F,9
-230,Leuven Centraal 17,6F,10
+230,Leuven Centraal 18,6F,10
 436,LSV-Chesspirant 7,6G,1
 438,Deinze 2,6G,2
 401,KGSRL 13,6G,3
@@ -366,7 +366,7 @@ idclub,name,division,pairingnumber
 303,KBSK Brugge 7,6G,5
 460,Oudenaarde 3,6G,6
 401,KGSRL 14,6G,7
-0,Bye 5,6G,8
+0,Bye 4,6G,8
 313,Waregem 4,6G,9
 436,LSV-Chesspirant 8,6G,10
 202,Woluwe 1200 2,6H,1
@@ -383,24 +383,24 @@ idclub,name,division,pairingnumber
 231,Dolle Toren Leuven 5,6I,2
 548,Caissa Europe 7,6I,3
 541,Leuze-En-Hainaut 5,6I,4
-549,Saint-Ghislain 3,6I,5
-0,Bye 6,6I,6
-547,Binche 1,6I,7
+902,CES 4,6I,5
+547,Binche 1,6I,6
+0,Bye 5,6I,7
 514,MCC 4,6I,8
 514,MCC 5,6I,9
-0,Bye 7,6I,10
-0,Bye 8,6J,1
+0,Bye 6,6I,10
+0,Bye 7,6J,1
 609,Anthisnes 3,6J,2
 811,Arlon Echecs 3,6J,3
 811,Arlon Echecs 2,6J,4
-0,Bye 9,6J,5
-0,Bye 10,6J,6
+0,Bye 8,6J,5
+0,Bye 9,6J,6
 814,Gaume Etalle 2,6J,7
-0,Bye 11,6J,8
-0,Bye 12,6J,9
-0,Bye 13,6J,10
+0,Bye 10,6J,8
+0,Bye 11,6J,9
+0,Bye 12,6J,10
 340,Izegem 3,6K,1
-0,Bye 14,6K,2
+0,Bye 13,6K,2
 302,KISK Ieper 3,6K,3
 305,KSGK 2,6K,4
 364,Meense Leie Schakers 2,6K,5
@@ -427,5 +427,5 @@ idclub,name,division,pairingnumber
 471,SDP Wachtebeke 6,6M,6
 401,KGSRL 16,6M,7
 401,KGSRL 15,6M,8
-0,Bye 15,6M,9
+0,Bye 14,6M,9
 475,Rapid Aalter 2,6M,10

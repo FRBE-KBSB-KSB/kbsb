@@ -1,18 +1,18 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
-import { Details, Access, Board } from '@/components/mgmtclub'
-import ProgressLoading from '@/components/ProgressLoading.vue'
-import SnackbarMessage from '@/components/SnackbarMessage.vue'
+import { ref, onMounted, nextTick } from "vue"
+import { Details, Access, Board } from "@/components/mgmtclub"
+import ProgressLoading from "@/components/ProgressLoading.vue"
+import SnackbarMessage from "@/components/SnackbarMessage.vue"
 
-import { EMPTY_CLUB } from '@/util/club'
-import { useMgmtTokenStore } from "@/store/mgmttoken";
+import { EMPTY_CLUB } from "@/util/club"
+import { useMgmtTokenStore } from "@/store/mgmttoken"
 import { usePersonStore } from "@/store/person"
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
 
 // stores
 const mgmtstore = useMgmtTokenStore()
 const { token: mgmttoken } = storeToRefs(mgmtstore)
-const personstore = usePersonStore();
+const personstore = usePersonStore()
 const { person } = storeToRefs(personstore)
 
 //  snackbar and loading widgets
@@ -28,7 +28,6 @@ const club = ref(EMPTY_CLUB)
 const clubs = ref([])
 const idclub = ref(null)
 
-
 // communication
 const { $backend } = useNuxtApp()
 const tab = ref(null)
@@ -36,61 +35,57 @@ const refboard = ref(null)
 const refdetails = ref(null)
 const refaccess = ref(null)
 function changeTab() {
-  console.log('changeTab', tab.value)
+  console.log("changeTab", tab.value)
   switch (tab.value) {
-    case 'access':
+    case "access":
       refaccess.value.setup(club.value)
       break
-    case 'board':
+    case "board":
       refboard.value.setup(club.value)
       break
-    case 'details':
-      console.log('refdetails', refdetails.value)
+    case "details":
+      console.log("refdetails", refdetails.value)
       refdetails.value.setup(club.value)
       break
   }
 }
 
-
 // layout + header
 definePageMeta({
-  layout: 'mgmt'
+  layout: "mgmt",
 })
 useHead({
-  script: [
-    { src: 'https://accounts.google.com/gsi/client', defer: true }
-  ],
-  title: 'Management Clubs',
+  script: [{ src: "https://accounts.google.com/gsi/client", defer: true }],
+  title: "Management Clubs",
 })
 
 async function checkAuth() {
-  console.log('checking if auth is already set', mgmttoken.value)
+  let reply
+  console.log("checking if auth is already set", mgmttoken.value)
   if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
-    navigateTo('/mgmt')
+    navigateTo("/mgmt")
     return
   }
-  if (!person.value.email.endsWith('@frbe-kbsb-ksb.be')) {
-    navigateTo('/mgmt')
+  if (!person.value.email.endsWith("@frbe-kbsb-ksb.be")) {
+    navigateTo("/mgmt")
     return
   }
-  let reply
   showLoading(true)
   // now login using the Google auth token
   try {
-    reply = await $backend("accounts", "login", {
-      logintype: 'google',
+    reply = await $backend("accounts", "googlelogin", {
+      logintype: "google",
       token: person.value.credentials,
       username: null,
       password: null,
     })
-  }
-  catch (error) {
-    navigateTo('/mgmt')
-  }
-  finally {
+  } catch (error) {
+    navigateTo("/mgmt")
+  } finally {
     showLoading(false)
   }
+  console.log("login reply", reply)
   mgmtstore.updateToken(reply.data)
 }
 
@@ -100,15 +95,15 @@ async function getClubs() {
   try {
     reply = await $backend("club", "anon_get_clubs", {})
   } catch (error) {
-    console.log('getClubs error')
+    console.log("getClubs error", error)
     showSnackbar(error.message)
     return
-  }
-  finally {
+  } finally {
     showLoading(false)
   }
+  console.log("getClubs reply", reply)
   clubs.value = reply.data
-  clubs.value.forEach(p => {
+  clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
 }
@@ -121,10 +116,10 @@ async function getClubDetails() {
     try {
       reply = await $backend("club", "mgmt_get_club", {
         idclub: idclub.value,
-        token: mgmttoken.value
+        token: mgmttoken.value,
       })
     } catch (error) {
-      console.log('getClubDetails error', error)
+      console.log("getClubDetails error", error)
       showSnackbar(error.message)
       return
     } finally {
@@ -139,7 +134,7 @@ async function getClubDetails() {
 async function getClubMembers() {
   // get club members for member database currently on old site
   if (!idclub.value) return
-  if (idclub.value == clubmembers_id.value) return  // it is already read in
+  if (idclub.value == clubmembers_id.value) return // it is already read in
   let reply
   clubmembers.value = null
   showLoading(true)
@@ -148,7 +143,7 @@ async function getClubMembers() {
       idclub: idclub.value,
     })
   } catch (error) {
-    console.log('getClubMembers error')
+    console.log("getClubMembers error")
     showSnackbar(error.message)
     return
   } finally {
@@ -156,11 +151,10 @@ async function getClubMembers() {
   }
   clubmembers_id.value = idclub.value
   const members = reply.data
-  members.forEach(p => {
+  members.forEach((p) => {
     p.merged = `${p.idnumber}: ${p.first_name} ${p.last_name}`
   })
-  clubmembers.value = members.sort((a, b) =>
-    (a.last_name > b.last_name ? 1 : -1))
+  clubmembers.value = members.sort((a, b) => (a.last_name > b.last_name ? 1 : -1))
   refboard.value.copyClubMembers(clubmembers.value)
   refaccess.value.copyClubMembers(clubmembers.value)
 }
@@ -171,17 +165,16 @@ async function selectClub() {
 }
 
 function updateClubDetails() {
-  console.log('getting updated club details')
+  console.log("getting updated club details")
 }
 
 onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  changeTab('details')
+  changeTab("details")
   checkAuth()
   getClubs()
 })
-
 </script>
 
 <template>
@@ -192,14 +185,20 @@ onMounted(() => {
     <v-card>
       <v-card-text>
         Select the club: start typing number or name
-        <VAutocomplete v-model="idclub" :items="clubs" item-title="merged" item-value="idclub"
-          color="purple" label="Club" clearable @update:model-value="selectClub">
+        <VAutocomplete
+          v-model="idclub"
+          :items="clubs"
+          item-title="merged"
+          item-value="idclub"
+          color="purple"
+          label="Club"
+          clearable
+          @update:model-value="selectClub"
+        >
         </VAutocomplete>
       </v-card-text>
     </v-card>
-    <h3 class="mt-2">
-      Selected club: {{ club.idclub }} {{ club.name_short }}
-    </h3>
+    <h3 class="mt-2">Selected club: {{ club.idclub }} {{ club.name_short }}</h3>
     <div class="elevation-2">
       <v-tabs v-model="tab" color="purple" @update:modelValue="changeTab">
         <v-tab value="details">Details</v-tab>
@@ -218,6 +217,5 @@ onMounted(() => {
         </v-window-item>
       </v-window>
     </div>
-
   </VContainer>
 </template>
