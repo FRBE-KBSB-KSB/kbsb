@@ -584,3 +584,7 @@ trnreg,system_ROBIN_AR,Round robin (armageddon),Rondesysteem (armageddon),Toutes
 trnreg,tc_Std,Standard,Standaard,Standard,Standard
 trnreg,tc_Rapid,Rapid,Rapid,Rapide,Schnellschach
 trnreg,tc_Blitz,Blitz,Blitz,Blitz,Blitz
+trnreg,field_phone_gsm,Tel/GSM,Tel/GSM,Tél/GSM,Tel/GSM
+trnreg,rule_required,Required.,Verplicht.,Obligatoire.,Erforderlich.
+trnreg,rule_rounds_absent,"Round numbers only, separated by commas (e.g. 1,4,7).","Alleen rondenummers, gescheiden door komma's (bv. 1,4,7).","Uniquement des numéros de ronde, séparés par des virgules (p. ex. 1,4,7).","Nur Rundenzahlen, durch Kommas getrennt (z. B. 1,4,7)."
+trnreg,category_export_limit,Maximum of 3 categories -- SWAR export only supports A/B/C.,Maximaal 3 categorieën -- SWAR-export ondersteunt enkel A/B/C.,Maximum 3 catégories -- l'export SWAR ne prend en charge que A/B/C.,Maximal 3 Kategorien -- SWAR-Export unterstützt nur A/B/C.

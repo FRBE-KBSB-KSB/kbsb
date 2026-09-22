@@ -584,5 +584,9 @@
 "trnreg.tc_Std": "Standard",
 "trnreg.tc_Rapid": "Rapide",
 "trnreg.tc_Blitz": "Blitz",
+"trnreg.field_phone_gsm": "Tél/GSM",
+"trnreg.rule_required": "Obligatoire.",
+"trnreg.rule_rounds_absent": "Uniquement des numéros de ronde, séparés par des virgules (p. ex. 1,4,7).",
+"trnreg.category_export_limit": "Maximum 3 catégories -- l'export SWAR ne prend en charge que A/B/C.",
 "ZZZ": "ZZZ"
 }

@@ -215,12 +215,23 @@ async function loadTournament() {
   try {
     const reply = await $backend("tournament_registrations", "getTournament", { id: trnId.value })
     tournament.value = reply.data.tournament
+    applyCategoryDefault()
   } catch (error) {
     tournament.value = null
     errorText.value = error.code === 404 ? t("trnreg.tournament_not_found") : t("trnreg.load_tournament_failed")
   } finally {
     loadingTournament.value = false
   }
+}
+
+// A tournament with no categories, or exactly one, has nothing for a
+// registrant to choose, so the box picks itself and is not editable: 0
+// categories leaves it blank (there is nothing to pick), 1 selects that one
+// index. Two or more leaves it blank and required, so a real choice has to
+// be made rather than a default silently standing in for one.
+function applyCategoryDefault() {
+  const count = (tournament.value && Array.isArray(tournament.value.categories)) ? tournament.value.categories.length : 0
+  regForm.value.category_index = count === 1 ? 0 : ""
 }
 
 // ---------------------------------------------------------------------
@@ -342,13 +353,33 @@ function hideLookupResults() {
 // ---------------------------------------------------------------------
 
 const regForm = ref({ ...EMPTY_REGISTRATION })
+const regFormRef = ref(null)
 const regSubmitting = ref(false)
 const regError = ref("")
 const submittedRegistration = ref(null)
 
+// Vuetify's `required` prop only draws the small asterisk; it does not by
+// itself stop a submit. These rules are what actually enforces "mandatory"
+// and "numbers and commas only", both for the inline red text under each
+// field and for the hard stop in submitRegistration below.
+const requiredRule = (v) => (v !== null && v !== undefined && String(v).trim() !== "") || t("trnreg.rule_required")
+const ROUNDS_ABSENT_RE = /^\s*\d+(\s*,\s*\d+)*\s*$/
+const roundsAbsentRule = (v) => !v || ROUNDS_ABSENT_RE.test(v) || t("trnreg.rule_rounds_absent")
+
 async function submitRegistration() {
-  regSubmitting.value = true
   regError.value = ""
+  const { valid } = await regFormRef.value.validate()
+  if (!valid) {
+    regError.value = t("trnreg.rule_required")
+    return
+  }
+  regSubmitting.value = true
+  // No standalone nationality box on this form any more; it is the same
+  // concept as the FIDE federation box, so that is what gets stored under
+  // it (mirrors applyLookupResult's own substitution for a match found by
+  // the name lookup; this covers whoever typed the federation by hand
+  // instead of picking a lookup result).
+  regForm.value.nationality = regForm.value.fide_federation || ""
   try {
     const reply = await $backend("tournament_registrations", "createRegistration", {
       id: trnId.value,
@@ -378,6 +409,7 @@ async function submitRegistration() {
 
 function resetRegForm() {
   regForm.value = { ...EMPTY_REGISTRATION }
+  applyCategoryDefault()
   lookupQuery.value = ""
   lookupResults.value = []
   matchedBirthYear.value = null
@@ -465,6 +497,17 @@ function formatDateDisplay(iso) {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : String(iso)
 }
 
+// Postgres returns DATE/TIMESTAMPTZ columns as full ISO strings (e.g.
+// "2026-05-01T00:00:00.000Z"), but <input type="date"> only accepts a bare
+// "YYYY-MM-DD" and silently renders/resets to blank on anything else --
+// without this, reopening an edit dialog shows the date boxes as empty even
+// though the value is still in the database.
+function toDateInputValue(iso) {
+  if (!iso) return ""
+  const m = String(iso).match(/^(\d{4}-\d{2}-\d{2})/)
+  return m ? m[1] : ""
+}
+
 // ---------------------------------------------------------------------
 // edit registration (shared dialog: public self-edit + admin-scoped edit)
 // ---------------------------------------------------------------------
@@ -480,34 +523,23 @@ const editRegLookupResults = ref([])
 const editRegLookupSearching = ref(false)
 let editRegLookupTimer = null
 
-// Admin's `row` already comes from admin_getRegistrations (full-fidelity,
-// authenticated) -- used as-is. The public listing's `row` comes from the
-// field-restricted public getRegistrations (no date_birth/email/phone/gsm,
-// see PUBLIC_REGISTRATION_COLUMNS server-side), so the public path fetches
-// a fresh full single row instead -- same no-extra-auth, knowledge-of-id
-// trust model updateRegistration below already relies on, just extended to
-// reading one row instead of only writing it.
-async function openEditRegistration(row, isAdmin) {
+// Admin only, as of 2026-09-22: this used to also open for anyone reading
+// the public list, with no login of any kind beyond knowing a registration's
+// numeric id (sequential, visible in that same list) -- a "Wijzigen" button
+// letting any visitor rewrite any other registrant's details. Removed here
+// together with the button that reached it and the public write endpoint on
+// the Node side (see kbsb-dataplatform's routes/tournament_registrations.js).
+// `row` comes from admin_getRegistrations, already full-fidelity and
+// authenticated, so it is used as-is; there is no longer a second, public
+// path that re-fetches a single row by id.
+function openEditRegistration(row) {
   editRegId.value = row.id
-  editRegIsAdmin.value = isAdmin
+  editRegIsAdmin.value = true
   editRegLookupQuery.value = ""
   editRegLookupResults.value = []
   editRegError.value = ""
-
-  if (isAdmin) {
-    editRegForm.value = { ...EMPTY_REGISTRATION, ...row }
-    editRegDialog.value = true
-    return
-  }
-
+  editRegForm.value = { ...EMPTY_REGISTRATION, ...row, date_birth: toDateInputValue(row.date_birth) }
   editRegDialog.value = true
-  editRegForm.value = { ...EMPTY_REGISTRATION, ...row }
-  try {
-    const reply = await $backend("tournament_registrations", "getRegistration", { id: row.id })
-    editRegForm.value = { ...EMPTY_REGISTRATION, ...reply.data.registration }
-  } catch (error) {
-    editRegError.value = error.message || t("trnreg.registration_not_found")
-  }
 }
 
 function closeEditRegistration() {
@@ -889,7 +921,15 @@ function openNewTournament() {
 
 function openEditTournament(trn) {
   tournamentFormMode.value = "edit"
-  tournamentForm.value = { ...EMPTY_TOURNAMENT, ...trn, categories: Array.isArray(trn.categories) ? [...trn.categories] : [] }
+  tournamentForm.value = {
+    ...EMPTY_TOURNAMENT,
+    ...trn,
+    categories: Array.isArray(trn.categories) ? [...trn.categories] : [],
+    date_start: toDateInputValue(trn.date_start),
+    date_end: toDateInputValue(trn.date_end),
+    opening_registrations: toDateInputValue(trn.opening_registrations),
+    closing_registrations: toDateInputValue(trn.closing_registrations),
+  }
   obligatoryPresenceTime.value = utcIsoToLocalHHMM(trn.obligatory_presence)
   // trn already carries <slot>_person_id/_name from the API -- those show up
   // as the "currently selected" person for each slot (the template reads
@@ -906,7 +946,15 @@ function closeTournamentForm() {
   tournamentFormDialog.value = false
 }
 
+// The SWAR export is keyed on exactly three FIDE event codes
+// (event_code_fide_a/b/c on the tournaments table, see
+// SWAR_CATEGORY_INDEX in kbsb-dataplatform's tournament_registrations.js)
+// -- a 4th category can be typed here but has no export button and no FIDE
+// code slot to hold, so it silently never appears in any export. Capped at
+// the source instead of letting that mismatch happen.
+const MAX_CATEGORIES = 3
 function addCategoryRow() {
+  if (tournamentForm.value.categories.length >= MAX_CATEGORIES) return
   tournamentForm.value.categories.push("")
 }
 function removeCategoryRow(i) {
@@ -1174,7 +1222,7 @@ onMounted(() => {
           <v-card v-else class="elevation-2">
             <v-card-text>
               <v-alert v-if="regError" type="error" class="mb-4">{{ regError }}</v-alert>
-              <v-form @submit.prevent="submitRegistration">
+              <v-form ref="regFormRef" @submit.prevent="submitRegistration">
                 <div class="trnreg-lookup-wrap mb-3">
                   <v-text-field
                     v-model="lookupQuery"
@@ -1199,34 +1247,30 @@ onMounted(() => {
 
                 <v-row dense>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field>
+                    <v-text-field v-model="regForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field>
+                    <v-text-field v-model="regForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-select v-model="regForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :hint="matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : ''" persistent-hint></v-text-field>
+                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]" :hint="matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : ''" persistent-hint></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.place_birth" :label="t('trnreg.field_place_birth')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                  <!--
+                    Place of birth, country of residence and a free-text
+                    nationality box are gone: this page never used the first
+                    two for anything, and nationality is the same concept as
+                    the FIDE federation box below (see applyLookupResult's
+                    own comment), which the lookup already fills in. Asking
+                    a third time was noise, not data.
+                  -->
+                  <v-col cols="12" sm="6">
+                    <v-text-field v-model="regForm.phone" :label="t('trnreg.field_phone_gsm')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.country_residence" :label="t('trnreg.field_country_residence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.nationality" :label="t('trnreg.field_nationality')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.phone" :label="t('trnreg.field_phone')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.gsm" :label="t('trnreg.field_gsm')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.email" type="email" :label="t('trnreg.field_email')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                    <v-text-field v-model="regForm.email" type="email" :label="t('trnreg.field_email')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.national_id" :label="t('trnreg.field_national_id')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
@@ -1256,20 +1300,33 @@ onMounted(() => {
                     <v-text-field v-model="regForm.fide_rating_blitz" type="number" :label="t('trnreg.field_fide_rating_blitz')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
+                    <!--
+                      0 or 1 category: applyCategoryDefault() already picked
+                      it, and there is nothing to choose, so the box is
+                      locked. 2+: left blank on purpose and required, a
+                      default here would silently register somebody in the
+                      wrong category.
+                    -->
                     <v-select
                       v-model="regForm.category_index"
                       :items="(tournament.categories || []).map((c, i) => ({ title: c, value: i }))"
                       :label="t('trnreg.field_category')"
                       :placeholder="t('trnreg.category_placeholder')"
                       variant="outlined" color="green-darken-2" density="compact"
+                      :disabled="(tournament.categories || []).length <= 1"
+                      :required="(tournament.categories || []).length > 1"
+                      :class="(tournament.categories || []).length > 1 ? 'trnreg-required' : ''"
+                      :rules="(tournament.categories || []).length > 1 ? [requiredRule] : []"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.rounds_absent" :label="t('trnreg.field_rounds_absent')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                    <v-text-field v-model="regForm.rounds_absent" :label="t('trnreg.field_rounds_absent')" variant="outlined" color="green-darken-2" density="compact" :rules="[roundsAbsentRule]"></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.contact" :label="t('trnreg.field_contact')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
+                  <!--
+                    The "contact person" box is gone: the registrant is the
+                    contact, by name, phone/GSM and e-mail above, and this
+                    duplicated that without ever being required or checked.
+                  -->
                   <v-col cols="12" sm="6" class="d-flex align-center">
                     <v-checkbox v-model="regForm.g_license" :label="t('trnreg.field_g_license')" color="green-darken-2" density="compact" hide-details></v-checkbox>
                   </v-col>
@@ -1318,7 +1375,6 @@ onMounted(() => {
                   <th>{{ t('trnreg.col_category') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_rating_standard')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'fide_rating_standard' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                  <th>{{ t('trnreg.col_actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1337,9 +1393,6 @@ onMounted(() => {
                   <td>{{ categoryLabel(tournament, r.category_index) }}</td>
                   <td>{{ r.fide_id }}</td>
                   <td>{{ r.fide_rating_standard }}</td>
-                  <td>
-                    <v-btn size="small" variant="text" color="green-darken-2" @click="openEditRegistration(r, false)">{{ t('trnreg.edit_btn') }}</v-btn>
-                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -1468,7 +1521,7 @@ onMounted(() => {
                     <td>{{ r.email }}</td>
                     <td>{{ r.phone || r.gsm }}</td>
                     <td class="text-no-wrap">
-                      <v-btn size="small" variant="text" color="green-darken-2" @click="openEditRegistration(r, true)">{{ t('trnreg.edit_btn') }}</v-btn>
+                      <v-btn size="small" variant="text" color="green-darken-2" @click="openEditRegistration(r)">{{ t('trnreg.edit_btn') }}</v-btn>
                       <v-btn size="small" variant="text" color="red-darken-2" @click="deleteRegistration(r)">{{ t('trnreg.delete_btn') }}</v-btn>
                     </td>
                   </tr>
@@ -1581,7 +1634,8 @@ onMounted(() => {
                 <v-text-field v-model="tournamentForm.categories[i]" density="compact" variant="outlined" color="green-darken-2" hide-details></v-text-field>
                 <v-btn icon size="small" variant="text" color="red-darken-2" @click="removeCategoryRow(i)"><v-icon>mdi-close</v-icon></v-btn>
               </div>
-              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
+              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" :disabled="tournamentForm.categories.length >= MAX_CATEGORIES" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
+              <div v-if="tournamentForm.categories.length >= MAX_CATEGORIES" class="text-caption text-medium-emphasis mt-1">{{ t('trnreg.category_export_limit') }}</div>
             </v-col>
 
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.url" :label="t('trnreg.field_url')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
