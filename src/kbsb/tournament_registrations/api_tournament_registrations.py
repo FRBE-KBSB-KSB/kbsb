@@ -8,9 +8,9 @@ import httpx
 import google.auth
 from google.cloud import secretmanager
 
-from reddevil.core import get_settings
-from reddevil.mail import MailParams
-from reddevil.mail.mail import sendEmailMessage
+from zerotwocloud.mail import MailParams
+from zerotwocloud.mail import get_setting as get_mail_setting
+from zerotwocloud.mail.mail import sendEmailMessage
 
 logger = logging.getLogger(__name__)
 
@@ -100,12 +100,18 @@ class SendConfirmationPayload(BaseModel):
 # Website-local endpoint -- unlike every other route on this router, this one
 # is NOT proxied to the VPS. It exists because kbsb-dataplatform has no
 # working SMTP/Gmail setup of its own, while this app already has one
-# (reddevil.mail, GMAIL backend, same service account api_fide.py uses for
-# fide_registration) -- see docs/VPS_tournament_registrations.md §6. Node
-# builds the real email content (buildConfirmationEmail() in routes/
-# tournament_registrations.js); this endpoint's only job is to relay a
-# pre-built {subject, html, to, cc, bcc} payload through sendEmailMessage(), gated by
-# the shared secret above.
+# (zerotwocloud.mail, the same keyless-delegation Gmail backend
+# api_fide.py uses for fide_registration). Node builds the real email
+# content (buildConfirmationEmail() in routes/tournament_registrations.js);
+# this endpoint's only job is to relay a pre-built {subject, html, to, cc,
+# bcc} payload through sendEmailMessage(), gated by the shared secret above.
+#
+# Moved off reddevil.mail on 2026-09-22: that path needed a Secret Manager
+# entry (tournament-registrations-mail-bridge) that was never created, so
+# every submission either hung waiting on the failed fetch or took the
+# better part of 15 seconds working through reddevil's own retry/timeout
+# stack before giving up. zerotwocloud.mail is the same mailbox and the
+# same keyless delegation fide_registration already sends real mail through.
 @router.post("/send-confirmation")
 async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     presented = request.headers.get("x-mail-bridge-secret", "")
@@ -117,8 +123,10 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     if not all_recipients:
         raise HTTPException(status_code=400, detail="At least one recipient (to, cc, or bcc) must not be empty")
 
-    settings = get_settings()
-    sender_email = settings.EMAIL.get("sender", "noreply@frbe-kbsb-ksb.be")
+    # zerotwocloud.mail only sends as the mailbox it acts as, same as
+    # fide_registration's own send: Gmail would silently rewrite any other
+    # From, so it refuses one rather than let that happen quietly.
+    sender_email = get_mail_setting("EMAIL")["account"]
 
     to_str = ", ".join([r.strip() for r in payload.to if r.strip()])
     cc_str = ", ".join([r.strip() for r in payload.cc if r.strip()])

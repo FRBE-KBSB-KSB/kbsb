@@ -1199,16 +1199,16 @@ onMounted(() => {
 
                 <v-row dense>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field>
+                    <v-text-field v-model="regForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="regForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field>
+                    <v-text-field v-model="regForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-select v-model="regForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required :hint="matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : ''" persistent-hint></v-text-field>
+                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :hint="matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : ''" persistent-hint></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.place_birth" :label="t('trnreg.field_place_birth')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
@@ -1505,12 +1505,12 @@ onMounted(() => {
           </div>
 
           <v-row dense>
-            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field></v-col>
-            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field></v-col>
+            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.last_name" :label="t('trnreg.field_last_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
+            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
             <v-col cols="12" sm="4">
               <v-select v-model="editRegForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
             </v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.place_birth" :label="t('trnreg.field_place_birth')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.country_residence" :label="t('trnreg.field_country_residence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.nationality" :label="t('trnreg.field_nationality')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
@@ -1555,11 +1555,11 @@ onMounted(() => {
         <v-card-text>
           <v-alert v-if="tournamentFormError" type="error" class="mb-3">{{ tournamentFormError }}</v-alert>
           <v-row dense>
-            <v-col cols="12" sm="8"><v-text-field v-model="tournamentForm.name" :label="t('trnreg.field_name')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field></v-col>
+            <v-col cols="12" sm="8"><v-text-field v-model="tournamentForm.name" :label="t('trnreg.field_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.city" :label="t('trnreg.field_city')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12"><v-text-field v-model="tournamentForm.address" :label="t('trnreg.field_address')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_start" type="date" :label="t('trnreg.field_date_start')" variant="outlined" color="green-darken-2" density="compact" required></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_start" type="date" :label="t('trnreg.field_date_start')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_end" type="date" :label="t('trnreg.field_date_end')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="obligatoryPresenceTime" type="time" :label="t('trnreg.field_obligatory_presence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
@@ -1769,6 +1769,12 @@ onMounted(() => {
 <style scoped>
 .trnreg-shell {
   max-width: 1100px;
+}
+/* A required field's label prints its name in bold rather than relying on
+   Vuetify's asterisk alone, which is easy to miss on a compact-density
+   field. */
+.trnreg-required :deep(.v-label) {
+  font-weight: 700;
 }
 .border-green {
   border-left: 5px solid #1b5e20 !important;
