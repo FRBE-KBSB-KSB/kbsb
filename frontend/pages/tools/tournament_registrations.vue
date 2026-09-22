@@ -424,8 +424,8 @@ function resetRegForm() {
 const registrations = ref([])
 const loadingRegistrations = ref(false)
 const listFilter = ref("")
-const listSortKey = ref("id")
-const listSortOrder = ref("asc")
+const listSortKey = ref("fide_rating_standard")
+const listSortOrder = ref("desc")
 
 async function loadRegistrations() {
   if (!trnId.value) return
@@ -453,6 +453,14 @@ function sortCompare(a, b, key, mult) {
   }
   if (valA < valB) return -1 * mult
   if (valA > valB) return 1 * mult
+  // Equal rating (including two unrated players): always break by name,
+  // A-Z regardless of the rating column's own sort direction.
+  if (key === "fide_rating_standard") {
+    const nameA = `${a.last_name || ""} ${a.first_name || ""}`.toLowerCase()
+    const nameB = `${b.last_name || ""} ${b.first_name || ""}`.toLowerCase()
+    if (nameA < nameB) return -1
+    if (nameA > nameB) return 1
+  }
   return 0
 }
 
@@ -1367,7 +1375,6 @@ onMounted(() => {
             <v-table hover>
               <thead class="bg-green-lighten-5">
                 <tr>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('id')">{{ t('trnreg.col_id') }} <v-icon size="small">{{ listSortKey === 'id' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ listSortKey === 'last_name' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth_year')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth_year' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
@@ -1379,7 +1386,6 @@ onMounted(() => {
               </thead>
               <tbody>
                 <tr v-for="r in sortedRegistrations" :key="r.id">
-                  <td>{{ r.id }}</td>
                   <td>{{ r.last_name }} {{ r.first_name }}</td>
                   <td>{{ r.sex }}</td>
                   <!-- Birth YEAR only, never the full date -- this is the
