@@ -156,6 +156,71 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
 
 TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/tournament_registrations"
 
+
+class OdooLoginPayload(BaseModel):
+    email: str
+    password: str
+
+
+# Logging in to the tournament dashboard with a KBSB Odoo account.
+#
+# Odoo itself checks the email and password (odoo_login, the same call the
+# site's own Odoo login page makes), and only the member number Odoo answers
+# with is passed on. Nothing here trusts a token a browser holds: the member
+# tokens this site hands out are signed with a key that sits in the public
+# repository, and validate_membertoken does not check signatures at all, so a
+# token is no proof of who somebody is.
+#
+# The VPS gives out its own dashboard session for that member number, and
+# only to a caller presenting the secret the two already share for the
+# confirmation mails; a browser reaching the same path through the proxy
+# below does not have it. Everyone sees only their own tournaments there.
+# Declared before the proxy's catch-all, which would otherwise take the path.
+@router.post("/odoo-login")
+async def odoo_login_for_tournaments(payload: OdooLoginPayload):
+    from reddevil.core import RdNotAuthorized
+
+    from kbsb.member.odoo_member import odoo_login
+
+    if not payload.email.strip() or not payload.password:
+        raise HTTPException(status_code=400, detail="Email and password are required")
+    try:
+        national_id, _member_token = await odoo_login(payload.email.strip(), payload.password)
+    except RdNotAuthorized:
+        raise HTTPException(status_code=401, detail="WrongUsernamePasswordCombination")
+    except Exception:
+        logger.exception("Odoo login for tournament registrations failed")
+        raise HTTPException(status_code=502, detail="Could not reach Odoo to check the login")
+
+    if not national_id:
+        raise HTTPException(
+            status_code=403,
+            detail="This Odoo account is not linked to a KBSB member number",
+        )
+
+    async with httpx.AsyncClient() as client:
+        try:
+            reply = await client.post(
+                f"{TARGET_BASE_URL}/admin/odoo-login",
+                headers={
+                    "x-api-key": get_api_key(),
+                    "x-bridge-secret": get_mail_bridge_secret(),
+                },
+                json={"national_id": int(national_id)},
+                timeout=30.0,
+            )
+        except httpx.RequestError:
+            logger.exception("Tournament registrations API unreachable for Odoo login")
+            raise HTTPException(status_code=502, detail="Bad Gateway")
+
+    return Response(
+        content=reply.content,
+        status_code=reply.status_code,
+        media_type="application/json",
+        headers={"cache-control": "no-store"},
+    )
+
+
 # Unlike api_players_fide.py / api_national_elo_archive.py, this feature has
 # real write endpoints (public registration submissions, admin tournament and
 # registration CRUD) plus its own admin JWT login, so:
@@ -179,6 +244,8 @@ async def proxy_to_vps(request: Request, path: str = ""):
     headers = dict(request.headers)
     headers.pop("host", None)
     headers.pop("cookie", None)
+    # Only odoo_login_for_tournaments above ever sends this to the VPS.
+    headers.pop("x-bridge-secret", None)
     headers["x-api-key"] = api_key
     headers["accept-encoding"] = "identity"
     headers.pop("if-none-match", None)

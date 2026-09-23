@@ -718,6 +718,41 @@ const loginPassword = ref("")
 const loginError = ref("")
 const loginSubmitting = ref(false)
 
+// Any KBSB member with an Odoo account can log in and run their own
+// tournaments; the password logins below are the older arbiter accounts. Both
+// end in the same kind of session, and both see only their own tournaments.
+const odooEmail = ref("")
+const odooPassword = ref("")
+const showPasswordLogin = ref(false)
+
+async function startAdminSession(reply) {
+  tokenStore.updateToken(reply.data.token)
+  adminName.value = reply.data.name || ""
+  if (typeof window !== "undefined") window.localStorage.setItem("tournamentregname", adminName.value)
+  view.value = "admin"
+  await loadAdminTournaments()
+  openAdminTournamentFromUrl()
+}
+
+async function submitOdooLogin() {
+  loginSubmitting.value = true
+  loginError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_odooLogin", {
+      email: odooEmail.value,
+      password: odooPassword.value,
+    })
+    odooPassword.value = ""
+    await startAdminSession(reply)
+  } catch (error) {
+    if (error.code === 401) loginError.value = t("trnreg.login_failed")
+    else if (error.code === 403) loginError.value = t("trnreg.odoo_not_member")
+    else loginError.value = error.message || t("trnreg.login_failed")
+  } finally {
+    loginSubmitting.value = false
+  }
+}
+
 async function submitLogin() {
   loginSubmitting.value = true
   loginError.value = ""
@@ -1654,10 +1689,23 @@ onMounted(() => {
         <v-card-text>
           <h2 class="text-h6 font-weight-bold text-green-darken-3 mb-3">{{ t('trnreg.login_title') }}</h2>
           <v-alert v-if="loginError" type="error" class="mb-3">{{ loginError }}</v-alert>
-          <v-form @submit.prevent="submitLogin">
+
+          <p class="text-body-2 mb-3">{{ t('trnreg.odoo_login_intro') }}</p>
+          <v-form @submit.prevent="submitOdooLogin">
+            <v-text-field v-model="odooEmail" type="email" :label="t('trnreg.field_odoo_email')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
+            <v-text-field v-model="odooPassword" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
+            <v-btn type="submit" color="green-darken-2" block :loading="loginSubmitting">{{ t('trnreg.odoo_login_btn') }}</v-btn>
+          </v-form>
+          <div class="text-caption text-medium-emphasis mt-2">{{ t('trnreg.odoo_login_2fa_note') }}</div>
+
+          <v-divider class="my-4" />
+          <v-btn variant="text" size="small" color="grey-darken-1" :prepend-icon="showPasswordLogin ? 'mdi-chevron-down' : 'mdi-chevron-right'" @click="showPasswordLogin = !showPasswordLogin">
+            {{ t('trnreg.password_login_toggle') }}
+          </v-btn>
+          <v-form v-if="showPasswordLogin" class="mt-3" @submit.prevent="submitLogin">
             <v-text-field v-model="loginUsername" :label="t('trnreg.field_username')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
             <v-text-field v-model="loginPassword" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
-            <v-btn type="submit" color="green-darken-2" block :loading="loginSubmitting">{{ t('trnreg.login_btn') }}</v-btn>
+            <v-btn type="submit" color="green-darken-2" variant="tonal" block :loading="loginSubmitting">{{ t('trnreg.login_btn') }}</v-btn>
           </v-form>
         </v-card-text>
       </v-card>

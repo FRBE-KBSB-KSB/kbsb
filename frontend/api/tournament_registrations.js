@@ -48,6 +48,13 @@ export default {
 
   // ---- admin (Authorization: Bearer <tournament_registrations JWT>) ----
 
+  // Logging in with a KBSB Odoo account: the website checks it with Odoo and
+  // answers with the same {token, name} admin_login does.
+  admin_odooLogin: async function (options) {
+    const { email, password } = options;
+    return await axios.post(`${prefix}/odoo-login`, { email, password });
+  },
+
   admin_login: async function (options) {
     const { username, password } = options;
     return await axios.post(`${prefix}/admin/login`, { username, password });

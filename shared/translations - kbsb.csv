@@ -397,11 +397,11 @@ odoo,noaccount,No Odoo account yet?,Nog geen Odoo account?,Pas encore de compte 
 trnreg,title,Tournament Registrations,Toernooiregistratie,Inscriptions aux tournois,Turnieranmeldungen
 trnreg,nav_form,Registration form,Inschrijvingsformulier,Formulaire d'inscription,Anmeldeformular
 trnreg,nav_list,Registration list,Lijst van inschrijvingen,Liste des inscriptions,Liste der Anmeldungen
-trnreg,nav_login,Arbiter login,Arbiter aanmelden,Connexion arbitre,Schiedsrichter-Anmeldung
+trnreg,nav_login,Log in,Aanmelden,Se connecter,Anmelden
 trnreg,nav_admin,Admin dashboard,Beheerdersdashboard,Tableau de bord admin,Admin-Übersicht
 trnreg,nav_logout,Log out,Afmelden,Se déconnecter,Abmelden
 trnreg,nav_back_to_form,Back to registration form,Terug naar inschrijvingsformulier,Retour au formulaire d'inscription,Zurück zum Anmeldeformular
-trnreg,no_tournament,"No tournament selected. Use a link containing ?trn=<tournament id>, or log in below as an arbiter or organizer.","Geen toernooi geselecteerd. Gebruik een link met ?trn=<toernooi-id>, of meld u hieronder aan als arbiter of organisator.","Aucun tournoi sélectionné. Utilisez un lien contenant ?trn=<id du tournoi>, ou connectez-vous ci-dessous en tant qu'arbitre ou organisateur.","Kein Turnier ausgewählt. Verwenden Sie einen Link mit ?trn=<Turnier-ID>, oder melden Sie sich unten als Schiedsrichter oder Organisator an."
+trnreg,no_tournament,"No tournament selected. Use a link containing ?trn=<tournament id>, or log in below to manage your own tournaments.","Geen toernooi geselecteerd. Gebruik een link met ?trn=<toernooi-id>, of meld u hieronder aan om uw eigen toernooien te beheren.","Aucun tournoi sélectionné. Utilisez un lien contenant ?trn=<id du tournoi>, ou connectez-vous ci-dessous pour gérer vos propres tournois.","Kein Turnier ausgewählt. Verwenden Sie einen Link mit ?trn=<Turnier-ID>, oder melden Sie sich unten an, um Ihre eigenen Turniere zu verwalten."
 trnreg,loading,Loading...,Laden...,Chargement...,Wird geladen...
 trnreg,processing,Processing...,Bezig met verwerken...,Traitement en cours...,Wird verarbeitet...
 trnreg,th_dates,Dates,Data,Dates,Termine
@@ -484,7 +484,7 @@ trnreg,edit_btn,Edit,Wijzigen,Modifier,Bearbeiten
 trnreg,delete_btn,Delete,Verwijderen,Supprimer,Löschen
 trnreg,edit_registration_title,Edit registration,Inschrijving wijzigen,Modifier l'inscription,Anmeldung bearbeiten
 trnreg,new_registration_title,New registration,Nieuwe inschrijving,Nouvelle inscription,Neue Anmeldung
-trnreg,login_title,Arbiter / organizer login,Aanmelden arbiter / organisator,Connexion arbitre / organisateur,Anmeldung Schiedsrichter / Organisator
+trnreg,login_title,Log in,Aanmelden,Connexion,Anmeldung
 trnreg,field_username,Username,Gebruikersnaam,Nom d'utilisateur,Benutzername
 trnreg,field_password,Password,Wachtwoord,Mot de passe,Passwort
 trnreg,login_btn,Log in,Aanmelden,Se connecter,Anmelden
@@ -609,3 +609,9 @@ trnreg,field_fide_homologated,FIDE homologated,FIDE-gehomologeerd,Homologué FID
 trnreg,fide_homologated_hint,"Asks for the FIDE event codes, and warns registrants without a FIDE ID.","Vraagt de FIDE-eventcodes, en waarschuwt wie zich inschrijft zonder FIDE-nummer.","Demande les codes d'événement FIDE, et avertit les inscrits sans numéro FIDE.",Fragt nach den FIDE-Eventcodes und warnt Anmeldende ohne FIDE-Nummer.
 trnreg,rule_closing_before_start,Registrations cannot close after the tournament starts.,De inschrijvingen kunnen niet sluiten na de start van het toernooi.,Les inscriptions ne peuvent pas se clôturer après le début du tournoi.,Die Anmeldung kann nicht nach Turnierbeginn schließen.
 trnreg,rule_closing_before_presence,"On the first day, registrations must close no later than the obligatory presence time.",Op de eerste dag moeten de inschrijvingen uiterlijk sluiten op het uur van verplichte aanwezigheid.,"Le premier jour, les inscriptions doivent se clôturer au plus tard à l'heure de présence obligatoire.",Am ersten Tag muss die Anmeldung spätestens zur Uhrzeit der Anwesenheitspflicht schließen.
+trnreg,odoo_login_intro,Log in with your KBSB Odoo account to create and manage your own tournaments.,Meld u aan met uw KBSB Odoo-account om uw eigen toernooien aan te maken en te beheren.,Connectez-vous avec votre compte Odoo de la FRBE pour créer et gérer vos propres tournois.,"Melden Sie sich mit Ihrem KSB-Odoo-Konto an, um Ihre eigenen Turniere anzulegen und zu verwalten."
+trnreg,field_odoo_email,Odoo e-mail address,E-mailadres Odoo,Adresse e-mail Odoo,Odoo-E-Mail-Adresse
+trnreg,odoo_login_btn,Log in with Odoo,Aanmelden met Odoo,Se connecter avec Odoo,Mit Odoo anmelden
+trnreg,odoo_login_2fa_note,Accounts with two-factor authentication cannot log in here yet.,Accounts met tweestapsverificatie kunnen hier nog niet aanmelden.,Les comptes avec authentification à deux facteurs ne peuvent pas encore se connecter ici.,Konten mit Zwei-Faktor-Authentifizierung können sich hier noch nicht anmelden.
+trnreg,password_login_toggle,Log in with an arbiter username instead,Aanmelden met een arbiter-gebruikersnaam,Se connecter avec un nom d'utilisateur arbitre,Mit einem Schiedsrichter-Benutzernamen anmelden
+trnreg,odoo_not_member,This Odoo account is not linked to a KBSB member number.,Dit Odoo-account is niet gekoppeld aan een KBSB-lidnummer.,Ce compte Odoo n'est pas lié à un numéro de membre de la FRBE.,Dieses Odoo-Konto ist mit keiner KSB-Mitgliedsnummer verknüpft.
