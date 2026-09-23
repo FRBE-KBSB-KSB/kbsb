@@ -6,7 +6,7 @@ import { useRouter } from "vue-router"
 // import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
-// import Contact from "@/components/interclubs/Contact.vue"
+import Contact from "@/components/interclubs/Contact.vue"
 
 // locale
 const { locale, t } = useI18n()
@@ -57,9 +57,9 @@ function changedTab() {
     case "venues":
       refvenues.value.setup(idclub.value, icdata.value)
       break
-    // case "contact":
-    //   refcontact.value.setup(idclub.value)
-    //   break
+    case "contact":
+      refcontact.value.setup(idclub.value)
+      break
   }
 }
 
@@ -174,9 +174,9 @@ definePageMeta({
       <v-window-item :eager="true" value="venues">
         <VenuePublic ref="refvenues" />
       </v-window-item>
-      <!-- <v-window-item :eager="true" value="contact">
+      <v-window-item :eager="true" value="contact">
         <Contact ref="refcontact" />
-      </v-window-item> -->
+      </v-window-item>
     </v-window>
   </v-container>
 </template>
