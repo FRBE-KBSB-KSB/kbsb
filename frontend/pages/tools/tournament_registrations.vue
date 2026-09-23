@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { storeToRefs } from "pinia"
 import { useTournamentRegTokenStore } from "@/store/tournamentregtoken"
@@ -34,7 +34,7 @@ const EMPTY_REGISTRATION = {
   national_id: "",
   national_club: "",
   national_club_name: "",
-  affiliated: false,
+  affiliated: null,
   fide_id: "",
   fide_rating_standard: "",
   fide_rating_rapid: "",
@@ -86,7 +86,13 @@ const EMPTY_TOURNAMENT = {
   email_copy_1: "",
   email_copy_2: "",
   email_copy_3: "",
+  fide_homologated: false,
+  export_per_category: false,
 }
+
+// A choice list, and anything typed is kept too (the column holds up to 10
+// characters).
+const FEDERATION_OPTIONS = ["FIDE", "KBSB", "VSF", "FEFB", "SVDB"]
 
 const SYSTEM_OPTIONS = [
   "SWISS", "SWISS_DBL", "SWISS_ACCELERE", "SWISS_321", "SWISS_BAKU",
@@ -165,8 +171,21 @@ const SWAR_CADENCES = {
 // ---------------------------------------------------------------------
 
 // 'form' | 'list' | 'login' | 'admin'
-const view = ref("form")
+//
+// A tournament's own link, ?trn=X, opens on its list of players. Registering
+// has its own address, ?trn=X&view=register, and a registration ends back on
+// the list.
+const view = ref("list")
 const trnId = computed(() => route.query.trn || null)
+const router = useRouter()
+
+function setViewQuery(v) {
+  if (!trnId.value) return
+  const query = { ...route.query }
+  if (v === "form") query.view = "register"
+  else delete query.view
+  router.replace({ query })
+}
 
 const tournament = ref(null)
 const loadingTournament = ref(false)
@@ -179,11 +198,14 @@ function setLocale(l) {
 }
 
 function goToForm() {
+  if (submittedRegistration.value) resetRegForm()
   view.value = "form"
+  setViewQuery("form")
   if (!tournament.value) loadTournament()
 }
 function goToList() {
   view.value = "list"
+  setViewQuery("list")
   loadRegistrations()
 }
 function goToLogin() {
@@ -201,7 +223,8 @@ function logout() {
   selectedAdminTournament.value = null
   adminRegistrations.value = []
   adminTournaments.value = []
-  view.value = trnId.value ? "form" : "login"
+  view.value = trnId.value ? "list" : "login"
+  if (trnId.value) loadRegistrations()
 }
 
 // ---------------------------------------------------------------------
@@ -296,7 +319,7 @@ function cleanRegistrationPayload(form) {
 function cleanTournamentPayload(form, obligatoryPresenceTimeValue, closingTimeValue) {
   const payload = { ...form }
   payload.closing_registrations = form.closing_registrations
-    ? localDateTimeToUtcIso(form.closing_registrations, closingTimeValue || DEFAULT_CLOSING_TIME)
+    ? brusselsDateTimeToUtcIso(form.closing_registrations, closingTimeValue || DEFAULT_CLOSING_TIME)
     : ""
   payload.rounds = form.rounds === "" || form.rounds === null || form.rounds === undefined ? null : Number(form.rounds)
   // obligatory_presence is edited as a bare HH:MM (see obligatoryPresenceTime
@@ -308,7 +331,7 @@ function cleanTournamentPayload(form, obligatoryPresenceTimeValue, closingTimeVa
   if (!obligatoryPresenceTimeValue) {
     payload.obligatory_presence = ""
   } else if (form.date_start) {
-    payload.obligatory_presence = localDateTimeToUtcIso(form.date_start, obligatoryPresenceTimeValue)
+    payload.obligatory_presence = brusselsDateTimeToUtcIso(form.date_start, obligatoryPresenceTimeValue)
   } else {
     delete payload.obligatory_presence
   }
@@ -322,7 +345,9 @@ function applyLookupResult(target, p) {
   target.national_id = p.national_id || ""
   target.national_club = p.club || ""
   target.national_club_name = p.club_name || ""
-  target.affiliated = !!p.affiliated
+  // Shown, not edited: the server reads both from our records on submit.
+  target.affiliated = p.affiliated === true ? true : (p.affiliated === false ? false : null)
+  target.g_license = p.g_license === true
   target.fide_id = p.fide_id || ""
   target.fide_rating_standard = p.fide_rating_standard || ""
   target.fide_rating_rapid = p.fide_rating_rapid || ""
@@ -366,6 +391,22 @@ const submittedRegistration = ref(null)
 // and "numbers and commas only", both for the inline red text under each
 // field and for the hard stop in submitRegistration below.
 const requiredRule = (v) => (v !== null && v !== undefined && String(v).trim() !== "") || t("trnreg.rule_required")
+
+// A full birth date is only needed from somebody without a FIDE ID; the API
+// applies the same rule.
+const hasFideId = computed(() => String(regForm.value.fide_id || "").trim() !== "")
+const birthDateRule = (v) => hasFideId.value || requiredRule(v)
+
+// A FIDE-rated tournament, and this registrant has no FIDE ID yet.
+const needsFideIdWarning = computed(() =>
+  !!(tournament.value && tournament.value.fide_homologated) && !hasFideId.value
+)
+
+function yesNoUnknown(v) {
+  if (v === true) return t("trnreg.yes")
+  if (v === false) return t("trnreg.no")
+  return "-"
+}
 const ROUNDS_ABSENT_RE = /^\s*\d+(\s*,\s*\d+)*\s*$/
 const roundsAbsentRule = (v) => !v || ROUNDS_ABSENT_RE.test(v) || t("trnreg.rule_rounds_absent")
 
@@ -394,6 +435,7 @@ async function submitRegistration() {
       ...cleanRegistrationPayload(regForm.value),
     })
     submittedRegistration.value = reply.data.registration
+    goToList()
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" })
   } catch (error) {
     if (error.code === 409) {
@@ -427,7 +469,7 @@ function resetRegForm() {
 const registrations = ref([])
 const loadingRegistrations = ref(false)
 const listFilter = ref("")
-const listSortKey = ref("fide_rating_standard")
+const listSortKey = ref("rating")
 const listSortOrder = ref("desc")
 
 async function loadRegistrations() {
@@ -444,10 +486,29 @@ async function loadRegistrations() {
   }
 }
 
-function sortCompare(a, b, key, mult) {
+// The rating that counts for a tournament: its own time control's, and for
+// rapid or blitz the standard rating when the player has none in that one.
+// Never blitz for a rapid tournament. FIDE writes 0 for "no rating".
+const RATING_FIELD = { Std: "fide_rating_standard", Rapid: "fide_rating_rapid", Blitz: "fide_rating_blitz" }
+
+function ratingField(trn) {
+  return RATING_FIELD[trn && trn.time_control] || "fide_rating_standard"
+}
+
+function effectiveRating(r, trn) {
+  const own = Number(r[ratingField(trn)])
+  if (own > 0) return own
+  const std = Number(r.fide_rating_standard)
+  return std > 0 ? std : null
+}
+
+function sortCompare(a, b, key, mult, trn) {
   let valA = a[key]
   let valB = b[key]
-  if (key === "category_index" || key === "fide_rating_standard" || key === "id") {
+  if (key === "rating") {
+    valA = effectiveRating(a, trn) || 0
+    valB = effectiveRating(b, trn) || 0
+  } else if (key === "category_index" || key === "fide_rating_standard" || key === "id") {
     valA = Number(valA) || 0
     valB = Number(valB) || 0
   } else {
@@ -458,7 +519,7 @@ function sortCompare(a, b, key, mult) {
   if (valA > valB) return 1 * mult
   // Equal rating (including two unrated players): always break by name,
   // A-Z regardless of the rating column's own sort direction.
-  if (key === "fide_rating_standard") {
+  if (key === "rating" || key === "fide_rating_standard") {
     const nameA = `${a.last_name || ""} ${a.first_name || ""}`.toLowerCase()
     const nameB = `${b.last_name || ""} ${b.first_name || ""}`.toLowerCase()
     if (nameA < nameB) return -1
@@ -480,7 +541,7 @@ const filteredRegistrations = computed(() => {
 
 const sortedRegistrations = computed(() => {
   const mult = listSortOrder.value === "asc" ? 1 : -1
-  return [...filteredRegistrations.value].sort((a, b) => sortCompare(a, b, listSortKey.value, mult))
+  return [...filteredRegistrations.value].sort((a, b) => sortCompare(a, b, listSortKey.value, mult, tournament.value))
 })
 
 function toggleListSort(key) {
@@ -500,6 +561,20 @@ function categoryLabel(trn, index) {
   if (index === null || index === undefined || index === "") return ""
   const i = Number(index)
   return Number.isInteger(i) && trn.categories[i] !== undefined ? trn.categories[i] : ""
+}
+
+// "Standaard: 90 min + 30 s" rather than the stored code "Std". The tempo
+// itself is the details text the arbiter typed, or failing that the SWAR
+// cadence they picked.
+function tempoDisplay(trn) {
+  if (!trn || !trn.time_control) return ""
+  const name = t("trnreg.tc_" + trn.time_control)
+  let tempo = (trn.time_control_details || "").trim()
+  if (!tempo && trn.swar_cadence_number) {
+    const row = (SWAR_CADENCES[trn.time_control] || []).find(([n]) => n === Number(trn.swar_cadence_number))
+    if (row && !/^various/i.test(row[1])) tempo = row[1]
+  }
+  return tempo ? `${name}: ${tempo}` : name
 }
 
 function formatDateDisplay(iso) {
@@ -594,24 +669,13 @@ async function saveEditRegistration() {
   editRegSubmitting.value = true
   editRegError.value = ""
   try {
-    if (editRegIsAdmin.value) {
-      await $backend("tournament_registrations", "admin_updateRegistration", {
-        id: editRegId.value,
-        token: token.value,
-        ...cleanRegistrationPayload(editRegForm.value),
-      })
-    } else {
-      await $backend("tournament_registrations", "updateRegistration", {
-        id: editRegId.value,
-        ...cleanRegistrationPayload(editRegForm.value),
-      })
-    }
+    await $backend("tournament_registrations", "admin_updateRegistration", {
+      id: editRegId.value,
+      token: token.value,
+      ...cleanRegistrationPayload(editRegForm.value),
+    })
     editRegDialog.value = false
-    if (editRegIsAdmin.value) {
-      await loadAdminRegistrations()
-    } else {
-      await loadRegistrations()
-    }
+    await loadAdminRegistrations()
   } catch (error) {
     if (error.code === 409) editRegError.value = t("trnreg.duplicate_error")
     else if (error.code === 404) editRegError.value = t("trnreg.registration_not_found")
@@ -681,7 +745,7 @@ const adminListSortOrder = ref("asc")
 
 const sortedAdminRegistrations = computed(() => {
   const mult = adminListSortOrder.value === "asc" ? 1 : -1
-  return [...adminRegistrations.value].sort((a, b) => sortCompare(a, b, adminListSortKey.value, mult))
+  return [...adminRegistrations.value].sort((a, b) => sortCompare(a, b, adminListSortKey.value, mult, selectedAdminTournament.value))
 })
 
 function toggleAdminListSort(key) {
@@ -771,12 +835,15 @@ async function confirmDeleteTournament() {
 // Same route, ?trn=<id> only -- lands on the page's default (form) view for
 // that tournament, i.e. what a registrant would see. Opened with window.open
 // so the admin's own dashboard/session in this tab is undisturbed.
-function publicTournamentUrl(trn) {
-  return `${route.path}?trn=${encodeURIComponent(trn.id)}`
-}
+//
+// The page's own fixed address rather than route.path, which is wherever the
+// dashboard happens to be showing (a trailing slash there is a 404 on App
+// Engine), and a real link rather than window.open, which a browser may
+// block or open blank.
+const PUBLIC_PAGE_PATH = "/tools/tournament_registrations"
 
-function openPublicTournamentPage(trn) {
-  if (typeof window !== "undefined") window.open(publicTournamentUrl(trn), "_blank", "noopener")
+function publicTournamentUrl(trn) {
+  return `${PUBLIC_PAGE_PATH}?trn=${encodeURIComponent(trn.id)}`
 }
 
 async function loadAdminRegistrations() {
@@ -818,35 +885,53 @@ const cadenceOptions = computed(() => {
 // timestamp.
 const obligatoryPresenceTime = ref("")
 
-// Combines a bare "YYYY-MM-DD" date with a bare "HH:MM" time into a real
-// UTC instant (proper ISO string, not a naive offset-less concatenation)
-// before it goes over the wire. The old version just concatenated the two
-// strings with no offset at all, which is genuinely ambiguous -- Postgres
-// interprets an offset-less timestamp according to whatever timezone the
-// session happens to be configured with, not necessarily what the arbiter
-// actually typed, and it silently "round-tripped" back out looking
-// unchanged because every reader (this page's old extractTimeHHMM, the
-// confirmation email's old UTC-getter-based formatter) was making the same
-// unstated assumption. Building a real local Date and letting the browser
-// convert it removes the ambiguity entirely. Assumes the person running
-// this admin panel is physically in Belgium -- the same assumption a bare
-// <input type="time"> already makes implicitly, since it has no timezone
-// concept of its own either.
-function localDateTimeToUtcIso(dateStr, timeStr) {
-  const [y, mo, d] = dateStr.split("-").map(Number)
-  const [h, mi] = timeStr.split(":").map(Number)
-  return new Date(y, mo - 1, d, h, mi, 0).toISOString()
+// Every time on this page is Brussels time: the tournaments are played in
+// Belgium. Reading the inputs in the browser's own timezone is how an arbiter
+// in Uzbekistan typed 13:45 and players were mailed 10:45. So the date and
+// time typed are taken as Brussels wall-clock time and turned into a UTC
+// instant here, and shown back the same way, wherever the browser is.
+const BRUSSELS_PARTS = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Brussels",
+  hourCycle: "h23",
+  year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", second: "2-digit",
+})
+
+function brusselsFields(ts) {
+  const p = {}
+  for (const part of BRUSSELS_PARTS.formatToParts(new Date(ts))) p[part.type] = part.value
+  return p
 }
 
-// Inverse of the above: given a stored UTC instant, returns the browser-
-// local "HH:MM" -- used both to prefill the edit form's time input and to
-// display the value on the dashboard (see formatObligatoryPresence below).
-function utcIsoToLocalHHMM(value) {
-  if (!value) return ""
+// How far Brussels wall-clock time is ahead of UTC at this instant, in ms.
+function brusselsOffsetMs(ts) {
+  const p = brusselsFields(ts)
+  const wall = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second)
+  return wall - Math.floor(ts / 1000) * 1000
+}
+
+function brusselsDateTimeToUtcIso(dateStr, timeStr) {
+  const [y, mo, d] = dateStr.split("-").map(Number)
+  const [h, mi] = timeStr.split(":").map(Number)
+  const wall = Date.UTC(y, mo - 1, d, h, mi, 0)
+  // Twice, so an instant on the other side of a DST change settles on the
+  // offset that applies at the result rather than at the first guess.
+  let ts = wall - brusselsOffsetMs(wall)
+  ts = wall - brusselsOffsetMs(ts)
+  return new Date(ts).toISOString()
+}
+
+// A stored UTC instant as the Brussels date ("YYYY-MM-DD") and time ("HH:MM").
+function brusselsParts(value) {
+  if (!value) return { date: "", time: "" }
   const dt = new Date(value)
-  if (isNaN(dt.getTime())) return ""
-  const pad = (n) => String(n).padStart(2, "0")
-  return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`
+  if (isNaN(dt.getTime())) return { date: "", time: "" }
+  const p = brusselsFields(dt.getTime())
+  return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` }
+}
+
+function utcIsoToBrusselsHHMM(value) {
+  return brusselsParts(value).time
 }
 
 // Closing of registrations is a date and a time: from that minute on, the
@@ -872,11 +957,7 @@ function closingParts(value) {
   const dt = new Date(value)
   if (isNaN(dt.getTime())) return { date: "", time: DEFAULT_CLOSING_TIME }
   if (isDateOnlyInstant(value)) return { date: toDateInputValue(value), time: DEFAULT_CLOSING_TIME }
-  const pad = (n) => String(n).padStart(2, "0")
-  return {
-    date: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`,
-    time: utcIsoToLocalHHMM(value),
-  }
+  return brusselsParts(value)
 }
 
 function closingDisplay(value) {
@@ -1002,7 +1083,7 @@ function openEditTournament(trn) {
     opening_registrations: toDateInputValue(trn.opening_registrations),
     closing_registrations: closingParts(trn.closing_registrations).date,
   }
-  obligatoryPresenceTime.value = utcIsoToLocalHHMM(trn.obligatory_presence)
+  obligatoryPresenceTime.value = utcIsoToBrusselsHHMM(trn.obligatory_presence)
   closingTime.value = closingParts(trn.closing_registrations).time
   // trn already carries <slot>_person_id/_name from the API -- those show up
   // as the "currently selected" person for each slot (the template reads
@@ -1019,15 +1100,71 @@ function closeTournamentForm() {
   tournamentFormDialog.value = false
 }
 
-// The SWAR export is keyed on exactly three FIDE event codes
-// (event_code_fide_a/b/c on the tournaments table, see
-// SWAR_CATEGORY_INDEX in kbsb-dataplatform's tournament_registrations.js)
-// -- a 4th category can be typed here but has no export button and no FIDE
-// code slot to hold, so it silently never appears in any export. Capped at
-// the source instead of letting that mismatch happen.
-const MAX_CATEGORIES = 3
+// A new tournament with every setting of this one, and none of its
+// registrations. Saving creates it; nothing is written before that.
+function openCopyTournament(trn) {
+  openEditTournament(trn)
+  tournamentFormMode.value = "create"
+  delete tournamentForm.value.id
+  delete tournamentForm.value.created_at
+  delete tournamentForm.value.updated_at
+  tournamentForm.value.name = `${trn.name || ""} ${t("trnreg.copy_suffix")}`.trim()
+}
+
+function fillOrganizerFromChiefArbiter() {
+  const f = tournamentForm.value
+  f.chief_organizer_person_id = f.chief_arbiter_person_id
+  f.chief_organizer_name = f.chief_arbiter_name
+  f.chief_organizer_email = f.chief_arbiter_email
+  f.chief_organizer_phone = f.chief_arbiter_phone
+  arbiterLookup.value.chief_organizer.query = f.chief_arbiter_name || ""
+}
+
+// A date box that is still empty starts on its partner's date, so the
+// picker opens on that month rather than on today: the end date on the
+// start date, the closing of registrations on their opening.
+function prefillFrom(target, source) {
+  const f = tournamentForm.value
+  if (!f[target] && f[source]) f[target] = f[source]
+}
+
+// The same checks the API makes, so the arbiter sees them before saving.
+function tournamentFormProblem() {
+  const f = tournamentForm.value
+  if (f.date_start && f.date_end && f.date_end < f.date_start) return t("trnreg.rule_end_after_start")
+  if (f.opening_registrations && f.closing_registrations && f.closing_registrations < f.opening_registrations) {
+    return t("trnreg.rule_closing_after_opening")
+  }
+  // Registrations close no later than the tournament starts: not after its
+  // first day, and on that day not after the obligatory presence time.
+  if (f.closing_registrations && f.date_start) {
+    if (f.closing_registrations > f.date_start) return t("trnreg.rule_closing_before_start")
+    if (f.closing_registrations === f.date_start && obligatoryPresenceTime.value &&
+        (closingTime.value || DEFAULT_CLOSING_TIME) > obligatoryPresenceTime.value) {
+      return t("trnreg.rule_closing_before_presence")
+    }
+  }
+  if (f.fide_homologated && ![f.event_code_fide_a, f.event_code_fide_b, f.event_code_fide_c].some((c) => c && String(c).trim())) {
+    return t("trnreg.rule_event_code_required")
+  }
+  return ""
+}
+
+// A tournament is archived from the day after its last day (Brussels), and
+// leaves the working list for a collapsed archive below it.
+const showArchived = ref(false)
+
+function tournamentArchived(trn) {
+  const last = toDateInputValue(trn.date_end) || toDateInputValue(trn.date_start)
+  if (!last) return false
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels" }).format(new Date(nowTick.value))
+  return today > last
+}
+
+const activeAdminTournaments = computed(() => adminTournaments.value.filter((trn) => !tournamentArchived(trn)))
+const archivedAdminTournaments = computed(() => adminTournaments.value.filter((trn) => tournamentArchived(trn)))
+
 function addCategoryRow() {
-  if (tournamentForm.value.categories.length >= MAX_CATEGORIES) return
   tournamentForm.value.categories.push("")
 }
 function removeCategoryRow(i) {
@@ -1035,8 +1172,9 @@ function removeCategoryRow(i) {
 }
 
 async function saveTournament() {
+  tournamentFormError.value = tournamentFormProblem()
+  if (tournamentFormError.value) return
   tournamentSubmitting.value = true
-  tournamentFormError.value = ""
   adminActionNotice.value = ""
   try {
     const categories = tournamentForm.value.categories.filter((c) => c && c.trim())
@@ -1071,8 +1209,18 @@ async function saveTournament() {
 // admin: CSV / SWAR exports + ELO refresh
 // ---------------------------------------------------------------------
 
-const exportingCsv = ref(false)
-const exportingSwar = ref({ a: false, b: false, c: false })
+// Keyed "all" or the category number, so each button spins on its own.
+const exportingCsv = ref({})
+const exportingSwar = ref({})
+
+// One button per category when the tournament exports per category, and a
+// single one for everything otherwise (or when it has at most one category).
+const exportTargets = computed(() => {
+  const trn = selectedAdminTournament.value
+  const cats = (trn && Array.isArray(trn.categories)) ? trn.categories : []
+  if (!trn || !trn.export_per_category || cats.length < 2) return [{ key: "all", label: "" }]
+  return cats.map((c, i) => ({ key: String(i), label: c }))
+})
 const refreshEloLoading = ref(false)
 const refreshEloResult = ref(null)
 
@@ -1087,38 +1235,43 @@ function triggerDownload(blob, filename) {
   window.URL.revokeObjectURL(downloadUrl)
 }
 
-async function exportCsv() {
+function exportFileTag(key) {
+  return key === "all" ? "" : `_cat${Number(key) + 1}`
+}
+
+async function exportCsv(key) {
   if (!selectedAdminTournament.value) return
-  exportingCsv.value = true
+  exportingCsv.value = { ...exportingCsv.value, [key]: true }
   adminActionError.value = ""
   try {
     const reply = await $backend("tournament_registrations", "admin_exportCsv", {
       id: selectedAdminTournament.value.id,
       token: token.value,
+      category: key === "all" ? null : key,
     })
-    triggerDownload(reply.data, `registrations_${selectedAdminTournament.value.id}.csv`)
+    triggerDownload(reply.data, `registrations_${selectedAdminTournament.value.id}${exportFileTag(key)}.csv`)
   } catch (error) {
     adminActionError.value = t("trnreg.admin_export_failed")
   } finally {
-    exportingCsv.value = false
+    exportingCsv.value = { ...exportingCsv.value, [key]: false }
   }
 }
 
-async function exportSwar(category) {
+async function exportSwar(key) {
   if (!selectedAdminTournament.value) return
-  exportingSwar.value = { ...exportingSwar.value, [category]: true }
+  exportingSwar.value = { ...exportingSwar.value, [key]: true }
   adminActionError.value = ""
   try {
     const reply = await $backend("tournament_registrations", "admin_exportSwar", {
       id: selectedAdminTournament.value.id,
-      category,
+      category: key,
       token: token.value,
     })
-    triggerDownload(reply.data, `swar_${category}_${selectedAdminTournament.value.id}.csv`)
+    triggerDownload(reply.data, `swar_${selectedAdminTournament.value.id}${exportFileTag(key)}.csv`)
   } catch (error) {
     adminActionError.value = t("trnreg.admin_export_failed")
   } finally {
-    exportingSwar.value = { ...exportingSwar.value, [category]: false }
+    exportingSwar.value = { ...exportingSwar.value, [key]: false }
   }
 }
 
@@ -1160,12 +1313,9 @@ onMounted(() => {
   // token cached from another tab. The admin dashboard is still one click away
   // via the nav bar's "Admin" button whenever token is set.
   if (trnId.value) {
-    // ?view=list is a direct deep link to the public listing (used by the
-    // confirmation email's "list of registrations" link, mirroring the
-    // legacy tool's own separate listingRegistrations.php?trn=... page) --
-    // any other/missing value keeps the existing default of landing on the
-    // registration form.
-    view.value = route.query.view === "list" ? "list" : "form"
+    // The list unless the address asks for the form. "form" is still read
+    // as the form, and "list" (the confirmation mail's link) as the list.
+    view.value = ["register", "form"].includes(route.query.view) ? "form" : "list"
     if (view.value === "list") loadRegistrations()
   } else if (token.value) {
     view.value = "admin"
@@ -1207,14 +1357,8 @@ onMounted(() => {
     </v-row>
 
     <v-row class="mb-3 align-center" dense>
-      <v-col cols="auto" v-if="trnId && view !== 'form'">
-        <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-arrow-left" @click="goToForm">{{ t('trnreg.nav_back_to_form') }}</v-btn>
-      </v-col>
-      <v-col cols="auto" v-if="trnId && view === 'form'">
-        <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-format-list-bulleted" @click="goToList">{{ t('trnreg.nav_list') }}</v-btn>
-      </v-col>
-      <v-col cols="auto" v-if="trnId && view === 'list'">
-        <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-account-edit" @click="goToForm">{{ t('trnreg.nav_form') }}</v-btn>
+      <v-col cols="auto" v-if="trnId && view !== 'list'">
+        <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-format-list-bulleted" @click="goToList">{{ t('trnreg.nav_list') }}</v-btn>
       </v-col>
       <v-spacer />
       <v-col cols="auto" v-if="!token">
@@ -1235,8 +1379,8 @@ onMounted(() => {
 
     <v-alert v-if="errorText" type="error" closable class="mb-4" @click:close="errorText = ''">{{ errorText }}</v-alert>
 
-    <!-- ============ VIEW: public registration form ============ -->
-    <div v-if="view === 'form'">
+    <!-- ============ tournament header, above both the list and the form ============ -->
+    <div v-if="view === 'form' || view === 'list'">
       <div v-if="!trnId" class="text-center py-8 text-grey-darken-1">{{ t('trnreg.no_tournament') }}</div>
       <div v-else>
         <v-row v-if="loadingTournament" justify="center" class="my-8">
@@ -1255,13 +1399,13 @@ onMounted(() => {
                 {{ formatDateDisplay(tournament.date_start) }}<span v-if="tournament.date_end && tournament.date_end !== tournament.date_start"> - {{ formatDateDisplay(tournament.date_end) }}</span>
               </v-col>
               <v-col cols="12" sm="6" md="4" v-if="tournament.time_control">
-                <strong>{{ t('trnreg.th_time_control') }}:</strong> {{ tournament.time_control }}<span v-if="tournament.time_control_details"> ({{ tournament.time_control_details }})</span>
+                <strong>{{ t('trnreg.th_time_control') }}:</strong> {{ tempoDisplay(tournament) }}
               </v-col>
               <v-col cols="12" sm="6" md="4" v-if="tournament.closing_registrations">
                 <strong>{{ t('trnreg.th_closing') }}:</strong> {{ closingDisplay(tournament.closing_registrations) }}
               </v-col>
               <v-col cols="12" sm="6" md="4" v-if="tournament.obligatory_presence">
-                <strong>{{ t('trnreg.th_obligatory_presence') }}:</strong> {{ utcIsoToLocalHHMM(tournament.obligatory_presence) }}
+                <strong>{{ t('trnreg.th_obligatory_presence') }}:</strong> {{ utcIsoToBrusselsHHMM(tournament.obligatory_presence) }}
               </v-col>
               <v-col cols="12" v-if="tournament.categories && tournament.categories.length">
                 <strong>{{ t('trnreg.th_categories') }}:</strong> {{ tournament.categories.join(', ') }}
@@ -1281,18 +1425,8 @@ onMounted(() => {
           </v-card-text>
         </v-card>
 
-        <div v-if="tournament">
-          <v-card v-if="submittedRegistration" class="elevation-2">
-            <v-card-text class="text-center py-8">
-              <div class="trnreg-success-check">&#10003;</div>
-              <h2 class="text-h6 font-weight-bold mt-4 mb-2">{{ t('trnreg.submitted_title') }}</h2>
-              <p class="text-body-2 mb-3">{{ t('trnreg.submitted_msg') }}</p>
-              <p class="text-h6 font-weight-bold text-green-darken-3">{{ t('trnreg.registration_id_label') }}: {{ submittedRegistration.id }}</p>
-              <v-btn color="green-darken-2" class="mt-3" @click="resetRegForm">{{ t('trnreg.register_another') }}</v-btn>
-            </v-card-text>
-          </v-card>
-
-          <v-alert v-else-if="registrationsClosed" type="info" variant="tonal" class="elevation-2">
+        <div v-if="tournament && view === 'form'">
+          <v-alert v-if="registrationsClosed" type="info" variant="tonal" class="elevation-2">
             {{ t('trnreg.registrations_closed') }}
           </v-alert>
 
@@ -1333,7 +1467,7 @@ onMounted(() => {
                     <v-select v-model="regForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]" :hint="matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : ''" persistent-hint></v-text-field>
+                    <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" :required="!hasFideId" :class="hasFideId ? '' : 'trnreg-required'" :rules="[birthDateRule]" :hint="hasFideId ? t('trnreg.birth_date_optional_hint') : (matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : '')" persistent-hint></v-text-field>
                   </v-col>
                   <!--
                     Place of birth, country of residence and a free-text
@@ -1355,11 +1489,24 @@ onMounted(() => {
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.national_club" :label="t('trnreg.field_national_club')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="4" class="d-flex align-center">
-                    <v-checkbox v-model="regForm.affiliated" :label="t('trnreg.field_affiliated')" color="green-darken-2" density="compact" hide-details></v-checkbox>
+                  <!--
+                    Affiliation and G-licence are shown, not ticked: they are
+                    facts about our records, which the search fills in and
+                    the API reads again itself on submit.
+                  -->
+                  <v-col cols="12" sm="4" class="d-flex align-center ga-2 flex-wrap">
+                    <v-chip size="small" variant="tonal" :color="regForm.affiliated === true ? 'green-darken-2' : 'grey'">
+                      {{ t('trnreg.field_affiliated') }}: {{ yesNoUnknown(regForm.affiliated) }}
+                    </v-chip>
+                    <v-chip v-if="regForm.g_license" size="small" variant="tonal" color="blue-darken-2">
+                      {{ t('trnreg.field_g_license') }}
+                    </v-chip>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.fide_id" :label="t('trnreg.field_fide_id')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" v-if="needsFideIdWarning">
+                    <v-alert type="warning" variant="tonal" density="compact">{{ t('trnreg.fide_id_warning') }}</v-alert>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.fide_title" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
@@ -1367,14 +1514,20 @@ onMounted(() => {
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.fide_federation" :label="t('trnreg.field_fide_federation')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
                   </v-col>
+                  <!--
+                    Only the rating this tournament is played for. A rapid or
+                    blitz tournament shows the standard rating as the
+                    fallback when the player has none in its own.
+                  -->
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.fide_rating_standard" type="number" :label="t('trnreg.field_fide_rating_standard')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.fide_rating_rapid" type="number" :label="t('trnreg.field_fide_rating_rapid')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.fide_rating_blitz" type="number" :label="t('trnreg.field_fide_rating_blitz')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                    <v-text-field
+                      v-model="regForm[ratingField(tournament)]"
+                      type="number"
+                      :label="t('trnreg.' + ratingField(tournament).replace('fide_rating_', 'field_fide_rating_'))"
+                      :hint="ratingField(tournament) !== 'fide_rating_standard' && !(Number(regForm[ratingField(tournament)]) > 0) && Number(regForm.fide_rating_standard) > 0 ? t('trnreg.rating_fallback_hint') + ': ' + regForm.fide_rating_standard : ''"
+                      persistent-hint
+                      variant="outlined" color="green-darken-2" density="compact"
+                    ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <!--
@@ -1404,9 +1557,6 @@ onMounted(() => {
                     contact, by name, phone/GSM and e-mail above, and this
                     duplicated that without ever being required or checked.
                   -->
-                  <v-col cols="12" sm="6" class="d-flex align-center">
-                    <v-checkbox v-model="regForm.g_license" :label="t('trnreg.field_g_license')" color="green-darken-2" density="compact" hide-details></v-checkbox>
-                  </v-col>
                   <v-col cols="12">
                     <v-textarea v-model="regForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2"></v-textarea>
                   </v-col>
@@ -1422,6 +1572,16 @@ onMounted(() => {
 
     <!-- ============ VIEW: public listing ============ -->
     <div v-if="view === 'list' && trnId">
+      <v-alert v-if="submittedRegistration" type="success" variant="tonal" closable class="mb-4" @click:close="submittedRegistration = null">
+        <div class="font-weight-bold">{{ t('trnreg.submitted_title') }}</div>
+        <div>{{ t('trnreg.submitted_msg') }}</div>
+        <div class="mt-1">{{ t('trnreg.registration_id_label') }}: <strong>{{ submittedRegistration.id }}</strong></div>
+      </v-alert>
+      <div v-if="tournament && !registrationsClosed" class="mb-3">
+        <v-btn color="green-darken-2" prepend-icon="mdi-account-plus" @click="goToForm">
+          {{ submittedRegistration ? t('trnreg.register_another') : t('trnreg.nav_form') }}
+        </v-btn>
+      </div>
       <v-row class="mb-2 align-center" dense>
         <v-col cols="12" sm="6">
           <h2 class="text-h6 font-weight-bold text-green-darken-3">
@@ -1450,7 +1610,7 @@ onMounted(() => {
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }}</th>
                   <th>{{ t('trnreg.col_category') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_rating_standard')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'fide_rating_standard' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'rating' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                 </tr>
               </thead>
               <tbody>
@@ -1467,7 +1627,7 @@ onMounted(() => {
                   <td>{{ r.national_club_name || r.national_club }}</td>
                   <td>{{ categoryLabel(tournament, r.category_index) }}</td>
                   <td>{{ r.fide_id }}</td>
-                  <td>{{ r.fide_rating_standard }}</td>
+                  <td>{{ effectiveRating(r, tournament) || '' }}</td>
                 </tr>
               </tbody>
             </v-table>
@@ -1506,24 +1666,50 @@ onMounted(() => {
           <v-progress-circular indeterminate color="green" />
         </v-row>
         <div v-else-if="!adminTournaments.length" class="text-center py-8 text-grey-darken-1">{{ t('trnreg.admin_no_tournaments') }}</div>
-        <v-row v-else dense>
-          <v-col cols="12" md="6" lg="4" v-for="trn in adminTournaments" :key="trn.id">
-            <v-card class="elevation-2 h-100">
-              <v-card-text>
-                <h3 class="text-subtitle-1 font-weight-bold text-green-darken-3">{{ trn.name }}</h3>
-                <div class="text-body-2 text-grey-darken-2">
-                  {{ formatDateDisplay(trn.date_start) }}<span v-if="trn.date_end && trn.date_end !== trn.date_start"> - {{ formatDateDisplay(trn.date_end) }}</span>
-                </div>
-                <div class="text-body-2 text-grey-darken-2" v-if="trn.city">{{ trn.city }}</div>
-                <div class="d-flex flex-wrap ga-2 mt-3">
-                  <v-btn size="small" color="green-darken-2" variant="tonal" @click="selectAdminTournament(trn)">{{ t('trnreg.admin_manage_registrations') }}</v-btn>
-                  <v-btn size="small" variant="text" color="grey-darken-1" @click="openEditTournament(trn)">{{ t('trnreg.admin_edit_tournament') }}</v-btn>
-                  <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-open-in-new" @click="openPublicTournamentPage(trn)">{{ t('trnreg.admin_view_public_page') }}</v-btn>
-                </div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
+        <template v-else>
+          <div v-if="!activeAdminTournaments.length" class="text-center py-6 text-grey-darken-1">{{ t('trnreg.admin_no_active_tournaments') }}</div>
+          <v-row dense>
+            <v-col cols="12" md="6" lg="4" v-for="trn in activeAdminTournaments" :key="trn.id">
+              <v-card class="elevation-2 h-100">
+                <v-card-text>
+                  <h3 class="text-subtitle-1 font-weight-bold text-green-darken-3">{{ trn.name }}</h3>
+                  <div class="text-body-2 text-grey-darken-2">
+                    {{ formatDateDisplay(trn.date_start) }}<span v-if="trn.date_end && trn.date_end !== trn.date_start"> - {{ formatDateDisplay(trn.date_end) }}</span>
+                  </div>
+                  <div class="text-body-2 text-grey-darken-2" v-if="trn.city">{{ trn.city }}</div>
+                  <div class="d-flex flex-wrap ga-2 mt-3">
+                    <v-btn size="small" color="green-darken-2" variant="tonal" @click="selectAdminTournament(trn)">{{ t('trnreg.admin_manage_registrations') }}</v-btn>
+                    <v-btn size="small" variant="text" color="grey-darken-1" @click="openEditTournament(trn)">{{ t('trnreg.admin_edit_tournament') }}</v-btn>
+                    <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-content-copy" @click="openCopyTournament(trn)">{{ t('trnreg.admin_copy_tournament') }}</v-btn>
+                    <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-open-in-new" :href="publicTournamentUrl(trn)" target="_blank" rel="noopener">{{ t('trnreg.admin_view_public_page') }}</v-btn>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <div v-if="archivedAdminTournaments.length" class="mt-6">
+            <v-btn variant="text" color="grey-darken-1" :prepend-icon="showArchived ? 'mdi-chevron-down' : 'mdi-chevron-right'" @click="showArchived = !showArchived">
+              {{ t('trnreg.admin_archived') }} ({{ archivedAdminTournaments.length }})
+            </v-btn>
+            <v-row v-if="showArchived" dense class="mt-1">
+              <v-col cols="12" md="6" lg="4" v-for="trn in archivedAdminTournaments" :key="'arch-' + trn.id">
+                <v-card class="elevation-1 h-100" color="grey-lighten-4">
+                  <v-card-text>
+                    <h3 class="text-subtitle-1 font-weight-bold text-grey-darken-2">{{ trn.name }}</h3>
+                    <div class="text-body-2 text-grey-darken-2">
+                      {{ formatDateDisplay(trn.date_start) }}<span v-if="trn.date_end && trn.date_end !== trn.date_start"> - {{ formatDateDisplay(trn.date_end) }}</span>
+                    </div>
+                    <div class="d-flex flex-wrap ga-2 mt-3">
+                      <v-btn size="small" variant="tonal" color="grey-darken-2" @click="selectAdminTournament(trn)">{{ t('trnreg.admin_manage_registrations') }}</v-btn>
+                      <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-content-copy" @click="openCopyTournament(trn)">{{ t('trnreg.admin_copy_tournament') }}</v-btn>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </div>
+        </template>
       </div>
 
       <div v-else>
@@ -1540,12 +1726,13 @@ onMounted(() => {
               </v-col>
               <v-col cols="12" md="auto" class="d-flex flex-wrap ga-2">
                 <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-pencil" @click="openEditTournament(selectedAdminTournament)">{{ t('trnreg.admin_edit_tournament') }}</v-btn>
-                <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-open-in-new" @click="openPublicTournamentPage(selectedAdminTournament)">{{ t('trnreg.admin_view_public_page') }}</v-btn>
+                <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-content-copy" @click="openCopyTournament(selectedAdminTournament)">{{ t('trnreg.admin_copy_tournament') }}</v-btn>
+                <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-open-in-new" :href="publicTournamentUrl(selectedAdminTournament)" target="_blank" rel="noopener">{{ t('trnreg.admin_view_public_page') }}</v-btn>
                 <v-btn size="small" variant="text" color="red-darken-2" prepend-icon="mdi-delete" @click="openDeleteTournament(selectedAdminTournament)">{{ t('trnreg.admin_delete_tournament') }}</v-btn>
-                <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="exportingCsv" @click="exportCsv">{{ t('trnreg.admin_export_csv') }}</v-btn>
-                <v-btn size="small" variant="tonal" color="green-darken-2" :loading="exportingSwar.a" @click="exportSwar('a')">{{ t('trnreg.admin_export_swar_a') }}</v-btn>
-                <v-btn size="small" variant="tonal" color="green-darken-2" :loading="exportingSwar.b" @click="exportSwar('b')">{{ t('trnreg.admin_export_swar_b') }}</v-btn>
-                <v-btn size="small" variant="tonal" color="green-darken-2" :loading="exportingSwar.c" @click="exportSwar('c')">{{ t('trnreg.admin_export_swar_c') }}</v-btn>
+                <template v-for="x in exportTargets" :key="'exp-' + x.key">
+                  <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingCsv[x.key]" @click="exportCsv(x.key)">{{ t('trnreg.admin_export_csv') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
+                  <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwar[x.key]" @click="exportSwar(x.key)">{{ t('trnreg.admin_export_swar') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
+                </template>
                 <v-btn size="small" variant="tonal" color="blue-darken-2" prepend-icon="mdi-refresh" :loading="refreshEloLoading" @click="refreshElo">{{ t('trnreg.admin_refresh_elo') }}</v-btn>
               </v-col>
             </v-row>
@@ -1577,7 +1764,7 @@ onMounted(() => {
                     <th>{{ t('trnreg.col_club') }}</th>
                     <th>{{ t('trnreg.col_category') }}</th>
                     <th>{{ t('trnreg.col_fide_id') }}</th>
-                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('fide_rating_standard')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ adminListSortKey === 'fide_rating_standard' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ adminListSortKey === 'rating' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th>{{ t('trnreg.col_email') }}</th>
                     <th>{{ t('trnreg.col_phone') }}</th>
                     <th>{{ t('trnreg.col_actions') }}</th>
@@ -1592,7 +1779,7 @@ onMounted(() => {
                     <td>{{ r.national_club_name || r.national_club }}</td>
                     <td>{{ categoryLabel(selectedAdminTournament, r.category_index) }}</td>
                     <td>{{ r.fide_id }}</td>
-                    <td>{{ r.fide_rating_standard }}</td>
+                    <td>{{ effectiveRating(r, selectedAdminTournament) || '' }}</td>
                     <td>{{ r.email }}</td>
                     <td>{{ r.phone || r.gsm }}</td>
                     <td class="text-no-wrap">
@@ -1688,11 +1875,11 @@ onMounted(() => {
             <v-col cols="12"><v-text-field v-model="tournamentForm.address" :label="t('trnreg.field_address')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_start" type="date" :label="t('trnreg.field_date_start')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_end" type="date" :label="t('trnreg.field_date_end')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_end" type="date" :min="tournamentForm.date_start || undefined" :label="t('trnreg.field_date_end')" variant="outlined" color="green-darken-2" density="compact" @focus="prefillFrom('date_end', 'date_start')"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="obligatoryPresenceTime" type="time" :label="t('trnreg.field_obligatory_presence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.opening_registrations" type="date" :label="t('trnreg.field_opening_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :min="tournamentForm.opening_registrations || undefined" :max="tournamentForm.date_start || undefined" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact" @focus="prefillFrom('closing_registrations', 'opening_registrations')"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="closingTime" type="time" :label="t('trnreg.field_closing_time')" :hint="t('trnreg.closing_time_hint')" persistent-hint variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4">
@@ -1702,23 +1889,8 @@ onMounted(() => {
             <v-col cols="12" sm="4">
               <v-select v-model="tournamentForm.time_control" :items="TIME_CONTROL_OPTIONS.map((s) => ({ title: t('trnreg.tc_' + s), value: s }))" :label="t('trnreg.field_time_control')" variant="outlined" color="green-darken-2" density="compact"></v-select>
             </v-col>
-            <v-col cols="12"><v-text-field v-model="tournamentForm.time_control_details" :label="t('trnreg.field_time_control_details')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-
-            <v-col cols="12">
-              <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_categories') }}</div>
-              <div v-for="(c, i) in tournamentForm.categories" :key="i" class="d-flex align-center ga-2 mb-2">
-                <v-text-field v-model="tournamentForm.categories[i]" density="compact" variant="outlined" color="green-darken-2" hide-details></v-text-field>
-                <v-btn icon size="small" variant="text" color="red-darken-2" @click="removeCategoryRow(i)"><v-icon>mdi-close</v-icon></v-btn>
-              </div>
-              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" :disabled="tournamentForm.categories.length >= MAX_CATEGORIES" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
-              <div v-if="tournamentForm.categories.length >= MAX_CATEGORIES" class="text-caption text-medium-emphasis mt-1">{{ t('trnreg.category_export_limit') }}</div>
-            </v-col>
-
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.url" :label="t('trnreg.field_url')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.organizing_club" :label="t('trnreg.field_organizing_club')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.federation" :label="t('trnreg.field_federation')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-
-            <v-col cols="12" sm="4">
+            <!-- Directly under the tempo it depends on. -->
+            <v-col cols="12" sm="8">
               <v-select
                 v-model="tournamentForm.swar_cadence_number"
                 :items="cadenceOptions"
@@ -1730,9 +1902,53 @@ onMounted(() => {
                 variant="outlined" color="green-darken-2" density="compact"
               ></v-select>
             </v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_a" :label="t('trnreg.field_event_code_fide_a')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_b" :label="t('trnreg.field_event_code_fide_b')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_c" :label="t('trnreg.field_event_code_fide_c')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.time_control_details" :label="t('trnreg.field_time_control_details')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+
+            <v-col cols="12">
+              <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_categories') }}</div>
+              <div v-for="(c, i) in tournamentForm.categories" :key="i" class="d-flex align-center ga-2 mb-2">
+                <v-text-field v-model="tournamentForm.categories[i]" density="compact" variant="outlined" color="green-darken-2" hide-details></v-text-field>
+                <v-btn icon size="small" variant="text" color="red-darken-2" @click="removeCategoryRow(i)"><v-icon>mdi-close</v-icon></v-btn>
+              </div>
+              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
+              <v-checkbox
+                v-model="tournamentForm.export_per_category"
+                :label="t('trnreg.field_export_per_category')"
+                :hint="t('trnreg.export_per_category_hint')"
+                persistent-hint
+                color="green-darken-2" density="compact"
+              ></v-checkbox>
+            </v-col>
+
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.url" :label="t('trnreg.field_url')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.organizing_club" :label="t('trnreg.field_organizing_club')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4">
+              <v-combobox
+                v-model="tournamentForm.federation"
+                :items="FEDERATION_OPTIONS"
+                :label="t('trnreg.field_federation')"
+                :hint="t('trnreg.federation_hint')"
+                persistent-hint
+                maxlength="10"
+                variant="outlined" color="green-darken-2" density="compact"
+              ></v-combobox>
+            </v-col>
+
+            <v-col cols="12">
+              <v-checkbox
+                v-model="tournamentForm.fide_homologated"
+                :label="t('trnreg.field_fide_homologated')"
+                :hint="t('trnreg.fide_homologated_hint')"
+                persistent-hint
+                color="green-darken-2" density="compact"
+              ></v-checkbox>
+            </v-col>
+            <template v-if="tournamentForm.fide_homologated">
+              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_a" :label="t('trnreg.field_event_code_fide_a')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_b" :label="t('trnreg.field_event_code_fide_b')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_c" :label="t('trnreg.field_event_code_fide_c')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+              <v-col cols="12" class="text-caption text-medium-emphasis mt-n2">{{ t('trnreg.rule_event_code_required') }}</v-col>
+            </template>
 
             <v-col cols="12"><div class="text-subtitle-2 font-weight-bold text-green-darken-3 mt-2">{{ t('trnreg.section_arbiters') }}</div></v-col>
             <v-col cols="12" sm="8">
@@ -1764,6 +1980,13 @@ onMounted(() => {
             </v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.chief_arbiter_email" :label="t('trnreg.field_chief_arbiter_email')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.chief_arbiter_phone" :label="t('trnreg.field_chief_arbiter_phone')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="8" class="d-flex align-start">
+              <v-btn
+                size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-account-arrow-down"
+                :disabled="!tournamentForm.chief_arbiter_name"
+                @click="fillOrganizerFromChiefArbiter"
+              >{{ t('trnreg.fill_as_chief_organizer') }}</v-btn>
+            </v-col>
 
             <v-col cols="12" sm="8">
               <div class="trnreg-lookup-wrap">

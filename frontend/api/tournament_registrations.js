@@ -33,15 +33,6 @@ export default {
     return await axios.get(`${prefix}/${id}/registrations`);
   },
 
-  // Full-fidelity, public, no auth beyond knowing the row's own id -- same
-  // trust model as updateRegistration below. Used to prefill the edit-own-
-  // registration dialog, which needs real date_birth etc.; the public LIST
-  // response above no longer carries that.
-  getRegistration: async function (options) {
-    const { id } = options;
-    return await axios.get(`${prefix}/registrations/${id}`);
-  },
-
   // Full-fidelity sibling of getRegistrations, for the admin dashboard.
   admin_getRegistrations: async function (options) {
     const { id, token } = options;
@@ -53,13 +44,6 @@ export default {
   createRegistration: async function (options) {
     const { id, ...registration } = options;
     return await axios.post(`${prefix}/${id}/registrations`, registration);
-  },
-
-  // Public edit-by-id: matches the legacy tool (no per-registrant auth,
-  // just knowledge of the registration's own id) -- deliberately no token.
-  updateRegistration: async function (options) {
-    const { id, ...registration } = options;
-    return await axios.put(`${prefix}/registrations/${id}`, registration);
   },
 
   // ---- admin (Authorization: Bearer <tournament_registrations JWT>) ----
@@ -118,9 +102,12 @@ export default {
   // error.response.data.detail extraction in plugins/backend.js can't read
   // it and falls back to the generic status-code message -- acceptable for
   // these two rarely-failing, admin-only download actions.
+  // category: a 0-based category number for that category only, or
+  // absent/null for every registration.
   admin_exportCsv: async function (options) {
-    const { id, token } = options;
-    return await axios.get(`${prefix}/admin/tournaments/${id}/export/csv`, {
+    const { id, token, category } = options;
+    const query = category === null || category === undefined ? "" : `?category=${encodeURIComponent(category)}`;
+    return await axios.get(`${prefix}/admin/tournaments/${id}/export/csv${query}`, {
       headers: { Authorization: "Bearer " + token },
       responseType: "blob",
     });

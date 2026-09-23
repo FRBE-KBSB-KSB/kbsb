@@ -730,7 +730,12 @@ async def generate_fide_form(locale: str, formdata: dict):
 
     is_unapproved = bool(unapproved_key)
 
-    t_msg = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
+    # The mails are written in the language the organiser chose for
+    # communication, not in whatever language the page happened to be shown
+    # in. The page's own language is only the fallback.
+    comm_lang_code = form.get("communication_language") or locale
+    mail_lang = comm_lang_code if comm_lang_code in TRANSLATIONS else locale
+    t_msg = TRANSLATIONS.get(mail_lang, TRANSLATIONS["en"])["messages"]
 
     warning_banner = ""
     if is_unapproved:
@@ -762,7 +767,6 @@ async def generate_fide_form(locale: str, formdata: dict):
         "de": "Deutsch (DE)",
         "en": "English (EN)",
     }
-    comm_lang_code = form.get("communication_language", locale)
     comm_lang_display = comm_lang_map.get(comm_lang_code, comm_lang_code.upper() if comm_lang_code else "English (EN)")
 
     mail_body = f"""
@@ -833,7 +837,7 @@ async def generate_fide_form(locale: str, formdata: dict):
     failed_confirmations = []
     for recipient in recipients:
         conf_params = MailParams(
-            locale=locale,
+            locale=mail_lang,
             receiver=recipient,
             sender=sender_email,
             subject=conf_subject,
