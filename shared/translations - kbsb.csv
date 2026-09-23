@@ -615,3 +615,13 @@ trnreg,odoo_login_btn,Log in with Odoo,Aanmelden met Odoo,Se connecter avec Odoo
 trnreg,odoo_login_2fa_note,Accounts with two-factor authentication cannot log in here yet.,Accounts met tweestapsverificatie kunnen hier nog niet aanmelden.,Les comptes avec authentification à deux facteurs ne peuvent pas encore se connecter ici.,Konten mit Zwei-Faktor-Authentifizierung können sich hier noch nicht anmelden.
 trnreg,password_login_toggle,Log in with an arbiter username instead,Aanmelden met een arbiter-gebruikersnaam,Se connecter avec un nom d'utilisateur arbitre,Mit einem Schiedsrichter-Benutzernamen anmelden
 trnreg,odoo_not_member,This Odoo account is not linked to a KBSB member number.,Dit Odoo-account is niet gekoppeld aan een KBSB-lidnummer.,Ce compte Odoo n'est pas lié à un numéro de membre de la FRBE.,Dieses Odoo-Konto ist mit keiner KSB-Mitgliedsnummer verknüpft.
+trnreg,share_title,Admins,Beheerders,Administrateurs,Administratoren
+trnreg,share_shared_with_you,This tournament was shared with you. Only its owner can change who manages it or delete it.,"Dit toernooi werd met u gedeeld. Alleen de eigenaar kan wijzigen wie het beheert, of het verwijderen.",Ce tournoi a été partagé avec vous. Seul son propriétaire peut modifier qui le gère ou le supprimer.,"Dieses Turnier wurde mit Ihnen geteilt. Nur der Eigentümer kann ändern, wer es verwaltet, oder es löschen."
+trnreg,share_none,Not shared with anyone.,Met niemand gedeeld.,Partagé avec personne.,Mit niemandem geteilt.
+trnreg,share_remove,Remove,Verwijderen,Retirer,Entfernen
+trnreg,share_member_number,Member number,Lidnummer,Numéro de membre,Mitgliedsnummer
+trnreg,share_add,Add admin,Beheerder toevoegen,Ajouter un administrateur,Administrator hinzufügen
+trnreg,share_shared_chip,Shared with you,Met u gedeeld,Partagé avec vous,Mit Ihnen geteilt
+trnreg,share_need_number,Enter a member number.,Vul een lidnummer in.,Saisissez un numéro de membre.,Geben Sie eine Mitgliedsnummer ein.
+trnreg,share_no_member,No member with number {id}.,Geen lid met nummer {id}.,Aucun membre avec le numéro {id}.,Kein Mitglied mit der Nummer {id}.
+trnreg,share_remove_confirm,Stop sharing this tournament with {who}?,Dit toernooi niet meer delen met {who}?,Ne plus partager ce tournoi avec {who} ?,Dieses Turnier nicht mehr mit {who} teilen?

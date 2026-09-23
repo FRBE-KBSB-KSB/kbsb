@@ -615,5 +615,15 @@
 "trnreg.odoo_login_2fa_note": "Accounts with two-factor authentication cannot log in here yet.",
 "trnreg.password_login_toggle": "Log in with an arbiter username instead",
 "trnreg.odoo_not_member": "This Odoo account is not linked to a KBSB member number.",
+"trnreg.share_title": "Admins",
+"trnreg.share_shared_with_you": "This tournament was shared with you. Only its owner can change who manages it or delete it.",
+"trnreg.share_none": "Not shared with anyone.",
+"trnreg.share_remove": "Remove",
+"trnreg.share_member_number": "Member number",
+"trnreg.share_add": "Add admin",
+"trnreg.share_shared_chip": "Shared with you",
+"trnreg.share_need_number": "Enter a member number.",
+"trnreg.share_no_member": "No member with number {id}.",
+"trnreg.share_remove_confirm": "Stop sharing this tournament with {who}?",
 "ZZZ": "ZZZ"
 }

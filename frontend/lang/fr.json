@@ -615,5 +615,15 @@
 "trnreg.odoo_login_2fa_note": "Les comptes avec authentification à deux facteurs ne peuvent pas encore se connecter ici.",
 "trnreg.password_login_toggle": "Se connecter avec un nom d'utilisateur arbitre",
 "trnreg.odoo_not_member": "Ce compte Odoo n'est pas lié à un numéro de membre de la FRBE.",
+"trnreg.share_title": "Administrateurs",
+"trnreg.share_shared_with_you": "Ce tournoi a été partagé avec vous. Seul son propriétaire peut modifier qui le gère ou le supprimer.",
+"trnreg.share_none": "Partagé avec personne.",
+"trnreg.share_remove": "Retirer",
+"trnreg.share_member_number": "Numéro de membre",
+"trnreg.share_add": "Ajouter un administrateur",
+"trnreg.share_shared_chip": "Partagé avec vous",
+"trnreg.share_need_number": "Saisissez un numéro de membre.",
+"trnreg.share_no_member": "Aucun membre avec le numéro {id}.",
+"trnreg.share_remove_confirm": "Ne plus partager ce tournoi avec {who} ?",
 "ZZZ": "ZZZ"
 }

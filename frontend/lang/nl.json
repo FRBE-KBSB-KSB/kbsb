@@ -615,5 +615,15 @@
 "trnreg.odoo_login_2fa_note": "Accounts met tweestapsverificatie kunnen hier nog niet aanmelden.",
 "trnreg.password_login_toggle": "Aanmelden met een arbiter-gebruikersnaam",
 "trnreg.odoo_not_member": "Dit Odoo-account is niet gekoppeld aan een KBSB-lidnummer.",
+"trnreg.share_title": "Beheerders",
+"trnreg.share_shared_with_you": "Dit toernooi werd met u gedeeld. Alleen de eigenaar kan wijzigen wie het beheert, of het verwijderen.",
+"trnreg.share_none": "Met niemand gedeeld.",
+"trnreg.share_remove": "Verwijderen",
+"trnreg.share_member_number": "Lidnummer",
+"trnreg.share_add": "Beheerder toevoegen",
+"trnreg.share_shared_chip": "Met u gedeeld",
+"trnreg.share_need_number": "Vul een lidnummer in.",
+"trnreg.share_no_member": "Geen lid met nummer {id}.",
+"trnreg.share_remove_confirm": "Dit toernooi niet meer delen met {who}?",
 "ZZZ": "ZZZ"
 }

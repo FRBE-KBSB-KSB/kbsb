@@ -811,6 +811,7 @@ async function loadAdminTournaments() {
   try {
     const reply = await $backend("tournament_registrations", "admin_getMyTournaments", { token: token.value })
     adminTournaments.value = (reply.data && reply.data.tournaments) || []
+    myOwner.value = (reply.data && reply.data.owner) || null
   } catch (error) {
     adminActionError.value = error.message || t("trnreg.admin_load_tournaments_failed")
     if (error.code === 401) logout()
@@ -825,6 +826,80 @@ function selectAdminTournament(trn) {
   adminActionError.value = ""
   adminActionNotice.value = ""
   loadAdminRegistrations()
+  loadTournamentAdmins()
+}
+
+// ---------------------------------------------------------------------
+// admin: sharing a tournament with other admins, by member number
+// ---------------------------------------------------------------------
+
+// Who is logged in, as the API identifies owners, so a tournament shared
+// with me can be told from one of my own.
+const myOwner = ref(null)
+const tournamentAdmins = ref([])
+const newAdminNationalId = ref("")
+const adminsBusy = ref(false)
+const adminsError = ref("")
+
+function isMine(trn) {
+  return !!trn && trn.owner === myOwner.value
+}
+
+async function loadTournamentAdmins() {
+  tournamentAdmins.value = []
+  adminsError.value = ""
+  if (!selectedAdminTournament.value) return
+  try {
+    const reply = await $backend("tournament_registrations", "admin_getTournamentAdmins", {
+      id: selectedAdminTournament.value.id,
+      token: token.value,
+    })
+    tournamentAdmins.value = reply.data.admins || []
+  } catch (error) {
+    adminsError.value = error.message
+  }
+}
+
+async function addTournamentAdmin() {
+  const id = String(newAdminNationalId.value || "").trim()
+  if (!/^-?\d+$/.test(id)) {
+    adminsError.value = t("trnreg.share_need_number")
+    return
+  }
+  adminsBusy.value = true
+  adminsError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_addTournamentAdmin", {
+      id: selectedAdminTournament.value.id,
+      token: token.value,
+      national_id: Number(id),
+    })
+    tournamentAdmins.value = reply.data.admins || []
+    newAdminNationalId.value = ""
+  } catch (error) {
+    adminsError.value = error.code === 404 ? t("trnreg.share_no_member").replace("{id}", id) : error.message
+  } finally {
+    adminsBusy.value = false
+  }
+}
+
+async function removeTournamentAdmin(admin) {
+  const label = admin.name ? `${admin.name} (${admin.national_id})` : String(admin.national_id)
+  if (typeof window !== "undefined" && !window.confirm(t("trnreg.share_remove_confirm").replace("{who}", label))) return
+  adminsBusy.value = true
+  adminsError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_removeTournamentAdmin", {
+      id: selectedAdminTournament.value.id,
+      token: token.value,
+      national_id: admin.national_id,
+    })
+    tournamentAdmins.value = reply.data.admins || []
+  } catch (error) {
+    adminsError.value = error.message
+  } finally {
+    adminsBusy.value = false
+  }
 }
 
 function backToTournamentList() {
@@ -1691,9 +1766,14 @@ onMounted(() => {
           <v-alert v-if="loginError" type="error" class="mb-3">{{ loginError }}</v-alert>
 
           <p class="text-body-2 mb-3">{{ t('trnreg.odoo_login_intro') }}</p>
-          <v-form @submit.prevent="submitOdooLogin">
-            <v-text-field v-model="odooEmail" type="email" :label="t('trnreg.field_odoo_email')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
-            <v-text-field v-model="odooPassword" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
+          <!--
+            Plain name/id on both boxes, so a password manager recognises them
+            as one login: without them Bitwarden filled the e-mail and left the
+            password empty.
+          -->
+          <v-form id="odoo-login-form" name="odoo-login" @submit.prevent="submitOdooLogin">
+            <v-text-field v-model="odooEmail" id="odoo-login-email" name="username" type="email" :label="t('trnreg.field_odoo_email')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
+            <v-text-field v-model="odooPassword" id="odoo-login-password" name="password" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
             <v-btn type="submit" color="green-darken-2" block :loading="loginSubmitting">{{ t('trnreg.odoo_login_btn') }}</v-btn>
           </v-form>
           <div class="text-caption text-medium-emphasis mt-2">{{ t('trnreg.odoo_login_2fa_note') }}</div>
@@ -1702,9 +1782,9 @@ onMounted(() => {
           <v-btn variant="text" size="small" color="grey-darken-1" :prepend-icon="showPasswordLogin ? 'mdi-chevron-down' : 'mdi-chevron-right'" @click="showPasswordLogin = !showPasswordLogin">
             {{ t('trnreg.password_login_toggle') }}
           </v-btn>
-          <v-form v-if="showPasswordLogin" class="mt-3" @submit.prevent="submitLogin">
-            <v-text-field v-model="loginUsername" :label="t('trnreg.field_username')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
-            <v-text-field v-model="loginPassword" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
+          <v-form v-if="showPasswordLogin" id="arbiter-login-form" name="arbiter-login" class="mt-3" @submit.prevent="submitLogin">
+            <v-text-field v-model="loginUsername" id="arbiter-login-username" name="arbiter-username" :label="t('trnreg.field_username')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
+            <v-text-field v-model="loginPassword" id="arbiter-login-password" name="arbiter-password" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
             <v-btn type="submit" color="green-darken-2" variant="tonal" block :loading="loginSubmitting">{{ t('trnreg.login_btn') }}</v-btn>
           </v-form>
         </v-card-text>
@@ -1737,6 +1817,7 @@ onMounted(() => {
                     {{ formatDateDisplay(trn.date_start) }}<span v-if="trn.date_end && trn.date_end !== trn.date_start"> - {{ formatDateDisplay(trn.date_end) }}</span>
                   </div>
                   <div class="text-body-2 text-grey-darken-2" v-if="trn.city">{{ trn.city }}</div>
+                  <v-chip v-if="!isMine(trn)" size="x-small" variant="tonal" color="blue-darken-2" class="mt-1">{{ t('trnreg.share_shared_chip') }}</v-chip>
                   <div class="d-flex flex-wrap ga-2 mt-3">
                     <v-btn size="small" color="green-darken-2" variant="tonal" @click="selectAdminTournament(trn)">{{ t('trnreg.admin_manage_registrations') }}</v-btn>
                     <v-btn size="small" variant="text" color="grey-darken-1" @click="openEditTournament(trn)">{{ t('trnreg.admin_edit_tournament') }}</v-btn>
@@ -1788,7 +1869,7 @@ onMounted(() => {
                 <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-pencil" @click="openEditTournament(selectedAdminTournament)">{{ t('trnreg.admin_edit_tournament') }}</v-btn>
                 <v-btn size="small" variant="text" color="grey-darken-1" prepend-icon="mdi-content-copy" @click="openCopyTournament(selectedAdminTournament)">{{ t('trnreg.admin_copy_tournament') }}</v-btn>
                 <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-open-in-new" :href="publicTournamentUrl(selectedAdminTournament)" target="_blank" rel="noopener">{{ t('trnreg.admin_view_public_page') }}</v-btn>
-                <v-btn size="small" variant="text" color="red-darken-2" prepend-icon="mdi-delete" @click="openDeleteTournament(selectedAdminTournament)">{{ t('trnreg.admin_delete_tournament') }}</v-btn>
+                <v-btn v-if="isMine(selectedAdminTournament)" size="small" variant="text" color="red-darken-2" prepend-icon="mdi-delete" @click="openDeleteTournament(selectedAdminTournament)">{{ t('trnreg.admin_delete_tournament') }}</v-btn>
                 <template v-for="x in exportTargets" :key="'exp-' + x.key">
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingCsv[x.key]" @click="exportCsv(x.key)">{{ t('trnreg.admin_export_csv') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwar[x.key]" @click="exportSwar(x.key)">{{ t('trnreg.admin_export_swar') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
@@ -1799,6 +1880,33 @@ onMounted(() => {
             <v-alert v-if="refreshEloResult !== null" type="success" density="compact" class="mt-3">
               {{ t('trnreg.admin_refresh_elo_result').replace('{count}', refreshEloResult) }}
             </v-alert>
+          </v-card-text>
+        </v-card>
+
+        <!--
+          Sharing: other admins by member number. They manage the tournament
+          like the owner, except deleting it and changing this list, which
+          only the owner can do.
+        -->
+        <v-card class="mb-4 elevation-1">
+          <v-card-text>
+            <div class="text-subtitle-2 font-weight-bold text-green-darken-3 mb-1">{{ t('trnreg.share_title') }}</div>
+            <div v-if="!isMine(selectedAdminTournament)" class="text-body-2 text-grey-darken-1 mb-2">{{ t('trnreg.share_shared_with_you') }}</div>
+            <v-alert v-if="adminsError" type="error" density="compact" class="mb-2">{{ adminsError }}</v-alert>
+            <div v-if="!tournamentAdmins.length" class="text-body-2 text-grey-darken-1">{{ t('trnreg.share_none') }}</div>
+            <div v-for="a in tournamentAdmins" :key="a.national_id" class="d-flex align-center ga-2">
+              <span class="text-body-2">{{ a.name || '?' }} <span class="text-grey-darken-1">#{{ a.national_id }}</span></span>
+              <v-btn v-if="isMine(selectedAdminTournament)" size="x-small" variant="text" color="red-darken-2" :disabled="adminsBusy" @click="removeTournamentAdmin(a)">{{ t('trnreg.share_remove') }}</v-btn>
+            </div>
+            <v-form v-if="isMine(selectedAdminTournament)" class="d-flex align-start ga-2 mt-2" @submit.prevent="addTournamentAdmin">
+              <v-text-field
+                v-model="newAdminNationalId"
+                :label="t('trnreg.share_member_number')"
+                variant="outlined" color="green-darken-2" density="compact" hide-details
+                style="max-width: 220px"
+              ></v-text-field>
+              <v-btn type="submit" color="green-darken-2" variant="tonal" :loading="adminsBusy">{{ t('trnreg.share_add') }}</v-btn>
+            </v-form>
           </v-card-text>
         </v-card>
 

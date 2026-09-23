@@ -615,5 +615,15 @@
 "trnreg.odoo_login_2fa_note": "Konten mit Zwei-Faktor-Authentifizierung können sich hier noch nicht anmelden.",
 "trnreg.password_login_toggle": "Mit einem Schiedsrichter-Benutzernamen anmelden",
 "trnreg.odoo_not_member": "Dieses Odoo-Konto ist mit keiner KSB-Mitgliedsnummer verknüpft.",
+"trnreg.share_title": "Administratoren",
+"trnreg.share_shared_with_you": "Dieses Turnier wurde mit Ihnen geteilt. Nur der Eigentümer kann ändern, wer es verwaltet, oder es löschen.",
+"trnreg.share_none": "Mit niemandem geteilt.",
+"trnreg.share_remove": "Entfernen",
+"trnreg.share_member_number": "Mitgliedsnummer",
+"trnreg.share_add": "Administrator hinzufügen",
+"trnreg.share_shared_chip": "Mit Ihnen geteilt",
+"trnreg.share_need_number": "Geben Sie eine Mitgliedsnummer ein.",
+"trnreg.share_no_member": "Kein Mitglied mit der Nummer {id}.",
+"trnreg.share_remove_confirm": "Dieses Turnier nicht mehr mit {who} teilen?",
 "ZZZ": "ZZZ"
 }

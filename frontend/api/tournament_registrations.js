@@ -81,6 +81,29 @@ export default {
     });
   },
 
+  // Sharing a tournament with other admins, by member number. Only the owner
+  // can add or remove; the list is readable by everyone who manages it.
+  admin_getTournamentAdmins: async function (options) {
+    const { id, token } = options;
+    return await axios.get(`${prefix}/admin/tournaments/${id}/admins`, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
+  admin_addTournamentAdmin: async function (options) {
+    const { id, token, national_id } = options;
+    return await axios.post(`${prefix}/admin/tournaments/${id}/admins`, { national_id }, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
+  admin_removeTournamentAdmin: async function (options) {
+    const { id, token, national_id } = options;
+    return await axios.delete(`${prefix}/admin/tournaments/${id}/admins/${encodeURIComponent(national_id)}`, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
   admin_deleteTournament: async function (options) {
     const { id, token } = options;
     return await axios.delete(`${prefix}/admin/tournaments/${id}`, {
