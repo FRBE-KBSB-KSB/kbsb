@@ -28,7 +28,7 @@ const tab = ref("playerlist")
 // const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
-// const refcontact = ref(null)
+const refcontact = ref(null)
 const clubs = ref([])
 const idclub = ref(null)
 const icdata = ref({})
@@ -159,7 +159,7 @@ definePageMeta({
       <!-- <v-tab value="standings">{{ t("Standings") }}</v-tab> -->
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
-      <!-- <v-tab value="contact">{{ t("Contact") }}</v-tab> -->
+      <v-tab value="contact">{{ t("Contact") }}</v-tab>
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
       <!-- <v-window-item :eager="true" value="results">
