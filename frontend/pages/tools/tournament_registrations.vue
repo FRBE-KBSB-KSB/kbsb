@@ -211,9 +211,20 @@ function goToList() {
 function goToLogin() {
   view.value = "login"
 }
-function goToAdmin() {
+// From a tournament's own page (?trn=X) the dashboard opens on that
+// tournament, not on the list of all of them.
+async function goToAdmin() {
   view.value = "admin"
-  if (!adminTournaments.value.length) loadAdminTournaments()
+  if (!adminTournaments.value.length) await loadAdminTournaments()
+  openAdminTournamentFromUrl()
+}
+
+function openAdminTournamentFromUrl() {
+  if (!trnId.value) return
+  const trn = adminTournaments.value.find((x) => String(x.id) === String(trnId.value))
+  if (trn && (!selectedAdminTournament.value || selectedAdminTournament.value.id !== trn.id)) {
+    selectAdminTournament(trn)
+  }
 }
 
 function logout() {
@@ -720,7 +731,8 @@ async function submitLogin() {
     if (typeof window !== "undefined") window.localStorage.setItem("tournamentregname", adminName.value)
     loginPassword.value = ""
     view.value = "admin"
-    loadAdminTournaments()
+    await loadAdminTournaments()
+    openAdminTournamentFromUrl()
   } catch (error) {
     loginError.value = error.code === 401 ? t("trnreg.login_failed") : (error.message || t("trnreg.login_failed"))
   } finally {
@@ -1850,7 +1862,6 @@ onMounted(() => {
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.rounds_absent" :label="t('trnreg.field_rounds_absent')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.contact" :label="t('trnreg.field_contact')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6" class="d-flex align-center"><v-checkbox v-model="editRegForm.g_license" :label="t('trnreg.field_g_license')" color="green-darken-2" density="compact" hide-details></v-checkbox></v-col>
             <v-col cols="12"><v-textarea v-model="editRegForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2"></v-textarea></v-col>
           </v-row>
