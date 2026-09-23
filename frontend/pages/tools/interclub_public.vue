@@ -6,7 +6,7 @@ import { useRouter } from "vue-router"
 // import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
-// import Contact from "@/components/interclubs/Contact.vue"
+import Contact from "@/components/interclubs/Contact.vue"
 
 // locale
 const { locale, t } = useI18n()
@@ -28,7 +28,7 @@ const tab = ref("playerlist")
 // const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
-// const refcontact = ref(null)
+const refcontact = ref(null)
 const clubs = ref([])
 const idclub = ref(null)
 const icdata = ref({})
@@ -57,9 +57,9 @@ function changedTab() {
     case "venues":
       refvenues.value.setup(idclub.value, icdata.value)
       break
-    // case "contact":
-    //   refcontact.value.setup(idclub.value)
-    //   break
+    case "contact":
+      refcontact.value.setup(idclub.value)
+      break
   }
 }
 
@@ -159,7 +159,7 @@ definePageMeta({
       <!-- <v-tab value="standings">{{ t("Standings") }}</v-tab> -->
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
-      <!-- <v-tab value="contact">{{ t("Contact") }}</v-tab> -->
+      <v-tab value="contact">{{ t("Contact") }}</v-tab>
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
       <!-- <v-window-item :eager="true" value="results">
@@ -174,9 +174,9 @@ definePageMeta({
       <v-window-item :eager="true" value="venues">
         <VenuePublic ref="refvenues" />
       </v-window-item>
-      <!-- <v-window-item :eager="true" value="contact">
+      <v-window-item :eager="true" value="contact">
         <Contact ref="refcontact" />
-      </v-window-item> -->
+      </v-window-item>
     </v-window>
   </v-container>
 </template>
