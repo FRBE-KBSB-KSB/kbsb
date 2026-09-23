@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, onBeforeUnmount } from "vue"
 import { useRoute } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { storeToRefs } from "pinia"
@@ -293,8 +293,11 @@ function cleanRegistrationPayload(form) {
   return payload
 }
 
-function cleanTournamentPayload(form, obligatoryPresenceTimeValue) {
+function cleanTournamentPayload(form, obligatoryPresenceTimeValue, closingTimeValue) {
   const payload = { ...form }
+  payload.closing_registrations = form.closing_registrations
+    ? localDateTimeToUtcIso(form.closing_registrations, closingTimeValue || DEFAULT_CLOSING_TIME)
+    : ""
   payload.rounds = form.rounds === "" || form.rounds === null || form.rounds === undefined ? null : Number(form.rounds)
   // obligatory_presence is edited as a bare HH:MM (see obligatoryPresenceTime
   // below) and must be recombined with date_start into a full timestamp here
@@ -846,6 +849,66 @@ function utcIsoToLocalHHMM(value) {
   return `${pad(dt.getHours())}:${pad(dt.getMinutes())}`
 }
 
+// Closing of registrations is a date and a time: from that minute on, the
+// public form is replaced by a notice and the API refuses submissions (see
+// registrationsClosed() in kbsb-dataplatform's tournament_registrations.js,
+// which applies the same rule). 23:59 unless the arbiter picks otherwise.
+const DEFAULT_CLOSING_TIME = "23:59"
+const closingTime = ref(DEFAULT_CLOSING_TIME)
+
+// Closings saved before the time existed went in as a bare date, stored as
+// exactly midnight UTC; they still mean "open through that whole day".
+function isDateOnlyInstant(value) {
+  const dt = new Date(value)
+  return (
+    dt.getUTCHours() === 0 && dt.getUTCMinutes() === 0 &&
+    dt.getUTCSeconds() === 0 && dt.getUTCMilliseconds() === 0
+  )
+}
+
+// A stored closing instant as the date and time the form edits.
+function closingParts(value) {
+  if (!value) return { date: "", time: DEFAULT_CLOSING_TIME }
+  const dt = new Date(value)
+  if (isNaN(dt.getTime())) return { date: "", time: DEFAULT_CLOSING_TIME }
+  if (isDateOnlyInstant(value)) return { date: toDateInputValue(value), time: DEFAULT_CLOSING_TIME }
+  const pad = (n) => String(n).padStart(2, "0")
+  return {
+    date: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`,
+    time: utcIsoToLocalHHMM(value),
+  }
+}
+
+function closingDisplay(value) {
+  const { date, time } = closingParts(value)
+  return date ? `${formatDateDisplay(date)} ${time}` : ""
+}
+
+function registrationsClosedAt(value, now = new Date()) {
+  if (!value) return false
+  const dt = new Date(value)
+  if (isNaN(dt.getTime())) return false
+  if (isDateOnlyInstant(value)) {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels" }).format(now)
+    return today > toDateInputValue(value)
+  }
+  return now.getTime() >= dt.getTime()
+}
+
+// Re-read every 30 seconds, so a page left open across the closing time
+// swaps the form for the notice instead of letting somebody fill it in for
+// nothing.
+const nowTick = ref(Date.now())
+let nowTimer = null
+onMounted(() => {
+  nowTimer = setInterval(() => (nowTick.value = Date.now()), 30000)
+})
+onBeforeUnmount(() => clearInterval(nowTimer))
+
+const registrationsClosed = computed(() =>
+  registrationsClosedAt(tournament.value && tournament.value.closing_registrations, new Date(nowTick.value))
+)
+
 // ---- arbiter/organizer lookup, mirrors the player lookup near the top of
 // this file but keyed by slot since there are 4 independent person pickers
 // in the tournament form (chief_arbiter, deputy_arbiter_1, deputy_arbiter_2,
@@ -922,6 +985,7 @@ function openNewTournament() {
   tournamentFormMode.value = "create"
   tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [] }
   obligatoryPresenceTime.value = ""
+  closingTime.value = DEFAULT_CLOSING_TIME
   resetArbiterLookupState()
   tournamentFormError.value = ""
   tournamentFormDialog.value = true
@@ -936,9 +1000,10 @@ function openEditTournament(trn) {
     date_start: toDateInputValue(trn.date_start),
     date_end: toDateInputValue(trn.date_end),
     opening_registrations: toDateInputValue(trn.opening_registrations),
-    closing_registrations: toDateInputValue(trn.closing_registrations),
+    closing_registrations: closingParts(trn.closing_registrations).date,
   }
   obligatoryPresenceTime.value = utcIsoToLocalHHMM(trn.obligatory_presence)
+  closingTime.value = closingParts(trn.closing_registrations).time
   // trn already carries <slot>_person_id/_name from the API -- those show up
   // as the "currently selected" person for each slot (the template reads
   // them straight off tournamentForm) without forcing a fresh lookup. Only
@@ -975,7 +1040,7 @@ async function saveTournament() {
   adminActionNotice.value = ""
   try {
     const categories = tournamentForm.value.categories.filter((c) => c && c.trim())
-    const payload = { ...cleanTournamentPayload(tournamentForm.value, obligatoryPresenceTime.value), categories }
+    const payload = { ...cleanTournamentPayload(tournamentForm.value, obligatoryPresenceTime.value, closingTime.value), categories }
     delete payload.id
     delete payload.created_at
     delete payload.updated_at
@@ -1193,7 +1258,7 @@ onMounted(() => {
                 <strong>{{ t('trnreg.th_time_control') }}:</strong> {{ tournament.time_control }}<span v-if="tournament.time_control_details"> ({{ tournament.time_control_details }})</span>
               </v-col>
               <v-col cols="12" sm="6" md="4" v-if="tournament.closing_registrations">
-                <strong>{{ t('trnreg.th_closing') }}:</strong> {{ formatDateDisplay(tournament.closing_registrations) }}
+                <strong>{{ t('trnreg.th_closing') }}:</strong> {{ closingDisplay(tournament.closing_registrations) }}
               </v-col>
               <v-col cols="12" sm="6" md="4" v-if="tournament.obligatory_presence">
                 <strong>{{ t('trnreg.th_obligatory_presence') }}:</strong> {{ utcIsoToLocalHHMM(tournament.obligatory_presence) }}
@@ -1226,6 +1291,10 @@ onMounted(() => {
               <v-btn color="green-darken-2" class="mt-3" @click="resetRegForm">{{ t('trnreg.register_another') }}</v-btn>
             </v-card-text>
           </v-card>
+
+          <v-alert v-else-if="registrationsClosed" type="info" variant="tonal" class="elevation-2">
+            {{ t('trnreg.registrations_closed') }}
+          </v-alert>
 
           <v-card v-else class="elevation-2">
             <v-card-text>
@@ -1622,8 +1691,9 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.date_end" type="date" :label="t('trnreg.field_date_end')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="obligatoryPresenceTime" type="time" :label="t('trnreg.field_obligatory_presence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
-            <v-col cols="12" sm="6"><v-text-field v-model="tournamentForm.opening_registrations" type="date" :label="t('trnreg.field_opening_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="6"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.opening_registrations" type="date" :label="t('trnreg.field_opening_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="closingTime" type="time" :label="t('trnreg.field_closing_time')" :hint="t('trnreg.closing_time_hint')" persistent-hint variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4">
               <v-select v-model="tournamentForm.system" :items="SYSTEM_OPTIONS.map((s) => ({ title: t('trnreg.system_' + s), value: s }))" :label="t('trnreg.field_system')" variant="outlined" color="green-darken-2" density="compact"></v-select>

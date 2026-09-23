@@ -588,5 +588,7 @@
 "trnreg.rule_required": "Erforderlich.",
 "trnreg.rule_rounds_absent": "Nur Rundenzahlen, durch Kommas getrennt (z. B. 1,4,7).",
 "trnreg.category_export_limit": "Maximal 3 Kategorien -- SWAR-Export unterstützt nur A/B/C.",
+"trnreg.field_closing_time": "Uhrzeit Anmeldeschluss",
+"trnreg.closing_time_hint": "Ab dieser Uhrzeit ist keine Anmeldung mehr möglich.",
 "ZZZ": "ZZZ"
 }
