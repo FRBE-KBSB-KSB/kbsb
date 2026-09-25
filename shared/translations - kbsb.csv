@@ -625,3 +625,49 @@ trnreg,share_shared_chip,Shared with you,Met u gedeeld,Partagé avec vous,Mit Ih
 trnreg,share_need_number,Enter a member number.,Vul een lidnummer in.,Saisissez un numéro de membre.,Geben Sie eine Mitgliedsnummer ein.
 trnreg,share_no_member,No member with number {id}.,Geen lid met nummer {id}.,Aucun membre avec le numéro {id}.,Kein Mitglied mit der Nummer {id}.
 trnreg,share_remove_confirm,Stop sharing this tournament with {who}?,Dit toernooi niet meer delen met {who}?,Ne plus partager ce tournoi avec {who} ?,Dieses Turnier nicht mehr mit {who} teilen?
+trnreg,section_swar,SWAR export,SWAR-export,Export SWAR,SWAR-Export
+trnreg,field_tiebreak_system,Tie-break system,Scheidingssysteem,Système de départage,Feinwertungssystem
+trnreg,tbsys_TB_PERSONEL,Own choice (up to 5),Eigen keuze (max. 5),Choix personnel (max. 5),Eigene Auswahl (max. 5)
+trnreg,tbsys_TB_ELO_IRREGULIER,"FIDE set, open field (varied ratings)","FIDE-reeks, open toernooi (verschillende Elo)","Série FIDE, tournoi ouvert (Elo variés)","FIDE-Satz, offenes Turnier (unterschiedliche Elo)"
+trnreg,tbsys_TB_ELO_REGULIER,"FIDE set, similar ratings","FIDE-reeks, gelijkaardige Elo","Série FIDE, Elo semblables","FIDE-Satz, ähnliche Elo"
+trnreg,tbsys_none_hint,Leave empty to set the tie-breaks in SWAR itself.,Leeg laten om de scheiding in SWAR zelf in te stellen.,Laisser vide pour régler le départage dans SWAR même.,"Leer lassen, um die Feinwertung in SWAR selbst einzustellen."
+trnreg,tbsys_hint_TB_PERSONEL,"Your own list below, in order, at most five.","Uw eigen lijst hieronder, in volgorde, maximaal vijf.","Votre propre liste ci-dessous, dans l'ordre, cinq au maximum.","Ihre eigene Liste unten, in Reihenfolge, höchstens fünf."
+trnreg,tbsys_hint_TB_ELO_IRREGULIER,"SWAR applies: mutual result, number of wins, games with black, Buchholz Cut 1, Buchholz.","SWAR past toe: onderling resultaat, aantal overwinningen, partijen met zwart, Bucholtz Cut 1, Bucholtz.","SWAR applique : résultat mutuel, nombre de victoires, parties avec les noirs, Bucholtz Cut 1, Bucholtz.","SWAR wendet an: direkter Vergleich, Anzahl Siege, Partien mit Schwarz, Buchholz Cut 1, Buchholz."
+trnreg,tbsys_hint_TB_ELO_REGULIER,"SWAR applies: mutual result, number of wins, games with black, average opponent Elo, Buchholz Cut 1.","SWAR past toe: onderling resultaat, aantal overwinningen, partijen met zwart, gemiddelde Elo tegenstanders, Bucholtz Cut 1.","SWAR applique : résultat mutuel, nombre de victoires, parties avec les noirs, Elo moyen des adversaires, Bucholtz Cut 1.","SWAR wendet an: direkter Vergleich, Anzahl Siege, Partien mit Schwarz, durchschnittliche Gegner-Elo, Buchholz Cut 1."
+trnreg,add_tiebreak,Add tie-break,Scheiding toevoegen,Ajouter un départage,Feinwertung hinzufügen
+trnreg,tiebreak_max_hint,SWAR takes at most five.,SWAR aanvaardt er maximaal vijf.,SWAR en accepte cinq au maximum.,SWAR nimmt höchstens fünf.
+trnreg,tb_01,None,Geen,Aucun,Keine
+trnreg,tb_02,Buchholz,Bucholtz,Bucholtz,Buchholz
+trnreg,tb_03,Buchholz Median 1,Bucholtz Median 1,Bucholtz Médian 1,Buchholz Median 1
+trnreg,tb_04,Buchholz Median 2,Bucholtz Median 2,Bucholtz Médian 2,Buchholz Median 2
+trnreg,tb_05,Buchholz Cut 1,Bucholtz Cut 1,Bucholtz Cut 1,Buchholz Cut 1
+trnreg,tb_06,Buchholz Cut 2,Bucholtz Cut 2,Bucholtz Cut 2,Buchholz Cut 2
+trnreg,tb_07,Sonneborn-Berger,Sonneborn-Berger,Sonneborn-Berger,Sonneborn-Berger
+trnreg,tb_08,Cumulative,Voortschrijding,Cumulatif,Kumulativ
+trnreg,tb_09,Mutual result,Onderling resultaat,Résultat mutuel,Direkter Vergleich
+trnreg,tb_10,Koya,Koya,Koya,Koya
+trnreg,tb_11,Number of wins,Aantal overwinningen,Nombre de victoires,Anzahl Siege
+trnreg,tb_12,Performance,Prestatie,Performance,Performance
+trnreg,tb_13,Average opponent Elo,Gemiddelde Elo tegenstanders,Elo moyen des adversaires,Durchschnittliche Gegner-Elo
+trnreg,tb_14,"Average opponent Elo, cut","Gemiddelde Elo tegenstanders, cut","Elo moyen des adversaires, cut","Durchschnittliche Gegner-Elo, Streichwertung"
+trnreg,tb_15,Games played with black,Partijen gespeeld met zwart,Parties jouées avec les noirs,Mit Schwarz gespielte Partien
+trnreg,tb_16,Games won with black,Partijen gewonnen met zwart,Parties gagnées avec les noirs,Mit Schwarz gewonnene Partien
+trnreg,field_round_dates,Round dates,Datums per ronde,Dates des rondes,Rundendaten
+trnreg,round_dates_need_rounds,Fill in the number of rounds first.,Vul eerst het aantal rondes in.,Indiquez d'abord le nombre de rondes.,Geben Sie zuerst die Anzahl der Runden ein.
+trnreg,round_n,Round {n},Ronde {n},Ronde {n},Runde {n}
+trnreg,round_dates_fill_daily,Fill one per day,Eén per dag invullen,Remplir un par jour,Einen pro Tag ausfüllen
+trnreg,round_dates_hint,All rounds or none: SWAR wants exactly one date per round.,Alle rondes of geen: SWAR wil precies één datum per ronde.,Toutes les rondes ou aucune : SWAR veut exactement une date par ronde.,Alle Runden oder keine: SWAR will genau ein Datum pro Runde.
+trnreg,field_event_code,FIDE event code,FIDE-eventcode,Code d'événement FIDE,FIDE-Eventcode
+trnreg,field_event_code_for,FIDE event code: {category},FIDE-eventcode: {category},Code d'événement FIDE : {category},FIDE-Eventcode: {category}
+trnreg,event_code_per_category_hint,"One per category: exported per category, each is its own FIDE event. At least one is required.",Eén per categorie: per categorie geëxporteerd is elk een eigen FIDE-event. Minstens één is verplicht.,"Un par catégorie : exportée par catégorie, chacune est son propre événement FIDE. Au moins un est obligatoire.",Einer pro Kategorie: pro Kategorie exportiert ist jede ein eigenes FIDE-Event. Mindestens einer ist Pflicht.
+trnreg,rule_event_code_number,A FIDE event code is a number.,Een FIDE-eventcode is een getal.,Un code d'événement FIDE est un nombre.,Ein FIDE-Eventcode ist eine Zahl.
+trnreg,rule_tiebreak_twice,The same tie-break is listed twice.,Dezelfde scheiding staat er twee keer.,Le même départage figure deux fois.,Dieselbe Feinwertung steht zweimal da.
+trnreg,rule_round_dates_all,"Round dates: fill in every round, or none.","Datums per ronde: vul elke ronde in, of geen.","Dates des rondes : remplissez chaque ronde, ou aucune.","Rundendaten: jede Runde ausfüllen, oder keine."
+trnreg,rule_round_dates_order,A round is dated before the one before it.,Een ronde valt vóór de ronde ervoor.,Une ronde est datée avant la précédente.,Eine Runde liegt vor der vorigen.
+trnreg,rule_round_dates_inside,Round dates must fall between the tournament's start and end dates.,De datums per ronde moeten tussen de start- en einddatum van het toernooi liggen.,Les dates des rondes doivent se situer entre les dates de début et de fin du tournoi.,Die Rundendaten müssen zwischen Start- und Enddatum des Turniers liegen.
+trnreg,rule_robin_tiebreaks,A round-robin takes your own tie-break list or none; SWAR refuses the FIDE Swiss sets for it.,Een round-robin neemt uw eigen scheidingslijst of geen; SWAR weigert de FIDE-Zwitserse reeksen ervoor.,Un toutes-rondes prend votre propre liste de départage ou aucune ; SWAR refuse les séries FIDE suisses pour lui.,Ein Rundenturnier nimmt Ihre eigene Feinwertungsliste oder keine; SWAR lehnt die FIDE-Schweizer-Sätze dafür ab.
+trnreg,rule_categories_max,At most 16 categories; SWAR takes no more.,Maximaal 16 categorieën; SWAR aanvaardt er niet meer.,16 catégories au maximum ; SWAR n'en accepte pas plus.,Höchstens 16 Kategorien; SWAR nimmt nicht mehr.
+trnreg,rule_category_length,A category name is at most 32 characters.,Een categorienaam is maximaal 32 tekens.,Un nom de catégorie fait 32 caractères au maximum.,Ein Kategoriename hat höchstens 32 Zeichen.
+trnreg,rule_category_semicolon,A category name cannot contain a semicolon.,Een categorienaam mag geen puntkomma bevatten.,Un nom de catégorie ne peut pas contenir de point-virgule.,Ein Kategoriename darf kein Semikolon enthalten.
+trnreg,rule_categories_mixed,Categories are either all numbers (ELO or age limits) or all names; SWAR refuses a mix.,Categorieën zijn ofwel allemaal getallen (Elo- of leeftijdsgrenzen) ofwel allemaal namen; SWAR weigert een mengeling.,"Les catégories sont soit toutes des nombres (limites Elo ou d'âge), soit toutes des noms ; SWAR refuse un mélange.",Kategorien sind entweder alle Zahlen (Elo- oder Altersgrenzen) oder alle Namen; SWAR lehnt eine Mischung ab.
+trnreg,system_baku_hint,SWAR 6.65 does not recognise this system in a CSV import; set it in SWAR itself.,SWAR 6.65 herkent dit systeem niet bij een CSV-import; stel het in SWAR zelf in.,SWAR 6.65 ne reconnaît pas ce système lors d'un import CSV ; réglez-le dans SWAR même.,SWAR 6.65 erkennt dieses System beim CSV-Import nicht; stellen Sie es in SWAR selbst ein.

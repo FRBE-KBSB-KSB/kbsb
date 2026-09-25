@@ -88,7 +88,27 @@ const EMPTY_TOURNAMENT = {
   email_copy_3: "",
   fide_homologated: false,
   export_per_category: false,
+  // SWAR CSV export: line 17, [TIE_BREAK], [DATE], and line 12 per category.
+  tiebreak_system: "",
+  tiebreaks: [],
+  round_dates: [],
+  event_codes: [],
 }
+
+// SWAR's tie-break systems (line 17 of the CSV) and its numbered tie-breaks
+// (_TB_01.._TB_16), in the order of the SWAR manual's list and its
+// Prototype.csv. At most five, and only with the own-choice system.
+const TIEBREAK_SYSTEMS = ["_TB_PERSONEL", "_TB_ELO_IRREGULIER", "_TB_ELO_REGULIER"]
+const TIEBREAK_CODES = Array.from({ length: 16 }, (_, i) => i + 1)
+const MAX_TIEBREAKS = 5
+
+// What SWAR's CSV import accepts for categories (from its source): at most
+// 16, of 32 characters each, and all numbers (ELO or age limits) or all
+// names, never a mix. A round-robin takes only its own tie-break list.
+const SWAR_MAX_CATEGORIES = 16
+const SWAR_MAX_CATEGORY_LENGTH = 32
+const ROBIN_SYSTEMS = ["ROBIN", "ROBIN_DBL", "ROBIN_AR"]
+const numericCategory = (c) => /^-?\d+$/.test(String(c).trim()) && parseInt(c, 10) !== 0
 
 // A choice list, and anything typed is kept too (the column holds up to 10
 // characters).
@@ -1186,7 +1206,7 @@ function hideArbiterLookupResults(slot) {
 
 function openNewTournament() {
   tournamentFormMode.value = "create"
-  tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [] }
+  tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [], tiebreaks: [], round_dates: [], event_codes: [] }
   obligatoryPresenceTime.value = ""
   closingTime.value = DEFAULT_CLOSING_TIME
   resetArbiterLookupState()
@@ -1204,6 +1224,13 @@ function openEditTournament(trn) {
     date_end: toDateInputValue(trn.date_end),
     opening_registrations: toDateInputValue(trn.opening_registrations),
     closing_registrations: closingParts(trn.closing_registrations).date,
+    tiebreak_system: trn.tiebreak_system || "",
+    tiebreaks: Array.isArray(trn.tiebreaks) ? [...trn.tiebreaks] : [],
+    round_dates: Array.isArray(trn.round_dates) ? trn.round_dates.map(toDateInputValue) : [],
+    // The old A/B/C boxes, for a tournament saved before the list existed.
+    event_codes: Array.isArray(trn.event_codes) && trn.event_codes.length
+      ? [...trn.event_codes]
+      : [trn.event_code_fide_a, trn.event_code_fide_b, trn.event_code_fide_c].map((c) => c || ""),
   }
   obligatoryPresenceTime.value = utcIsoToBrusselsHHMM(trn.obligatory_presence)
   closingTime.value = closingParts(trn.closing_registrations).time
@@ -1266,10 +1293,86 @@ function tournamentFormProblem() {
       return t("trnreg.rule_closing_before_presence")
     }
   }
-  if (f.fide_homologated && ![f.event_code_fide_a, f.event_code_fide_b, f.event_code_fide_c].some((c) => c && String(c).trim())) {
-    return t("trnreg.rule_event_code_required")
+  const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
+  if (codes.some((c) => c && !/^\d{1,12}$/.test(c))) return t("trnreg.rule_event_code_number")
+  if (f.fide_homologated && !codes.some((c) => c)) return t("trnreg.rule_event_code_required")
+  if (ROBIN_SYSTEMS.includes(f.system) && f.tiebreak_system && f.tiebreak_system !== "_TB_PERSONEL") {
+    return t("trnreg.rule_robin_tiebreaks")
+  }
+  const cats = (f.categories || []).filter((c) => c && c.trim())
+  if (cats.length > SWAR_MAX_CATEGORIES) return t("trnreg.rule_categories_max")
+  if (cats.some((c) => c.trim().length > SWAR_MAX_CATEGORY_LENGTH)) return t("trnreg.rule_category_length")
+  if (cats.some((c) => c.includes(";"))) return t("trnreg.rule_category_semicolon")
+  if (cats.some(numericCategory) && !cats.every(numericCategory)) return t("trnreg.rule_categories_mixed")
+  if (f.tiebreak_system === "_TB_PERSONEL") {
+    const picked = f.tiebreaks.filter((n) => n)
+    if (new Set(picked).size !== picked.length) return t("trnreg.rule_tiebreak_twice")
+  }
+  // SWAR wants one date per round or none at all.
+  const dates = roundDateSlots.value.map((_, i) => f.round_dates[i] || "")
+  if (dates.some((d) => d)) {
+    if (dates.some((d) => !d)) return t("trnreg.rule_round_dates_all")
+    for (let i = 1; i < dates.length; i++) {
+      if (dates[i] < dates[i - 1]) return t("trnreg.rule_round_dates_order")
+    }
+    if ((f.date_start && dates[0] < f.date_start) || (dates[dates.length - 1] > (f.date_end || f.date_start || "9999"))) {
+      return t("trnreg.rule_round_dates_inside")
+    }
   }
   return ""
+}
+
+// One FIDE event code per category when the tournament exports per category
+// (each category is then its own SWAR tournament and FIDE event), otherwise
+// one for the whole tournament.
+const eventCodeSlots = computed(() => {
+  const f = tournamentForm.value
+  const named = (f.categories || []).filter((c) => c && c.trim())
+  return f.export_per_category && named.length >= 2 ? named : [""]
+})
+
+// A date box per round, once the number of rounds is known.
+const roundDateSlots = computed(() => {
+  const n = Number(tournamentForm.value.rounds)
+  return Number.isInteger(n) && n > 0 && n <= 60 ? Array.from({ length: n }, (_, i) => i + 1) : []
+})
+
+// Consecutive days from the first round's date (or the start date), a
+// starting point to correct rather than type 9 dates by hand.
+function fillRoundDatesDaily() {
+  const f = tournamentForm.value
+  const first = f.round_dates[0] || f.date_start
+  if (!first) return
+  const [y, m, d] = first.split("-").map(Number)
+  f.round_dates = roundDateSlots.value.map((_, i) => {
+    const dt = new Date(Date.UTC(y, m - 1, d + i))
+    return dt.toISOString().slice(0, 10)
+  })
+}
+
+function addTiebreakRow() {
+  if (tournamentForm.value.tiebreaks.length < MAX_TIEBREAKS) tournamentForm.value.tiebreaks.push(null)
+}
+function removeTiebreakRow(i) {
+  tournamentForm.value.tiebreaks.splice(i, 1)
+}
+
+// The SWAR fields as the API wants them: only what is filled in, sized to the
+// rounds and categories actually there.
+function swarPayload(f) {
+  const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
+  const dates = roundDateSlots.value.map((_, i) => f.round_dates[i] || "")
+  return {
+    tiebreak_system: f.tiebreak_system || "",
+    tiebreaks: f.tiebreak_system === "_TB_PERSONEL" ? f.tiebreaks.filter((n) => n).map(Number) : [],
+    round_dates: dates.every((d) => d) ? dates : [],
+    event_codes: codes.some((c) => c) ? codes : [],
+    // Kept in step, so an older reader of the A/B/C columns never sees a code
+    // that was removed here.
+    event_code_fide_a: codes[0] || "",
+    event_code_fide_b: codes[1] || "",
+    event_code_fide_c: codes[2] || "",
+  }
 }
 
 // A tournament is archived from the day after its last day (Brussels), and
@@ -1300,7 +1403,11 @@ async function saveTournament() {
   adminActionNotice.value = ""
   try {
     const categories = tournamentForm.value.categories.filter((c) => c && c.trim())
-    const payload = { ...cleanTournamentPayload(tournamentForm.value, obligatoryPresenceTime.value, closingTime.value), categories }
+    const payload = {
+      ...cleanTournamentPayload(tournamentForm.value, obligatoryPresenceTime.value, closingTime.value),
+      categories,
+      ...swarPayload(tournamentForm.value),
+    }
     delete payload.id
     delete payload.created_at
     delete payload.updated_at
@@ -1586,7 +1693,7 @@ onMounted(() => {
                     <v-text-field v-model="regForm.first_name" :label="t('trnreg.field_first_name')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-select v-model="regForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
+                    <v-select v-model="regForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required" :rules="[requiredRule]"></v-select>
                   </v-col>
                   <v-col cols="12" sm="4">
                     <v-text-field v-model="regForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" :required="!hasFideId" :class="hasFideId ? '' : 'trnreg-required'" :rules="[birthDateRule]" :hint="hasFideId ? t('trnreg.birth_date_optional_hint') : (matchedBirthYear ? (t('trnreg.birth_year_hint') + ': ' + matchedBirthYear) : '')" persistent-hint></v-text-field>
@@ -2050,7 +2157,8 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="closingTime" type="time" :label="t('trnreg.field_closing_time')" :hint="t('trnreg.closing_time_hint')" persistent-hint variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4">
-              <v-select v-model="tournamentForm.system" :items="SYSTEM_OPTIONS.map((s) => ({ title: t('trnreg.system_' + s), value: s }))" :label="t('trnreg.field_system')" variant="outlined" color="green-darken-2" density="compact"></v-select>
+              <v-select v-model="tournamentForm.system" :items="SYSTEM_OPTIONS.map((s) => ({ title: t('trnreg.system_' + s), value: s }))" :label="t('trnreg.field_system')" variant="outlined" color="green-darken-2" density="compact"
+                :hint="tournamentForm.system === 'SWISS_BAKU' ? t('trnreg.system_baku_hint') : ''" persistent-hint></v-select>
             </v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.rounds" type="number" :label="t('trnreg.field_rounds')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4">
@@ -2074,10 +2182,10 @@ onMounted(() => {
             <v-col cols="12">
               <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_categories') }}</div>
               <div v-for="(c, i) in tournamentForm.categories" :key="i" class="d-flex align-center ga-2 mb-2">
-                <v-text-field v-model="tournamentForm.categories[i]" density="compact" variant="outlined" color="green-darken-2" hide-details></v-text-field>
+                <v-text-field v-model="tournamentForm.categories[i]" :maxlength="SWAR_MAX_CATEGORY_LENGTH" density="compact" variant="outlined" color="green-darken-2" hide-details></v-text-field>
                 <v-btn icon size="small" variant="text" color="red-darken-2" @click="removeCategoryRow(i)"><v-icon>mdi-close</v-icon></v-btn>
               </div>
-              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
+              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" :disabled="tournamentForm.categories.length >= SWAR_MAX_CATEGORIES" @click="addCategoryRow">{{ t('trnreg.add_category') }}</v-btn>
               <v-checkbox
                 v-model="tournamentForm.export_per_category"
                 :label="t('trnreg.field_export_per_category')"
@@ -2110,12 +2218,73 @@ onMounted(() => {
                 color="green-darken-2" density="compact"
               ></v-checkbox>
             </v-col>
+            <!--
+              SWAR takes one FIDE event code per file (line 12): one for the
+              tournament, or one per category when it is exported per
+              category, since each category is then its own event.
+            -->
             <template v-if="tournamentForm.fide_homologated">
-              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_a" :label="t('trnreg.field_event_code_fide_a')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_b" :label="t('trnreg.field_event_code_fide_b')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-              <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.event_code_fide_c" :label="t('trnreg.field_event_code_fide_c')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-              <v-col cols="12" class="text-caption text-medium-emphasis mt-n2">{{ t('trnreg.rule_event_code_required') }}</v-col>
+              <v-col v-for="(label, i) in eventCodeSlots" :key="'code-' + i" cols="12" sm="4">
+                <v-text-field
+                  v-model="tournamentForm.event_codes[i]"
+                  :label="label ? t('trnreg.field_event_code_for').replace('{category}', label) : t('trnreg.field_event_code')"
+                  inputmode="numeric"
+                  variant="outlined" color="green-darken-2" density="compact"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" class="text-caption text-medium-emphasis mt-n2">{{ eventCodeSlots.length > 1 ? t('trnreg.event_code_per_category_hint') : t('trnreg.rule_event_code_required') }}</v-col>
             </template>
+
+            <!-- ============ SWAR: tie-breaks and round dates ============ -->
+            <v-col cols="12"><div class="text-subtitle-2 font-weight-bold text-green-darken-3 mt-2">{{ t('trnreg.section_swar') }}</div></v-col>
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="tournamentForm.tiebreak_system"
+                :items="TIEBREAK_SYSTEMS.map((s) => ({ title: t('trnreg.tbsys' + s), value: s }))"
+                :label="t('trnreg.field_tiebreak_system')"
+                clearable
+                variant="outlined" color="green-darken-2" density="compact"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" class="text-caption text-medium-emphasis">
+              {{ tournamentForm.tiebreak_system ? t('trnreg.tbsys_hint' + tournamentForm.tiebreak_system) : t('trnreg.tbsys_none_hint') }}
+            </v-col>
+            <v-col v-if="tournamentForm.tiebreak_system === '_TB_PERSONEL'" cols="12">
+              <div v-for="(n, i) in tournamentForm.tiebreaks" :key="'tb-' + i" class="d-flex align-center ga-2 mb-2">
+                <span class="text-body-2" style="min-width: 1.5em">{{ i + 1 }}.</span>
+                <v-select
+                  v-model="tournamentForm.tiebreaks[i]"
+                  :items="TIEBREAK_CODES.map((c) => ({ title: t('trnreg.tb_' + String(c).padStart(2, '0')), value: c }))"
+                  variant="outlined" color="green-darken-2" density="compact" hide-details
+                ></v-select>
+                <v-btn icon size="small" variant="text" color="red-darken-2" @click="removeTiebreakRow(i)"><v-icon>mdi-close</v-icon></v-btn>
+              </div>
+              <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-plus" :disabled="tournamentForm.tiebreaks.length >= MAX_TIEBREAKS" @click="addTiebreakRow">{{ t('trnreg.add_tiebreak') }}</v-btn>
+              <div class="text-caption text-medium-emphasis">{{ t('trnreg.tiebreak_max_hint') }}</div>
+            </v-col>
+
+            <v-col cols="12">
+              <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_round_dates') }}</div>
+              <div v-if="!roundDateSlots.length" class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_need_rounds') }}</div>
+              <template v-else>
+                <v-row dense>
+                  <v-col v-for="r in roundDateSlots" :key="'rd-' + r" cols="6" sm="3" md="2">
+                    <v-text-field
+                      v-model="tournamentForm.round_dates[r - 1]"
+                      type="date"
+                      :min="tournamentForm.date_start || undefined"
+                      :max="tournamentForm.date_end || undefined"
+                      :label="t('trnreg.round_n').replace('{n}', r)"
+                      variant="outlined" color="green-darken-2" density="compact" hide-details
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+                <div class="d-flex align-center ga-2 mt-1">
+                  <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-calendar-arrow-right" :disabled="!tournamentForm.round_dates[0] && !tournamentForm.date_start" @click="fillRoundDatesDaily">{{ t('trnreg.round_dates_fill_daily') }}</v-btn>
+                  <span class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_hint') }}</span>
+                </div>
+              </template>
+            </v-col>
 
             <v-col cols="12"><div class="text-subtitle-2 font-weight-bold text-green-darken-3 mt-2">{{ t('trnreg.section_arbiters') }}</div></v-col>
             <v-col cols="12" sm="8">
