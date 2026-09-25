@@ -27,6 +27,7 @@ const headers = [
   { title: t("Name"), key: "fullname" },
   { title: t("ID number"), key: "idnumber", sortable: false },
   { title: "ELO", key: "assignedrating" },
+  { title: "FIDE", key: "fiderating" },
   { title: "Club", key: "idcluborig" },
   { title: t("Titular"), key: "titular" },
 ]
