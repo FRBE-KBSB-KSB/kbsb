@@ -628,12 +628,12 @@
 "trnreg.section_swar": "SWAR-Export",
 "trnreg.field_tiebreak_system": "Feinwertungssystem",
 "trnreg.tbsys_TB_PERSONEL": "Eigene Auswahl (max. 5)",
-"trnreg.tbsys_TB_ELO_IRREGULIER": "FIDE-Satz, offenes Turnier (unterschiedliche Elo)",
-"trnreg.tbsys_TB_ELO_REGULIER": "FIDE-Satz, ähnliche Elo",
+"trnreg.tbsys_TB_ELO_IRREGULIER": "Schweizer mit uneinheitlichen Wertungen",
+"trnreg.tbsys_TB_ELO_REGULIER": "Schweizer mit einheitlichen Wertungen",
 "trnreg.tbsys_none_hint": "Leer lassen, um die Feinwertung in SWAR selbst einzustellen.",
 "trnreg.tbsys_hint_TB_PERSONEL": "Ihre eigene Liste unten, in Reihenfolge, höchstens fünf.",
-"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "SWAR wendet an: direkter Vergleich, Anzahl Siege, Partien mit Schwarz, Buchholz Cut 1, Buchholz.",
-"trnreg.tbsys_hint_TB_ELO_REGULIER": "SWAR wendet an: direkter Vergleich, Anzahl Siege, Partien mit Schwarz, durchschnittliche Gegner-Elo, Buchholz Cut 1.",
+"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "Spieler haben unzuverlässige oder fehlende Wertungen.",
+"trnreg.tbsys_hint_TB_ELO_REGULIER": "Alle Spieler haben zuverlässige FIDE-/nationale Wertungen.",
 "trnreg.add_tiebreak": "Feinwertung hinzufügen",
 "trnreg.tiebreak_max_hint": "SWAR nimmt höchstens fünf.",
 "trnreg.tb_01": "Keine",
@@ -671,5 +671,6 @@
 "trnreg.rule_category_semicolon": "Ein Kategoriename darf kein Semikolon enthalten.",
 "trnreg.rule_categories_mixed": "Kategorien sind entweder alle Zahlen (Elo- oder Altersgrenzen) oder alle Namen; SWAR lehnt eine Mischung ab.",
 "trnreg.system_baku_hint": "SWAR 6.65 erkennt dieses System beim CSV-Import nicht; stellen Sie es in SWAR selbst ein.",
+"trnreg.round_dates_single_day": "Das Turnier beginnt und endet am selben Tag, also erhält jede Runde dieses Datum.",
 "ZZZ": "ZZZ"
 }

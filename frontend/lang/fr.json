@@ -628,12 +628,12 @@
 "trnreg.section_swar": "Export SWAR",
 "trnreg.field_tiebreak_system": "Système de départage",
 "trnreg.tbsys_TB_PERSONEL": "Choix personnel (max. 5)",
-"trnreg.tbsys_TB_ELO_IRREGULIER": "Série FIDE, tournoi ouvert (Elo variés)",
-"trnreg.tbsys_TB_ELO_REGULIER": "Série FIDE, Elo semblables",
+"trnreg.tbsys_TB_ELO_IRREGULIER": "Suisse avec classements incohérents",
+"trnreg.tbsys_TB_ELO_REGULIER": "Suisse avec classements cohérents",
 "trnreg.tbsys_none_hint": "Laisser vide pour régler le départage dans SWAR même.",
 "trnreg.tbsys_hint_TB_PERSONEL": "Votre propre liste ci-dessous, dans l'ordre, cinq au maximum.",
-"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "SWAR applique : résultat mutuel, nombre de victoires, parties avec les noirs, Bucholtz Cut 1, Bucholtz.",
-"trnreg.tbsys_hint_TB_ELO_REGULIER": "SWAR applique : résultat mutuel, nombre de victoires, parties avec les noirs, Elo moyen des adversaires, Bucholtz Cut 1.",
+"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "Les joueurs ont des classements peu fiables ou manquants.",
+"trnreg.tbsys_hint_TB_ELO_REGULIER": "Tous les joueurs ont des classements FIDE/nationaux fiables.",
 "trnreg.add_tiebreak": "Ajouter un départage",
 "trnreg.tiebreak_max_hint": "SWAR en accepte cinq au maximum.",
 "trnreg.tb_01": "Aucun",
@@ -671,5 +671,6 @@
 "trnreg.rule_category_semicolon": "Un nom de catégorie ne peut pas contenir de point-virgule.",
 "trnreg.rule_categories_mixed": "Les catégories sont soit toutes des nombres (limites Elo ou d'âge), soit toutes des noms ; SWAR refuse un mélange.",
 "trnreg.system_baku_hint": "SWAR 6.65 ne reconnaît pas ce système lors d'un import CSV ; réglez-le dans SWAR même.",
+"trnreg.round_dates_single_day": "Le tournoi commence et finit le même jour, donc chaque ronde est datée de ce jour.",
 "ZZZ": "ZZZ"
 }

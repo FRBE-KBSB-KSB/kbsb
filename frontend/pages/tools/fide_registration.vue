@@ -1,4 +1,22 @@
 <script setup>
+// Number fields are plain text boxes that keep only digits: a type="number"
+// box changes its value when the page is scrolled over it, and its arrows
+// are easy to hit by accident. Works on an <input> or a Vuetify field.
+const vDigits = {
+  mounted(el) {
+    const input = el.tagName === "INPUT" ? el : el.querySelector("input")
+    if (!input) return
+    input.setAttribute("inputmode", "numeric")
+    input.addEventListener("input", () => {
+      const clean = input.value.replace(/\D/g, "")
+      if (clean !== input.value) {
+        input.value = clean
+        input.dispatchEvent(new Event("input"))
+      }
+    })
+  },
+}
+
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -388,13 +406,20 @@ watch(
   { deep: true }
 );
 
-// localStorage cache for frequently reused fields
+// localStorage cache for frequently reused fields. The place and the
+// website differ per tournament, so they are not kept; the communication
+// language is.
 const CACHED_FIELDS = [
   'invoice_email', 'invoice_clubnr',
-  'city', 'country',
+  'country',
   'software', 'software_version',
-  'contact_email', 'homepage'
+  'contact_email', 'communication_language'
 ]
+// Values an older version of this page kept; cleared once so they stop
+// coming back.
+if (typeof window !== 'undefined') {
+  try { ['city', 'homepage'].forEach(f => localStorage.removeItem(`fide_${f}`)) } catch (e) {}
+}
 CACHED_FIELDS.forEach(field => {
   watch(() => form.value[field], val => {
     if (val) localStorage.setItem(`fide_${field}`, val)
@@ -780,6 +805,15 @@ async function submitForm() {
   }
 }
 
+// The clear button: asks first, then empties the form. The remembered
+// club details (invoice, country, software, contact, language) come back,
+// as on a fresh visit.
+function confirmClearForm() {
+  if (!window.confirm(tUI('clear_form_confirm'))) return
+  clearFormData()
+  errorText.value = ""
+}
+
 function resetForm() {
   clearFormData();
   submitted.value = false;
@@ -861,6 +895,7 @@ definePageMeta({
   <div v-else class="form-shell">
     <div class="shell-header">
       <h1>{{ tUI('title') }}</h1>
+      <button type="button" class="clear-btn" @click="confirmClearForm">{{ tUI('clear_form') }}</button>
     </div>
 
     <p class="note" v-html="tUI('mandatory_note')"></p>
@@ -937,7 +972,7 @@ definePageMeta({
       </label>
       <label>
         <span class="required-label">{{ tField('expected_players') }}</span>
-        <input type="number" v-model="form.expected_players" min="1" max="2500" required>
+        <input type="text" v-digits v-model="form.expected_players" maxlength="4" required>
         <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-style: italic;">
           {{ tUI('expected_players_hint') }}
         </div>
@@ -951,7 +986,7 @@ definePageMeta({
       </label>
       <label>
         <span class="required-label">{{ tField('rounds_reported') }}</span>
-        <input type="number" v-model="form.rounds_reported" min="0" max="40" required>
+        <input type="text" v-digits v-model="form.rounds_reported" maxlength="2" required>
       </label>
       
       <div v-if="isLongTournament" id="long-tournament-block">
@@ -989,7 +1024,7 @@ definePageMeta({
             </label>
             <label>
               <span class="required-label">{{ tField('round_report').replace('{num}', i) }}</span>
-              <input type="number" v-model="form[`round${i}_report`]" min="1" required readonly>
+              <input type="text" v-digits v-model="form[`round${i}_report`]" min="1" required readonly>
             </label>
           </div>
         </div>
@@ -1260,41 +1295,41 @@ definePageMeta({
       
       <div v-if="form.time_control_desc === 'Other'">
         <label><span class="required-label">{{ tField('timectl_other_desc') }}</span><textarea v-model="form.timectl_other_desc" required></textarea></label>
-        <label><span class="required-label">{{ tField('timectl1_moves') }}</span><input type="number" v-model="form.timectl1_moves" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl1_minutes') }}</span><input type="number" v-model="form.timectl1_minutes" min="0" required></label>
+        <label><span class="required-label">{{ tField('timectl1_moves') }}</span><input type="text" v-digits v-model="form.timectl1_moves" min="0" required></label>
+        <label><span class="required-label">{{ tField('timectl1_minutes') }}</span><input type="text" v-digits v-model="form.timectl1_minutes" min="0" required></label>
         <label><span class="required-label">{{ tField('timectl1_inc_type') }}</span>
           <select v-model="form.timectl1_inc_type" required>
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
         </label>
-        <label><span class="required-label">{{ tField('timectl1_inc_seconds') }}</span><input type="number" v-model="form.timectl1_inc_seconds" min="0" required></label>
+        <label><span class="required-label">{{ tField('timectl1_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl1_inc_seconds" min="0" required></label>
         
-        <label><span>{{ tField('timectl2_moves') }}</span><input type="number" v-model="form.timectl2_moves" min="0"></label>
-        <label><span>{{ tField('timectl2_minutes') }}</span><input type="number" v-model="form.timectl2_minutes" min="0"></label>
+        <label><span>{{ tField('timectl2_moves') }}</span><input type="text" v-digits v-model="form.timectl2_moves" min="0"></label>
+        <label><span>{{ tField('timectl2_minutes') }}</span><input type="text" v-digits v-model="form.timectl2_minutes" min="0"></label>
         <label><span>{{ tField('timectl2_inc_type') }}</span>
           <select v-model="form.timectl2_inc_type">
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
         </label>
-        <label><span>{{ tField('timectl2_inc_seconds') }}</span><input type="number" v-model="form.timectl2_inc_seconds" min="0"></label>
+        <label><span>{{ tField('timectl2_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl2_inc_seconds" min="0"></label>
         
-        <label><span>{{ tField('timectl_final_minutes') }}</span><input type="number" v-model="form.timectl_final_minutes" min="0"></label>
+        <label><span>{{ tField('timectl_final_minutes') }}</span><input type="text" v-digits v-model="form.timectl_final_minutes" min="0"></label>
         <label><span>{{ tField('timectl_final_inc_type') }}</span>
           <select v-model="form.timectl_final_inc_type">
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
         </label>
-        <label><span>{{ tField('timectl_final_inc_seconds') }}</span><input type="number" v-model="form.timectl_final_inc_seconds" min="0"></label>
+        <label><span>{{ tField('timectl_final_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl_final_inc_seconds" min="0"></label>
       </div>
 
       <div class="group-title">{{ tCat('other_parameters') }}</div>
 
       <label>
         <span>{{ tField('max_rating') }}</span>
-        <input type="number" v-model="form.max_rating" min="0">
+        <input type="text" v-digits v-model="form.max_rating" min="0">
         <div v-if="ratingRequirement === 'not_rateable'" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 600;">
           {{ tUI('fide_under_60_warning') }}
         </div>
@@ -1312,7 +1347,7 @@ definePageMeta({
         </select>
       </label>
       <label v-if="form.age_limit && form.age_limit !== 'None'">
-        <span class="required-label">{{ tField('age_limit_value') }}</span><input type="number" v-model="form.age_limit_value" min="0" required>
+        <span class="required-label">{{ tField('age_limit_value') }}</span><input type="text" v-digits v-model="form.age_limit_value" min="0" required>
       </label>
 
       <label>
@@ -1330,7 +1365,7 @@ definePageMeta({
         </select>
       </label>
       <label v-if="form.internet_tx === 'Yes'">
-        <span class="required-label">{{ tField('internet_tx_boards') }}</span><input type="number" v-model="form.internet_tx_boards" min="1" required>
+        <span class="required-label">{{ tField('internet_tx_boards') }}</span><input type="text" v-digits v-model="form.internet_tx_boards" min="1" required>
       </label>
 
       <label>
@@ -1427,7 +1462,24 @@ body, .v-application {
 
 .shell-header {
   margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
+.clear-btn {
+  flex: none;
+  padding: 0.35rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--accent, #2e7d32);
+  background: transparent;
+  color: var(--accent, #2e7d32);
+  cursor: pointer;
+}
+.clear-btn:hover { background: var(--accent, #2e7d32); color: #ffffff; }
+.clear-btn:focus-visible { outline: 2px solid var(--accent, #2e7d32); outline-offset: 2px; }
 h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; color: var(--accent, #2e7d32); }
 .note { margin: 0 0 1rem; font-size: 0.9rem; color: var(--muted, #4b5563); }
 

@@ -1,4 +1,22 @@
 <script setup>
+// Number fields are plain text boxes that keep only digits: a type="number"
+// box changes its value when the page is scrolled over it, and its arrows
+// are easy to hit by accident. Works on an <input> or a Vuetify field.
+const vDigits = {
+  mounted(el) {
+    const input = el.tagName === "INPUT" ? el : el.querySelector("input")
+    if (!input) return
+    input.setAttribute("inputmode", "numeric")
+    input.addEventListener("input", () => {
+      const clean = input.value.replace(/\D/g, "")
+      if (clean !== input.value) {
+        input.value = clean
+        input.dispatchEvent(new Event("input"))
+      }
+    })
+  },
+}
+
 import { ref, computed, onMounted, onBeforeUnmount } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
@@ -1308,9 +1326,10 @@ function tournamentFormProblem() {
     const picked = f.tiebreaks.filter((n) => n)
     if (new Set(picked).size !== picked.length) return t("trnreg.rule_tiebreak_twice")
   }
-  // SWAR wants one date per round or none at all.
+  // SWAR wants one date per round or none at all. A one-day tournament
+  // dates every round itself, so there is nothing to check.
   const dates = roundDateSlots.value.map((_, i) => f.round_dates[i] || "")
-  if (dates.some((d) => d)) {
+  if (!singleDay.value && dates.some((d) => d)) {
     if (dates.some((d) => !d)) return t("trnreg.rule_round_dates_all")
     for (let i = 1; i < dates.length; i++) {
       if (dates[i] < dates[i - 1]) return t("trnreg.rule_round_dates_order")
@@ -1337,6 +1356,13 @@ const roundDateSlots = computed(() => {
   return Number.isInteger(n) && n > 0 && n <= 60 ? Array.from({ length: n }, (_, i) => i + 1) : []
 })
 
+// Start and end on the same day: every round is on that day, so the form
+// asks for no dates and the export gets that day for each round.
+const singleDay = computed(() => {
+  const f = tournamentForm.value
+  return !!f.date_start && f.date_start === f.date_end
+})
+
 // Consecutive days from the first round's date (or the start date), a
 // starting point to correct rather than type 9 dates by hand.
 function fillRoundDatesDaily() {
@@ -1361,7 +1387,7 @@ function removeTiebreakRow(i) {
 // rounds and categories actually there.
 function swarPayload(f) {
   const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
-  const dates = roundDateSlots.value.map((_, i) => f.round_dates[i] || "")
+  const dates = roundDateSlots.value.map((_, i) => (singleDay.value ? f.date_start : f.round_dates[i] || ""))
   return {
     tiebreak_system: f.tiebreak_system || "",
     tiebreaks: f.tiebreak_system === "_TB_PERSONEL" ? f.tiebreaks.filter((n) => n).map(Number) : [],
@@ -1751,7 +1777,7 @@ onMounted(() => {
                   <v-col cols="12" sm="4">
                     <v-text-field
                       v-model="regForm[ratingField(tournament)]"
-                      type="number"
+                      v-digits
                       :label="t('trnreg.' + ratingField(tournament).replace('fide_rating_', 'field_fide_rating_'))"
                       :hint="ratingField(tournament) !== 'fide_rating_standard' && !(Number(regForm[ratingField(tournament)]) > 0) && Number(regForm.fide_rating_standard) > 0 ? t('trnreg.rating_fallback_hint') + ': ' + regForm.fide_rating_standard : ''"
                       persistent-hint
@@ -2113,9 +2139,9 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_id" :label="t('trnreg.field_fide_id')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_title" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_federation" :label="t('trnreg.field_fide_federation')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_standard" type="number" :label="t('trnreg.field_fide_rating_standard')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_rapid" type="number" :label="t('trnreg.field_fide_rating_rapid')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_blitz" type="number" :label="t('trnreg.field_fide_rating_blitz')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_standard" v-digits :label="t('trnreg.field_fide_rating_standard')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_rapid" v-digits :label="t('trnreg.field_fide_rating_rapid')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_blitz" v-digits :label="t('trnreg.field_fide_rating_blitz')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6">
               <v-select
                 v-model="editRegForm.category_index"
@@ -2160,7 +2186,7 @@ onMounted(() => {
               <v-select v-model="tournamentForm.system" :items="SYSTEM_OPTIONS.map((s) => ({ title: t('trnreg.system_' + s), value: s }))" :label="t('trnreg.field_system')" variant="outlined" color="green-darken-2" density="compact"
                 :hint="tournamentForm.system === 'SWISS_BAKU' ? t('trnreg.system_baku_hint') : ''" persistent-hint></v-select>
             </v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.rounds" type="number" :label="t('trnreg.field_rounds')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.rounds" v-digits :label="t('trnreg.field_rounds')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4">
               <v-select v-model="tournamentForm.time_control" :items="TIME_CONTROL_OPTIONS.map((s) => ({ title: t('trnreg.tc_' + s), value: s }))" :label="t('trnreg.field_time_control')" variant="outlined" color="green-darken-2" density="compact"></v-select>
             </v-col>
@@ -2266,6 +2292,7 @@ onMounted(() => {
             <v-col cols="12">
               <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_round_dates') }}</div>
               <div v-if="!roundDateSlots.length" class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_need_rounds') }}</div>
+              <div v-else-if="singleDay" class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_single_day') }}</div>
               <template v-else>
                 <v-row dense>
                   <v-col v-for="r in roundDateSlots" :key="'rd-' + r" cols="6" sm="3" md="2">
