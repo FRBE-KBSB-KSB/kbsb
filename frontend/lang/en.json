@@ -628,12 +628,12 @@
 "trnreg.section_swar": "SWAR export",
 "trnreg.field_tiebreak_system": "Tie-break system",
 "trnreg.tbsys_TB_PERSONEL": "Own choice (up to 5)",
-"trnreg.tbsys_TB_ELO_IRREGULIER": "FIDE set, open field (varied ratings)",
-"trnreg.tbsys_TB_ELO_REGULIER": "FIDE set, similar ratings",
+"trnreg.tbsys_TB_ELO_IRREGULIER": "Swiss with inconsistent ratings",
+"trnreg.tbsys_TB_ELO_REGULIER": "Swiss with consistent ratings",
 "trnreg.tbsys_none_hint": "Leave empty to set the tie-breaks in SWAR itself.",
 "trnreg.tbsys_hint_TB_PERSONEL": "Your own list below, in order, at most five.",
-"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "SWAR applies: mutual result, number of wins, games with black, Buchholz Cut 1, Buchholz.",
-"trnreg.tbsys_hint_TB_ELO_REGULIER": "SWAR applies: mutual result, number of wins, games with black, average opponent Elo, Buchholz Cut 1.",
+"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "Players have unreliable or missing ratings.",
+"trnreg.tbsys_hint_TB_ELO_REGULIER": "All players have reliable FIDE/national ratings.",
 "trnreg.add_tiebreak": "Add tie-break",
 "trnreg.tiebreak_max_hint": "SWAR takes at most five.",
 "trnreg.tb_01": "None",
@@ -671,5 +671,6 @@
 "trnreg.rule_category_semicolon": "A category name cannot contain a semicolon.",
 "trnreg.rule_categories_mixed": "Categories are either all numbers (ELO or age limits) or all names; SWAR refuses a mix.",
 "trnreg.system_baku_hint": "SWAR 6.65 does not recognise this system in a CSV import; set it in SWAR itself.",
+"trnreg.round_dates_single_day": "The tournament starts and ends on the same day, so every round is dated that day.",
 "ZZZ": "ZZZ"
 }

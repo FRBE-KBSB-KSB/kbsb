@@ -628,12 +628,12 @@
 "trnreg.section_swar": "SWAR-export",
 "trnreg.field_tiebreak_system": "Scheidingssysteem",
 "trnreg.tbsys_TB_PERSONEL": "Eigen keuze (max. 5)",
-"trnreg.tbsys_TB_ELO_IRREGULIER": "FIDE-reeks, open toernooi (verschillende Elo)",
-"trnreg.tbsys_TB_ELO_REGULIER": "FIDE-reeks, gelijkaardige Elo",
+"trnreg.tbsys_TB_ELO_IRREGULIER": "Zwitsers met onbetrouwbare ratings",
+"trnreg.tbsys_TB_ELO_REGULIER": "Zwitsers met betrouwbare ratings",
 "trnreg.tbsys_none_hint": "Leeg laten om de scheiding in SWAR zelf in te stellen.",
 "trnreg.tbsys_hint_TB_PERSONEL": "Uw eigen lijst hieronder, in volgorde, maximaal vijf.",
-"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "SWAR past toe: onderling resultaat, aantal overwinningen, partijen met zwart, Bucholtz Cut 1, Bucholtz.",
-"trnreg.tbsys_hint_TB_ELO_REGULIER": "SWAR past toe: onderling resultaat, aantal overwinningen, partijen met zwart, gemiddelde Elo tegenstanders, Bucholtz Cut 1.",
+"trnreg.tbsys_hint_TB_ELO_IRREGULIER": "Spelers hebben onbetrouwbare of ontbrekende ratings.",
+"trnreg.tbsys_hint_TB_ELO_REGULIER": "Alle spelers hebben betrouwbare FIDE-/nationale ratings.",
 "trnreg.add_tiebreak": "Scheiding toevoegen",
 "trnreg.tiebreak_max_hint": "SWAR aanvaardt er maximaal vijf.",
 "trnreg.tb_01": "Geen",
@@ -671,5 +671,6 @@
 "trnreg.rule_category_semicolon": "Een categorienaam mag geen puntkomma bevatten.",
 "trnreg.rule_categories_mixed": "Categorieën zijn ofwel allemaal getallen (Elo- of leeftijdsgrenzen) ofwel allemaal namen; SWAR weigert een mengeling.",
 "trnreg.system_baku_hint": "SWAR 6.65 herkent dit systeem niet bij een CSV-import; stel het in SWAR zelf in.",
+"trnreg.round_dates_single_day": "Het toernooi begint en eindigt op dezelfde dag, dus elke ronde krijgt die datum.",
 "ZZZ": "ZZZ"
 }
