@@ -120,13 +120,14 @@ async def update_icseries(
 # business methods
 
 
-async def isRoundOpen(round: int):
+async def isRoundOpen(round: int, division: int = 0) -> bool:
     """
     returns True is we passed 15h of the day of the round
     """
     icdata = await load_icdata()
     assert icdata
-    rounddate = icdata["rounds"].get(round)
+    rd = "rounds9" if division == 6 else "rounds11"
+    rounddate = icdata[rd].get(round)
     if not rounddate:
         return False
     now = datetime.now(tz=belzone)
@@ -361,6 +362,10 @@ async def anon_getICresults(division: str, index: int) -> ICSeries | None:
             {"division": division, "index": index, "_model": ICSeries}
         )
         assert isinstance(s, ICSeries)
+        for r in s.rounds:
+            logger.info(f"Checking round {r.round} in {division}{index}")
+            if not await isRoundOpen(r.round):
+                r.encounters = []
         return s
     except RdNotFound:
         return None
