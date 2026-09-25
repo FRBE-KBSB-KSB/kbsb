@@ -142,7 +142,7 @@ async def verify_club_access(idclub: int, idmember: str | int, role: str) -> boo
     if check fails.
     """
     # check for superuser
-    if isinstance(idmember, str) and idmember.startswith("S_") and len(idmember) == 5:
+    if isinstance(idmember, str) and idmember.startswith("SU__"):
         return True
     try:
         idnumber = int(idmember)

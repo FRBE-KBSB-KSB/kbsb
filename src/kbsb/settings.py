@@ -32,7 +32,6 @@ FILESTORE = {
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",
     "658290412135-ti3t11ovj5q2g10t4mla66r4m8orc2ev.apps.googleusercontent.com",
-    # "658290412135-v6ah768urdv83dn76ra4mkiovdalal2k.apps.googleusercontent.com",
 )
 GOOGLE_LOGIN_DOMAINS = ["frbe-kbsb-ksb.be"]
 GOOGLE_PROJECT_ID = os.environ.get("GOOGLE_PROJECT_ID", "website-kbsb-prod")
@@ -110,13 +109,19 @@ SECRETS = {
         "name": "kbsb-odoo",
         "manager": "googlejson",
     },
+    "SU__ruben": {
+        "name": "su_ruben",
+        "manager": "googlejson",
+    },
+    "SU__luc": {
+        "name": "su_luc",
+        "manager": "googlejson",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 
 SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
-
-SHORTCUT_INFOMANIAKLOGIN = False
 
 TEMPLATES_MODULE = "kbsb"
 
@@ -135,8 +140,6 @@ if KBSB_MODE == "local":
 if KBSB_MODE == "prodtest":
     from env_prodtest import *  # noqa F403
 
-if KBSB_MODE == "localtest":
-    from env_localtest import *  # noqa F403
 
 if KBSB_MODE == "testing":
     from tests.settings import *  # noqa F403

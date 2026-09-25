@@ -1,0 +1,327 @@
+{
+    "_id": "713728dc-bb1b-4691-be32-782c386e5a66",
+    "division": 6,
+    "index": "J",
+    "teams": [
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 7",
+            "pairingnumber": 1
+        },
+        {
+            "division": 6,
+            "idclub": 609,
+            "index": "J",
+            "name": "Anthisnes 3",
+            "pairingnumber": 2
+        },
+        {
+            "division": 6,
+            "idclub": 811,
+            "index": "J",
+            "name": "Arlon Echecs 3",
+            "pairingnumber": 3
+        },
+        {
+            "division": 6,
+            "idclub": 811,
+            "index": "J",
+            "name": "Arlon Echecs 2",
+            "pairingnumber": 4
+        },
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 8",
+            "pairingnumber": 5
+        },
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 9",
+            "pairingnumber": 6
+        },
+        {
+            "division": 6,
+            "idclub": 814,
+            "index": "J",
+            "name": "Gaume Etalle 2",
+            "pairingnumber": 7
+        },
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 10",
+            "pairingnumber": 8
+        },
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 11",
+            "pairingnumber": 9
+        },
+        {
+            "division": 6,
+            "idclub": 0,
+            "index": "J",
+            "name": "Bye 12",
+            "pairingnumber": 10
+        }
+    ],
+    "_version": 1,
+    "_creationtime": ISODate("2026-09-21T08:24:21.677+0000"),
+    "_modificationtime": ISODate("2026-09-24T10:10:24.457+0000"),
+    "rounds": [
+        {
+            "round": 1,
+            "rdate": "2026-09-27",
+            "encounters": [
+                {
+                    "icclub_home": 814,
+                    "icclub_visit": 609,
+                    "pairingnr_home": 7,
+                    "pairingnr_visit": 2,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                },
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 4,
+                    "pairingnr_visit": 3,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 2,
+            "rdate": "2026-10-11",
+            "encounters": [
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 3,
+                    "pairingnr_visit": 4,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 3,
+            "rdate": "2026-11-15",
+            "encounters": [
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 609,
+                    "pairingnr_home": 3,
+                    "pairingnr_visit": 2,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                },
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 814,
+                    "pairingnr_home": 4,
+                    "pairingnr_visit": 7,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 4,
+            "rdate": "2026-11-29",
+            "encounters": [
+                {
+                    "icclub_home": 609,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 2,
+                    "pairingnr_visit": 3,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 5,
+            "rdate": "2027-02-14",
+            "encounters": [
+                {
+                    "icclub_home": 814,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 7,
+                    "pairingnr_visit": 4,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 6,
+            "rdate": "2027-03-07",
+            "encounters": [
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 814,
+                    "pairingnr_home": 3,
+                    "pairingnr_visit": 7,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                },
+                {
+                    "icclub_home": 811,
+                    "icclub_visit": 609,
+                    "pairingnr_home": 4,
+                    "pairingnr_visit": 2,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 7,
+            "rdate": "2027-03-21",
+            "encounters": [
+                {
+                    "icclub_home": 814,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 7,
+                    "pairingnr_visit": 3,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                },
+                {
+                    "icclub_home": 609,
+                    "icclub_visit": 811,
+                    "pairingnr_home": 2,
+                    "pairingnr_visit": 4,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 8,
+            "rdate": "2027-04-11",
+            "encounters": [
+                {
+                    "icclub_home": 609,
+                    "icclub_visit": 814,
+                    "pairingnr_home": 2,
+                    "pairingnr_visit": 7,
+                    "matchpoint_home": 0,
+                    "matchpoint_visit": 0,
+                    "boardpoint2_home": 0,
+                    "boardpoint2_visit": 0,
+                    "games": [],
+                    "played": false,
+                    "signhome_idnumber": 0,
+                    "signhome_ts": null,
+                    "signvisit_idnumber": 0,
+                    "signvisit_ts": null
+                }
+            ]
+        },
+        {
+            "round": 9,
+            "rdate": "2027-04-18",
+            "encounters": []
+        }
+    ]
+}

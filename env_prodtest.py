@@ -24,9 +24,16 @@ SECRETS = {
         "name": "kbsb-odoo",
         "manager": "filejson",
     },
+    "SU__ruben": {
+        "name": "su_ruben",
+        "manager": "filejson",
+    },
+    "SU__luc": {
+        "name": "su_luc",
+        "manager": "googlejson",
+    },
 }
 
-SHORTCUT_INFOMANIAKLOGIN = True
 
 LOG_CONFIG = {
     "version": 1,

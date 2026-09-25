@@ -20,6 +20,10 @@ SECRETS = {
         "name": "kbsb-gdrive-staging",
         "manager": "filejson",
     },
+    "SU__ruben": {
+        "name": "su_ruben",
+        "manager": "filejson",
+    },
 }
 
 TOKEN = {
