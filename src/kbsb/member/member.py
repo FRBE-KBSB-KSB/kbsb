@@ -58,7 +58,7 @@ async def login(ol: LoginValidator) -> tuple[int, str]:
     """
     return a JWT token
     """
-    if ol.email.startswith("S_"):
+    if ol.email.startswith("SU__"):
         return 0, await superuser_login(ol.email, ol.password)
     return await odoo_login(ol.email, ol.password)
 

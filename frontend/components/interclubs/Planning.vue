@@ -165,6 +165,7 @@ function readICplanning() {
   icseries.value.forEach((s) => {
     // fill in Teams
     s.teams.forEach((t) => {
+      console.log("looping team", t.name, t.idclub, s.rounds[0])
       let sround = s.rounds[0]
       if (t.idclub == idclub.value) {
         let team = {

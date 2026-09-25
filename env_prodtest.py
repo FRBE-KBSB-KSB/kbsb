@@ -24,6 +24,10 @@ SECRETS = {
         "name": "kbsb-odoo",
         "manager": "filejson",
     },
+    "SU__001": {
+        "name": "su001",
+        "manager": "filejson",
+    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = True
