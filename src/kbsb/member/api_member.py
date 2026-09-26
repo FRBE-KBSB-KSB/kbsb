@@ -7,6 +7,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import RdException, bearer_schema
+from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_token
 
 from .md_member import (
@@ -96,7 +97,9 @@ async def api_clb_get_member(
     get full details a member by his idnumber (as in the signaletique)
     """
     try:
-        validate_membertoken(auth)
+        requester = validate_membertoken(auth)
+        if requester != str(idnumber) and not requester.startswith("SU__"):
+            raise RdForbidden
         return await mgmt_getmember(idnumber)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

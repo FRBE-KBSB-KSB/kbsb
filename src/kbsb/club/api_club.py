@@ -10,7 +10,6 @@ from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
     bearer_schema,
-    jwt_getunverifiedpayload,
 )
 
 from kbsb.club import (
@@ -110,7 +109,8 @@ async def api_clb_get_club(
     from kbsb.member import validate_membertoken
 
     try:
-        validate_membertoken(auth)
+        idnumber = validate_membertoken(auth)
+        await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)
         return await get_club({"idclub": idclub})
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -210,8 +210,9 @@ async def api_verify_club_access(
 @router.get("/mgmt/mailinglist", response_model=str)
 async def api_mgmt_getXlsAllplayerlist(token: str):
     try:
-        payload = jwt_getunverifiedpayload(token)
-        assert payload["sub"].split("@")[1] == "frbe-kbsb-ksb.be"
+        await validate_token(
+            HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        )
         return await mgmt_mailinglist()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
