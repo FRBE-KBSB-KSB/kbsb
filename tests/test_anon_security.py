@@ -189,3 +189,19 @@ def test_the_club_csv_needs_an_admin():
             "/api/v1/clubs/anon/csvclubs", headers={"Authorization": f"Bearer {member}"}
         )
     assert resp.status_code in (401, 403)
+
+
+@pytest.mark.asyncio
+async def test_a_second_admin_login_keeps_the_first_token_valid():
+    import kbsb.main  # noqa: F401
+    import reddevil.account.account as rd_account
+
+    acc = {"id": "a@frbe-kbsb-ksb.be", "tokensalt": "acct"}
+    with patch.object(rd_account, "update_account", AsyncMock()) as update:
+        first = await rd_account.get_token(acc, timedelta(minutes=5))
+        second = await rd_account.get_token(acc, timedelta(minutes=5))
+    update.assert_not_called()
+    assert rd_account.login.__globals__["get_token"] is rd_account.get_token
+    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
+        assert await tokens.validate_token(bearer(first)) == "a@frbe-kbsb-ksb.be"
+        assert await tokens.validate_token(bearer(second)) == "a@frbe-kbsb-ksb.be"

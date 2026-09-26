@@ -57,6 +57,17 @@ from kbsb.core.tokens import validate_token as _verified_token
 
 api_account.validate_token = _verified_token
 
+import reddevil.account.account as _rd_account
+
+_rd_get_token = _rd_account.get_token
+
+
+async def _get_token_keep_salt(acc, duration, invalidate=True):
+    return await _rd_get_token(acc, duration, invalidate=False)
+
+
+_rd_account.get_token = _get_token_keep_salt
+
 logger.info("loading api_club")
 from kbsb.club import api_club
 
