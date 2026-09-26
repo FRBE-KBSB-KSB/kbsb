@@ -4,7 +4,8 @@ logger = logging.getLogger(__name__)
 
 from fastapi import HTTPException, Depends, APIRouter
 from fastapi.security import HTTPAuthorizationCredentials
-from reddevil.core import RdException, bearer_schema, validate_token
+from reddevil.core import RdException, bearer_schema
+from kbsb.core.tokens import validate_token
 from kbsb.report.report import (
     createFile,
     deleteFile,

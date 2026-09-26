@@ -11,15 +11,16 @@ from reddevil.core import (
     RdException,
     bearer_schema,
     jwt_getunverifiedpayload,
-    validate_token,
 )
 
 from kbsb.club import (
     Club,
     ClubIn,
     ClubItem,
+    ClubPublic,
     ClubRoleNature,
     ClubUpdate,
+    anon_get_club,
     create_club,
     delete_club,
     get_anon_clubs,
@@ -30,6 +31,7 @@ from kbsb.club import (
     set_club,
     verify_club_access,
 )
+from kbsb.core.tokens import validate_token
 
 logger = logging.getLogger(__name__)
 
@@ -152,8 +154,11 @@ async def api_anon_get_clubs():
 
 
 @router.get("/anon/csvclubs", response_class=StreamingResponse)
-async def api_anon_csv_clubs():
+async def api_anon_csv_clubs(
+    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+):
     try:
+        await validate_token(auth)
         stream = await get_csv_clubs()
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = "attachment; filename=clubs.csv"
@@ -165,12 +170,10 @@ async def api_anon_csv_clubs():
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/anon/club/{idclub}", response_model=Club)
-async def api_anon_get_club(
-    idclub: int, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
-):
+@router.get("/anon/club/{idclub}", response_model=ClubPublic)
+async def api_anon_get_club(idclub: int):
     try:
-        return await get_club({"idclub": idclub})
+        return await anon_get_club(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

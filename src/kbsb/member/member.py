@@ -6,14 +6,12 @@ from datetime import UTC, datetime, timedelta
 
 from async_lru import alru_cache
 from fastapi.security import HTTPAuthorizationCredentials
-from jose import JWTError
 from reddevil.core import (
     RdBadRequest,
     RdNotAuthorized,
     get_secret,
     get_setting,
     jwt_encode,
-    jwt_getunverifiedpayload,
 )
 
 from .md_member import (
@@ -70,33 +68,9 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     if token validation fails, the function raises RdNotAuthorized
 
     """
-    token = auth.credentials if auth else None
-    if not token:
-        raise RdNotAuthorized(description="MissingToken")
-    if get_setting("TOKEN").get("nocheck"):
-        logger.debug("nocheck return token 0")
-        return "0"
-    logger.debug(f"token {token}")
-    try:
-        payload = jwt_getunverifiedpayload(token)
-    except JWTError as e:
-        logger.info(f"Bad Token: {e}")
-        raise RdNotAuthorized(description="BadToken")
-    username = payload.get("sub")
-    if not username:
-        logger.info("Bad Token: empty sub")
-        raise RdNotAuthorized(description="BadToken")
-    # try:
-    #     jwt_verify(token, get_setting("JWT_SECRET") + SALT)
-    # except ExpiredSignatureError as e:
-    #     logger.info("Bad Token 3")
-    #     logger.debug(f"expired {e}")
-    #     raise RdNotAuthorized(description="TokenExpired")
-    # except JWTError as e:
-    #     logger.info("Bad Token 4")
-    #     logger.debug(f"jwt error {e}")
-    #     raise RdNotAuthorized(description="BadToken")
-    return username
+    from kbsb.core.tokens import validate_membertoken as verified
+
+    return verified(auth)
 
 
 async def mgmt_getmember(idbel: str | int) -> Member:

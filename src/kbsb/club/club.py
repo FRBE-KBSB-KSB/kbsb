@@ -24,8 +24,11 @@ from .md_club import (
     Club,
     ClubIn,
     ClubItem,
+    ClubMemberPublic,
+    ClubPublic,
     ClubRoleNature,
     DbClub,
+    Visibility,
 )
 
 logger = logging.getLogger(__name__)
@@ -62,6 +65,45 @@ async def get_club(options: dict = {}) -> Club:
     if club.address is None:
         club.address = ""
     return club
+
+
+HIDDEN = "#NA"
+
+
+def _public_contact(value: str | None, visibility) -> str | None:
+    if not value:
+        return value
+    return value if visibility == Visibility.public else HIDDEN
+
+
+def public_club(club: Club) -> ClubPublic:
+    board = {
+        role: ClubMemberPublic(
+            first_name=bm.first_name,
+            last_name=bm.last_name,
+            email=_public_contact(bm.email, bm.email_visibility),
+            mobile=_public_contact(bm.mobile, bm.mobile_visibility),
+        )
+        for role, bm in (club.boardmembers or {}).items()
+    }
+    return ClubPublic(
+        address=club.address or "",
+        boardmembers=board,
+        email_interclub=club.email_interclub,
+        email_main=club.email_main,
+        enabled=club.enabled,
+        federation=club.federation,
+        idclub=club.idclub,
+        name_long=club.name_long,
+        name_short=club.name_short,
+        openinghours=club.openinghours,
+        venue=club.venue,
+        website=club.website,
+    )
+
+
+async def anon_get_club(idclub: int) -> ClubPublic:
+    return public_club(await get_club({"idclub": idclub}))
 
 
 async def get_clubs(options: dict = {}) -> List[ClubItem]:

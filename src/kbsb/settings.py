@@ -93,6 +93,10 @@ ODOO = {
 }
 
 SECRETS = {
+    "jwt": {
+        "name": "kbsb-jwt",
+        "manager": "googlejson",
+    },
     "mongodb": {
         "name": "kbsb-mongodb",
         "manager": "googlejson",
@@ -115,6 +119,10 @@ SECRETS = {
     },
     "SU__luc": {
         "name": "su_luc",
+        "manager": "googlejson",
+    },
+    "SU__jorian": {
+        "name": "su_jorian",
         "manager": "googlejson",
     },
 }
