@@ -6,7 +6,8 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from reddevil.core import RdException, bearer_schema, validate_token
+from reddevil.core import RdException, bearer_schema
+from kbsb.core.tokens import validate_token
 
 from .md_member import (
     AnonMember,

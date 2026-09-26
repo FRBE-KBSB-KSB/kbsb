@@ -32,6 +32,11 @@ app = FastAPI(
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
 logger = logging.getLogger(__name__)
+
+if get_setting("KBSB_MODE") == "production":
+    from reddevil.core import get_secret, get_settings
+
+    get_settings().JWT_SECRET = get_secret("jwt")["secret"]
 logger.info(f"Starting website KBSB {version}")
 logger.info(f"icdata: {get_setting('ICDATA')}")
 
@@ -47,6 +52,10 @@ app.add_middleware(
 # import api endpoints
 logger.info("loading api_account")
 from reddevil.account import api_account
+
+from kbsb.core.tokens import validate_token as _verified_token
+
+api_account.validate_token = _verified_token
 
 logger.info("loading api_club")
 from kbsb.club import api_club

@@ -6,8 +6,9 @@ from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
     bearer_schema,
-    validate_token,
 )
+
+from kbsb.core.tokens import validate_token
 
 from kbsb.interclubs.series import anon_getICresults
 from kbsb.member import validate_membertoken

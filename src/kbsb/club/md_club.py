@@ -159,6 +159,30 @@ class ClubAnon(BaseModel):
     website: str | None = ""
 
 
+class ClubMemberPublic(BaseModel):
+
+    first_name: str
+    last_name: str
+    email: str | None = None
+    mobile: str | None = None
+
+
+class ClubPublic(BaseModel):
+
+    address: str | None = ""
+    boardmembers: dict[str, ClubMemberPublic] | None = None
+    email_interclub: str | None = ""
+    email_main: str | None = ""
+    enabled: bool | None = True
+    federation: Federation | None = None
+    idclub: int | None = 0
+    name_long: str | None = ""
+    name_short: str | None = ""
+    openinghours: dict[Day, str] | None = None
+    venue: str | None = ""
+    website: str | None = ""
+
+
 class DbClub(DbBase):
     COLLECTION = "club"
     DOCUMENTTYPE = "Club"
