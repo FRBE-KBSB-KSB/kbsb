@@ -121,6 +121,10 @@ SECRETS = {
         "name": "su_luc",
         "manager": "googlejson",
     },
+    "SU__jorian": {
+        "name": "su_jorian",
+        "manager": "googlejson",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
