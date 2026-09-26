@@ -193,8 +193,9 @@ def test_the_club_csv_needs_an_admin():
 
 @pytest.mark.asyncio
 async def test_a_second_admin_login_keeps_the_first_token_valid():
-    import kbsb.main  # noqa: F401
     import reddevil.account.account as rd_account
+
+    import kbsb.main  # noqa: F401
 
     acc = {"id": "a@frbe-kbsb-ksb.be", "tokensalt": "acct"}
     with patch.object(rd_account, "update_account", AsyncMock()) as update:
@@ -205,3 +206,93 @@ async def test_a_second_admin_login_keeps_the_first_token_valid():
     with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
         assert await tokens.validate_token(bearer(first)) == "a@frbe-kbsb-ksb.be"
         assert await tokens.validate_token(bearer(second)) == "a@frbe-kbsb-ksb.be"
+
+
+# -- who may see or change what, once logged in -------------------------------
+
+from kbsb.core import RdForbidden
+from kbsb.interclubs import api_interclubs
+from kbsb.interclubs.md_interclubs import ICSeries
+from kbsb.member import api_member
+
+full = FastAPI()
+full.include_router(api_club.router)
+full.include_router(api_member.router)
+full.include_router(api_interclubs.router)
+member_client = TestClient(full)
+
+
+def as_member(idnumber):
+    return {"Authorization": f"Bearer {token(str(idnumber), SALT)}"}
+
+
+def test_the_full_club_record_is_only_for_that_clubs_admin():
+    with patch("kbsb.club.api_club.verify_club_access", AsyncMock(side_effect=RdForbidden)):
+        assert member_client.get("/api/v1/clubs/clb/club/195", headers=as_member(1)).status_code == 403
+    with (
+        patch("kbsb.club.api_club.verify_club_access", AsyncMock(return_value=True)),
+        patch("kbsb.club.api_club.get_club", AsyncMock(return_value=stored_club())),
+    ):
+        assert member_client.get("/api/v1/clubs/clb/club/195", headers=as_member(1)).status_code == 200
+
+
+def test_a_member_sees_only_their_own_details():
+    with patch("kbsb.member.api_member.mgmt_getmember", AsyncMock(return_value={"idnumber": 1})):
+        assert member_client.get("/api/v1/member/clb/member/2", headers=as_member(1)).status_code == 403
+        assert member_client.get("/api/v1/member/clb/member/1", headers=as_member(1)).status_code == 200
+
+
+def test_the_mailinglist_refuses_a_made_up_admin_token():
+    forged = token("anyone@frbe-kbsb-ksb.be", "whatever", key="guessed")
+    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
+        resp = member_client.get(f"/api/v1/clubs/mgmt/mailinglist?token={forged}")
+    assert resp.status_code == 401
+
+
+def test_a_line_up_for_another_club_is_refused():
+    planning = {"idclub": 195, "round": 1, "plannings": []}
+    with (
+        patch("kbsb.club.verify_club_access", AsyncMock(side_effect=RdForbidden)),
+        patch("kbsb.interclubs.api_interclubs.clb_saveICplanning", AsyncMock()) as save,
+    ):
+        resp = member_client.put("/api/v1/interclubs/clb/icplanning", json=planning, headers=as_member(1))
+    assert resp.status_code == 403
+    save.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_other_clubs_line_ups_are_hidden_before_the_round():
+    series = ICSeries.model_validate(
+        {
+            "division": 2,
+            "index": "A",
+            "teams": [],
+            "rounds": [
+                {
+                    "round": 1,
+                    "rdate": "2026-10-04",
+                    "encounters": [
+                        {
+                            "icclub_home": 195,
+                            "icclub_visit": 108,
+                            "pairingnr_home": 1,
+                            "pairingnr_visit": 2,
+                            "games": [{"idnumber_home": 11, "idnumber_visit": 22}],
+                        },
+                        {
+                            "icclub_home": 209,
+                            "icclub_visit": 301,
+                            "pairingnr_home": 3,
+                            "pairingnr_visit": 4,
+                            "games": [{"idnumber_home": 33, "idnumber_visit": 44}],
+                        },
+                    ],
+                }
+            ],
+        }
+    )
+    with patch("kbsb.interclubs.series.isRoundOpen", AsyncMock(return_value=False)):
+        [out] = await api_interclubs._hide_other_lineups([series], 195)
+    own, other = out.rounds[0].encounters
+    assert (own.games[0].idnumber_home, own.games[0].idnumber_visit) == (11, 0)
+    assert (other.games[0].idnumber_home, other.games[0].idnumber_visit) == (0, 0)

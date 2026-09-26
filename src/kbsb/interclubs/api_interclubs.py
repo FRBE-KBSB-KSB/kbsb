@@ -8,6 +8,7 @@ from reddevil.core import (
     bearer_schema,
 )
 
+from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_token
 
 from kbsb.interclubs.series import anon_getICresults
@@ -74,6 +75,48 @@ from . import (
 
 logger = logging.getLogger(__name__)
 
+IC_ROLES = "InterclubAdmin,InterclubCaptain"
+
+
+async def _ic_access(idclub: int, auth) -> str:
+    from kbsb.club import verify_club_access
+
+    idmember = validate_membertoken(auth)
+    await verify_club_access(idclub, idmember, IC_ROLES)
+    return idmember
+
+
+async def _hide_other_lineups(series, idclub: int):
+    from kbsb.interclubs.series import isRoundOpen
+
+    for s in series or []:
+        for r in s.rounds:
+            if await isRoundOpen(r.round, s.division):
+                continue
+            for enc in r.encounters:
+                for g in enc.games or []:
+                    if enc.icclub_home != idclub:
+                        g.idnumber_home = 0
+                    if enc.icclub_visit != idclub:
+                        g.idnumber_visit = 0
+    return series
+
+
+async def _ic_results_access(results, auth) -> str:
+    from kbsb.club import verify_club_access
+
+    idmember = validate_membertoken(auth)
+    for r in results:
+        for idclub in (r.icclub_home, r.icclub_visit):
+            try:
+                await verify_club_access(idclub, idmember, IC_ROLES)
+                break
+            except RdException:
+                continue
+        else:
+            raise RdForbidden
+    return idmember
+
 router = APIRouter(prefix="/api/v1/interclubs")
 
 # registrations
@@ -102,7 +145,7 @@ async def api_clb_set_registration(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
+        await _ic_access(idclub, auth)
         return await set_icregistration(idclub, ie, bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -150,11 +193,9 @@ async def api_set_registration(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
 
     try:
-        validate_membertoken(auth)
-        # TODO check club autorization
+        await _ic_access(idclub, auth)
         return await set_icregistration(idclub, ie, bt=bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -218,10 +259,9 @@ async def api_clb_set_icvenues(
     ivi: ICVenueIn,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
 
     try:
-        validate_membertoken(auth)
+        await _ic_access(idclub, auth)
         return await set_interclubvenues(idclub, ivi)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -273,7 +313,7 @@ async def api_clb_getICclub(
 ):
     logger.info(f"api_clb_getICclub {idclub}")
     try:
-        validate_membertoken(auth)
+        await _ic_access(idclub, auth)
         return await clb_getICclub(idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -306,7 +346,7 @@ async def api_clb_validateICplayers(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
+        await _ic_access(idclub, auth)
         return await clb_validateICPlayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -340,7 +380,7 @@ async def api_clb_updateICPlayers(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
+        await _ic_access(idclub, auth)
         await clb_updateICplayers(idclub, players)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -413,8 +453,8 @@ async def api_clb_getICseries(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
-        return await clb_getICseries(idclub, round)
+        await _ic_access(idclub, auth)
+        return await _hide_other_lineups(await clb_getICseries(idclub, round), idclub)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -444,7 +484,7 @@ async def api_clb_saveICplanning(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
+        await _ic_access(icplanning.idclub, auth)
         await clb_saveICplanning(icplanning)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -459,7 +499,7 @@ async def api_clb_validateICplanning(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
     try:
-        validate_membertoken(auth)
+        await _ic_access(icplanning.idclub, auth)
         return await clb_validateICplanning(icplanning)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -490,7 +530,7 @@ async def api_clb_saveICresults(
 ):
     try:
         logger.info("hi")
-        validate_membertoken(auth)
+        await _ic_results_access(icri.results, auth)
         await clb_saveICresults(icri.results)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
