@@ -22,3 +22,6 @@ kbsb-*.json
 
 
 
+src/kbsb/etl/add_interclubadmin.py
+.gitignore
+.gitignore
