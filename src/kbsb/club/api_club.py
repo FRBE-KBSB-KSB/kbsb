@@ -2,7 +2,6 @@
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
 import logging
-from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -142,7 +141,7 @@ async def api_clb_update_club(
 # anon calls
 
 
-@router.get("/anon/club", response_model=List[ClubItem])
+@router.get("/anon/club", response_model=list[ClubItem])
 async def api_anon_get_clubs():
     try:
         return await get_anon_clubs()

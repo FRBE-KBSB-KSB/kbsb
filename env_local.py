@@ -34,3 +34,5 @@ TOKEN = {
 }
 
 TEMPLATES_PATH = "./src/kbsb/templates"
+
+ICDATA = "local"
