@@ -23,13 +23,14 @@ const snackbar = ref(null)
 const { $backend } = useNuxtApp()
 
 // datamodel
-const tab = ref("playerlist")
+const tab = ref("results")
 const refresults = ref(null)
 const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
 const refcontact = ref(null)
 const clubs = ref([])
+const icclub = ref({}) // the icclub data
 const idclub = ref(null)
 const icdata = ref({})
 const round = ref(null)
@@ -46,10 +47,10 @@ function changedTab() {
   console.log("changedTab", tab.value)
   switch (tab.value) {
     case "results":
-      refresults.value.setup(icdata.value)
+      refresults.value.setup(icclub.value, round.value, icdata.value)
       break
     case "standings":
-      refstandings.value.setup(icdata.value)
+      refstandings.value.setup(icclub.value, icdata.value)
       break
     case "playerlist":
       refplayerlist.value.setup(idclub.value)
@@ -66,6 +67,27 @@ function changedTab() {
 function displaySnackbar(text, color) {
   errortext.value = text
   snackbar.value = true
+}
+
+async function getClubDetails() {
+  let reply
+  icclub.value = { idclub: idclub.value }
+  changeDialogCounter(1)
+  try {
+    if (!idclub.value) return
+    reply = await $backend("interclub", "anon_getICclub", {
+      idclub: idclub.value,
+    })
+    icclub.value = { idclub: idclub.value, ...(reply.data || {}) }
+  } catch (error) {
+    console.log("did not find clubdetails", icclub.value)
+    if (error.code == 401) gotoLogin()
+    displaySnackbar(t(error.message))
+    return
+  } finally {
+    changeDialogCounter(-1)
+    changedTab()
+  }
 }
 
 async function getICClubs() {
@@ -104,9 +126,9 @@ async function processICdata() {
   changedTab()
 }
 
-function selectClub() {
+async function selectClub() {
   console.log("selected", idclub.value)
-  changedTab()
+  await getClubDetails()
 }
 
 onMounted(async () => {
