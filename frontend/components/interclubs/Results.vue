@@ -335,7 +335,6 @@ async function setup(icclub_, round_, icdata_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
-  idclub.value = icclub.value.idclub
   round = round_
   icdata = icdata_
   idclub.value = icclub_.idclub

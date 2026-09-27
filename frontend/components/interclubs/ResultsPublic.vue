@@ -16,12 +16,11 @@ const refloading = ref(null)
 let showLoading
 
 // datamodel
-const idclub = ref(null)
-const icclubs = ref([])
+const icclub = ref({})
+const idclub = ref(0)
 const icseries = ref([])
-const round = ref("1")
+let round = 0
 let icdata = {}
-const ic_rounds = ref([])
 
 function addDetails(series, enc, games) {
   console.log("enc", enc.icclub_home, enc.pairingnr_home, games[0].fullname_home)
@@ -64,10 +63,10 @@ function addDetails(series, enc, games) {
 async function getSeries() {
   let reply
   showLoading(true)
-  console.log("getSeries", round.value, idclub.value)
+  console.log("getSeries", round, idclub.value)
   try {
     reply = await $backend("interclub", "anon_getICseries", {
-      round: round.value,
+      round: round,
       idclub: idclub.value,
     })
   } catch (error) {
@@ -80,23 +79,6 @@ async function getSeries() {
   icseries.value.forEach((s) => processSeries(s))
 }
 
-async function getClubs() {
-  let reply
-  showLoading(true)
-  try {
-    reply = await $backend("interclub", "anon_getICclubs", {})
-  } catch (error) {
-    showSnackbar(t(error.message))
-    return
-  } finally {
-    showLoading(false)
-  }
-  icclubs.value = reply.data
-  icclubs.value.forEach((p) => {
-    p.merged = `${p.idclub}: ${p.name}`
-  })
-}
-
 async function getICencounterdetails(series, enc) {
   let reply
   showLoading(true)
@@ -104,7 +86,7 @@ async function getICencounterdetails(series, enc) {
     reply = await $backend("interclub", "anon_getICencounterdetails", {
       division: series.division,
       index: series.index,
-      round: round.value,
+      round: round,
       icclub_home: enc.icclub_home,
       icclub_visit: enc.icclub_visit,
       pairingnr_home: enc.pairingnr_home,
@@ -142,15 +124,15 @@ function processSeries(s) {
   })
 }
 
-function setup(icdata_) {
-  console.log("setup results", icdata_)
-  icdata = icdata_ || {}
+async function setup(icclub_, round_, icdata_) {
+  console.log("setup results icclub", icclub_, "round", round_, "icdata", icdata_)
+  icclub.value = icclub_
+  round = round_
+  icdata = icdata_
+  idclub.value = icclub_.idclub
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  ic_rounds.value = Object.keys(icdata.rounds11 || []).map((r) => {
-    return { value: r, title: `R${r}: ${icdata.rounds11[r]}` }
-  })
-  getClubs()
+  await getSeries()
 }
 
 function updateDetails(s) {
@@ -168,26 +150,6 @@ function updateDetails(s) {
     <SnackbarMessage ref="refsnackbar" />
     <ProgressLoading ref="refloading" />
     <h2>{{ t("Results") }}</h2>
-    <v-row>
-      <v-col cols="12" sm="5">
-        <VAutocomplete
-          v-model="idclub"
-          :items="icclubs"
-          item-title="merged"
-          item-value="idclub"
-          color="green"
-          label="Club"
-          clearable
-        >
-        </VAutocomplete>
-      </v-col>
-      <v-col cols="8" sm="5">
-        <VSelect v-model="round" :items="ic_rounds" :label="t('Round')"> </VSelect>
-      </v-col>
-      <v-col cols="4" sm="2">
-        <VBtn icon="mdi-play" @click="getSeries"></VBtn>
-      </v-col>
-    </v-row>
     <v-card v-for="s in icseries" class="my-2">
       <v-card-title>
         <div class="d-flex justify-space-between">
