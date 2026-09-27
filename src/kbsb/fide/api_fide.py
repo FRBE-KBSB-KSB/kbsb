@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 # reddevil.mail reported a failed send as sent, so the form's "Failed to send
 # registration email" answer below could never appear.
 FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
+# Read by the dataplatform every 30 minutes; it queues the workbook for processing.
+AUTORATING_MAILBOX = "autoratingfide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
 
 router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
@@ -797,6 +799,7 @@ async def generate_fide_form(locale: str, formdata: dict):
         template=mail_body,
         attachments=[excel_attachment],
         reply_to=INTERNAL_TEST_ADDRESS if is_internal_test else organiser_email,
+        bcc="" if is_internal_test else AUTORATING_MAILBOX,
     )
 
     try:
