@@ -2,8 +2,8 @@
 import { ref, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-// import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
-// import Standings from "@/components/interclubs/Standings.vue"
+import ResultsPublic from "@/components/interclubs/ResultsPublic.vue"
+import Standings from "@/components/interclubs/Standings.vue"
 import VenuePublic from "@/components/interclubs/VenuePublic.vue"
 import PlayerlistPublic from "@/components/interclubs/PlayerlistPublic.vue"
 import Contact from "@/components/interclubs/Contact.vue"
@@ -24,8 +24,8 @@ const { $backend } = useNuxtApp()
 
 // datamodel
 const tab = ref("playerlist")
-// const refresults = ref(null)
-// const refstandings = ref(null)
+const refresults = ref(null)
+const refstandings = ref(null)
 const refplayerlist = ref(null)
 const refvenues = ref(null)
 const refcontact = ref(null)
@@ -45,12 +45,12 @@ function changeDialogCounter(i) {
 function changedTab() {
   console.log("changedTab", tab.value)
   switch (tab.value) {
-    // case "results":
-    //   refresults.value.setup(icdata.value)
-    //   break
-    // case "standings":
-    //   refstandings.value.setup(icdata.value)
-    //   break
+    case "results":
+      refresults.value.setup(icdata.value)
+      break
+    case "standings":
+      refstandings.value.setup(icdata.value)
+      break
     case "playerlist":
       refplayerlist.value.setup(idclub.value)
       break
@@ -155,19 +155,19 @@ definePageMeta({
       </VCardText>
     </VCard>
     <v-tabs v-model="tab" color="green" @update:modelValue="changedTab">
-      <!-- <v-tab value="results">{{ t("Results") }}</v-tab> -->
-      <!-- <v-tab value="standings">{{ t("Standings") }}</v-tab> -->
+      <v-tab value="results">{{ t("Results") }}</v-tab>
+      <v-tab value="standings">{{ t("Standings") }}</v-tab>
       <v-tab value="playerlist">{{ t("Player list") }}</v-tab>
       <v-tab value="venues">{{ t("icn.ven_2") }}</v-tab>
       <v-tab value="contact">{{ t("Contact") }}</v-tab>
     </v-tabs>
     <v-window v-model="tab" @update:modelValue="changedTab" :touch="false">
-      <!-- <v-window-item :eager="true" value="results">
+      <v-window-item :eager="true" value="results">
         <ResultsPublic ref="refresults" />
       </v-window-item>
       <v-window-item :eager="true" value="standings">
         <Standings ref="refstandings" />
-      </v-window-item> -->
+      </v-window-item>
       <v-window-item :eager="true" value="playerlist">
         <PlayerlistPublic ref="refplayerlist" />
       </v-window-item>
