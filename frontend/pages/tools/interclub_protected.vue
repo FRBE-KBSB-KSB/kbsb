@@ -154,6 +154,14 @@ async function getClubDetails() {
   }
 }
 
+// The login is kept in the browser (store/idtoken.js), so leaving it takes
+// a button: the token and member number are forgotten, back to the login.
+async function logout() {
+  idstore.updateToken(null)
+  idbelstore.updateIdbel(0)
+  await gotoLogin()
+}
+
 async function gotoLogin() {
   await router.push(
     "/tools/odoologin?url=__tools__interclub_protected?locale=" + locale.value
@@ -200,7 +208,18 @@ definePageMeta({
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2026-27</h1>
+    <div class="d-flex align-center">
+      <h1>Interclubs Manager 2026-27</h1>
+      <VSpacer />
+      <VBtn
+        v-if="token"
+        variant="text"
+        prepend-icon="mdi-logout"
+        @click="logout"
+      >
+        {{ $t("trnreg.nav_logout") }}
+      </VBtn>
+    </div>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ t("Loading...") }}</v-card-title>

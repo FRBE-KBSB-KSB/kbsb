@@ -59,14 +59,17 @@ definePageMeta({
             <label class="headline ml-3">{{ $t("Sign in") }}</label>
           </VCardTitle>
           <VDivider />
-          <form id="odoo-login-form" @submit.prevent="dologin()">
+          <form id="odoo-login-form" novalidate @submit.prevent="dologin()">
           <VCardText>
             <p>{{ $t("odoo.login") }}</p>
             <VTextField
               v-model="login.email"
               :label="$t('Email address')"
               name="username"
-              type="email"
+              type="text"
+              inputmode="email"
+              autocapitalize="off"
+              spellcheck="false"
               autocomplete="username"
             />
             <VTextField
