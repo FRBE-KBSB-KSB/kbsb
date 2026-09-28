@@ -330,6 +330,8 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
             if (
                 enc.icclub_home == res.icclub_home
                 and enc.icclub_visit == res.icclub_visit
+                and enc.pairingnr_home == res.pairingnr_home
+                and enc.pairingnr_visit == res.pairingnr_visit
             ):
                 enc.games = [
                     ICGame(
