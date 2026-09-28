@@ -17,7 +17,6 @@ const errortext = ref("")
 const url = route.query.url
 
 function gotoOdoo(i) {
-  console.log("gotoOdoo", i)
   if (i === 1) {
     let odooUrl = "https://frbe-kbsb.odoo.com/web/reset_password"
     window.open(odooUrl, "_blank")
@@ -28,25 +27,21 @@ function gotoOdoo(i) {
 }
 
 async function dologin() {
-  console.log("doing a login")
   const returnUrl = url ? url.replaceAll("__", "/") : "/"
-  console.log("return URL", returnUrl)
   let reply
   try {
     reply = await $backend("accounts", "odoologin", {
       email: login.value.email,
       password: login.value.password,
     })
-    console.log("did a login", reply.data)
   } catch (error) {
-    console.error("failed login", error)
+    console.error("failed login", error?.message)
     errortext.value = t(error.message)
     snackbar.value = true
     return
   }
   idbelstore.updateIdbel(reply.data[0])
   idtokenstore.updateToken(reply.data[1])
-  console.log("redirecting to ", returnUrl)
   await navigateTo(returnUrl)
 }
 

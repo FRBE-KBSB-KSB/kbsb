@@ -60,9 +60,7 @@ function calcPhase() {
     return
   }
   let start_registration = new Date(icdata.value.registration_data.start)
-  console.log("start_registration", start_registration)
   let end_registration = new Date(icdata.value.registration_data.end)
-  console.log("end_registration", end_registration)
   let today = new Date()
   if (
     end_registration.valueOf() >= today.valueOf() &&
@@ -86,7 +84,6 @@ function changeDialogCounter(i) {
 }
 
 function changedTab() {
-  console.log("changedTab", tab.value)
   switch (tab.value) {
     case "planning":
       refplanning.value.setup(icclub.value, round.value, icdata.value)
@@ -134,7 +131,6 @@ async function getClubs() {
   clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
-  console.log("got clubs", clubs.value)
 }
 
 async function getClubDetails() {
@@ -149,7 +145,6 @@ async function getClubDetails() {
     })
     icclub.value = { idclub: idclub.value, ...(reply.data || {}) }
   } catch (error) {
-    console.log("did not find clubdetails", icclub.value)
     if (error.code == 401) gotoLogin()
     displaySnackbar(t(error.message))
     return
@@ -181,7 +176,6 @@ async function processICdata() {
 }
 
 async function selectClub() {
-  console.log("selected", idclub.value)
   await getClubDetails()
 }
 

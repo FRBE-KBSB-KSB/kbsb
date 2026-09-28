@@ -108,7 +108,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     enr_status.value = "noaccess"
     showSnackbar(t("icn.perm_denied"))
     return false
@@ -128,7 +127,6 @@ async function find_interclubregistration() {
     })
     readRegistration(reply.data)
   } catch (error) {
-    console.log("NOK find_interclubregistration", error)
     if (error.code == 401) {
       gotoLogin()
     } else {
@@ -171,7 +169,6 @@ function readRegistration(data) {
   if (!registration.value.wishes.splitting) {
     registration.value.wishes.splitting = "2"
   }
-  console.log("enr", registration.value)
 }
 
 async function saveRegistration() {
@@ -195,7 +192,6 @@ async function saveRegistration() {
     calcstatus()
     showSnackbar(t("icn.save_enr_ok"))
   } catch (error) {
-    console.log("NOK set_interclubregistration", error)
     if (error.code == 401) {
       gotoLogin()
     } else {
@@ -209,7 +205,6 @@ async function saveRegistration() {
 }
 
 async function setup(icclub_, icdata_, locale_) {
-  console.log("setup Registration", icclub_, icdata_, locale_)
   locale.value = locale_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading

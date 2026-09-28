@@ -31,7 +31,6 @@ export default {
         const reply = await this.$api.interclub.mgmt_csv_interclubenrollment({
           token: this.logintoken
         })
-        console.log('reply', reply)
         const link = document.createElement('a')
         link.download = 'enrollments.csv'
         link.href = 'data:text/csv;base64,' + btoa(reply.data)
@@ -44,18 +43,16 @@ export default {
         })
       } catch (error) {
         const reply = error.response
-        console.error('Downloading enrollment', reply.data.detail)
+        console.error('Downloading enrollment', reply.status)
         this.$root.$emit('snackbar', { text: 'Downloading CSV enrollments failed' })
       }
     },
 
     async downloadVenues() {
       try {
-        console.log('downloading venues')
         const reply = await this.$api.interclub.mgmt_csv_interclubvenues({
           token: this.logintoken
         })
-        console.log('reply', reply)
         const link = document.createElement('a')
         link.download = 'venues.csv'
         link.href = 'data:text/csv;base64,' + utoa(reply.data)
@@ -68,7 +65,7 @@ export default {
         })
       } catch (error) {
         const reply = error.response
-        console.error('Downloading venues', reply.data.detail)
+        console.error('Downloading venues', reply.status)
         this.$root.$emit('snackbar', { text: 'Downloading CSV venues failed' })
       }
     },

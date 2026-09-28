@@ -204,7 +204,6 @@ async function list_penalties_reports() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup Downloads", icclub_, round_, icdata_)
   icclub = icclub_
   round = round_
   icdata = icdata_

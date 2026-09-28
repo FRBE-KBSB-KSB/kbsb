@@ -88,7 +88,6 @@ function calc_period() {
       return
     }
   })
-  console.log("pll_period", pll_period)
 }
 
 async function calc_status() {
@@ -107,7 +106,6 @@ async function calc_status() {
     return
   }
   pll_status.value = pll ? "open" : "closed"
-  console.log("calc_status closed")
 }
 
 function canAssign(idnumber) {
@@ -173,7 +171,6 @@ function canUndoTransfer(idnumber) {
 }
 
 async function checkAccess() {
-  console.log("checkAccess idclub", idclub)
   if (!token.value || !idclub) return false
   showLoading(true)
   try {
@@ -184,7 +181,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     pll_status.value = "noaccess"
     return false
   } finally {
@@ -201,13 +197,10 @@ function checkImport() {
       availableimports.push(m)
     }
   })
-  console.log("Importing players:", availableimports)
 }
 
 function fillinPlayerList(nature) {
-  console.log("fillinPlayerList nature", nature)
   // add new members to the playerlist
-  console.log("clubmembers", clubmembers.value.length ? clubmembers.value[0] : "empty")
   clubmembers.value.forEach((m) => {
     if (!playersindexed[m.idnumber]) {
       let fiderating = m.fiderating ? m.fiderating : 0
@@ -249,9 +242,7 @@ async function getClubMembers() {
     clubmembers.value = []
     return
   }
-  console.log("getting Club Members from odoo")
   if (idclub == clubmembers_cache_idclub) {
-    console.log("using cached version of members")
     return
   }
   showLoading(true)
@@ -262,7 +253,6 @@ async function getClubMembers() {
       idclub: idclub,
     })
   } catch (error) {
-    console.log("getClubMembers error")
     showSnackbar(error.message)
     return
   } finally {
@@ -446,7 +436,6 @@ async function validatePlayerlist() {
   } finally {
     showLoading(false)
   }
-  console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
     validationdialog.value = true
@@ -456,7 +445,6 @@ async function validatePlayerlist() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup playerlist", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_

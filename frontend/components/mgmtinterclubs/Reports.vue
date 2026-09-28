@@ -28,14 +28,13 @@ async function listEloprocessing() {
     const reply = await $backend("interclub", "mgmt_list_eloprocessing", {
       token: token.value,
     })
-    console.log(reply.data)
     eloprocs.value = []
     reply.data.forEach((ep) => {
       let short = ep.split("/")[1]
       if (short.length) eloprocs.value.push(short)
     })
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     showSnackbar(error.message)
   } finally {
     showLoading(false)
@@ -48,9 +47,8 @@ async function write_eloprocessing() {
     const reply = await $backend("interclub", "mgmt_write_eloprocessing", {
       token: token.value,
     })
-    console.log(reply.data)
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     showSnackbar(error.message)
   } finally {
     showLoading(false)
@@ -84,7 +82,7 @@ async function write_fide_report() {
     })
     showSnackbar("FIDE elo rapport created")
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     showSnackbar(error.message)
   } finally {
     showLoading(false)
@@ -107,7 +105,6 @@ async function write_penalties_report() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup reports", icclub_, round_, icdata_)
   icclub = icclub_
   round = round_
   icdata = icdata_

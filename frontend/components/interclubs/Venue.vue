@@ -76,7 +76,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     ven_status.value = "noaccess"
     showSnackbar(t("icn.perm_denied"))
     return false
@@ -122,7 +121,6 @@ async function modifyICvenues() {
 }
 
 function readVenues(data) {
-  console.log("readvenues", data)
   venues.value = []
   if (data) {
     data.venues.forEach((v) => {
@@ -144,7 +142,6 @@ function readVenues(data) {
       venues.value.push(vn)
     })
   }
-  console.log("venues read", venues.value)
 }
 
 async function saveVenues() {
@@ -153,7 +150,6 @@ async function saveVenues() {
     v.rounds = v.roundsel == "selected" ? v.rounds_s.split(",") : []
     v.teams = v.teamssel == "selected" ? v.teams_s.split(",") : []
   })
-  console.log("venues", venues.value)
   showLoading(true)
   try {
     reply = await $backend("interclub", "set_interclubvenues", {
@@ -163,7 +159,6 @@ async function saveVenues() {
     })
     showSnackbar(t("icn.ven_save_ok"))
   } catch (error) {
-    console.log("NOK set_venue", error)
     if (error.code == 401) {
       ven_status.value = "noaccess"
     } else {
@@ -177,7 +172,6 @@ async function saveVenues() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup Venue", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = icclub_
@@ -228,7 +222,7 @@ async function setup(icclub_, icdata_) {
             <v-card-text>
               <div>
                 <b>{{ t("Address") }}:</b> <br />
-                <span v-html="v.address.split('\n').join('<br />')"></span>
+                <span style="white-space: pre-line">{{ v.address }}</span>
               </div>
               <div>
                 <b>{{ t("Capacity (boards)") }}:</b> {{ v.capacity }}

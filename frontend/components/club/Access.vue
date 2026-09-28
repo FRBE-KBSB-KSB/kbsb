@@ -73,7 +73,6 @@ function deleteInterclubAdmin(m) {
 }
 
 function gotoLogin() {
-  console.log("login in access")
 }
 
 async function modifyAccess() {
@@ -81,12 +80,10 @@ async function modifyAccess() {
 }
 
 function readClubMembers() {
-  console.log("reading club members", clubadminl)
   clubadmin.value = Object.fromEntries(
     clubadminl.map((x) => {
       const cm = clubmembers.value.find((m) => m.idnumber == x)
       if (!cm) {
-        console.log("Did not find", x)
         return []
       } else {
         cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
@@ -98,7 +95,6 @@ function readClubMembers() {
     interclubadminl.map((x) => {
       const cm = clubmembers.value.find((m) => m.idnumber == x)
       if (!cm) {
-        console.log("Did not find", x)
         return []
       } else {
         cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
@@ -110,7 +106,6 @@ function readClubMembers() {
 
 async function saveAccess() {
   // build a a diff between club and its cooy
-  console.log("saving")
   club.value.clubroles.forEach((c) => {
     if (c.nature == "ClubAdmin") c.memberlist = Object.keys(clubadmin.value)
     if (c.nature == "InterclubAdmin") c.memberlist = Object.keys(interclubadmin.value)
@@ -135,18 +130,15 @@ async function saveAccess() {
 }
 
 function setup(club_, clubmembers_) {
-  console.log("setup Board", club_, clubmembers_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   club.value = { ...EMPTY_CLUB, ...club_ }
   clubmembers.value = clubmembers_
   copyclub = JSON.parse(JSON.stringify(club.value))
   club.value.clubroles.forEach((c) => {
-    console.log("loop c", c.nature, c.memberlist)
     if (c.nature == "ClubAdmin") clubadminl = c.memberlist
     if (c.nature == "InterclubAdmin") interclubadminl = c.memberlist
   })
-  console.log("clubadmin", clubadmin.value)
   readClubMembers()
 }
 </script>

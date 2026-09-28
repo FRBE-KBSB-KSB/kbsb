@@ -70,7 +70,6 @@ function i18n_boole(v) {
 }
 
 function readVenues(data) {
-  console.log("readvenues", data)
   venues.value = []
   if (data) {
     data.venues.forEach((v) => {
@@ -92,7 +91,6 @@ function readVenues(data) {
       venues.value.push(vn)
     })
   }
-  console.log("venues read", venues.value)
 }
 
 function selectClub() {
@@ -100,7 +98,6 @@ function selectClub() {
 }
 
 async function setup(idclub_, icdata_) {
-  console.log("setup venue public", idclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = { idclub: idclub_ }
@@ -128,7 +125,7 @@ async function setup(idclub_, icdata_) {
             <v-card-text>
               <div>
                 <b>{{ $t("Address") }}:</b> <br />
-                <span v-html="v.address.split('\n').join('<br />')"></span>
+                <span style="white-space: pre-line">{{ v.address }}</span>
               </div>
               <div>
                 <b>{{ $t("Capacity (boards)") }}:</b> {{ v.capacity }}

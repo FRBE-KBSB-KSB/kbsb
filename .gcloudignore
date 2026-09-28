@@ -9,10 +9,31 @@ frontend/
 __pycache__/
 .venv/
 .env
+.env.*
 env_local.py
 env_staging.py
 env_prod.py
-src/tests/
+env_prodtest.py
+env_localtest.py
+/tests/
+
+# secrets: filejson secrets resolve under SECRETS_PATH, the repo root by
+# default, so local secret files sit here and must never be uploaded
+kbsb-*.json
+su_*.json
+/*.json
+*.pem
+*.p12
+*.key
+shared/secrets/
+
+# personal data: trf_report_phase2 writes icn_trf.txt to the working directory
+icn_trf.txt
+
+# local tooling
+.claude/
+scratch/
+src/kbsb/etl/add_interclubadmin.py
 
 # general
 .gcloudignore

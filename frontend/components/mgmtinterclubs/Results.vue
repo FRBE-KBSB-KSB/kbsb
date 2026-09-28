@@ -106,7 +106,6 @@ function clubLabel(pairingnr, teams) {
 async function getICclub(clb_id) {
   if (!clb_id) return
   if (playerlist_buffer.value[clb_id]) {
-    console.log("playerlist in cache", clb_id)
     return
   }
   showLoading(true)
@@ -116,11 +115,10 @@ async function getICclub(clb_id) {
       token: idtoken.value,
       idclub: clb_id,
     })
-    console.log("calling mgmt_getICclub", clb_id, "in ms:", new Date() - now)
     showLoading(false)
     processICplayerlist(clb_id, reply.data)
   } catch (error) {
-    console.error("calling mgmt_getICclub failed", clb_id, error)
+    console.error("calling mgmt_getICclub failed", clb_id, error?.message)
     showSnackbar(error.message)
     return
   } finally {
@@ -132,7 +130,6 @@ async function getICSeries() {
   // get the pairing data limited to current round and club
   let reply
   if (!my.idclub || !my.round) {
-    console.log("Skipping get ICseries: idclub or round not set")
     return
   }
   showLoading(true)
@@ -143,7 +140,6 @@ async function getICSeries() {
       token: idtoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       await navigateTo("/mgmt")
     }
@@ -192,7 +188,6 @@ async function processICSeries() {
     })
   })
   let tresults = [] // team results collector
-  console.log("procencs", procencs)
   for (const enc of procencs) {
     await Promise.all([getICclub(enc.icclub_home), getICclub(enc.icclub_visit)])
     // fill in default games if not yet existing
@@ -233,7 +228,6 @@ async function saveResults() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup standings", icclub_, round_, icdata_)
   icdata = icdata_
   icclub = icclub_
   showSnackbar = refsnackbar.value.showSnackbar

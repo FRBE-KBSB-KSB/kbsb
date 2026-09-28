@@ -45,14 +45,12 @@ async function modifyClub() {
 }
 
 function readClubDetails(club) {
-  console.log("readClubDetails in details")
   clubdetails.value = { ...EMPTY_CLUB, ...club }
   copyclubdetails = JSON.parse(JSON.stringify(club))
 }
 
 async function saveClub() {
   // build a a diff between clubdetails and its cooy
-  console.log("saveClub")
   let update = {}
   for (const [key, value] of Object.entries(clubdetails.value)) {
     if (value != copyclubdetails[key]) {
@@ -79,7 +77,6 @@ async function saveClub() {
 }
 
 function setup(club) {
-  console.log("setupDetails", club)
   readClubDetails(club)
 }
 
@@ -160,7 +157,7 @@ onMounted(() => {
                 </div>
                 <div>
                   <span class="fieldname">Postal address</span>:<br />
-                  <span v-html="clubdetails.address.replaceAll('\n', '<br />')"></span>
+                  <span style="white-space: pre-line">{{ clubdetails.address }}</span>
                 </div>
               </v-card-text>
             </v-card>
@@ -171,7 +168,7 @@ onMounted(() => {
               <v-card-text>
                 <div>
                   <span class="fieldname">Club venue</span>:<br />
-                  <span v-html="clubdetails.venue.replaceAll('\n', '<br />')"></span>
+                  <span style="white-space: pre-line">{{ clubdetails.venue }}</span>
                 </div>
                 <h4>Playing hours</h4>
                 <div v-for="(h, d) in clubdetails.openinghours" :key="d">

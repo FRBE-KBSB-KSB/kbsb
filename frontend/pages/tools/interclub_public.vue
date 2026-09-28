@@ -44,7 +44,6 @@ function changeDialogCounter(i) {
 }
 
 function changedTab() {
-  console.log("changedTab", tab.value)
   switch (tab.value) {
     case "results":
       refresults.value.setup(icclub.value, round.value, icdata.value)
@@ -80,7 +79,6 @@ async function getClubDetails() {
     })
     icclub.value = { idclub: idclub.value, ...(reply.data || {}) }
   } catch (error) {
-    console.log("did not find clubdetails", icclub.value)
     if (error.code == 401) gotoLogin()
     displaySnackbar(t(error.message))
     return
@@ -95,7 +93,6 @@ async function getICClubs() {
   changeDialogCounter(1)
   try {
     reply = await $backend("interclub", "anon_getICclubs", {})
-    console.log("reply", reply)
   } catch (error) {
     displaySnackbar(error.message)
     return
@@ -105,7 +102,6 @@ async function getICClubs() {
   clubs.value = reply.data
   clubs.value.sort((a, b) => a.idclub - b.idclub)
   clubs.value.forEach((p) => {
-    console.log("p", p)
     p.merged = `${p.idclub}: ${p.name}`
   })
 }
@@ -127,7 +123,6 @@ async function processICdata() {
 }
 
 async function selectClub() {
-  console.log("selected", idclub.value)
   await getClubDetails()
 }
 

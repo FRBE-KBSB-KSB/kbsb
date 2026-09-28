@@ -8,7 +8,6 @@ export default {
                 responseType: 'blob'
             } // CRITICAL: Tells Axios to treat response data as a binary Blob
         );
-        console.log("api file", response)
         return response
     },
 };

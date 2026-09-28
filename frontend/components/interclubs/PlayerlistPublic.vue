@@ -47,7 +47,6 @@ async function download() {
     })
     xls = reply.data.xls64
   } catch (error) {
-    console.log("download error", error)
     showSnackbar("Download error: " + error.detail)
   } finally {
     showLoading(false)
@@ -90,7 +89,6 @@ async function getICPlayerlist() {
 }
 
 async function setup(idclub_) {
-  console.log("setup playerlist public")
   idclub.value = idclub_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading

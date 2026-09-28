@@ -50,7 +50,6 @@ function changeDialogCounter(i) {
 }
 
 function changeTab() {
-  console.log("changeTab", tab.value)
   switch (tab.value) {
     case "details":
       refdetails.value.setup(club.value)
@@ -168,7 +167,6 @@ async function selectClub() {
 
 onMounted(() => {
   let l = route.query.locale
-  console.log("query locale", l)
   locale.value = l ? l : "nl"
   checkAuth()
   getClubs()

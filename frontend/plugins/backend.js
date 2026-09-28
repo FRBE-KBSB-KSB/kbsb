@@ -45,12 +45,7 @@ axios.interceptors.response.use(
       // undefined.
       const detail = error.response.data.detail
       const backendMessage = error.response.data.message
-      console.info(
-        "backend Axios",
-        error.response.status,
-        detail || backendMessage,
-        error.request
-      )
+      console.info("backend Axios", error.response.status)
       return Promise.reject({
         code: error.response.status,
         // Stable, language-independent machine code for callers that need
@@ -68,7 +63,7 @@ axios.interceptors.response.use(
       })
     }
     if (error.request) {
-      console.warn("Axios", "No response received", error.request)
+      console.warn("Axios", "No response received")
       return Promise.reject({
         code: 600,
         message: error_messages[600],
@@ -106,8 +101,6 @@ export default defineNuxtPlugin((nuxtApp) => {
         if (!f) {
           console.log("$backend method not existing", fact, method)
         }
-        console.log("calling $backend", fact, method, options)
-        // console.log("with baseURL", axios.defaults.baseURL)
         return await f(options)
       },
     },

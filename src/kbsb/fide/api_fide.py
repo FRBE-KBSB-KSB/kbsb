@@ -851,10 +851,10 @@ async def generate_fide_form(locale: str, formdata: dict):
         try:
             sendEmailMessage(conf_params)
             logger.info(
-                f"FIDE Registration confirmation email sent to {recipient} from {sender_email}"
+                f"FIDE Registration confirmation email sent from {sender_email}"
             )
         except Exception:
-            logger.exception(f"Failed to send FIDE registration confirmation email to {recipient}")
+            logger.exception("Failed to send FIDE registration confirmation email")
             failed_confirmations.append(recipient)
 
     headers = {"Content-Disposition": f'attachment; filename="{filename}"'}

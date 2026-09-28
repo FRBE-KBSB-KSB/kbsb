@@ -15,7 +15,6 @@ const { person } = storeToRefs(personstore)
 
 // config
 const runtimeConfig = useRuntimeConfig()
-console.log("runtimeConfig", runtimeConfig)
 
 //  snackbar and loading widgets
 const refsnackbar = ref(null)
@@ -39,7 +38,6 @@ useHead({
 
 async function checkAuth() {
   let reply
-  console.log("checking if auth is already set", mgmttoken.value)
   if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
     navigateTo("/mgmt")
@@ -60,7 +58,7 @@ async function checkAuth() {
     })
     mgmtstore.updateToken(reply.data)
   } catch (error) {
-    console.error("error", error)
+    console.error("error", error?.message)
     navigateTo("/mgmt")
   } finally {
     showLoading(false)
@@ -68,7 +66,6 @@ async function checkAuth() {
 }
 
 function download() {
-  console.log("token", mgmttoken.value, "apiUrl", runtimeConfig.public.apiUrl)
   const url = `${runtimeConfig.public.apiUrl}api/v1/clubs/mgmt/mailinglist?token=${mgmttoken.value}`
   window.location.href = url
 }

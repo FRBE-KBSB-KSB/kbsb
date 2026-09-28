@@ -1,6 +1,7 @@
 import hmac
 import logging
 import os
+import re
 from typing import List
 from fastapi import APIRouter, Request, Response, HTTPException
 from pydantic import BaseModel
@@ -156,6 +157,43 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
 
 TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/tournament_registrations"
 
+# The paths the frontend calls (frontend/api/tournament_registrations.js), and
+# nothing else. The proxy adds the master-scoped key, so a free path was the
+# whole dataplatform API: "../players_fide/..." or "a/../../x" left this
+# scope, since httpx resolves dot segments before sending.
+_SEG = r"[A-Za-z0-9_@-]+"
+_ALLOWED_PATHS = [
+    re.compile(p)
+    for p in (
+        r"",
+        rf"{_SEG}",
+        rf"{_SEG}/lookup",
+        rf"{_SEG}/registrations",
+        r"admin/login",
+        r"admin/tournaments",
+        r"admin/tournaments/mine",
+        rf"admin/tournaments/{_SEG}",
+        rf"admin/tournaments/{_SEG}/(registrations|admins|refresh-elo|export/csv)",
+        rf"admin/tournaments/{_SEG}/admins/{_SEG}",
+        rf"admin/tournaments/{_SEG}/export/swar/{_SEG}",
+        rf"admin/registrations/{_SEG}",
+    )
+]
+
+
+def _proxied_url(path: str) -> str:
+    """
+    The upstream URL for `path`, or 404. Segments are plain words only (no
+    dots, slashes or percent escapes inside one), the shape must be one the
+    frontend uses, and the result must still sit under TARGET_BASE_URL.
+    """
+    if not any(p.fullmatch(path) for p in _ALLOWED_PATHS):
+        raise HTTPException(status_code=404, detail="Not Found")
+    url = f"{TARGET_BASE_URL}/{path}" if path else TARGET_BASE_URL
+    if not (url == TARGET_BASE_URL or url.startswith(TARGET_BASE_URL + "/")):
+        raise HTTPException(status_code=404, detail="Not Found")
+    return url
+
 
 class OdooLoginPayload(BaseModel):
     email: str
@@ -236,7 +274,7 @@ async def odoo_login_for_tournaments(payload: OdooLoginPayload):
 async def proxy_to_vps(request: Request, path: str = ""):
     api_key = get_api_key()
 
-    target_url = f"{TARGET_BASE_URL}/{path}" if path else TARGET_BASE_URL
+    target_url = _proxied_url(path)
     query = request.url.query
     if query:
         target_url = f"{target_url}?{query}"

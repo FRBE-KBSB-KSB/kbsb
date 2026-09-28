@@ -13,6 +13,7 @@ from reddevil.core import (
 from reddevil.mail import MailParams, sendEmail
 
 from kbsb.club import club_locale, get_club_idclub
+from kbsb.core.cells import safe_cell
 from kbsb.interclubs import (
     DbICRegistration,
     # ICDATA,
@@ -134,7 +135,7 @@ async def set_icregistration(
     )
     if club.email_interclub:
         receiver.append(club.email_interclub)
-    logger.debug(f"EMAIL settings {settings.EMAIL}")
+    logger.debug(f"registration mail receivers {len(receiver)}")
     mp = MailParams(
         locale=locale,
         receiver=",".join(receiver),
@@ -185,18 +186,18 @@ async def xls_registrations() -> str:
                 d.idclub,
                 d.idinvoice,
                 d.idpaymentrequest,
-                d.locale,
-                d.name,
+                safe_cell(d.locale),
+                safe_cell(d.name),
                 d.teams1,
                 d.teams2,
                 d.teams3,
                 d.teams4,
                 d.teams5,
                 d.teams6,
-                d.wishes.get("grouping", ""),
-                d.wishes.get("splitting", ""),
-                d.wishes.get("regional", ""),
-                d.wishes.get("remarks", ""),
+                safe_cell(d.wishes.get("grouping", "")),
+                safe_cell(d.wishes.get("splitting", "")),
+                safe_cell(d.wishes.get("regional", "")),
+                safe_cell(d.wishes.get("remarks", "")),
             ]
         )
     with NamedTemporaryFile() as tmp:

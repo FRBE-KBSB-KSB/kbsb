@@ -22,12 +22,10 @@ from . import (
     DbICSeries2324,
     DbICSeries2425,
     DbICSeries2526,
-    DbICSeries2627,
     DbICStandings,
     DbICStandings2324,
     DbICStandings2425,
     DbICStandings2526,
-    DbICStandings2627,
     ICEncounter,
     ICGame,
     ICGameDetails,
@@ -308,9 +306,12 @@ async def mgmt_saveICresults(results: list[ICResultItem]) -> None:
         await calc_standings(s)
 
 
-async def clb_saveICresults(results: list[ICResultItem]) -> None:
+async def clb_saveICresults(
+    results: list[ICResultItem], signing_clubs: frozenset[int] = frozenset()
+) -> None:
     """
     save a list of results per team
+    signing_clubs: the clubs the caller may sign for (an interclub role there)
     """
     # TODO check for time
     for res in results:
@@ -339,12 +340,22 @@ async def clb_saveICresults(results: list[ICResultItem]) -> None:
                     )
                     for g in res.games
                 ]
-                if res.signhome_idnumber:
+                # a club signs only its own side, at the server's time; a
+                # signature sent back unchanged keeps its stored time
+                if (
+                    res.signhome_idnumber
+                    and res.signhome_idnumber != enc.signhome_idnumber
+                    and enc.icclub_home in signing_clubs
+                ):
                     enc.signhome_idnumber = res.signhome_idnumber
-                    enc.signhome_ts = res.signhome_ts
-                if res.signvisit_idnumber:
+                    enc.signhome_ts = datetime.now(UTC)
+                if (
+                    res.signvisit_idnumber
+                    and res.signvisit_idnumber != enc.signvisit_idnumber
+                    and enc.icclub_visit in signing_clubs
+                ):
                     enc.signvisit_idnumber = res.signvisit_idnumber
-                    enc.signvisit_ts = res.signvisit_ts
+                    enc.signvisit_ts = datetime.now(UTC)
                 calc_points(enc)
         await DbICSeries.update(
             {"division": res.division, "index": res.index},
@@ -587,18 +598,25 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
     return docs
 
 
+# Finished seasons only. The running season is not an archive: its series
+# hold the planned line-ups of rounds that have not opened yet, and the
+# archive endpoints are public and have no round-open check.
 dbseasons = {
     "2324": DbICStandings2324,
     "2425": DbICStandings2425,
     "2526": DbICStandings2526,
-    "2627": DbICStandings2627,
 }
 dbseries = {
     "2324": DbICSeries2324,
     "2425": DbICSeries2425,
     "2526": DbICSeries2526,
-    "2627": DbICSeries2627,
 }
+
+
+def _archived(table: dict, season: str):
+    if season not in table:
+        raise RdNotFound(description="SeasonNotArchived")
+    return table[season]
 
 
 async def anon_getICstandingsArchive(season: str) -> list[ICStandingsDB] | None:
@@ -609,7 +627,7 @@ async def anon_getICstandingsArchive(season: str) -> list[ICStandingsDB] | None:
         "_model": ICStandingsDB,
         "_sort": [("division", pymongo.ASCENDING), ("index", pymongo.ASCENDING)],
     }
-    dbseason = dbseasons[season]
+    dbseason = _archived(dbseasons, season)
     return await dbseason.find_multiple(options)
 
 
@@ -617,7 +635,7 @@ async def anon_getICresultsArchive(season: str, round: int) -> list[ICSeriesDB]:
     """
     get IC results from a season for a round
     """
-    dbresult = dbseries[season]
+    dbresult = _archived(dbseries, season)
     db = a_get_mongodb()
     coll = db[dbresult.COLLECTION]
     logger.info(f"coll {coll}")
@@ -648,7 +666,7 @@ async def anon_getICencounterdetails_archive(
     pairingnr_home: int,
     pairingnr_visit: int,
 ) -> list[ICGameDetails]:
-    dbresult = dbseries[season]
+    dbresult = _archived(dbseries, season)
     icserie = await dbresult.find_single(
         {
             "_model": ICSeries,

@@ -45,7 +45,6 @@ async function calcstatus() {
   // - noclub
   // - noaccess
   // - expired
-  console.log("calcstatus", idclub.value)
   if (!idclub.value) {
     pln_status.value = "noclub"
     players.value = []
@@ -65,7 +64,6 @@ async function calcstatus() {
   const now = new Date()
   const expiry = new Date(icdata.rounds11[round] + "T14:00")
   if (now.valueOf() > expiry.valueOf()) {
-    console.log("expired  planning")
     pln_status.value = "expired"
     players.value = []
     playersindexed = {}
@@ -80,7 +78,6 @@ async function checkAccess() {
   let reply
   if (!idtoken.value) return false
   showLoading(true)
-  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
@@ -89,7 +86,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     showSnackbar(t("icn.perm_denied"))
     return false
   } finally {
@@ -109,7 +105,6 @@ function clubLabel(pairingnr, s) {
 }
 
 async function getICseries() {
-  console.log("getICseries")
   let reply
   showLoading(true)
   try {
@@ -119,7 +114,6 @@ async function getICseries() {
       token: idtoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       showSnackbar("Access denied")
     }
@@ -137,10 +131,8 @@ async function getICseries() {
 }
 
 async function readICclub() {
-  console.log("readICclub")
   players.value = []
   playersindexed.value = {}
-  console.log("icclub", icclub.value)
   icclub.value.players.forEach((p) => {
     if (p.nature != "exported") {
       let player = {}
@@ -157,15 +149,12 @@ async function readICclub() {
       playersindexed[p.idnumber] = player
     }
   })
-  console.log("players", players.value)
 }
 
 function readICplanning() {
-  console.log("readICplanning")
   icseries.value.forEach((s) => {
     // fill in Teams
     s.teams.forEach((t) => {
-      console.log("looping team", t.name, t.idclub, s.rounds[0])
       let sround = s.rounds[0]
       if (t.idclub == idclub.value) {
         let team = {
@@ -230,7 +219,6 @@ async function savePlanning() {
   let reply
   validationdialog.value = false
   showLoading(true)
-  console.log("saving planning", icplanning.value)
   try {
     reply = await $backend("interclub", "clb_saveICplanning", {
       token: idtoken.value,
@@ -248,7 +236,6 @@ async function savePlanning() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup planning icclub", icclub_, "round", round_, "icdata", icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
@@ -260,7 +247,6 @@ async function setup(icclub_, round_, icdata_) {
 
 async function validatePlanning() {
   let reply
-  console.log("validating planning", icplanning.value)
   try {
     showLoading(true)
     reply = await $backend("interclub", "clb_validateICplanning", {
@@ -273,7 +259,6 @@ async function validatePlanning() {
   } finally {
     showLoading(false)
   }
-  console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
     validationerrors.value.forEach((err) => {

@@ -19,6 +19,7 @@ from reddevil.core import (
 from reddevil.mail import MailParams, sendEmail
 
 from kbsb.core import RdForbidden
+from kbsb.core.cells import safe_cell
 
 from .md_club import (
     Club,
@@ -169,7 +170,7 @@ async def get_csv_clubs(options: dict = {}) -> io.StringIO:
     options.pop("_class", None)
     fieldnames = ["idclub", "name_short", "name_long", "enabled", "email_main"]
     docs = await DbClub.find_multiple(options)
-    docs = [{k: v for k, v in d.items() if k in fieldnames} for d in docs]
+    docs = [{k: safe_cell(v) for k, v in d.items() if k in fieldnames} for d in docs]
     stream = io.StringIO()
     writer = csv.DictWriter(stream, fieldnames=fieldnames)
     writer.writeheader()
@@ -198,7 +199,7 @@ async def verify_club_access(idclub: int, idmember: str | int, role: str) -> boo
     club = await get_club({"idclub": idclub})
     if not club:
         raise RdForbidden
-    logger.info(f"club {club.clubroles}")
+    logger.info(f"verify_club_access club {idclub} roles {roles}")
     for r in roles:
         # looking for a single matching role
         for cr in club.clubroles:  # type: ignore
@@ -217,9 +218,9 @@ async def set_club(idclub: int, c: Club, user: str, bt: BackgroundTasks = None) 
     for cr in c.clubroles or []:
         cr.memberlist = list(set(cr.memberlist))
     props = c.model_dump(exclude_unset=True)
-    logger.debug(f"update props {props}")
+    logger.debug(f"update props {sorted(props)}")
     clb = await update_club(idclub, props, {"_username": user})
-    logger.info(f"updated clb {clb}")
+    logger.info(f"updated clb {idclub}")
     if bt:
         bt.add_task(sendnotification, clb)
     logger.debug(f"club {clb.idclub} updated")
@@ -255,7 +256,7 @@ async def sendnotification(clb: Club):
         subject="Club Details",
         template="club/clubdetails_{locale}.md",
     )
-    logger.debug(f"receiver {mp.receiver}")
+    logger.debug(f"receivers {len(receiver)}")
     ctx = clb.model_dump()
     ctx["locale"] = locale
     ctx["email_main"] = ctx["email_main"] or ""
@@ -330,12 +331,12 @@ async def mgmt_mailinglist():
             interclubs.add(interclub_director.email)
         ws.append(
             [
-                c.name_long,
+                safe_cell(c.name_long),
                 c.idclub,
-                ",".join(general),
-                ",".join(admin),
-                ",".join(finance),
-                ",".join(interclubs),
+                safe_cell(",".join(general)),
+                safe_cell(",".join(admin)),
+                safe_cell(",".join(finance)),
+                safe_cell(",".join(interclubs)),
             ]
         )
     with NamedTemporaryFile() as tmp:

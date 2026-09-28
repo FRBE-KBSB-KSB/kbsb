@@ -96,7 +96,6 @@ export default {
     return resp
   },
   mgmt_getICclub: async function (options) {
-    console.log("api mgmt_getICclub", options)
     const { token, idclub } = options
     const resp = await axios.get(`${prefix}/mgmt/icclub/${idclub}`, {
       headers: {
@@ -106,7 +105,6 @@ export default {
     return resp
   },
   clb_setICclub: async function (options) {
-    console.log("api clb_setICclub", options)
     const { token, idclub, ...icc } = options
     const resp = await axios.put(`${prefix}/clb/icclub/${idclub}`, icc, {
       headers: { Authorization: "Bearer " + token },
@@ -114,7 +112,6 @@ export default {
     return resp
   },
   mgmt_setICclub: async function (options) {
-    console.log("api clb_setICclub", options)
     const { token, idclub, ...icc } = options
     const resp = await axios.put(`${prefix}/mgmt/icclub/${idclub}`, icc, {
       headers: { Authorization: "Bearer " + token },
@@ -191,7 +188,6 @@ export default {
   },
   clb_validateICplanning: async function (options) {
     const { token, icplanning } = options
-    console.log("api clb_validateICplanning", icplanning)
     const resp = await axios.put(`${prefix}/clb/icplanningvalidate`, icplanning, {
       headers: { Authorization: "Bearer " + token },
     })
@@ -206,7 +202,6 @@ export default {
   },
   clb_saveICresults: async function (options) {
     const { token, ...option } = options
-    console.log("api options", options)
     const resp = await axios.put(`${prefix}/clb/icresults`, options, {
       headers: { Authorization: "Bearer " + token },
     })
@@ -234,7 +229,6 @@ export default {
   },
   anon_getICResultsArchive: async function (options) {
     const { season, round } = options
-    console.log("api anon_getICResultsArchive", season, round)
     const resp = await axios.get(`${prefix}/anon/icresultsarchive`, {
       params: { season, round },
     })
@@ -361,7 +355,6 @@ export default {
   },
   list_penalties_reports: async function (options) {
     const { token } = options
-    console.log("api list_penalties_reports options:", options, "\nprefix:", prefix)
     const resp = await axios.post(
       `${prefix}/mgmt/command/list_penalties_reports`,
       {},

@@ -24,12 +24,6 @@ const season = ref("2324")
 const ic_rounds = ref([])
 
 function addDetails(series, enc, games) {
-  console.log(
-    "adddetails enc",
-    enc.icclub_home,
-    enc.pairingnr_home,
-    games[0].fullname_home
-  )
   const newlines = games.map((g) => {
     return {
       nature: "detail",
@@ -49,7 +43,6 @@ function addDetails(series, enc, games) {
     // l.pairingnr_home == enc.pairingnr_home &&
     // l.pairingnr_visit == enc.pairingnr_visit
   )
-  console.log("ix", ix)
   if (enc.icclub_home && enc.icclub_visit && games.length) {
     series.lines.splice(ix + 1, 0, ...newlines)
   }
@@ -58,7 +51,6 @@ function addDetails(series, enc, games) {
 async function getSeries() {
   let reply
   showLoading(true)
-  console.log("getICResultsArchive", round.value)
   try {
     reply = await $backend("interclub", "anon_getICResultsArchive", {
       round: round.value,
@@ -71,7 +63,6 @@ async function getSeries() {
     showLoading(false)
   }
   icseries.value = reply.data
-  console.log("# icseries", icseries.value.length)
   icseries.value.forEach((s) => processSeries(s))
 }
 
@@ -104,7 +95,6 @@ function isOverruled(game) {
 }
 
 function processSeries(s) {
-  console.log("process Series start", s.division, s.index)
   const names = Object.fromEntries(s.teams.map((t) => [t.pairingnumber, t.name]))
   s.showdetails = false
   s.lines = []
@@ -118,11 +108,9 @@ function processSeries(s) {
       result: `${enc.boardpoint2_home / 2} - ${enc.boardpoint2_visit / 2}`,
     })
   })
-  console.log("process Series done", s.division, s.index)
 }
 
 function setup(season_) {
-  console.log("setup archive results", season_)
   season.value = season_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
@@ -130,7 +118,6 @@ function setup(season_) {
 }
 
 function updateDetails(s) {
-  console.log("updateDetails", s.showdetails)
   if (s.showdetails) {
     s.rounds[0].encounters.forEach((enc) => getICencounterdetails(s, enc))
   } else {

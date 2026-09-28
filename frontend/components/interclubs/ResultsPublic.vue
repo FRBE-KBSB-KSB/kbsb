@@ -23,7 +23,6 @@ let round = 0
 let icdata = {}
 
 function addDetails(series, enc, games) {
-  console.log("enc", enc.icclub_home, enc.pairingnr_home, games[0].fullname_home)
   const newlines = games.map((g) => {
     return {
       nature: "detail",
@@ -50,7 +49,6 @@ function addDetails(series, enc, games) {
       l.pairingnr_home == enc.pairingnr_home &&
       l.pairingnr_visit == enc.pairingnr_visit
   )
-  console.log("ix", ix)
   if (enc.icclub_home && enc.icclub_visit && games.length) {
     series.lines.splice(ix + 1, 0, ...newlines, {
       nature: "average",
@@ -63,7 +61,6 @@ function addDetails(series, enc, games) {
 async function getSeries() {
   let reply
   showLoading(true)
-  console.log("getSeries", round, idclub.value)
   try {
     reply = await $backend("interclub", "anon_getICseries", {
       round: round,
@@ -125,7 +122,6 @@ function processSeries(s) {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup results icclub", icclub_, "round", round_, "icdata", icdata_)
   icclub.value = icclub_
   round = round_
   icdata = icdata_
@@ -136,7 +132,6 @@ async function setup(icclub_, round_, icdata_) {
 }
 
 function updateDetails(s) {
-  console.log("updateDetails", s.showdetails)
   if (s.showdetails) {
     s.rounds[0].encounters.forEach((enc) => getICencounterdetails(s, enc))
   } else {

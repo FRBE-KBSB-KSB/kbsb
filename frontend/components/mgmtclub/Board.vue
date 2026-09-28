@@ -55,7 +55,6 @@ async function modifyClub() {
 }
 
 function readClubDetails(club) {
-  console.log('readClubDetails in board')
   clubdetails.value = { ...EMPTY_CLUB, ...club }
   copyclubdetails = JSON.parse(JSON.stringify(club))
   boardmembers.value = { ...EMPTY_BOARD, ...club.boardmembers }
@@ -113,7 +112,6 @@ function updateboard(f) {
 }
 
 function setup(club) {
-  console.log('setupBoard', club)
   readClubDetails(club)
 }
 
