@@ -11,6 +11,7 @@ from reddevil.core import (
 from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_token
 
+from kbsb.interclubs.helpers import check_registration_open
 from kbsb.interclubs.series import anon_getICresults
 from kbsb.member import validate_membertoken
 
@@ -156,6 +157,7 @@ async def api_clb_set_registration(
 ):
     try:
         await _ic_access(idclub, auth)
+        await check_registration_open()
         return await set_icregistration(idclub, ie, bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -206,6 +208,7 @@ async def api_set_registration(
 
     try:
         await _ic_access(idclub, auth)
+        await check_registration_open()
         return await set_icregistration(idclub, ie, bt=bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

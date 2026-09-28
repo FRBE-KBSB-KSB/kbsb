@@ -59,15 +59,24 @@ definePageMeta({
             <label class="headline ml-3">{{ $t("Sign in") }}</label>
           </VCardTitle>
           <VDivider />
+          <form id="odoo-login-form" @submit.prevent="dologin()">
           <VCardText>
             <p>{{ $t("odoo.login") }}</p>
-            <VTextField v-model="login.email" :label="$t('Email address')" />
+            <VTextField
+              v-model="login.email"
+              :label="$t('Email address')"
+              name="username"
+              type="email"
+              autocomplete="username"
+            />
             <VTextField
               v-model="login.password"
               xs="12"
               lg="6"
               :label="$t('Password')"
+              name="password"
               type="password"
+              autocomplete="current-password"
             />
           </VCardText>
           <VCardActions>
@@ -78,10 +87,11 @@ definePageMeta({
             <a @click="gotoOdoo(2)">
               {{ $t("odoo.noaccount") }}
             </a>
-            <VBtn @click="dologin()">
+            <VBtn type="submit">
               {{ $t("Submit") }}
             </VBtn>
           </VCardActions>
+          </form>
         </VCard>
       </VCol>
     </VRow>

@@ -62,7 +62,7 @@ async def test_validate_players_elotoolow(
     )
     pu = ICPlayerUpdate(players=[pl])
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0
     )
     errors = await clb_validateICPlayers(123, pu)
     assert len(errors)
@@ -94,7 +94,7 @@ async def test_validate_players_OK(
         pl.assignedrating = pl.fiderating + ix
     pu = ICPlayerUpdate(players=pls)
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0, name="C"
     )
     errors = await clb_validateICPlayers(123, pu)
     assert not errors
@@ -130,7 +130,7 @@ async def test_validate_players_elotoohigh(
         pl.assignedrating = pl.assignedrating + ix
     pu = ICPlayerUpdate(players=pls)
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0, name="C"
     )
     errors = await clb_validateICPlayers(123, pu)
     print("errors:", errors)
@@ -159,7 +159,7 @@ async def test_validate_players_doubleelo(
         nature="assigned",
     )
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0
     )
     pu = ICPlayerUpdate(players=[pl1, pl2])
     errors = await clb_validateICPlayers(123, pu)
@@ -185,7 +185,7 @@ async def test_validate_players_titulartoomany(
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0, name="C"
     )
     pu = ICPlayerUpdate(players=pls)
     errors = await clb_validateICPlayers(123, pu)
@@ -211,7 +211,7 @@ async def test_validate_players_titularnotenough(
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0, name="C"
     )
     pu = ICPlayerUpdate(players=pls)
     errors = await clb_validateICPlayers(123, pu)
@@ -237,7 +237,7 @@ async def test_validate_players_titularok(
         pl.assignedrating = 1500 + ix
         pl.titular = "C 1"
     find_registration.return_value = ic_registration_factory.build(
-        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, name="C"
+        teams1=0, teams2=0, teams3=0, teams4=0, teams5=1, teams6=0, name="C"
     )
     pu = ICPlayerUpdate(players=pls)
     errors = await clb_validateICPlayers(123, pu)

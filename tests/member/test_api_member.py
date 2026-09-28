@@ -17,7 +17,11 @@ def test_anon_getmember(anon_getmember: AsyncMock, anon_member_factory):
     anon_getmember.assert_awaited()
 
 
-@patch("kbsb.member.api_member.anon_getfidemember")
+@pytest.mark.skip(
+    reason="out of date: the /anon/fidemember endpoint and anon_getfidemember "
+    "were removed with the MySQL member database (#98)"
+)
+@patch("kbsb.member.api_member.anon_getfidemember", create=True)
 def test_anon_getfidemember(anon_getmember: AsyncMock, anon_member_factory):
     client = TestClient(app)
     anon_getmember.return_value = anon_member_factory.build()
