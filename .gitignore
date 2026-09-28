@@ -15,8 +15,7 @@ dist/
 *.log*
 shared/secrets/
 shared/fide_data
-tests/data/test_clubs.ods
-tests/data/test_pairings.ods
+
 
 
 
