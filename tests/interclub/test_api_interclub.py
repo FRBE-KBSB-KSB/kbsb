@@ -1,3 +1,5 @@
+import base64
+
 import pytest  # noqa F401
 
 from unittest.mock import AsyncMock, patch, MagicMock
@@ -19,6 +21,8 @@ def test_find_icregistration(find_icregistration: AsyncMock, ic_registration_fac
 
 # the clb routes check the caller's club role (kbsb.club.verify_club_access,
 # imported at call time); allow it so the test reaches the handler
+# the registration window is checked against the real date; keep it open
+@patch("kbsb.interclubs.api_interclubs.check_registration_open")
 @patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.set_icregistration")
@@ -26,6 +30,7 @@ def test_clb_set_registration(
     set_icregistration: AsyncMock,
     vmt: MagicMock,
     verify_club_access: AsyncMock,
+    check_registration_open: AsyncMock,
     ic_registration_in_factory,
     ic_registration_factory,
 ):
@@ -63,16 +68,16 @@ def test_mgmt_set_registration(
     assert isinstance(callargs[1], ICRegistrationIn)
 
 
-@pytest.mark.skip("No Excel")
 @patch("kbsb.interclubs.api_interclubs.validate_token")
 @patch("kbsb.interclubs.api_interclubs.xls_registrations")
 def test_xls_registrations(xls_registrations: AsyncMock, vt):
     client = TestClient(app)
-    xls_registrations.return_value = "xls_content"
+    # the route returns the workbook bytes base64 encoded
+    xls_registrations.return_value = b"xls_content"
     resp = client.get("/api/v1/interclubs/mgmt/command/xls_registrations")
     xls_registrations.assert_awaited()
     assert resp.status_code == 200
-    assert resp.content == b'"xls_content"'
+    assert resp.json() == {"xls64": base64.b64encode(b"xls_content").decode()}
 
 
 @patch("kbsb.interclubs.api_interclubs.anon_getICteams")

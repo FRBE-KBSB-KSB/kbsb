@@ -184,6 +184,8 @@ async function selectClub() {
 onMounted(async () => {
   let l = route.query.locale
   locale.value = l ? l : "nl"
+  idstore.startup()
+  idbelstore.startup()
   checkAuth()
   await processICdata()
   calcPhase()

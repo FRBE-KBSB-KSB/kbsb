@@ -21,7 +21,11 @@ export default defineNuxtConfig({
     '@mdi/font/css/materialdesignicons.min.css',
   ],
 
+  // Only in `yarn dev`, and only when asked for (NUXT_DEVTOOLS=1): a running
+  // dev server with devtools was reachable from any web page (the review's
+  // SEC-14 RCE). The generated site never includes them.
   devtools: {
+    enabled: process.env.NUXT_DEVTOOLS === '1',
     timeline: {
       enabled: true
     }
