@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from datetime import date
 
 from kbsb.main import app
-from kbsb.interclubs import ICGame
+from kbsb.interclubs import ICGame, ICSeriesDB
 from kbsb.interclubs.series import (
     mgmt_saveICresults,
     clb_saveICresults,
@@ -31,9 +31,15 @@ async def test_mgmt_saveICresults(
     ic_standings_db_factory,
 ):
     game1 = ic_game_factory.build(result="", overruled=None)
-    encounter1 = ic_encounter_factory.build(games=[game1])
+    # encounters against club 0 (bye) are skipped, so use real clubs
+    encounter1 = ic_encounter_factory.build(
+        games=[game1], icclub_home=101, icclub_visit=201
+    )
     round1 = ic_round_factory.build(encounters=[encounter1])
-    series1 = ic_series_factory.build(rounds=[round1])
+    # the database returns an ICSeriesDB (mgmt_saveICresults asserts it)
+    series1 = ICSeriesDB(
+        id="series1", **ic_series_factory.build(rounds=[round1]).model_dump()
+    )
     dbSeries.find_single = AsyncMock(return_value=series1)
     updategame1 = game1.model_copy()
     updategame1.result = "1-0"
@@ -223,10 +229,17 @@ def test_calc_points_overrule(ic_encounter_factory, ic_game_factory):
 @patch("kbsb.interclubs.series.load_icdata")
 @pytest.mark.asyncio
 async def test_isRoundOpen(load_icdata: AsyncMock):
-    load_icdata.return_value = {"rounds": {1: date(2020, 1, 3)}}
-    with freeze_time("2020-01-03 14:50:00"):
+    # a round opens at 14:00 Europe/Brussels (13:00 UTC in winter) on its
+    # date; division 6 plays the 9-round calendar, the others the 11-round one
+    load_icdata.return_value = {
+        "rounds11": {1: date(2020, 1, 3)},
+        "rounds9": {1: date(2020, 1, 4)},
+    }
+    with freeze_time("2020-01-03 12:50:00"):
         assert not await isRoundOpen(1)
-    with freeze_time("2020-01-03 15:10:00"):
+    with freeze_time("2020-01-03 13:10:00"):
         assert await isRoundOpen(1)
-    with freeze_time("2020-01-03 15:10:00"):
         assert not await isRoundOpen(2)
+        assert not await isRoundOpen(1, 6)
+    with freeze_time("2020-01-04 13:10:00"):
+        assert await isRoundOpen(1, 6)

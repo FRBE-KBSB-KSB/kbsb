@@ -17,11 +17,15 @@ def test_find_icregistration(find_icregistration: AsyncMock, ic_registration_fac
     find_icregistration.assert_awaited_with(123)
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.set_icregistration")
 def test_clb_set_registration(
     set_icregistration: AsyncMock,
     vmt: MagicMock,
+    verify_club_access: AsyncMock,
     ic_registration_in_factory,
     ic_registration_factory,
 ):
@@ -98,9 +102,17 @@ def test_anon_getICclubs(anon_getICclubs: AsyncMock, ic_club_item_factory):
     anon_getICclubs.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_getICclub")
-def test_clb_getICclub(clb_getICclub: AsyncMock, vmt: MagicMock, ic_club_db_factory):
+def test_clb_getICclub(
+    clb_getICclub: AsyncMock,
+    vmt: MagicMock,
+    verify_club_access: AsyncMock,
+    ic_club_db_factory,
+):
     client = TestClient(app)
     clb_getICclub.return_value = ic_club_db_factory.build()
     resp = client.get("/api/v1/interclubs/clb/icclub/123")
@@ -118,11 +130,15 @@ def test_mgmt_getICclub(mgmt_getICclub: AsyncMock, vt: AsyncMock, ic_club_db_fac
     mgmt_getICclub.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_validateICPlayers")
 def test_clb_validateICPlayers(
     clb_validateICPlayers: AsyncMock,
     vmt: MagicMock,
+    verify_club_access: AsyncMock,
     ic_player_update_factory,
     ic_player_validation_error_factory,
 ):
@@ -154,11 +170,15 @@ def test_mgmt_validateICPlayers(
     clb_validateICPlayers.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_updateICplayers")
 def test_clb_updateICPlayers(
     clb_updateICPlayers: AsyncMock,
     vmt: AsyncMock,
+    verify_club_access: AsyncMock,
     ic_player_update_factory,
 ):
     client = TestClient(app)
@@ -218,11 +238,15 @@ def test_anon_getICseries(
     anon_get_icseries_clubround.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_getICseries")
 def test_clb_getICseries(
     clb_getICseries: AsyncMock,
     vmt: AsyncMock,
+    verify_club_access: AsyncMock,
     ic_series_factory,
 ):
     client = TestClient(app)
@@ -246,11 +270,15 @@ def test_mgmt_getICseries(
     clb_getICseries.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_saveICplanning")
 def test_clb_saveICplanning(
     clb_saveICplanning: AsyncMock,
     vmt: AsyncMock,
+    verify_club_access: AsyncMock,
     ic_planning_factory,
 ):
     client = TestClient(app)
@@ -274,11 +302,15 @@ def test_mgmt_saveICresults(
     mgmt_saveICresults.assert_awaited()
 
 
+# the clb routes check the caller's club role (kbsb.club.verify_club_access,
+# imported at call time); allow it so the test reaches the handler
+@patch("kbsb.club.verify_club_access")
 @patch("kbsb.interclubs.api_interclubs.validate_membertoken")
 @patch("kbsb.interclubs.api_interclubs.clb_saveICresults")
 def test_clb_saveICresults(
     clb_saveICresults: AsyncMock,
     vt: AsyncMock,
+    verify_club_access: AsyncMock,
     ic_result_factory,
 ):
     client = TestClient(app)

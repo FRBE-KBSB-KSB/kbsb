@@ -1,7 +1,10 @@
 import logging
+from collections.abc import Iterable
+from datetime import UTC, date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 import yaml
-from reddevil.core import RdInternalServerError, get_settings
+from reddevil.core import RdBadRequest, RdInternalServerError, get_settings
 from reddevil.filestore.filestore import get_file
 
 from kbsb import ROOT_DIR
@@ -28,6 +31,147 @@ async def load_icdata():
             logger.info("loaded icdata from local")
         load_icdata.icdata = icdata
     return icdata
+
+
+# season windows of the club routes
+# The site checks these in the browser (components/interclubs/*.vue and
+# pages/tools/interclub_protected.vue). The server repeats them with the same
+# times and boundaries, so a club can do no more over the API than on the
+# site. The /mgmt routes never call them.
+
+belzone = ZoneInfo("Europe/Brussels")
+
+
+def _asdate(d: date | str) -> date:
+    if isinstance(d, datetime):
+        return d.date()
+    if isinstance(d, date):
+        return d
+    return date.fromisoformat(str(d)[0:10])
+
+
+def _sitedate(d: date | str) -> datetime:
+    """
+    a season date as the site reads it: new Date("YYYY-MM-DD") is midnight
+    UTC, a date with a time is local (Brussels) time
+    """
+    if isinstance(d, str) and len(d) > 10:
+        d = datetime.fromisoformat(d)
+    if isinstance(d, datetime):
+        return d if d.tzinfo else d.replace(tzinfo=belzone)
+    return datetime.combine(_asdate(d), time(0), tzinfo=UTC)
+
+
+def _roundtime(icdata: dict, calendar: str, round: int, hour: int) -> datetime | None:
+    """
+    a round date at the given hour, as the site reads it with
+    new Date("YYYY-MM-DDThh:00"): local (Brussels) time
+    """
+    d = (icdata.get(calendar) or {}).get(round)
+    if not d:
+        return None
+    return datetime.combine(_asdate(d), time(hour), tzinfo=belzone)
+
+
+def _calendars(division: int) -> list[str]:
+    """
+    the site takes the round date from rounds11 for every division (IB-10);
+    division 6 plays the rounds9 calendar, so its own dates count as well
+    """
+    return ["rounds11", "rounds9"] if division == 6 else ["rounds11"]
+
+
+def planning_open(icdata: dict, round: int, division: int, now: datetime) -> bool:
+    """
+    Planning.vue: the line-up of a round can change until 14:00 on its day
+    """
+    for cal in _calendars(division):
+        expiry = _roundtime(icdata, cal, round, 14)
+        if expiry and now <= expiry:
+            return True
+    return False
+
+
+def results_open(icdata: dict, round: int, division: int, now: datetime) -> bool:
+    """
+    Results.vue: the results of a round can be entered from 15:00 on its day
+    during 33 hours (counted in real hours, as the site does)
+    """
+    for cal in _calendars(division):
+        opened = _roundtime(icdata, cal, round, 15)
+        if opened:
+            opened = opened.astimezone(UTC)
+            if opened <= now <= opened + timedelta(hours=33):
+                return True
+    return False
+
+
+def playerlist_open(icdata: dict, now: datetime) -> bool:
+    """
+    Playerlist.vue: the player list can change strictly inside one of the
+    periods of playerlist_data
+    """
+    for p in icdata.get("playerlist_data") or []:
+        if _sitedate(p["start"]) < now < _sitedate(p["end"]):
+            return True
+    return False
+
+
+def registration_open(icdata: dict, now: datetime) -> bool:
+    """
+    interclub_protected.vue: the registration can change from the start up to
+    the end of registration_data, both included
+    """
+    rd = icdata.get("registration_data") or {}
+    if not rd.get("start") or not rd.get("end"):
+        return False
+    return _sitedate(rd["start"]) <= now <= _sitedate(rd["end"])
+
+
+async def check_planning_open(
+    round: int, divisions: Iterable[int], now: datetime | None = None
+) -> None:
+    """
+    raise PlanningClosed unless the planning of the round is open for all
+    the divisions
+    """
+    icdata = await load_icdata()
+    now = now or datetime.now(UTC)
+    for division in set(divisions) or {0}:
+        if not planning_open(icdata, round, division, now):
+            raise RdBadRequest(description="PlanningClosed")
+
+
+async def check_results_open(
+    rounds: Iterable[tuple[int, int]], now: datetime | None = None
+) -> None:
+    """
+    raise ResultsClosed unless the result entry is open for every
+    (round, division)
+    """
+    icdata = await load_icdata()
+    now = now or datetime.now(UTC)
+    for round, division in rounds:
+        if not results_open(icdata, round, division, now):
+            raise RdBadRequest(description="ResultsClosed")
+
+
+async def check_playerlist_open(now: datetime | None = None) -> None:
+    """
+    raise PlayerlistClosed outside the player list periods
+    """
+    icdata = await load_icdata()
+    if not playerlist_open(icdata, now or datetime.now(UTC)):
+        raise RdBadRequest(description="PlayerlistClosed")
+
+
+async def check_registration_open(now: datetime | None = None) -> None:
+    """
+    raise RegistrationClosed outside the registration window
+    """
+    icdata = await load_icdata()
+    if not registration_open(icdata, now or datetime.now(UTC)):
+        raise RdBadRequest(description="RegistrationClosed")
 
 
 async def load_all_icclubs():

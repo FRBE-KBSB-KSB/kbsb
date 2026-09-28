@@ -7,7 +7,8 @@ from fastapi.testclient import TestClient
 from kbsb.main import app
 
 
-@patch("kbsb.club.api_club.validate_membertoken")
+# the handler imports validate_membertoken from kbsb.member at call time
+@patch("kbsb.member.validate_membertoken")
 @patch("kbsb.club.api_club.verify_club_access")
 def test_verify_club_access(
     verify_club_access: AsyncMock,

@@ -30,6 +30,7 @@ from kbsb.interclubs import (
     PlayerPeriod,
     load_icdata,
 )
+from kbsb.interclubs.helpers import check_playerlist_open
 from kbsb.interclubs.registrations import find_icregistration
 
 logger = logging.getLogger(__name__)
@@ -277,6 +278,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     update the the player list of a club
     """
     logger.info(f"clb_updateICplayers {idclub}")
+    await check_playerlist_open()
     icc: ICClubDB = await clb_getICclub(idclub)
     assert icc.players is not None
     players = pi.players

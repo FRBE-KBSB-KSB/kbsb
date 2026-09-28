@@ -46,6 +46,7 @@ from . import (
     ptable10,
     ptable12,
 )
+from .helpers import check_planning_open, check_results_open
 from .validation import LineUpValidation
 
 logger = logging.getLogger(__name__)
@@ -236,6 +237,9 @@ async def clb_saveICplanning(icplanning: ICPlanning) -> None:
     """
     save a lists of pleanning per team
     """
+    await check_planning_open(
+        icplanning.round, [p.division for p in icplanning.plannings]
+    )
     seriesdict = await _apply_planning(icplanning)
     for s in seriesdict.values():
         await DbICSeries.update(
@@ -313,7 +317,7 @@ async def clb_saveICresults(
     save a list of results per team
     signing_clubs: the clubs the caller may sign for (an interclub role there)
     """
-    # TODO check for time
+    await check_results_open([(res.round, res.division) for res in results])
     for res in results:
         s = await DbICSeries.find_single(
             {"division": res.division, "index": res.index, "_model": ICSeriesDB}
