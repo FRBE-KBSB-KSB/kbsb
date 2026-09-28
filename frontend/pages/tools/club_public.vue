@@ -31,12 +31,9 @@ function displaySnackbar(text, color) {
 
 async function getClubs() {
   let reply
-  console.log(1)
   changeDialogCounter(1)
-  console.log(2)
   try {
     reply = await $backend("club", "anon_get_clubs", {})
-    console.log(3)
   } catch (error) {
     displaySnackbar($t(error.message))
     return
@@ -74,7 +71,6 @@ function selectclub() {
 
 onMounted(() => {
   let l = route.query.locale
-  console.log("query locale", l)
   locale.value = l ? l : "nl"
   getClubs()
 })
@@ -127,7 +123,7 @@ definePageMeta({
           <div>
             <span class="text-green-darken-2">{{ $t("Club venue") }}</span
             >:<br />
-            <span v-html="club.venue.replaceAll('\n', '<br />')"></span>
+            <span style="white-space: pre-line">{{ club.venue }}</span>
           </div>
           <h4 class="mt-2">{{ $t("Contact") }}</h4>
           <div>
@@ -137,7 +133,7 @@ definePageMeta({
           <div>
             <span class="text-green-darken-2">{{ $t("Postal address") }}</span
             >:<br />
-            <span v-html="club.address.replaceAll('\n', '<br />')"></span>
+            <span style="white-space: pre-line">{{ club.address }}</span>
           </div>
           <div>
             <span class="text-green-darken-2">{{ $t("Website") }}</span

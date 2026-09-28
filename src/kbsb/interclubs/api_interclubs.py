@@ -11,6 +11,7 @@ from reddevil.core import (
 from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_token
 
+from kbsb.interclubs.helpers import check_registration_open
 from kbsb.interclubs.series import anon_getICresults
 from kbsb.member import validate_membertoken
 
@@ -23,6 +24,7 @@ from . import (
     ICPlayerValidationError,
     ICRegistration,
     ICRegistrationIn,
+    ICRegistrationPublic,
     ICResult,
     ICSeries,
     ICSeriesDB,
@@ -102,27 +104,36 @@ async def _hide_other_lineups(series, idclub: int):
     return series
 
 
-async def _ic_results_access(results, auth) -> str:
+async def _ic_results_access(results, auth) -> frozenset[int]:
+    """
+    403 unless the caller has an interclub role in the home or the visiting
+    club of every result; returns the clubs of these results where the caller
+    has that role, the sides the caller may sign
+    """
     from kbsb.club import verify_club_access
 
     idmember = validate_membertoken(auth)
+    checked: dict[int, bool] = {}
     for r in results:
         for idclub in (r.icclub_home, r.icclub_visit):
-            try:
-                await verify_club_access(idclub, idmember, IC_ROLES)
-                break
-            except RdException:
-                continue
-        else:
+            if idclub not in checked:
+                try:
+                    await verify_club_access(idclub, idmember, IC_ROLES)
+                    checked[idclub] = True
+                except RdException:
+                    checked[idclub] = False
+        if not (checked[r.icclub_home] or checked[r.icclub_visit]):
             raise RdForbidden
-    return idmember
+    return frozenset(idclub for idclub, ok in checked.items() if ok)
 
 router = APIRouter(prefix="/api/v1/interclubs")
 
 # registrations
 
 
-@router.get("/anon/registration/{idclub}", response_model=ICRegistration | None)
+@router.get(
+    "/anon/registration/{idclub}", response_model=ICRegistrationPublic | None
+)
 async def api_find_icregistration(idclub: int):
     """
     return an registration by idclub
@@ -146,6 +157,7 @@ async def api_clb_set_registration(
 ):
     try:
         await _ic_access(idclub, auth)
+        await check_registration_open()
         return await set_icregistration(idclub, ie, bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -196,6 +208,7 @@ async def api_set_registration(
 
     try:
         await _ic_access(idclub, auth)
+        await check_registration_open()
         return await set_icregistration(idclub, ie, bt=bt)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -212,7 +225,7 @@ async def api_find_interclubvenues(idclub: int):
     try:
         logger.info(f"get venues {idclub}")
         a = await getICvenues(idclub)
-        logger.info(f"got venues {a}")
+        logger.info(f"got venues {idclub}: {len(a.venues or []) if a else 0}")
         return a
     except RdException as e:
         logger.info(f"get venues failed {e}")
@@ -530,8 +543,8 @@ async def api_clb_saveICresults(
 ):
     try:
         logger.info("hi")
-        await _ic_results_access(icri.results, auth)
-        await clb_saveICresults(icri.results)
+        signing_clubs = await _ic_results_access(icri.results, auth)
+        await clb_saveICresults(icri.results, signing_clubs)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
@@ -682,8 +695,8 @@ async def api_mgmt_register_teamforfeit(
 async def api_trf_phase1(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    # await validate_token(auth)
     try:
+        await validate_token(auth)
         await trf_report_phase1()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
@@ -696,8 +709,8 @@ async def api_trf_phase1(
 async def api_trf_phase2(
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    # await validate_token(auth)
     try:
+        await validate_token(auth)
         await trf_report_phase2()
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

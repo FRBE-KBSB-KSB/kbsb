@@ -17,11 +17,7 @@ shared/secrets/
 shared/fide_data
 tests/data/test_clubs.ods
 tests/data/test_pairings.ods
-scratch/
-kbsb-*.json
 
 
 
-src/kbsb/etl/add_interclubadmin.py
-.gitignore
 .gitignore

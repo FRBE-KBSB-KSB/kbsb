@@ -39,7 +39,6 @@ async def superuser_login(superid: str, password: str) -> str:
     token_settings = get_setting("TOKEN")
     try:
         su = get_secret(superid)
-        logger.info(f"su {su}")
         if su.get("password") != password:
             raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     except Exception as e:

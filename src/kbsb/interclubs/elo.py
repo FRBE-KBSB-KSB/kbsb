@@ -172,7 +172,7 @@ def read_eloprocessing(path: str):
         for fd in csvfide:
             idbel = int(fd["idnumber"])
             if idbel == 13815:
-                logger.info(f"found idbel 13815 {fd}")
+                logger.info("found idbel 13815")
             elodata[idbel] = fd
 
 
@@ -886,7 +886,7 @@ async def trf_process_playerdetails2():
             logger.error(f"no elodata for {trf.idbel}")
             break
         if trf.idbel == 29099:
-            logger.info(f"29099 {trf} \ndetails {details}")
+            logger.info("updating trf record 29099")
         upd = {"fiderating": details["fiderating"]}
         if not trf.fullname or trf.fullname == "":
             upd = upd | {

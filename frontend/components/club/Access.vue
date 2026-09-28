@@ -86,7 +86,6 @@ function readClubMembers() {
     clubadminl.map((x) => {
       const cm = clubmembers.value.find((m) => m.idnumber == x)
       if (!cm) {
-        console.log("Did not find", x)
         return []
       } else {
         cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
@@ -98,7 +97,6 @@ function readClubMembers() {
     interclubadminl.map((x) => {
       const cm = clubmembers.value.find((m) => m.idnumber == x)
       if (!cm) {
-        console.log("Did not find", x)
         return []
       } else {
         cm.merged = cm ? `${x} ${cm.first_name} ${cm.last_name}` : ""
@@ -142,7 +140,6 @@ function setup(club_, clubmembers_) {
   clubmembers.value = clubmembers_
   copyclub = JSON.parse(JSON.stringify(club.value))
   club.value.clubroles.forEach((c) => {
-    console.log("loop c", c.nature, c.memberlist)
     if (c.nature == "ClubAdmin") clubadminl = c.memberlist
     if (c.nature == "InterclubAdmin") interclubadminl = c.memberlist
   })

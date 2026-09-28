@@ -17,7 +17,6 @@ const errortext = ref("")
 const url = route.query.url
 
 function gotoOdoo(i) {
-  console.log("gotoOdoo", i)
   if (i === 1) {
     let odooUrl = "https://frbe-kbsb.odoo.com/web/reset_password"
     window.open(odooUrl, "_blank")
@@ -28,25 +27,21 @@ function gotoOdoo(i) {
 }
 
 async function dologin() {
-  console.log("doing a login")
   const returnUrl = url ? url.replaceAll("__", "/") : "/"
-  console.log("return URL", returnUrl)
   let reply
   try {
     reply = await $backend("accounts", "odoologin", {
       email: login.value.email,
       password: login.value.password,
     })
-    console.log("did a login", reply.data)
   } catch (error) {
-    console.error("failed login", error)
+    console.error("failed login", error?.message)
     errortext.value = t(error.message)
     snackbar.value = true
     return
   }
   idbelstore.updateIdbel(reply.data[0])
   idtokenstore.updateToken(reply.data[1])
-  console.log("redirecting to ", returnUrl)
   await navigateTo(returnUrl)
 }
 
@@ -64,15 +59,27 @@ definePageMeta({
             <label class="headline ml-3">{{ $t("Sign in") }}</label>
           </VCardTitle>
           <VDivider />
+          <form id="odoo-login-form" novalidate @submit.prevent="dologin()">
           <VCardText>
             <p>{{ $t("odoo.login") }}</p>
-            <VTextField v-model="login.email" :label="$t('Email address')" />
+            <VTextField
+              v-model="login.email"
+              :label="$t('Email address')"
+              name="username"
+              type="text"
+              inputmode="email"
+              autocapitalize="off"
+              spellcheck="false"
+              autocomplete="username"
+            />
             <VTextField
               v-model="login.password"
               xs="12"
               lg="6"
               :label="$t('Password')"
+              name="password"
               type="password"
+              autocomplete="current-password"
             />
           </VCardText>
           <VCardActions>
@@ -83,10 +90,11 @@ definePageMeta({
             <a @click="gotoOdoo(2)">
               {{ $t("odoo.noaccount") }}
             </a>
-            <VBtn @click="dologin()">
+            <VBtn type="submit">
               {{ $t("Submit") }}
             </VBtn>
           </VCardActions>
+          </form>
         </VCard>
       </VCol>
     </VRow>

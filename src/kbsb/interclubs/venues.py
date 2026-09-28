@@ -8,6 +8,7 @@ from reddevil.core import (
     RdNotFound,
 )
 from kbsb.club import get_club_idclub
+from kbsb.core.cells import safe_cell
 from kbsb.interclubs import (
     ICVenueDB,
     ICVenueIn,
@@ -59,7 +60,7 @@ async def update_interclubvenues(
     options1["_model"] = options1.get("_model", ICVenueDB)
     iudict = iu.model_dump(exclude_unset=True)
     iudict.pop("id", None)
-    logger.info(f"updating venue {id} with {iudict}")
+    logger.info(f"updating venue {id}")
     return cast(ICVenueDB, await DbICVenue.update(id, iudict, options1))
 
 
@@ -88,7 +89,7 @@ async def set_interclubvenues(idclub: str, ivi: ICVenueIn) -> ICVenueDB:
             idclub=idclub,
             venues=ivi.venues,
         )
-        logger.info(f"insert interclubvenues {iv}")
+        logger.info(f"insert interclubvenues {idclub}")
         id = await create_interclubvenues(iv)
         niv = await get_interclubvenues(id)
     # TODO solve email
@@ -139,20 +140,20 @@ async def xls_venues() -> str:
     )
     for vns in docs:
         for ix, vn in enumerate(vns.venues):
-            logger.info(f"rec {vn} {ix}")
+            logger.info(f"rec {vns.idclub} {ix}")
             ws.append(
                 [
                     vns.idclub,
                     ix + 1,
-                    vn.address,
+                    safe_cell(vn.address),
                     vn.capacity,
-                    ",".join(vn.rounds),
-                    ",".join(vn.teams),
+                    safe_cell(",".join(vn.rounds)),
+                    safe_cell(",".join(vn.teams)),
                     vn.wheelchair,
-                    vn.email,
-                    vn.phone,
-                    vn.parking,
-                    vn.remarks,
+                    safe_cell(vn.email),
+                    safe_cell(vn.phone),
+                    safe_cell(vn.parking),
+                    safe_cell(vn.remarks),
                 ]
             )
     with NamedTemporaryFile() as tmp:

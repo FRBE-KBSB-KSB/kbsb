@@ -60,9 +60,7 @@ function calcPhase() {
     return
   }
   let start_registration = new Date(icdata.value.registration_data.start)
-  console.log("start_registration", start_registration)
   let end_registration = new Date(icdata.value.registration_data.end)
-  console.log("end_registration", end_registration)
   let today = new Date()
   if (
     end_registration.valueOf() >= today.valueOf() &&
@@ -134,7 +132,6 @@ async function getClubs() {
   clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
   })
-  console.log("got clubs", clubs.value)
 }
 
 async function getClubDetails() {
@@ -149,7 +146,6 @@ async function getClubDetails() {
     })
     icclub.value = { idclub: idclub.value, ...(reply.data || {}) }
   } catch (error) {
-    console.log("did not find clubdetails", icclub.value)
     if (error.code == 401) gotoLogin()
     displaySnackbar(t(error.message))
     return
@@ -157,6 +153,14 @@ async function getClubDetails() {
     changeDialogCounter(-1)
     changedTab()
   }
+}
+
+// The login is kept in the browser (store/idtoken.js), so leaving it takes
+// a button: the token and member number are forgotten, back to the login.
+async function logout() {
+  idstore.updateToken(null)
+  idbelstore.updateIdbel(0)
+  await gotoLogin()
 }
 
 async function gotoLogin() {
@@ -181,7 +185,6 @@ async function processICdata() {
 }
 
 async function selectClub() {
-  console.log("selected", idclub.value)
   await getClubDetails()
 }
 
@@ -190,6 +193,8 @@ async function selectClub() {
 onMounted(async () => {
   let l = route.query.locale
   locale.value = l ? l : "nl"
+  idstore.startup()
+  idbelstore.startup()
   checkAuth()
   await processICdata()
   calcPhase()
@@ -204,7 +209,13 @@ definePageMeta({
 
 <template>
   <VContainer>
-    <h1>Interclubs Manager 2026-27</h1>
+    <div class="d-flex align-center">
+      <h1>Interclubs Manager 2026-27</h1>
+      <VSpacer />
+      <VBtn v-if="token" variant="text" prepend-icon="mdi-logout" @click="logout">
+        {{ $t("trnreg.nav_logout") }}
+      </VBtn>
+    </div>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ t("Loading...") }}</v-card-title>

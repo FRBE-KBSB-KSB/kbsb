@@ -6,7 +6,6 @@ export default {
 
   mgmt_add_club: async function (options) {
     const { token, ...options1 } = options;
-    console.log("add club", options1, token);
     const resp = await axios.post(`${prefix}/mgmt/club`, options1, {
       headers: {
         Authorization: "Bearer " + token,
@@ -55,7 +54,6 @@ export default {
   },
   clb_get_clubs: async function (options) {
     const { token } = options;
-    console.log("api get_old_clubs", token);
     const resp = await axios.get("/api/v1/c/clubs", {
       headers: {
         Authorization: "Bearer " + token,

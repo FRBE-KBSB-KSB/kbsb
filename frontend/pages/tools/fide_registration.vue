@@ -460,7 +460,7 @@ function searchArbiter(nameField) {
       arbiterResults.value = { ...arbiterResults.value, [nameField]: list.slice(0, 8) }
     } catch (error) {
       if (error.name !== 'CanceledError' && error.code !== 'ERR_CANCELED') {
-        console.error(error)
+        console.error(error?.message)
         if (form.value[nameField] === q) {
           arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
         }
@@ -524,7 +524,7 @@ async function lookupArbiterById(nameField, idField) {
       noLicenseArbiters.value = updated
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
   }
 }
 
@@ -563,7 +563,7 @@ function searchOrganizer(nameField) {
       organizerResults.value = { ...organizerResults.value, [nameField]: players.slice(0, 8) }
     } catch (error) {
       if (error.name !== 'CanceledError' && error.code !== 'ERR_CANCELED') {
-        console.error(error)
+        console.error(error?.message)
         if (form.value[nameField] === q) {
           organizerResults.value = { ...organizerResults.value, [nameField]: [] }
         }
@@ -607,7 +607,7 @@ async function lookupOrganizerById(nameField, idField) {
       form.value[nameField] = res.data.player.name
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
   }
 }
 
@@ -615,11 +615,10 @@ async function lookupOrganizerById(nameField, idField) {
 async function loadFormData() {
   try {
     const reply = await $backend("fide", "formdata")
-    console.log("reply", reply)
     translations.value = reply.data.translations;
     lookups.value = reply.data.lookups;
   } catch (error) {
-    console.error(error);
+    console.error(error?.message);
     errorText.value = "Failed to load form data from backend.";
   }
 }
@@ -768,7 +767,6 @@ async function submitForm() {
       locale: lang.value,
       formdata: form.value,
     })
-    console.log("response on generate", response)
     // The registration reached fide@ even when a copy did not reach the
     // organiser, so this stays a success, with a notice naming the address.
     const failedCopies = response?.headers?.["x-confirmation-failed"];
@@ -784,7 +782,7 @@ async function submitForm() {
     }
 
   } catch (error) {
-    console.error(error);
+    console.error(error?.message);
     // The request asks for a file (responseType "blob"), so the backend's JSON
     // error arrives as a Blob the shared interceptor cannot read, and its text
     // falls back to "General server error". A 5xx from this endpoint means the
