@@ -255,7 +255,7 @@ async function validatePlanning() {
       icplanning: icplanning.value,
     })
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     showSnackbar(error.message)
     return
   } finally {
