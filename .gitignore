@@ -15,17 +15,5 @@ dist/
 *.log*
 shared/secrets/
 shared/fide_data
-tests/data/test_clubs.ods
-tests/data/test_pairings.ods
-scratch/
-kbsb-*.json
-su_*.json
 
-tests/data/frbe_db_decrop.sql
-icn_trf.txt
-
-
-
-src/kbsb/etl/add_interclubadmin.py
-.gitignore
 .gitignore

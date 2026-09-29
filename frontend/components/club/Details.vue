@@ -37,8 +37,7 @@ function cancelClub() {
   club.value = copyclub
 }
 
-function gotoLogin() {
-}
+function gotoLogin() {}
 
 async function modifyClub() {
   statuscm.value = CLUB_STATUS.MODIFYING
