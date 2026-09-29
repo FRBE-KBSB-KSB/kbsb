@@ -10,14 +10,16 @@ __pycache__/
 .venv/
 .env
 env_local.py
-env_staging.py
-env_prod.py
-src/tests/
+env_prodtest.py
+tests/
 
 # general
 .gcloudignore
 .git
 .gitignore
+.DS_Store
+.vscode
 License.md
 poe_tasks.yaml
 shared/
+

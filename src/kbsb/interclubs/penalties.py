@@ -10,6 +10,7 @@ from reddevil.filestore.filestore import (
     write_bucket_content,
 )
 from reddevil.core import RdInternalServerError
+from kbsb.core.cells import safe_cell
 from .validation import LineUpValidation
 from .icclubs import anon_getICclubs
 from .md_interclubs import (
@@ -64,7 +65,10 @@ async def write_penalties_report(round: int):
         ],
     )
     writer.writeheader()
-    writer.writerows((rec.dict() for rec in lineUpValidation.validationerrors))
+    writer.writerows(
+        {k: safe_cell(v) for k, v in rec.dict().items()}
+        for rec in lineUpValidation.validationerrors
+    )
     report = f.getvalue()
     logger.debug(f"report: {len(report)}")
     try:

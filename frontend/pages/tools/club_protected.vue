@@ -50,7 +50,6 @@ function changeDialogCounter(i) {
 }
 
 function changeTab() {
-  console.log("changeTab", tab.value)
   switch (tab.value) {
     case "details":
       refdetails.value.setup(club.value)
@@ -155,6 +154,14 @@ function displaySnackbar(text, color) {
   snackbar.value = true
 }
 
+// The login is kept in the browser (store/idtoken.js), so leaving it takes
+// a button: the token and member number are forgotten, back to the login.
+async function logout() {
+  idstore.updateToken(null)
+  idbelstore.updateIdbel(0)
+  await gotoLogin()
+}
+
 async function gotoLogin() {
   await router.push("/tools/odoologin?url=__tools__club_protected?locale=" + locale.value)
 }
@@ -168,8 +175,9 @@ async function selectClub() {
 
 onMounted(() => {
   let l = route.query.locale
-  console.log("query locale", l)
   locale.value = l ? l : "nl"
+  idstore.startup()
+  idbelstore.startup()
   checkAuth()
   getClubs()
 })
@@ -181,7 +189,18 @@ definePageMeta({
 
 <template>
   <VContainer>
-    <h1>Club Manager</h1>
+    <div class="d-flex align-center">
+      <h1>Club Manager</h1>
+      <VSpacer />
+      <VBtn
+        v-if="token"
+        variant="text"
+        prepend-icon="mdi-logout"
+        @click="logout"
+      >
+        {{ $t("trnreg.nav_logout") }}
+      </VBtn>
+    </div>
     <v-dialog width="10em" v-model="waitingdialog">
       <v-card>
         <v-card-title>{{ $t("Loading...") }}</v-card-title>

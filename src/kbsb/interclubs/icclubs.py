@@ -6,12 +6,14 @@ from typing import Any
 
 import openpyxl
 from reddevil.core import (
+    RdBadRequest,
     RdException,
     RdNotFound,
     get_settings,
 )
 
 from kbsb.club import get_club_idclub
+from kbsb.core.cells import safe_cell
 from kbsb.interclubs import (
     DbICClub,
     DbICClub2324,
@@ -28,6 +30,7 @@ from kbsb.interclubs import (
     PlayerPeriod,
     load_icdata,
 )
+from kbsb.interclubs.helpers import check_playerlist_open
 from kbsb.interclubs.registrations import find_icregistration
 
 logger = logging.getLogger(__name__)
@@ -169,7 +172,7 @@ async def clb_getICclub(idclub: int) -> ICClubDB:
     logger.info(f"clb_getICclub {idclub}")
     # we need to check if the club is registered for interclub, and if so
     registration = await find_icregistration(idclub)
-    logger.info(f"got registration {registration}")
+    logger.info(f"got registration {idclub}: {bool(registration)}")
     if not registration:
         logger.info(
             f"No registration found for {idclub}, "
@@ -244,9 +247,30 @@ async def clb_getICclub(idclub: int) -> ICClubDB:
             registered=True,
             teams=teams,
         )
-        logger.info(f"create icclub {icc}")
+        logger.info(f"create icclub {idclub}")
         await create_icclub(icc)
         return await get_icclub({"idclub": idclub})
+
+
+async def _lendable(idclub: int, idnumber: int, stored: ICPlayer | None) -> bool:
+    """
+    Whether club `idclub` may lend this player to another club: on its stored
+    list as its own player (not a loan from elsewhere), or, new to the list, a
+    member of the club according to Odoo. Never what the request says.
+    """
+    if stored is not None:
+        return stored.nature != PlayerlistNature.IMPORTED and stored.idcluborig in (
+            None,
+            0,
+            idclub,
+        )
+    from kbsb.member.odoo_member import odoo_anon_getmember
+
+    try:
+        member = await odoo_anon_getmember(idnumber)
+    except Exception:
+        return False
+    return member.idclub == idclub
 
 
 async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
@@ -254,6 +278,7 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     update the the player list of a club
     """
     logger.info(f"clb_updateICplayers {idclub}")
+    await check_playerlist_open()
     icc: ICClubDB = await clb_getICclub(idclub)
     assert icc.players is not None
     players = pi.players
@@ -261,29 +286,50 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     transferdeletes = []
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
+    # A club writes its own list, and touches another club's list only for a
+    # loan of one of its own players: lending one out, or taking the loan back.
+    # Which player is whose, and where a loan went, comes from the stored
+    # lists and Odoo, never from the request (it used to, so any captain could
+    # delete players from, or add players to, any other club's list).
     for p in newplsix.values():
         idn = p.idnumber
         if idn not in oldplsix:
             # player contains an insert
             if p.idclubvisit and p.idcluborig == idclub:
+                if p.idclubvisit == idclub or not await _lendable(idclub, idn, None):
+                    raise RdBadRequest(description="TransferNotAllowed")
                 transfersout.append(p)
         else:
             # player already exists, check for modifications in transfer
             oldpl = oldplsix[idn]
             if oldpl.nature != p.nature:
-                if p.nature in [
-                    PlayerlistNature.ASSIGNED,
-                    PlayerlistNature.UNASSIGNED,
-                    PlayerlistNature.LOCKED,
-                ]:
-                    logger.info(f"player {p} moved to transferdeletes")
-                    # the transfer is removed
-                    transferdeletes.append(p)
+                if (
+                    p.nature
+                    in [
+                        PlayerlistNature.ASSIGNED,
+                        PlayerlistNature.UNASSIGNED,
+                        PlayerlistNature.LOCKED,
+                    ]
+                    and oldpl.nature == PlayerlistNature.EXPORTED
+                    and oldpl.idclubvisit
+                ):
+                    logger.info(f"player {idn} moved to transferdeletes")
+                    # the loan is taken back from the club it went to
+                    transferdeletes.append(
+                        p.model_copy(update={"idclubvisit": oldpl.idclubvisit})
+                    )
                 if p.nature in [PlayerlistNature.EXPORTED]:
+                    if (
+                        not p.idclubvisit
+                        or p.idclubvisit == idclub
+                        or not await _lendable(idclub, idn, oldpl)
+                    ):
+                        raise RdBadRequest(description="TransferNotAllowed")
                     transfersout.append(p)
+    transfersout = [t.model_copy(update={"idcluborig": idclub}) for t in transfersout]
     dictplayers = [p.model_dump() for p in players]
     await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
-    logger.info(f"trout {transfersout} trdel {transferdeletes}")
+    logger.info(f"trout {len(transfersout)} trdel {len(transferdeletes)}")
     for t in transfersout:
         receivingclub = await clb_getICclub(t.idclubvisit)
         rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
@@ -311,7 +357,17 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
         try:
             receivingclub = await clb_getICclub(t.idclubvisit)
             rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
-            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]  # pyright: ignore[reportOptionalIterable]
+            # only this club's loan of this player, nothing the receiving
+            # club owns
+            trplayers = [  # pyright: ignore[reportOptionalIterable]
+                x
+                for x in rcplayers  # pyright: ignore[reportOptionalIterable]
+                if not (
+                    x.idnumber == t.idnumber
+                    and x.nature == PlayerlistNature.IMPORTED
+                    and x.idcluborig == idclub
+                )
+            ]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
         except RdException as e:
@@ -345,7 +401,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     PlayerlistNature.UNASSIGNED,
                     PlayerlistNature.LOCKED,
                 ]:
-                    logger.info(f"player {p} moved to transferdeletes")
+                    logger.info(f"player {p.idnumber} moved to transferdeletes")
                     # the transfer is removed
                     transferdeletes.append(p)
                 if p.nature in [
@@ -354,7 +410,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     transfersout.append(p)
     dictplayers = [p.model_dump() for p in players]
     await DbICClub.update({"idclub": idclub}, {"players": dictplayers})
-    logger.info(f"trout {transfersout} trdel {transferdeletes}")
+    logger.info(f"trout {len(transfersout)} trdel {len(transferdeletes)}")
     for t in transfersout:
         receivingclub = await clb_getICclub(t.idclubvisit)
         rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
@@ -539,12 +595,12 @@ async def mgmt_get_xlsplayerlists():
                 [
                     c.idclub,  # pyright: ignore[reportAttributeAccessIssue]
                     p.idnumber,
-                    f"{p.last_name}, {p.first_name}",
+                    safe_cell(f"{p.last_name}, {p.first_name}"),
                     p.idcluborig,
                     p.assignedrating,
                     p.fiderating,
                     p.natrating,
-                    p.titular,
+                    safe_cell(p.titular),
                 ]
             )
     with NamedTemporaryFile() as tmp:
@@ -572,12 +628,12 @@ async def anon_get_xlsplayerlist(idclub: int):
             [
                 idclub,
                 p.idnumber,
-                f"{p.last_name}, {p.first_name}",
+                safe_cell(f"{p.last_name}, {p.first_name}"),
                 p.idcluborig,
                 p.assignedrating,
                 p.fiderating,
                 p.natrating,
-                p.titular,
+                safe_cell(p.titular),
             ]
         )
     with NamedTemporaryFile() as tmp:

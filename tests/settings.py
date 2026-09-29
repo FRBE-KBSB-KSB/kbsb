@@ -1,3 +1,5 @@
+from pathlib import Path
+
 EMAIL = {
     "backend": "SMTP",
     "host": "server.chessdevil.be",
@@ -7,13 +9,26 @@ EMAIL = {
 
 ICDATA = "local"
 
+# The test suite must start without any real secret and without network
+# access (CI has neither). All secrets resolve to dummy files in
+# tests/secrets; nothing in there is a real credential.
+SECRETS_PATH = Path(__file__).parent / "secrets"
+
 SECRETS = {
     "mongodb": {
-        "name": "kbsb-mongodb-test",
+        # a local MongoDB, only used by tests/interclub/testwithdb, which
+        # are skipped unless KBSB_TEST_MONGODB=1
+        "name": "test-mongodb",
         "manager": "filejson",
     },
     "gmail": {
-        "name": "kbsb-gmail",
+        "name": "test-gmail",
+        "manager": "filejson",
+    },
+    "odoo": {
+        # read at import time by kbsb.member.odoo_member; the tests mock
+        # every Odoo call, so the values only need to exist
+        "name": "test-odoo",
         "manager": "filejson",
     },
 }

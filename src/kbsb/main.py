@@ -40,14 +40,18 @@ if get_setting("KBSB_MODE") == "production":
 logger.info(f"Starting website KBSB {version}")
 logger.info(f"icdata: {get_setting('ICDATA')}")
 
+# the modes that run on a developer machine, never on App Engine
+DEV_MODES = ("local", "prodtest", "testing")
+
 # add CORS middleware for dev only
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if get_setting("KBSB_MODE") in DEV_MODES:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # import api endpoints
 logger.info("loading api_account")
@@ -56,6 +60,15 @@ from reddevil.account import api_account
 from kbsb.core.tokens import validate_token as _verified_token
 
 api_account.validate_token = _verified_token
+
+# reddevil's anonymous self-registration of admin accounts. Nothing here uses
+# it (admins sign in with Google) and it would create accounts in rd_account,
+# so it is taken off the router before the router is mounted.
+api_account.router.routes = [
+    r
+    for r in api_account.router.routes
+    if not (isinstance(r, APIRoute) and r.path.endswith("/anon/register"))
+]
 
 import reddevil.account.account as _rd_account
 
@@ -122,5 +135,6 @@ for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
-# importing test endpoints
-import kbsb.tst_endpoints  # noqa
+# importing test endpoints, dev only
+if get_setting("KBSB_MODE") in DEV_MODES:
+    import kbsb.tst_endpoints  # noqa

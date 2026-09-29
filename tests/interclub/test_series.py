@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from datetime import date
 
 from kbsb.main import app
-from kbsb.interclubs import ICGame
+from kbsb.interclubs import GAMERESULT, ICGame, ICSeriesDB
 from kbsb.interclubs.series import (
     mgmt_saveICresults,
     clb_saveICresults,
@@ -31,9 +31,15 @@ async def test_mgmt_saveICresults(
     ic_standings_db_factory,
 ):
     game1 = ic_game_factory.build(result="", overruled=None)
-    encounter1 = ic_encounter_factory.build(games=[game1])
+    # encounters against club 0 (bye) are skipped, so use real clubs
+    encounter1 = ic_encounter_factory.build(
+        games=[game1], icclub_home=101, icclub_visit=201
+    )
     round1 = ic_round_factory.build(encounters=[encounter1])
-    series1 = ic_series_factory.build(rounds=[round1])
+    # the database returns an ICSeriesDB (mgmt_saveICresults asserts it)
+    series1 = ICSeriesDB(
+        id="series1", **ic_series_factory.build(rounds=[round1]).model_dump()
+    )
     dbSeries.find_single = AsyncMock(return_value=series1)
     updategame1 = game1.model_copy()
     updategame1.result = "1-0"
@@ -59,7 +65,6 @@ async def test_mgmt_saveICresults(
 @patch("kbsb.interclubs.series.calc_points")
 @patch("kbsb.interclubs.series.DbICStandings")
 @patch("kbsb.interclubs.series.DbICSeries")
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_mgmt_saveICresults_overrule(
     dbSeries: MagicMock,
@@ -73,9 +78,15 @@ async def test_mgmt_saveICresults_overrule(
     ic_standings_db_factory,
 ):
     game1 = ic_game_factory.build(result="1-0", overruled=None)
-    encounter1 = ic_encounter_factory.build(games=[game1])
+    # encounters against club 0 (bye) are skipped, so use real clubs
+    encounter1 = ic_encounter_factory.build(
+        games=[game1], icclub_home=101, icclub_visit=201
+    )
     round1 = ic_round_factory.build(encounters=[encounter1])
-    series1 = ic_series_factory.build(rounds=[round1])
+    # the database returns an ICSeriesDB (mgmt_saveICresults asserts it)
+    series1 = ICSeriesDB(
+        id="series1", **ic_series_factory.build(rounds=[round1]).model_dump()
+    )
     dbSeries.find_single = AsyncMock(return_value=series1)
     updategame1 = game1.model_copy()
     updategame1.overruled = "0-1"
@@ -101,9 +112,11 @@ async def test_mgmt_saveICresults_overrule(
 @patch("kbsb.interclubs.series.calc_points")
 @patch("kbsb.interclubs.series.DbICStandings")
 @patch("kbsb.interclubs.series.DbICSeries")
-@pytest.mark.skip
+# the results window is checked against the real date; keep it open
+@patch("kbsb.interclubs.series.check_results_open")
 @pytest.mark.asyncio
 async def test_clb_saveICresults(
+    check_results_open: AsyncMock,
     dbSeries: MagicMock,
     dbStandings: MagicMock,
     calc_points: MagicMock,
@@ -115,9 +128,15 @@ async def test_clb_saveICresults(
     ic_standings_db_factory,
 ):
     game1 = ic_game_factory.build(result="", overruled=None)
-    encounter1 = ic_encounter_factory.build(games=[game1])
+    # encounters against club 0 (bye) are skipped, so use real clubs
+    encounter1 = ic_encounter_factory.build(
+        games=[game1], icclub_home=101, icclub_visit=201
+    )
     round1 = ic_round_factory.build(encounters=[encounter1])
-    series1 = ic_series_factory.build(rounds=[round1])
+    # the database returns an ICSeriesDB (clb_saveICresults asserts it)
+    series1 = ICSeriesDB(
+        id="series1", **ic_series_factory.build(rounds=[round1]).model_dump()
+    )
     dbSeries.find_single = AsyncMock(return_value=series1)
     updategame1 = game1.model_copy()
     updategame1.result = "1-0"
@@ -133,19 +152,22 @@ async def test_clb_saveICresults(
     dbStandings.find_single = AsyncMock(return_value=ic_standings_db_factory.build())
     dbStandings.update = AsyncMock()
     await clb_saveICresults([resultitem1])
+    check_results_open.assert_awaited_once()
     dbSeries.update.assert_awaited()
     round = dbSeries.update.call_args[0][1]["rounds"][0]
     game = round["encounters"][0]["games"][0]
     assert game["result"] == "1-0"
-    assert game["overruled"] is None
+    # the stored game gets the model default, not None
+    assert game["overruled"] == GAMERESULT.NOTOVERRULED
 
 
 @patch("kbsb.interclubs.series.calc_points")
 @patch("kbsb.interclubs.series.DbICStandings")
 @patch("kbsb.interclubs.series.DbICSeries")
+@patch("kbsb.interclubs.series.check_results_open")
 @pytest.mark.asyncio
-@pytest.mark.skip
 async def test_clb_saveICresults_overrule(
+    check_results_open: AsyncMock,
     dbSeries: MagicMock,
     dbStandings: MagicMock,
     calc_points: MagicMock,
@@ -156,12 +178,17 @@ async def test_clb_saveICresults_overrule(
     ic_round_factory,
     ic_standings_db_factory,
 ):
+    # a club cannot overrule a result: the overruled value it sends is dropped
     game1 = ic_game_factory.build(
         result="1-0", overruled=None, idnumber_home=1, idnumber_visit=2
     )
-    encounter1 = ic_encounter_factory.build(games=[game1])
+    encounter1 = ic_encounter_factory.build(
+        games=[game1], icclub_home=101, icclub_visit=201
+    )
     round1 = ic_round_factory.build(encounters=[encounter1])
-    series1 = ic_series_factory.build(rounds=[round1])
+    series1 = ICSeriesDB(
+        id="series1", **ic_series_factory.build(rounds=[round1]).model_dump()
+    )
     dbSeries.find_single = AsyncMock(return_value=series1)
     updategame1 = game1.model_copy()
     updategame1.overruled = "0-1"
@@ -181,7 +208,7 @@ async def test_clb_saveICresults_overrule(
     round = dbSeries.update.call_args[0][1]["rounds"][0]
     game = round["encounters"][0]["games"][0]
     assert game["result"] == "1-0"
-    assert game["overruled"] is None
+    assert game["overruled"] == GAMERESULT.NOTOVERRULED
 
 
 def test_calc_points(ic_encounter_factory, ic_game_factory):
@@ -223,10 +250,17 @@ def test_calc_points_overrule(ic_encounter_factory, ic_game_factory):
 @patch("kbsb.interclubs.series.load_icdata")
 @pytest.mark.asyncio
 async def test_isRoundOpen(load_icdata: AsyncMock):
-    load_icdata.return_value = {"rounds": {1: date(2020, 1, 3)}}
-    with freeze_time("2020-01-03 14:50:00"):
+    # a round opens at 14:00 Europe/Brussels (13:00 UTC in winter) on its
+    # date; division 6 plays the 9-round calendar, the others the 11-round one
+    load_icdata.return_value = {
+        "rounds11": {1: date(2020, 1, 3)},
+        "rounds9": {1: date(2020, 1, 4)},
+    }
+    with freeze_time("2020-01-03 12:50:00"):
         assert not await isRoundOpen(1)
-    with freeze_time("2020-01-03 15:10:00"):
+    with freeze_time("2020-01-03 13:10:00"):
         assert await isRoundOpen(1)
-    with freeze_time("2020-01-03 15:10:00"):
         assert not await isRoundOpen(2)
+        assert not await isRoundOpen(1, 6)
+    with freeze_time("2020-01-04 13:10:00"):
+        assert await isRoundOpen(1, 6)

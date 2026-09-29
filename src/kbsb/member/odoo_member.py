@@ -66,7 +66,7 @@ async def odoo_login(email: str, password: str) -> tuple[int, str]:
     common = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/common")
     uid = common.authenticate(db, email, password, {})
     if not uid:
-        logger.info(f"user empty: email {email} not found")
+        logger.info("odoo_login: authentication failed")
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
     # get user profile to find the partner_id
@@ -85,7 +85,7 @@ async def odoo_login(email: str, password: str) -> tuple[int, str]:
         {"fields": ["x_studio_contact_nationalid_int"]},
     )
     idbel = cast(int, partner_profile[0]["x_studio_contact_nationalid_int"])  # type: ignore
-    logger.info(f"odoo_login: user {email} logged in with idbel {idbel}")
+    logger.info("odoo_login: user logged in")
     payload = {
         "sub": str(idbel),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
@@ -193,7 +193,7 @@ async def odoo_anon_getclubmembers(idclub: int) -> list[AnonMember]:
     models = xmlrpc.client.ServerProxy(f"{url}/xmlrpc/2/object")
     domain = [
         ["x_studio_contact_clubid_link", "=", idclub],
-        ["x_studio_contact_affiliationyear", "=", 2027],
+        ["x_studio_contact_affiliationyear", "=", current_affiliation_year()],
     ]
     fields = [
         "email_normalized",

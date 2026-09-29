@@ -37,9 +37,7 @@ function cancelClub() {
   club.value = copyclub
 }
 
-function gotoLogin() {
-  console.log("login in details")
-}
+function gotoLogin() {}
 
 async function modifyClub() {
   statuscm.value = CLUB_STATUS.MODIFYING
@@ -75,7 +73,6 @@ function setup(club_) {
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   club.value = { ...EMPTY_CLUB, ...club_ }
-  console.log("club", club.value)
   copyclub = JSON.parse(JSON.stringify(club_))
   // getContent()
 }
@@ -159,7 +156,7 @@ function setup(club_) {
                 <div>
                   <span class="fieldname">{{ $t("Postal address") }}</span
                   >:<br />
-                  <span v-html="club.address.replaceAll('\n', '<br />')"></span>
+                  <span style="white-space: pre-line">{{ club.address }}</span>
                 </div>
               </v-card-text>
             </v-card>
@@ -173,7 +170,7 @@ function setup(club_) {
                 <div>
                   <span class="fieldname">{{ $t("Club venue") }}</span
                   >:<br />
-                  <span v-html="club.venue.replaceAll('\n', '<br />')"></span>
+                  <span style="white-space: pre-line">{{ club.venue }}</span>
                 </div>
                 <h4>{{ $t("Playing hours") }}</h4>
                 <div v-for="(h, d) in club.openinghours" :key="d">

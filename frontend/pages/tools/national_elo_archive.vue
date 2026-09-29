@@ -96,7 +96,7 @@ async function handleSearch() {
       errorText.value = "Failed to load players"
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     errorText.value = archiveErrorText(error, "An error occurred during search")
   } finally {
     searching.value = false
@@ -119,7 +119,7 @@ async function handleClubSearch() {
       errorText.value = "Failed to load clubs"
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     errorText.value = archiveErrorText(error, "An error occurred during club search")
   } finally {
     searchingClubs.value = false
@@ -140,7 +140,7 @@ async function selectClub(club) {
       errorText.value = "Failed to load club players"
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     errorText.value = archiveErrorText(error, "An error occurred fetching club players")
   } finally {
     loadingClubPlayers.value = false
@@ -169,7 +169,7 @@ async function selectPlayer(memberId) {
       errorText.value = "Failed to load player profile"
     }
   } catch (error) {
-    console.error(error)
+    console.error(error?.message)
     errorText.value = archiveErrorText(error, "An error occurred fetching player details")
   } finally {
     profileLoading.value = false

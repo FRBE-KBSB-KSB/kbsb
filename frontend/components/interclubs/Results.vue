@@ -45,13 +45,11 @@ async function calcstatus() {
   // - noclub
   // - noaccess
   // - notopenyet
-  console.log("calcstatus", idclub.value)
   if (!idclub.value) {
     rsl_status.value = "noclub"
     players.value = []
     playersindexed = {}
     icseries.value = {}
-    console.log("rsl_status", rsl_status.value)
     return
   }
   let access = await checkAccess()
@@ -60,19 +58,16 @@ async function calcstatus() {
     players.value = []
     playersindexed = {}
     icseries.value = {}
-    console.log("rsl_status", rsl_status.value)
     return
   }
   const now = new Date().valueOf()
   const opened = new Date(icdata.rounds11[round] + "T15:00").valueOf()
   const closed = opened + 3600000 * (9 + 24)
-  console.log("dates", new Date(), new Date(icdata.rounds11[round] + "T15:00"))
   if (now < opened) {
     rsl_status.value = "notopenyet"
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
-    console.log("rsl_status", rsl_status.value)
     return
   }
   if (now > closed) {
@@ -80,11 +75,9 @@ async function calcstatus() {
     playerlist_buffer.value = {}
     teamresults.value = []
     icseries.value = []
-    console.log("rsl_status", rsl_status.value)
     return
   }
   rsl_status.value = "open"
-  console.log("rsl_status", rsl_status.value)
   if (!playerlist_buffer[idclub.value]) {
     getICplayerlist(icclub.value)
   }
@@ -141,7 +134,6 @@ async function checkAccess() {
   let reply
   if (!idtoken.value) return false
   showLoading(true)
-  console.log("checkAccess idclub", idclub.value)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
@@ -150,7 +142,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     return false
   } finally {
     showLoading(false)
@@ -195,7 +186,6 @@ function clubLabel(pairingnr, teams) {
 }
 
 function getICplayerlist(ic_clb) {
-  console.log("getICPlayerlist", ic_clb)
   if (!ic_clb && !ic_clb.idclub) return
   let players = ic_clb.players.filter((p) => ["assigned", "imported"].includes(p.nature))
   playerlist_buffer.value[ic_clb.idclub] = players
@@ -226,7 +216,6 @@ async function getICclub(clb_id) {
 }
 
 async function getICSeries() {
-  console.log("getICseries")
   let reply
   showLoading(true)
   try {
@@ -236,7 +225,6 @@ async function getICSeries() {
       token: idtoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       rsl_status.value = "noaccess"
     }
@@ -245,7 +233,6 @@ async function getICSeries() {
     showLoading(false)
   }
   icseries.value = reply.data
-  console.log("aha")
   readICSeries()
 }
 
@@ -254,14 +241,11 @@ function isOverruled(game) {
 }
 
 function openOverwrite(tr) {
-  console.log("openOverwrite tr", tr, "tr1", tr1.value)
   tr1.value = tr
-  console.log("openOverwrite tr1", tr1.value)
   overwriteDialog.value = true
 }
 
 function readICSeries() {
-  console.log("readICSeries")
   let tra = []
   teamresults.value = []
   icseries.value.forEach((s) => {
@@ -331,7 +315,6 @@ async function saveResults(tr) {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup results", icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
@@ -343,13 +326,10 @@ async function setup(icclub_, round_, icdata_) {
 
 async function sign(tr, who) {
   let plinpll = false
-  console.log("tr", tr)
   if (who == "home") {
     const clb = tr.icclub_home
-    console.log("clb", clb, "idn", idn.value)
     playerlist_buffer.value[clb].forEach((p) => {
       if (p.idnumber == idn.value) {
-        console.log("idn belongs to club home")
         plinpll = true
       }
     })
@@ -363,7 +343,6 @@ async function sign(tr, who) {
     const clb = tr.icclub_visit
     playerlist_buffer.value[clb].forEach((p) => {
       if (p.idnumber == idn.value) {
-        console.log("idn belongs to club visit")
         plinpll = true
       }
     })

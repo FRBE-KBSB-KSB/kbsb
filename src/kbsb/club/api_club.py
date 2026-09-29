@@ -87,7 +87,7 @@ async def api_update_club(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    logger.debug(f"api ClubUpdate {p}")
+    logger.debug(f"api ClubUpdate {idclub}")
     try:
         user = await validate_token(auth)
         return await set_club(idclub, p, user=user, bt=bt)
@@ -197,7 +197,6 @@ async def api_verify_club_access(
     try:
         logger.info(f"api verify_club_access idclub: {idclub}, role: {role}")
         idmember = validate_membertoken(auth)
-        logger.info(f"api verify_club_access idmember: {idmember}")
         return await verify_club_access(idclub=idclub, idmember=idmember, role=role)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

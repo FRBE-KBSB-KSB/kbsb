@@ -403,6 +403,26 @@ class ICRegistration(BaseModel):
     wishes: dict | None = None
 
 
+class ICRegistrationPublic(BaseModel):
+    """
+    an IC Registration as returned by the anonymous endpoint: without the
+    invoice and payment request ids. The wishes stay, the registration
+    forms load them from here to edit and save them back.
+    """
+
+    id: str | None = None
+    idclub: int | None = None
+    locale: str | None = None
+    name: str | None = None
+    teams1: int | None = None
+    teams2: int | None = None
+    teams3: int | None = None
+    teams4: int | None = None
+    teams5: int | None = None
+    teams6: int | None = None
+    wishes: dict | None = None
+
+
 class ICRegistrationOut(BaseModel):
     """
     an IC Registration as used internally

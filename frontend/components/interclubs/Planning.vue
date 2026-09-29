@@ -65,7 +65,7 @@ async function calcstatus() {
   const now = new Date()
   const expiry = new Date(icdata.rounds11[round] + "T14:00")
   if (now.valueOf() > expiry.valueOf()) {
-    console.log("expired  planning")
+    console.log("expired planning")
     pln_status.value = "expired"
     players.value = []
     playersindexed = {}
@@ -80,7 +80,6 @@ async function checkAccess() {
   let reply
   if (!idtoken.value) return false
   showLoading(true)
-  console.log("checkAccess idclub", icclub.idclub)
   try {
     reply = await $backend("club", "verify_club_access", {
       idclub: icclub.value.idclub,
@@ -140,7 +139,6 @@ async function readICclub() {
   console.log("readICclub")
   players.value = []
   playersindexed.value = {}
-  console.log("icclub", icclub.value)
   icclub.value.players.forEach((p) => {
     if (p.nature != "exported") {
       let player = {}
@@ -268,12 +266,12 @@ async function validatePlanning() {
       icplanning: icplanning.value,
     })
   } catch (error) {
+    console.error(error)
     showSnackbar(error.message)
     return
   } finally {
     showLoading(false)
   }
-  console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
     validationerrors.value.forEach((err) => {
