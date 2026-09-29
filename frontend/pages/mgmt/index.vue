@@ -15,7 +15,6 @@ const authenticated = ref(false)
 // google one tap
 useOneTap({
   onSuccess: (resp) => {
-    console.log("Success:", resp)
     const payload = jose.decodeJwt(resp.credential)
     personstore.updatePerson({
       credentials: resp.credential,

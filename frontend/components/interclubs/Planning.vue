@@ -45,7 +45,6 @@ async function calcstatus() {
   // - noclub
   // - noaccess
   // - expired
-  console.log("calcstatus", idclub.value)
   if (!idclub.value) {
     pln_status.value = "noclub"
     players.value = []
@@ -88,7 +87,6 @@ async function checkAccess() {
     })
     return true
   } catch (error) {
-    console.log("reply NOK", error)
     showSnackbar(t("icn.perm_denied"))
     return false
   } finally {
@@ -108,7 +106,6 @@ function clubLabel(pairingnr, s) {
 }
 
 async function getICseries() {
-  console.log("getICseries")
   let reply
   showLoading(true)
   try {
@@ -118,7 +115,6 @@ async function getICseries() {
       token: idtoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       showSnackbar("Access denied")
     }
@@ -136,7 +132,6 @@ async function getICseries() {
 }
 
 async function readICclub() {
-  console.log("readICclub")
   players.value = []
   playersindexed.value = {}
   icclub.value.players.forEach((p) => {
@@ -155,11 +150,9 @@ async function readICclub() {
       playersindexed[p.idnumber] = player
     }
   })
-  console.log("players", players.value)
 }
 
 function readICplanning() {
-  console.log("readICplanning")
   icseries.value.forEach((s) => {
     // fill in Teams
     s.teams.forEach((t) => {
@@ -227,7 +220,6 @@ async function savePlanning() {
   let reply
   validationdialog.value = false
   showLoading(true)
-  console.log("saving planning", icplanning.value)
   try {
     reply = await $backend("interclub", "clb_saveICplanning", {
       token: idtoken.value,
@@ -245,7 +237,6 @@ async function savePlanning() {
 }
 
 async function setup(icclub_, round_, icdata_) {
-  console.log("setup planning icclub", icclub_, "round", round_, "icdata", icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_
@@ -257,7 +248,6 @@ async function setup(icclub_, round_, icdata_) {
 
 async function validatePlanning() {
   let reply
-  console.log("validating planning", icplanning.value)
   try {
     showLoading(true)
     reply = await $backend("interclub", "clb_validateICplanning", {

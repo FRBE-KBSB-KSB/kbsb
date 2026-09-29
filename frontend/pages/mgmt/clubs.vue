@@ -35,7 +35,6 @@ const refboard = ref(null)
 const refdetails = ref(null)
 const refaccess = ref(null)
 function changeTab() {
-  console.log("changeTab", tab.value)
   switch (tab.value) {
     case "access":
       refaccess.value.setup(club.value)
@@ -44,7 +43,6 @@ function changeTab() {
       refboard.value.setup(club.value)
       break
     case "details":
-      console.log("refdetails", refdetails.value)
       refdetails.value.setup(club.value)
       break
   }
@@ -61,7 +59,6 @@ useHead({
 
 async function checkAuth() {
   let reply
-  console.log("checking if auth is already set", mgmttoken.value)
   if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
     navigateTo("/mgmt")
@@ -85,7 +82,6 @@ async function checkAuth() {
   } finally {
     showLoading(false)
   }
-  console.log("login reply", reply)
   mgmtstore.updateToken(reply.data)
 }
 
@@ -95,13 +91,11 @@ async function getClubs() {
   try {
     reply = await $backend("club", "anon_get_clubs", {})
   } catch (error) {
-    console.log("getClubs error", error)
     showSnackbar(error.message)
     return
   } finally {
     showLoading(false)
   }
-  console.log("getClubs reply", reply)
   clubs.value = reply.data
   clubs.value.forEach((p) => {
     p.merged = `${p.idclub}: ${p.name_short} ${p.name_long}`
@@ -119,7 +113,6 @@ async function getClubDetails() {
         token: mgmttoken.value,
       })
     } catch (error) {
-      console.log("getClubDetails error", error)
       showSnackbar(error.message)
       return
     } finally {
@@ -143,7 +136,6 @@ async function getClubMembers() {
       idclub: idclub.value,
     })
   } catch (error) {
-    console.log("getClubMembers error")
     showSnackbar(error.message)
     return
   } finally {
@@ -165,7 +157,6 @@ async function selectClub() {
 }
 
 function updateClubDetails() {
-  console.log("getting updated club details")
 }
 
 onMounted(() => {

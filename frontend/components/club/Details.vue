@@ -69,7 +69,6 @@ async function saveClub() {
 }
 
 function setup(club_) {
-  console.log("setup details", club_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   club.value = { ...EMPTY_CLUB, ...club_ }

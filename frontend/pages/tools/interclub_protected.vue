@@ -84,7 +84,6 @@ function changeDialogCounter(i) {
 }
 
 function changedTab() {
-  console.log("changedTab", tab.value)
   switch (tab.value) {
     case "planning":
       refplanning.value.setup(icclub.value, round.value, icdata.value)
@@ -212,7 +211,12 @@ definePageMeta({
     <div class="d-flex align-center">
       <h1>Interclubs Manager 2026-27</h1>
       <VSpacer />
-      <VBtn v-if="token" variant="text" prepend-icon="mdi-logout" @click="logout">
+      <VBtn
+        v-if="token"
+        variant="text"
+        prepend-icon="mdi-logout"
+        @click="logout"
+      >
         {{ $t("trnreg.nav_logout") }}
       </VBtn>
     </div>

@@ -119,7 +119,6 @@ async function modifyAccess() {
 }
 
 function readClubDetails(club) {
-  console.log('readClubDetails in access')
   clubdetails.value = { ...EMPTY_CLUB, ...club }
   copyclubdetails = JSON.parse(JSON.stringify(club))
   clubdetails.value.clubroles.forEach((c) => {
@@ -156,7 +155,6 @@ async function saveAccess() {
 }
 
 function setup(club) {
-  console.log('setupAccess', club)
   readClubDetails(club)
 }
 

@@ -106,7 +106,6 @@ async function find_interclubregistration() {
     })
     readRegistration(reply.data)
   } catch (error) {
-    console.log("NOK find_interclubregistration", error)
     if (error.code == 401) {
       gotoLogin()
     } else {
@@ -123,7 +122,6 @@ async function gotoLogin() {
 }
 
 async function getICSeries() {
-  console.log("team forfeit get IC series")
   // get the pairing data limited to current club
   let reply
   if (!icclub.idclub) {
@@ -137,7 +135,6 @@ async function getICSeries() {
       token: idtoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       // TODO
     }
@@ -151,7 +148,6 @@ async function getICSeries() {
 
 async function processICSeries() {
   // process the series received from the server
-  console.log("processICSeries", icseries.value)
   teamchoices.value = []
   icseries.value.forEach((s) => {
     s.teams.forEach((t) => {
@@ -178,7 +174,6 @@ async function modifyRegistration() {
 }
 
 function readRegistration(data) {
-  console.log("readRegistration", data)
   if (data) {
     registration.value = data
   } else {
@@ -193,7 +188,6 @@ function readRegistration(data) {
   if (!registration.value.wishes.splitting) {
     registration.value.wishes.splitting = "2"
   }
-  console.log("reg", registration.value)
 }
 
 async function registerForfait() {
@@ -236,7 +230,6 @@ async function saveRegistration() {
     calcstatus()
     showSnackbar("Save OK")
   } catch (error) {
-    console.log("NOK set_interclubregistration", error)
     if (error.code == 401) {
       gotoLogin()
     } else {
@@ -253,7 +246,6 @@ async function saveRegistration() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup Registration", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = icclub_

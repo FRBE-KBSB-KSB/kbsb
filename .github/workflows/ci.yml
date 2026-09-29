@@ -1,0 +1,77 @@
+# Continuous integration: tests and lint on every pull request and every push
+# to master. Nothing here deploys, and no job uses a secret: the backend tests
+# run on dummy secrets in tests/secrets and never reach the network.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (ruff + pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv and Python 3.13
+        uses: astral-sh/setup-uv@v10.2.0  # no floating major tag
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      # --locked fails if uv.lock is out of date with pyproject.toml; the
+      # vendored reddevil and zerotwocloud wheels come from libs/ (tool.uv.sources)
+      - name: Install dependencies
+        run: uv sync --locked
+
+      # The pyflakes rules (F): undefined names, syntax and format errors,
+      # invalid comparisons and the like. Five hygiene rules with existing
+      # findings in the code are ignored for now (unused imports and
+      # variables, star imports, redefinitions, f-strings without
+      # placeholders); drop them from --ignore once those are cleaned up.
+      - name: Ruff
+        run: >-
+          uv run --locked ruff check --select F
+          --ignore F401,F403,F541,F811,F841
+          --output-format github .
+
+      # KBSB_MODE=testing is set by pytest-env (pyproject.toml)
+      - name: Pytest
+        run: uv run --locked pytest -rs
+
+  frontend:
+    name: Frontend (nuxt generate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # The upgraded packages need Node 22 or newer (@intlify/shared);
+          # 24 is what the site is built with locally.
+          node-version: "24"
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Proves the site builds; the output is thrown away (no deploy).
+      - name: Generate
+        run: yarn generate
+        env:
+          API_URL: https://www.frbe-kbsb-ksb.be/

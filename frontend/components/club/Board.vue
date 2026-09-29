@@ -44,7 +44,6 @@ function cancelClub() {
 }
 
 function gotoLogin() {
-  console.log("login in board")
 }
 
 async function modifyClub() {
@@ -101,7 +100,6 @@ function updateboard(f) {
 }
 
 function setup(club_, clubmembers_) {
-  console.log("setup Board", club_, clubmembers_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   club.value = { ...EMPTY_CLUB, ...club_ }

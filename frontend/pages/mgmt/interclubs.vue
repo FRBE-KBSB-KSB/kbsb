@@ -64,7 +64,6 @@ function changeDialogCounter(i) {
 }
 
 function changedTab() {
-  console.log("changeTab", tab.value)
   switch (tab.value) {
     case "registration":
       refregistration.value.setup(icclub.value, icdata.value)
@@ -91,15 +90,12 @@ function changedTab() {
 }
 
 async function checkAuth() {
-  console.log("checking if auth is already set", mgmttoken.value)
   if (mgmttoken.value) return
   if (person.value.credentials.length === 0) {
-    console.log("person no credentials")
     gotoLogin()
     return
   }
   if (!person.value.email.endsWith("@frbe-kbsb-ksb.be")) {
-    console.log("person no valid emial address")
     gotoLogin()
     return
   }
@@ -115,7 +111,6 @@ async function checkAuth() {
     })
     mgmttokenstore.updateToken(reply.data)
   } catch (error) {
-    console.log("failed login to backend", error)
     gotoLogin()
   } finally {
     changeDialogCounter(-1)
@@ -154,12 +149,10 @@ async function getClubDetails() {
   }
   changeDialogCounter(1)
   try {
-    console.log(1, mgmttoken.value)
     reply = await $backend("interclub", "mgmt_getICclub", {
       idclub: idclub.value,
       token: mgmttoken.value,
     })
-    console.log(2)
     icclub.value = { idclub: idclub.value, ...reply.data }
   } catch (error) {
     if (error.code == 401) gotoLogin()
@@ -192,7 +185,6 @@ async function processICdata() {
 }
 
 function selectClub() {
-  console.log("selected", idclub.value)
   getClubDetails()
 }
 

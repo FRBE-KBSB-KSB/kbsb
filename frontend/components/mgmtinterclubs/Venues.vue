@@ -47,7 +47,6 @@ async function cancel() {
 }
 
 function calcstatus() {
-  console.log("calcstatus")
   // we have the following status
   // - open
   // - closed
@@ -94,7 +93,6 @@ function modifyICvenues() {
 }
 
 function readVenues(data) {
-  console.log("readvenues", data)
   venues.value = []
   if (data) {
     data.venues.forEach((v) => {
@@ -116,7 +114,6 @@ function readVenues(data) {
       venues.value.push(vn)
     })
   }
-  console.log("venues read", venues.value)
 }
 
 async function saveVenues() {
@@ -125,7 +122,6 @@ async function saveVenues() {
     v.rounds = v.roundsel == "selected" ? v.rounds_s.split(",") : []
     v.teams = v.teamssel == "selected" ? v.teams_s.split(",") : []
   })
-  console.log("venues", venues.value)
   showLoading(true)
   try {
     reply = await $backend("interclub", "mgmt_set_interclubvenues", {
@@ -135,7 +131,6 @@ async function saveVenues() {
     })
     showSnackbar("Venues saved successfully")
   } catch (error) {
-    console.log("NOK set_venue", error)
     if (error.code == 401) {
       ven_status.value = "noaccess"
     } else {
@@ -149,7 +144,6 @@ async function saveVenues() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup venues", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub = icclub_
@@ -185,7 +179,7 @@ async function setup(icclub_, icdata_) {
             <v-card-text>
               <div>
                 <b>Address:</b> <br />
-                <span v-html="v.address.split('\n').join('<br />')"></span>
+                <span style="white-space: pre-line">{{ v.address }}</span>
               </div>
               <div><b>Capacity in boards:</b> {{ v.capacity }}</div>
               <div><b>Teams:</b> {{ v.teams_s }}</div>

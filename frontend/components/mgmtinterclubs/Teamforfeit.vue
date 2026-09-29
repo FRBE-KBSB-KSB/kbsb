@@ -64,7 +64,6 @@ For the last round you should overrule all results of team manually.`,
 }
 
 async function forfeitConfirmed() {
-  console.log("forfaiting confirmed")
   let reply
   try {
     showLoading(true)
@@ -84,7 +83,6 @@ async function forfeitConfirmed() {
 }
 
 async function getICSeries() {
-  console.log("team forfeit get IC series")
   // get the pairing data limited to current club
   let reply
   if (!my.idclub) {
@@ -98,7 +96,6 @@ async function getICSeries() {
       token: mgmttoken.value,
     })
   } catch (error) {
-    console.log("NOK", error)
     if (error.code == 401) {
       // TODO
     }

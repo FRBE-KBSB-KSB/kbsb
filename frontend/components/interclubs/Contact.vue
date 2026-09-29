@@ -25,7 +25,6 @@ const cnt_status = ref("noclub")
 
 async function getClubInterclubData() {
   let reply
-  console.log("getting club interclub data for", idclub)
   if (!idclub) {
     cnt_status.value = "noclub"
     return
@@ -47,7 +46,6 @@ async function getClubInterclubData() {
 }
 
 async function setup(idclub_) {
-  console.log("setup contact", idclub_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   idclub = idclub_

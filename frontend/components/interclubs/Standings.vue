@@ -22,18 +22,15 @@ const idclub = ref(null)
 const icdata = ref({})
 
 function fillinDetails(s) {
-  console.log("filling details:", s.division, s.index)
   let stnrs = {}
   s.teams.forEach((t, ix) => {
     stnrs[t.pairingnumber] = ix
   })
-  console.log("stnrs", stnrs)
   s.teams.forEach((t, ix) => {
     t.results = Array(12).join(" .").split(".")
     if (t.teamforfeit) {
       t.results.fill("TF")
     }
-    console.log("results", t.results)
     t.results[ix] = "XX"
     t.games.forEach((g) => {
       let opponent = g.pairingnumber_opp
@@ -63,7 +60,6 @@ async function getStandings() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup standings icclub", icclub_, "icdata", icdata_)
   icclub.value = icclub_
   icdata.value = icdata_
   idclub.value = icclub_.idclub

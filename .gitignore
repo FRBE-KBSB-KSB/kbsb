@@ -16,7 +16,4 @@ dist/
 shared/secrets/
 shared/fide_data
 
-
-
-
 .gitignore

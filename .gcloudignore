@@ -9,6 +9,7 @@ frontend/
 __pycache__/
 .venv/
 .env
+.env.*
 env_local.py
 env_prodtest.py
 tests/

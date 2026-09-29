@@ -36,7 +36,6 @@ async function getStandings() {
 }
 
 function setup(season_) {
-  console.log("setup standings archive", season_)
   season.value = season_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading

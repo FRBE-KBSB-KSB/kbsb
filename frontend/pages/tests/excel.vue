@@ -10,10 +10,9 @@ async function getExcel() {
   let response
   try {
     response = await $backend("test", "excel")
-    console.log("reponse on generate", response)
   }
   catch (error) {
-    console.error("Error downloading the Excel file:", error);
+    console.error("Error downloading the Excel file:", error?.message);
     return    
   }
   const blob = response.data;

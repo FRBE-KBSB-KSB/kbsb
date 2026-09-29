@@ -72,7 +72,6 @@ const itemsPerPageOptions = [
 function calc_period() {
   const now = new Date()
   pll_period = "unknown"
-  console.log("icdata playerlist_data", icdata.playerlist_data)
   icdata.playerlist_data.forEach((p) => {
     let start = new Date(p.start)
     let end = new Date(p.end)
@@ -84,11 +83,9 @@ function calc_period() {
       return
     }
   })
-  console.log("pll_period", pll_period)
 }
 
 async function calc_status() {
-  console.log("calcstatus")
   // we have the following status
   // - open
   // - closed
@@ -178,7 +175,6 @@ async function getClubMembers() {
     return
   }
   if (idclub == clubmembers_cache_idclub) {
-    console.log("using cached version of members")
   }
   showLoading(true)
   let reply
@@ -188,7 +184,6 @@ async function getClubMembers() {
       idclub: idclub,
     })
   } catch (error) {
-    console.log("getClubMembers error")
     showSnackbar(error.message)
     return
   } finally {
@@ -364,13 +359,12 @@ async function validatePlayerlist() {
       players: players.value,
     })
   } catch (error) {
-    console.error("failed validate", error)
+    console.error("failed validate", error?.message)
     showSnackbar(error.message)
     return
   } finally {
     showLoading(false)
   }
-  console.log("reply.data", reply.data)
   validationerrors.value = reply.data
   if (validationerrors.value.length) {
     validationdialog.value = true
@@ -380,7 +374,6 @@ async function validatePlayerlist() {
 }
 
 async function setup(icclub_, icdata_) {
-  console.log("setup playerlist", icclub_, icdata_)
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
   icclub.value = icclub_

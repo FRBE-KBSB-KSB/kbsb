@@ -13,9 +13,7 @@ function setLocale(l) {
 if (process.client) {
   let _bl = (navigator.userLanguage || navigator.language).replace('-', '_')
   let browserlocale = _bl.split('_')[0];
-  console.log('browserlocale', browserlocale)
   let storagelocale = localStorage.getItem("locale")
-  console.log('storagelocale', storagelocale)
   if (!storagelocale) {
     storagelocale = browserlocale
   }
