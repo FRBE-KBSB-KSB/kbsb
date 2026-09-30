@@ -320,6 +320,37 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     return iv
 
 
+ROUND_MAX_DAYS = 7
+
+
+def round_span_errors(i, start, end, next_start, rounds, t_msg):
+    """
+    A round with an end date: same FIDE rating period, at most a week, and
+    ending before the next round starts. Dates are YYYY-MM-DD strings.
+    """
+
+    def fill(key, **extra):
+        msg = t_msg[key].replace("{num}", str(i)).replace("{start}", start).replace("{end}", end)
+        for k, v in extra.items():
+            msg = msg.replace("{" + k + "}", str(v))
+        return msg
+
+    p1, p2 = get_fide_period(start), get_fide_period(end)
+    if p1 and p2 and p1 != p2:
+        return [fill("round_end_date_period_error")]
+    try:
+        days = (
+            datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")
+        ).days
+    except ValueError:
+        return []
+    if days > ROUND_MAX_DAYS:
+        return [fill("round_end_date_too_long", days=days)]
+    if next_start and i < rounds and end > str(next_start):
+        return [fill("round_end_date_overlap_error", next=i + 1, next_start=next_start)]
+    return []
+
+
 def get_fide_period(date_str):
     if not date_str:
         return None
@@ -572,6 +603,14 @@ def validate_form(form, lang):
                         )
                         errors.append(
                             t_msg["round_end_date_order_error"].replace("{num}", str(i))
+                        )
+                    elif date_val:
+                        # Same rules as the form: one round played over two
+                        # dates, not a window (see fide_registration.vue).
+                        errors.extend(
+                            round_span_errors(
+                                i, date_val, end_date_val, form.get(f"round{i + 1}_date"), n, t_msg
+                            )
                         )
             if not date_val:
                 errors.append(t_msg["round_date_required"].replace("{num}", str(i)))

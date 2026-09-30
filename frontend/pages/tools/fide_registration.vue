@@ -262,12 +262,46 @@ function getRoundDateError(index) {
 }
 
 // The optional end date of a round: empty means a one day round.
+// A round with an end date is one round played over two dates (a weekend,
+// or a week apart), not the window in which it may be played. Workbooks with
+// 20 to 55 day "rounds" spanning month ends reached FIDE registration in
+// 2026-09, so the form now refuses them:
+//   - start and end in the same FIDE rating period,
+//   - at most a week apart,
+//   - ending before the next round starts.
+const ROUND_MAX_DAYS = 7;
+
+function daysBetween(a, b) {
+  return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+}
+
 function getRoundEndDateError(index) {
   const startDate = form.value[`round${index}_date`];
   const endDate = form.value[`round${index}_end_date`];
   if (!startDate || !endDate) return "";
   if (endDate < startDate) {
     return tMsg('round_end_date_order_error').replace(/\{num\}/g, index);
+  }
+  const fill = (key, extra = {}) => {
+    let msg = tMsg(key)
+      .replace(/\{num\}/g, index)
+      .replace(/\{start\}/g, startDate)
+      .replace(/\{end\}/g, endDate);
+    for (const [k, v] of Object.entries(extra)) msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+    return msg;
+  };
+  const p1 = getFidePeriod(startDate);
+  const p2 = getFidePeriod(endDate);
+  if (p1 && p2 && p1.key !== p2.key) {
+    return fill('round_end_date_period_error');
+  }
+  const days = daysBetween(startDate, endDate);
+  if (days > ROUND_MAX_DAYS) {
+    return fill('round_end_date_too_long', { days });
+  }
+  const nextStart = form.value[`round${index + 1}_date`];
+  if (index < roundsCount.value && nextStart && endDate > nextStart) {
+    return fill('round_end_date_overlap_error', { next: index + 1, next_start: nextStart });
   }
   return "";
 }
