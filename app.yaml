@@ -5,6 +5,9 @@ env_variables:
   FILESTORE_BUCKET: website-kbsb-prod.appspot.com
   GOOGLE_PROJECT_ID: website-kbsb-prod
   GOOGLE_CLIENT_ID: 658290412135-ti3t11ovj5q2g10t4mla66r4m8orc2ev.apps.googleusercontent.com
+  # fill in the Turnstile site key (public); empty keeps Turnstile off on the
+  # FIDE registration form. The secret key is in Secret Manager (turnstile-secret).
+  TURNSTILE_SITEKEY: "0x4AAAAAAFLLQdV0acXjaalR"
 
 handlers:
   - url: /api/.*
