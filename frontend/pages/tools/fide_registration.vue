@@ -68,6 +68,9 @@ const form = ref({
   rounds_reported: "",
   multiple_round_days: "0",
   report_per_round: false,
+  // Ticked: the organiser knows a report is due by noon on day x-1 (see
+  // getReportDeadline); the server asks for it for the same dates.
+  report_deadline_ack: false,
   female_only: "No",
   start_date: "",
   end_date: "",
@@ -305,6 +308,95 @@ function getRoundEndDateError(index) {
   }
   return "";
 }
+
+// KBSB rule: the report reaches the KBSB within 4 days after the end date
+// (for a New long tournament, each round's end: its end date, else its date).
+// An end date from x-6 to x-2, x the last day of its month, is the critical
+// window: the report then has to be in by day x-1 at 12:00 to be rated in
+// that month's FIDE list. The last two days of a month are FIDE's transition
+// period (getFidePeriod above), not critical. Mirrors get_report_deadline in
+// api_fide.py.
+const REPORT_DAYS = 4;
+
+function getReportDeadline(dateString) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString || '');
+  if (!m) return null;
+  const year = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10);
+  const day = parseInt(m[3], 10);
+  if (month < 1 || month > 12) return null;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  if (day < 1 || day > lastDay) return null;
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const critical = day >= lastDay - 6 && day <= lastDay - 2;
+  return {
+    expected: iso(new Date(Date.UTC(year, month - 1, day + REPORT_DAYS))),
+    critical,
+    cutoff: critical ? iso(new Date(Date.UTC(year, month - 1, lastDay - 1))) : null,
+  };
+}
+
+// "5 oktober 2026" / "5 octobre 2026" / "5 October 2026", in the form's language.
+const DATE_LOCALES = { nl: 'nl-BE', fr: 'fr-BE', en: 'en-GB' };
+
+function formatFormDate(isoDate, language, withYear = true) {
+  const [y, mo, d] = isoDate.split('-').map(Number);
+  const options = { day: 'numeric', month: 'long', timeZone: 'UTC' };
+  if (withYear) options.year = 'numeric';
+  return new Intl.DateTimeFormat(DATE_LOCALES[language] || 'en-GB', options)
+    .format(new Date(Date.UTC(y, mo - 1, d)));
+}
+
+// Fills {deadline} (day and month), {month} and {of_month} (French: de/d').
+function fillCutoff(template, cutoff, language) {
+  const [y, mo] = cutoff.split('-').map(Number);
+  const month = new Intl.DateTimeFormat(DATE_LOCALES[language] || 'en-GB', { month: 'long', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(y, mo - 1, 1)));
+  const ofMonth = /^[aeiou]/.test(month) ? `d'${month}` : `de ${month}`;
+  return template
+    .replace(/\{deadline\}/g, formatFormDate(cutoff, language, false))
+    .replace(/\{month\}/g, month)
+    .replace(/\{of_month\}/g, ofMonth);
+}
+
+// The lines under an end date: when the report is expected and, in the
+// critical window, the warning. kind is 'round' or 'tournament'.
+function reportDeadlineLines(dateString, kind) {
+  const deadline = getReportDeadline(dateString);
+  if (!deadline) return null;
+  return {
+    expected: tUI('report_expected_by').replace('{date}', formatFormDate(deadline.expected, lang.value)),
+    warning: deadline.critical
+      ? fillCutoff(tMsg(`report_deadline_critical_${kind}`), deadline.cutoff, lang.value)
+      : '',
+  };
+}
+
+// A round's end: its optional end date, else its date.
+const roundEnd = (i) => form.value[`round${i}_end_date`] || form.value[`round${i}_date`];
+
+// The cutoffs of all end dates in the critical window, each once, in order.
+const criticalCutoffs = computed(() => {
+  const ends = isLongTournament.value
+    ? Array.from({ length: roundsCount.value }, (_, k) => roundEnd(k + 1))
+    : [form.value.end_date];
+  const cutoffs = ends
+    .map(getReportDeadline)
+    .filter(d => d && d.critical)
+    .map(d => d.cutoff);
+  return [...new Set(cutoffs)].sort();
+});
+
+// "29 september 2026 en 28 oktober 2026", for the checkbox and its error.
+const criticalCutoffsText = computed(() =>
+  new Intl.ListFormat(DATE_LOCALES[lang.value] || 'en-GB', { type: 'conjunction' })
+    .format(criticalCutoffs.value.map(c => formatFormDate(c, lang.value)))
+);
+
+// A tick counts for the deadlines it was given for: new dates, new tick.
+watch(() => criticalCutoffs.value.join(','), () => {
+  form.value.report_deadline_ack = false;
+});
 
 function recalculateReportNumbers() {
   if (!isLongTournament.value) return;
@@ -674,6 +766,7 @@ function clearFormData() {
     rounds_reported: "",
     multiple_round_days: "0",
     report_per_round: false,
+    report_deadline_ack: false,
     female_only: "No",
     start_date: "",
     end_date: "",
@@ -773,6 +866,17 @@ async function submitForm() {
 
   if (isSingleReportMultiplePeriods.value) {
     errorText.value = tMsg('all_rounds_one_report_period_error');
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
+    }
+    return;
+  }
+
+  if (criticalCutoffs.value.length && !form.value.report_deadline_ack) {
+    errorText.value = tMsg('report_deadline_ack_required').replace('{dates}', criticalCutoffsText.value);
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (window.parent !== window) {
@@ -1058,6 +1162,12 @@ definePageMeta({
               <span class="required-label">{{ tField('round_report').replace('{num}', i) }}</span>
               <input type="text" v-digits v-model="form[`round${i}_report`]" min="1" required readonly>
             </label>
+            <div v-if="reportDeadlineLines(roundEnd(i), 'round')" class="report-deadline">
+              <div class="report-deadline-expected">{{ reportDeadlineLines(roundEnd(i), 'round').expected }}</div>
+              <div v-if="reportDeadlineLines(roundEnd(i), 'round').warning" class="report-deadline-warning">
+                ⚠ {{ reportDeadlineLines(roundEnd(i), 'round').warning }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1084,6 +1194,12 @@ definePageMeta({
         </div>
         <div v-if="isSingleReportMultiplePeriods" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('all_rounds_one_report_period_error') }}
+        </div>
+        <div v-if="reportDeadlineLines(form.end_date, 'tournament')" class="report-deadline">
+          <div class="report-deadline-expected">{{ reportDeadlineLines(form.end_date, 'tournament').expected }}</div>
+          <div v-if="reportDeadlineLines(form.end_date, 'tournament').warning" class="report-deadline-warning">
+            ⚠ {{ reportDeadlineLines(form.end_date, 'tournament').warning }}
+          </div>
         </div>
       </label>
       <label>
@@ -1447,6 +1563,11 @@ definePageMeta({
       <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
+      <label v-if="criticalCutoffs.length" class="report-deadline-ack">
+        <input type="checkbox" v-model="form.report_deadline_ack">
+        <span>{{ tUI('report_deadline_ack').replace('{dates}', criticalCutoffsText) }}</span>
+      </label>
+
       <button type="submit" :disabled="waitingdialog || submitCooldown">
         {{ waitingdialog ? '...' : (submitCooldown ? 'Submitted' : tUI('export_btn')) }}
       </button>
@@ -1564,6 +1685,22 @@ button[type="submit"]:disabled {
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+.round-row .report-deadline { grid-column: 1 / -1; margin-top: -0.4rem; }
+.report-deadline-expected { font-size: 0.8rem; color: var(--muted, #4b5563); margin-top: 0.25rem; }
+.report-deadline-warning { color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500; }
+.report-deadline-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+.report-deadline-ack input { width: auto; margin-top: 0.2rem; }
+.report-deadline-ack span { margin-bottom: 0; font-weight: 600; }
 .person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
 .organizer-dropdown {
   position: absolute;
