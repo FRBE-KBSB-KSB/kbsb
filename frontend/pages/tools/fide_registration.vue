@@ -81,7 +81,7 @@ const form = ref({
   multiple_round_days: "0",
   report_per_round: false,
   // Ticked: the organiser knows a report is due by noon on day x-1 (see
-  // getReportDeadline); the server asks for it for the same dates.
+  // getReportDeadline); the server asks for it for the same reports.
   report_deadline_ack: false,
   female_only: "No",
   start_date: "",
@@ -321,13 +321,15 @@ function getRoundEndDateError(index) {
   return "";
 }
 
-// KBSB rule: the report reaches the KBSB within 4 days after the end date
-// (for a New long tournament, each round's end: its end date, else its date).
-// An end date from x-6 to x-2, x the last day of its month, is the critical
-// window: the report then has to be in by day x-1 at 12:00 to be rated in
-// that month's FIDE list. The last two days of a month are FIDE's transition
-// period (getFidePeriod above), not critical. Mirrors get_report_deadline in
-// api_fide.py.
+// KBSB rule: the report reaches the KBSB within 4 days after its end date
+// (for a New long tournament, the end of the report's last round: its end
+// date, else its date). Day x-1 at 12:00, x the last day of the month, is the
+// last chance for that month's FIDE list. An end date from x-6 to x-2 is the
+// critical window: 4 days would be too late, so the form warns and asks for a
+// tick. The last two days of a month are FIDE's transition period
+// (getFidePeriod above): not critical, and the report counts for the next
+// month's list, so its last chance is day x-1 of the next month. Mirrors
+// get_report_deadline in api_fide.py.
 const REPORT_DAYS = 4;
 
 function getReportDeadline(dateString) {
@@ -341,10 +343,15 @@ function getReportDeadline(dateString) {
   if (day < 1 || day > lastDay) return null;
   const iso = (d) => d.toISOString().slice(0, 10);
   const critical = day >= lastDay - 6 && day <= lastDay - 2;
+  // Day -1 of the month after next: the day before the next month's last day.
+  const lastChance = day >= lastDay - 1
+    ? iso(new Date(Date.UTC(year, month + 1, -1)))
+    : iso(new Date(Date.UTC(year, month - 1, lastDay - 1)));
   return {
     expected: iso(new Date(Date.UTC(year, month - 1, day + REPORT_DAYS))),
+    lastChance,
     critical,
-    cutoff: critical ? iso(new Date(Date.UTC(year, month - 1, lastDay - 1))) : null,
+    cutoff: critical ? lastChance : null,
   };
 }
 
@@ -359,6 +366,11 @@ function formatFormDate(isoDate, language, withYear = true) {
     .format(new Date(Date.UTC(y, mo - 1, d)));
 }
 
+// "A, B en C" / "A, B et C" / "A, B and C".
+function formatList(texts, language) {
+  return new Intl.ListFormat(DATE_LOCALES[language] || 'en-GB', { type: 'conjunction' }).format(texts);
+}
+
 // Fills {deadline} (day and month), {month} and {of_month} (French: de/d').
 function fillCutoff(template, cutoff, language) {
   const [y, mo] = cutoff.split('-').map(Number);
@@ -371,42 +383,85 @@ function fillCutoff(template, cutoff, language) {
     .replace(/\{of_month\}/g, ofMonth);
 }
 
-// The lines under an end date: when the report is expected and, in the
-// critical window, the warning. kind is 'round' or 'tournament'.
-function reportDeadlineLines(dateString, kind) {
-  const deadline = getReportDeadline(dateString);
-  if (!deadline) return null;
-  return {
-    expected: tUI('report_expected_by').replace('{date}', formatFormDate(deadline.expected, lang.value)),
-    warning: deadline.critical
-      ? fillCutoff(tMsg(`report_deadline_critical_${kind}`), deadline.cutoff, lang.value)
-      : '',
-  };
+// "ronde 5" / "rondes 7, 8 en 9", in the form's language.
+function formatRounds(rounds) {
+  const key = rounds.length === 1 ? 'report_rounds_one' : 'report_rounds_many';
+  return tMsg(key).replace('{rounds}', formatList(rounds.map(String), lang.value));
+}
+
+// Fills {num}, {rounds} and {date} (the expected date) for a report.
+function fillReport(template, report) {
+  let text = template.replace(/\{date\}/g, formatFormDate(report.deadline.expected, lang.value));
+  if (report.num !== null) {
+    text = text.replace(/\{num\}/g, report.num).replace(/\{rounds\}/g, formatRounds(report.rounds));
+  }
+  return text;
 }
 
 // A round's end: its optional end date, else its date.
 const roundEnd = (i) => form.value[`round${i}_end_date`] || form.value[`round${i}_date`];
 
-// The cutoffs of all end dates in the critical window, each once, in order.
-const criticalCutoffs = computed(() => {
-  const ends = isLongTournament.value
-    ? Array.from({ length: roundsCount.value }, (_, k) => roundEnd(k + 1))
-    : [form.value.end_date];
-  const cutoffs = ends
-    .map(getReportDeadline)
-    .filter(d => d && d.critical)
-    .map(d => d.cutoff);
-  return [...new Set(cutoffs)].sort();
+// The reports, each with its deadline. A New long tournament has one report
+// per report number (recalculateReportNumbers below), a file covering its
+// rounds, and the end of its last round decides the deadline. Any other
+// tournament is one report ending on the end date (num and rounds null).
+const reports = computed(() => {
+  if (!isLongTournament.value) {
+    const deadline = getReportDeadline(form.value.end_date);
+    return deadline ? [{ num: null, rounds: null, lastRound: null, deadline }] : [];
+  }
+  const groups = new Map();
+  for (let i = 1; i <= roundsCount.value; i++) {
+    const num = parseInt(form.value[`round${i}_report`], 10);
+    if (!num) continue;
+    const group = groups.get(num) || { num, rounds: [], end: '' };
+    group.rounds.push(i);
+    if (roundEnd(i) > group.end) group.end = roundEnd(i);
+    groups.set(num, group);
+  }
+  return [...groups.values()]
+    .sort((a, b) => a.num - b.num)
+    .map(g => ({ num: g.num, rounds: g.rounds, lastRound: Math.max(...g.rounds), deadline: getReportDeadline(g.end) }))
+    .filter(r => r.deadline);
 });
 
-// "29 september 2026 en 28 oktober 2026", for the checkbox and its error.
-const criticalCutoffsText = computed(() =>
-  new Intl.ListFormat(DATE_LOCALES[lang.value] || 'en-GB', { type: 'conjunction' })
-    .format(criticalCutoffs.value.map(c => formatFormDate(c, lang.value)))
+// The lines for a report: when it is expected and the last chance for its
+// rating list and, in the critical window, the warning.
+function reportLines(report) {
+  const kind = report.num === null ? 'tournament' : 'report';
+  const deadline = report.deadline;
+  return {
+    expected: `${fillReport(tMsg(`report_expected_${kind}`), report)} ${fillCutoff(tMsg('report_last_chance'), deadline.lastChance, lang.value)}`,
+    warning: deadline.critical
+      ? fillCutoff(fillReport(tMsg(`report_deadline_critical_${kind}`), report), deadline.cutoff, lang.value)
+      : '',
+  };
+}
+
+// A long tournament shows each report's lines under its last round.
+const reportLinesByLastRound = computed(() =>
+  Object.fromEntries(reports.value.filter(r => r.num !== null).map(r => [r.lastRound, reportLines(r)]))
 );
 
-// A tick counts for the deadlines it was given for: new dates, new tick.
-watch(() => criticalCutoffs.value.join(','), () => {
+const tournamentReportLines = computed(() =>
+  !isLongTournament.value && reports.value.length ? reportLines(reports.value[0]) : null
+);
+
+// The reports whose last round ends in the critical window.
+const criticalReports = computed(() => reports.value.filter(r => r.deadline.critical));
+
+// "rapport 3 (rondes 7, 8 en 9) uiterlijk op 29 juni 2027 om 12u", for the
+// checkbox and its error.
+const criticalReportsText = computed(() =>
+  formatList(criticalReports.value.map(r => fillReport(
+    tMsg(r.num === null ? 'report_ack_item_tournament' : 'report_ack_item_report')
+      .replace(/\{cutoff\}/g, formatFormDate(r.deadline.cutoff, lang.value)),
+    r,
+  )), lang.value)
+);
+
+// A tick counts for the reports it was given for: new reports, new tick.
+watch(() => criticalReports.value.map(r => `${r.num}:${r.rounds}:${r.deadline.cutoff}`).join(','), () => {
   form.value.report_deadline_ack = false;
 });
 
@@ -890,8 +945,8 @@ async function submitForm() {
     return;
   }
 
-  if (criticalCutoffs.value.length && !form.value.report_deadline_ack) {
-    errorText.value = tMsg('report_deadline_ack_required').replace('{dates}', criticalCutoffsText.value);
+  if (criticalReports.value.length && !form.value.report_deadline_ack) {
+    errorText.value = tMsg('report_deadline_ack_required').replace('{reports}', criticalReportsText.value);
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (window.parent !== window) {
@@ -1185,10 +1240,10 @@ definePageMeta({
               <span class="required-label">{{ tField('round_report').replace('{num}', i) }}</span>
               <input type="text" v-digits v-model="form[`round${i}_report`]" min="1" required readonly>
             </label>
-            <div v-if="reportDeadlineLines(roundEnd(i), 'round')" class="report-deadline">
-              <div class="report-deadline-expected">{{ reportDeadlineLines(roundEnd(i), 'round').expected }}</div>
-              <div v-if="reportDeadlineLines(roundEnd(i), 'round').warning" class="report-deadline-warning">
-                ⚠ {{ reportDeadlineLines(roundEnd(i), 'round').warning }}
+            <div v-if="reportLinesByLastRound[i]" class="report-deadline">
+              <div class="report-deadline-expected">{{ reportLinesByLastRound[i].expected }}</div>
+              <div v-if="reportLinesByLastRound[i].warning" class="report-deadline-warning">
+                ⚠ {{ reportLinesByLastRound[i].warning }}
               </div>
             </div>
           </div>
@@ -1218,10 +1273,10 @@ definePageMeta({
         <div v-if="isSingleReportMultiplePeriods" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('all_rounds_one_report_period_error') }}
         </div>
-        <div v-if="reportDeadlineLines(form.end_date, 'tournament')" class="report-deadline">
-          <div class="report-deadline-expected">{{ reportDeadlineLines(form.end_date, 'tournament').expected }}</div>
-          <div v-if="reportDeadlineLines(form.end_date, 'tournament').warning" class="report-deadline-warning">
-            ⚠ {{ reportDeadlineLines(form.end_date, 'tournament').warning }}
+        <div v-if="tournamentReportLines" class="report-deadline">
+          <div class="report-deadline-expected">{{ tournamentReportLines.expected }}</div>
+          <div v-if="tournamentReportLines.warning" class="report-deadline-warning">
+            ⚠ {{ tournamentReportLines.warning }}
           </div>
         </div>
       </label>
@@ -1586,9 +1641,9 @@ definePageMeta({
       <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
-      <label v-if="criticalCutoffs.length" class="report-deadline-ack">
+      <label v-if="criticalReports.length" class="report-deadline-ack">
         <input type="checkbox" v-model="form.report_deadline_ack">
-        <span>{{ tUI('report_deadline_ack').replace('{dates}', criticalCutoffsText) }}</span>
+        <span>{{ tUI('report_deadline_ack').replace('{reports}', criticalReportsText) }}</span>
       </label>
 
       <div v-if="turnstileSitekey" class="turnstile-box">
