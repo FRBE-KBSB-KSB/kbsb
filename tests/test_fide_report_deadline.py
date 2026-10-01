@@ -156,6 +156,7 @@ def test_mail_single_tournament():
     html = report_deadline_mail(single("2026-09-27"), "nl")
     assert "1 oktober 2026" in html
     assert "29 september om 12u" in html and "ratinglijst van september" in html
+    assert "kan u een boete krijgen" in html
     calm = report_deadline_mail(single("2026-09-20"), "en")
     assert "24 September 2026" in calm and "12:00" not in calm
 
@@ -172,7 +173,7 @@ def test_mail_long_tournament_per_report():
     # report 1 ends 26 September: expected 30 September, cutoff 29 September
     assert html.count("<li>") == 2
     assert "30 septembre 2026" in html and "29 septembre à 12h" in html
-    assert "liste de classement de septembre" in html
+    assert "liste de classement de septembre et vous pouvez recevoir une amende" in html
     assert "7 octobre 2026" in html
     oct_html = report_deadline_mail(long_tournament([("2026-10-27", "", "1")]), "fr")
     assert "liste de classement d'octobre" in oct_html
@@ -205,6 +206,19 @@ def test_translations_json_and_csv_agree():
             for lang in ("en", "nl", "fr"):
                 value = TRANSLATIONS[lang][section][key]
                 assert value and value == rows[(section, key)][lang], (section, key, lang)
-                assert "—" not in value
+                assert "—" not in value  # no em-dashes in the texts
     for lang in ("en", "nl", "fr"):
         assert TRANSLATIONS[lang]["messages"]["conf_body"] == rows[("messages", "conf_body")][lang]
+
+
+@pytest.mark.parametrize(
+    "lang,fine",
+    [
+        ("en", "you may be fined"),
+        ("nl", "kan u een boete krijgen"),
+        ("fr", "vous pouvez recevoir une amende"),
+    ],
+)
+def test_critical_warnings_mention_the_fine(lang, fine):
+    for kind in ("round", "tournament", "report"):
+        assert fine in TRANSLATIONS[lang]["messages"][f"report_deadline_critical_{kind}"]
