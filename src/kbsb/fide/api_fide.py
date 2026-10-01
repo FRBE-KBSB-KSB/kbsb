@@ -8,13 +8,15 @@ import logging
 import base64
 from urllib.parse import quote
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from openpyxl import load_workbook
 
 from zerotwocloud.mail import MailAttachment, MailParams
 from zerotwocloud.mail import get_setting as get_mail_setting
 from zerotwocloud.mail.mail import sendEmailMessage
+
+from kbsb.fide import turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -232,11 +234,17 @@ def load_lookup_values():
 
 
 load_lookup_values()
+turnstile.log_status()
 
 
 @router.get("/form-data")
 def get_form_data():
-    return {"translations": TRANSLATIONS, "lookups": LOOKUP_DATA}
+    return {
+        "translations": TRANSLATIONS,
+        "lookups": LOOKUP_DATA,
+        # "" while Turnstile is off: the page then shows no widget
+        "turnstile_sitekey": turnstile.sitekey_if_enabled(),
+    }
 
 
 def fill_workbook(form_data):
@@ -690,8 +698,23 @@ def calculate_standard_total_minutes(form: dict) -> float:
 
 
 @router.post("/generate")
-async def generate_fide_form(locale: str, formdata: dict):
+async def generate_fide_form(locale: str, formdata: dict, request: Request):
     locale = locale or "en"
+    # Turnstile first, before anything is processed or mailed. A no-op while
+    # Turnstile is off (see kbsb.fide.turnstile).
+    refusal = await turnstile.check(request, formdata.get("turnstile_token"))
+    if refusal:
+        t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
+        return JSONResponse(
+            status_code=503 if refusal == turnstile.MSG_UNAVAILABLE else 400,
+            content={"success": False, "errors": [t_refusal[refusal]]},
+            # the page asks for a file, so it cannot read this JSON body; it
+            # shows its own translation of this key instead
+            headers={
+                "X-Fide-Error": refusal,
+                "Access-Control-Expose-Headers": "X-Fide-Error",
+            },
+        )
     form = formdata.get("formdata", {})
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")

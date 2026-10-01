@@ -19,6 +19,7 @@ const vDigits = {
 
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useTurnstile } from "~/composables/useTurnstile";
 
 // communication
 const { $backend } = useNuxtApp()
@@ -33,6 +34,17 @@ const errorText = ref("");
 const submitted = ref(false);
 // Addresses the backend could not send the registration copy to.
 const confirmationFailed = ref("");
+// Cloudflare Turnstile: the backend gives a site key only while it checks the
+// token. Without one there is no widget and nothing to wait for.
+const turnstileSitekey = ref("");
+const turnstileEl = ref(null);
+const { token: turnstileToken, reset: resetTurnstile } = useTurnstile({
+  sitekey: turnstileSitekey,
+  element: turnstileEl,
+  language: lang,
+  action: "fide_registration",
+});
+const turnstilePending = computed(() => !!turnstileSitekey.value && !turnstileToken.value);
 
 // Lookups and Translations
 const lookups = ref({
@@ -651,6 +663,7 @@ async function loadFormData() {
     const reply = await $backend("fide", "formdata")
     translations.value = reply.data.translations;
     lookups.value = reply.data.lookups;
+    turnstileSitekey.value = reply.data.turnstile_sitekey || "";
   } catch (error) {
     console.error(error?.message);
     errorText.value = "Failed to load form data from backend.";
@@ -719,6 +732,8 @@ function clearFormData() {
 
 async function submitForm() {
   if (waitingdialog.value || submitCooldown.value) return;
+  // the hint above the submit button says what is missing
+  if (turnstilePending.value) return;
 
   const invEmail = (form.value.invoice_email || '').trim();
   if (invEmail !== 'JORIAN.INTERNAL' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail)) {
@@ -800,6 +815,7 @@ async function submitForm() {
     const response = await $backend("fide", "generate", {
       locale: lang.value,
       formdata: form.value,
+      turnstile_token: turnstileToken.value,
     })
     // The registration reached fide@ even when a copy did not reach the
     // organiser, so this stays a success, with a notice naming the address.
@@ -822,9 +838,16 @@ async function submitForm() {
     // falls back to "General server error". A 5xx from this endpoint means the
     // registration email was not sent, so say exactly that, and what to do.
     const serverError = error?.code >= 500 && error?.code < 600;
-    errorText.value = serverError
-      ? tMsg('send_failed')
-      : (error?.message || tMsg('send_failed'));
+    // A refused security check names its message key in a header, since
+    // the JSON body is out of reach here; nothing was sent then.
+    const fideError = error?.headers?.["x-fide-error"];
+    errorText.value = fideError
+      ? tMsg(fideError)
+      : serverError
+        ? tMsg('send_failed')
+        : (error?.message || tMsg('send_failed'));
+    // the token was used up by this submit
+    resetTurnstile();
     if (process.client && window.parent !== window) {
       window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
     }
@@ -1447,7 +1470,11 @@ definePageMeta({
       <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
-      <button type="submit" :disabled="waitingdialog || submitCooldown">
+      <div v-if="turnstileSitekey" class="turnstile-box">
+        <div ref="turnstileEl"></div>
+        <div v-if="turnstilePending" class="turnstile-hint">{{ tUI('turnstile_hint') }}</div>
+      </div>
+      <button type="submit" :disabled="waitingdialog || submitCooldown || turnstilePending">
         {{ waitingdialog ? '...' : (submitCooldown ? 'Submitted' : tUI('export_btn')) }}
       </button>
     </form>
@@ -1546,6 +1573,15 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus-ring,
 .input-error { border-color: var(--error, #b91c1c) !important; }
 textarea { min-height: 4rem; }
 .group-title { margin-top: 1.5rem; font-weight: 700; font-size: 0.98rem; color: var(--muted, #4b5563); }
+.turnstile-box {
+  margin-top: 1rem;
+}
+.turnstile-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.3rem;
+}
 button[type="submit"] {
   margin-top: 1.5rem;
   padding: 0.6rem 1.2rem;
