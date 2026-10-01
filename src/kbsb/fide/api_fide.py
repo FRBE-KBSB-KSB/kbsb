@@ -3,7 +3,7 @@ import re
 import calendar
 from pathlib import Path
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import base64
 from urllib.parse import quote
@@ -375,6 +375,160 @@ def get_fide_period(date_str):
         return None
 
 
+# KBSB rule: the report reaches the KBSB within 4 days after the end date (for
+# a New long tournament, each round's end: its end date, else its date). An
+# end date from x-6 to x-2, x the last day of its month, is the critical
+# window: the report then has to be in by day x-1 at 12:00 to be rated in that
+# month's FIDE list. The last two days of a month are FIDE's transition period
+# (get_fide_period), not critical. Mirrors getReportDeadline in
+# fide_registration.vue.
+REPORT_DAYS = 4
+
+MONTH_NAMES = {
+    "en": ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"],
+    "nl": ["januari", "februari", "maart", "april", "mei", "juni", "juli",
+           "augustus", "september", "oktober", "november", "december"],
+    "fr": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
+           "août", "septembre", "octobre", "novembre", "décembre"],
+}
+LIST_AND = {"en": "and", "nl": "en", "fr": "et"}
+
+
+def get_report_deadline(date_str):
+    """
+    For an end date (YYYY-MM-DD): the date the report is expected by, whether
+    the end date is in the critical window, and then the cutoff (day x-1, the
+    report due at 12:00). None when the date is not valid.
+    """
+    try:
+        end = datetime.strptime(str(date_str or "").strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    _, last_day = calendar.monthrange(end.year, end.month)
+    critical = last_day - 6 <= end.day <= last_day - 2
+    return {
+        "end": end,
+        "expected": end + timedelta(days=REPORT_DAYS),
+        "critical": critical,
+        "cutoff": end.replace(day=last_day - 1) if critical else None,
+    }
+
+
+def report_end_dates(form):
+    """
+    The end dates the report deadline counts from, as (round number or None,
+    YYYY-MM-DD): each round's end for a New long tournament, else the
+    tournament end date.
+    """
+    if form.get("tournament_report") == "New long tournament":
+        try:
+            n = int(form.get("rounds_reported") or 0)
+        except ValueError:
+            n = 0
+        ends = []
+        for i in range(1, n + 1):
+            end = (form.get(f"round{i}_end_date") or "").strip() or (
+                form.get(f"round{i}_date") or ""
+            ).strip()
+            if end:
+                ends.append((i, end))
+        return ends
+    end = (form.get("end_date") or "").strip()
+    return [(None, end)] if end else []
+
+
+def critical_report_cutoffs(form):
+    """The distinct cutoffs of the end dates in the critical window, sorted."""
+    cutoffs = set()
+    for _, end in report_end_dates(form):
+        deadline = get_report_deadline(end)
+        if deadline and deadline["critical"]:
+            cutoffs.add(deadline["cutoff"])
+    return sorted(cutoffs)
+
+
+def format_date(d, lang, year=True):
+    """5 October 2026 / 5 oktober 2026 / 5 octobre 2026, as the form shows it."""
+    months = MONTH_NAMES.get(lang, MONTH_NAMES["en"])
+    text = f"{d.day} {months[d.month - 1]}"
+    return f"{text} {d.year}" if year else text
+
+
+def format_date_list(dates, lang):
+    """A, B and C in the given language, like Intl.ListFormat on the form."""
+    texts = [format_date(d, lang) for d in dates]
+    if len(texts) < 2:
+        return "".join(texts)
+    return f"{', '.join(texts[:-1])} {LIST_AND.get(lang, 'and')} {texts[-1]}"
+
+
+def fill_cutoff(template, cutoff, lang):
+    """Fills {deadline}, {month} and {of_month} (French: de/d' + month)."""
+    month = MONTH_NAMES.get(lang, MONTH_NAMES["en"])[cutoff.month - 1]
+    of_month = f"d'{month}" if month[0] in "aeiou" else f"de {month}"
+    return (
+        template.replace("{deadline}", format_date(cutoff, lang, year=False))
+        .replace("{month}", month)
+        .replace("{of_month}", of_month)
+    )
+
+
+def is_ticked(value):
+    return value is True or str(value).strip().lower() in ("true", "1", "yes", "on")
+
+
+def report_deadline_mail(form, lang):
+    """
+    The deadline part of the confirmation mail: the date each report is
+    expected by and, for an end date in the critical window, the noon cutoff.
+    """
+    t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
+    warn_style = "color: #b45309; font-weight: bold;"
+    ends = report_end_dates(form)
+    if not ends:
+        return ""
+
+    if form.get("tournament_report") != "New long tournament":
+        deadline = get_report_deadline(ends[0][1])
+        if not deadline:
+            return ""
+        html = "<p>" + (
+            t_msg["mail_report_deadline_tournament"]
+            .replace("{end}", format_date(deadline["end"], lang))
+            .replace("{date}", format_date(deadline["expected"], lang))
+        ) + "</p>"
+        if deadline["critical"]:
+            text = fill_cutoff(t_msg["report_deadline_critical_tournament"], deadline["cutoff"], lang)
+            html += f'<p style="{warn_style}">{text}</p>'
+        return html
+
+    # One line per report: it is due 4 days after its last round ends.
+    last_end = {}
+    for i, end in ends:
+        report = str(form.get(f"round{i}_report") or i).strip()
+        if end > last_end.get(report, ""):
+            last_end[report] = end
+    items = []
+    for report in sorted(last_end, key=lambda r: int(r) if r.isdigit() else 0):
+        deadline = get_report_deadline(last_end[report])
+        if not deadline:
+            continue
+        item = (
+            t_msg["mail_report_deadline_report"]
+            .replace("{num}", report)
+            .replace("{end}", format_date(deadline["end"], lang))
+            .replace("{date}", format_date(deadline["expected"], lang))
+        )
+        if deadline["critical"]:
+            text = fill_cutoff(t_msg["report_deadline_critical_report"], deadline["cutoff"], lang)
+            item += f'<br><span style="{warn_style}">{text.replace("{num}", report)}</span>'
+        items.append(f"<li>{item}</li>")
+    if not items:
+        return ""
+    return f"<p>{t_msg['mail_report_deadline_intro']}</p><ul>{''.join(items)}</ul>"
+
+
 def validate_form(form, lang):
     errors = []
     trans = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
@@ -643,6 +797,17 @@ def validate_form(form, lang):
                     min_value=1,
                 )
 
+    # An end date in the critical window: the organiser has to tick that the
+    # report is due by noon on day x-1 (the checkbox above the submit button).
+    cutoffs = critical_report_cutoffs(form)
+    if cutoffs and not is_ticked(form.get("report_deadline_ack")):
+        logger.error(f"Report deadline not acknowledged for cutoffs {cutoffs}")
+        errors.append(
+            t_msg["report_deadline_ack_required"].replace(
+                "{dates}", format_date_list(cutoffs, lang)
+            )
+        )
+
     return errors
 
 
@@ -886,6 +1051,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     conf_body = t_msg.get(
         "conf_body", "<p>Thank you for submitting the FIDE registration form.</p>"
     ).replace("{event_name}", event_name)
+    conf_body = conf_body.replace("{report_deadlines}", report_deadline_mail(form, mail_lang))
 
     if is_unapproved:
         conf_body = warning_banner + conf_body
