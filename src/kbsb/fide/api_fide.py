@@ -6,6 +6,7 @@ from io import BytesIO
 from datetime import datetime, timedelta
 import logging
 import base64
+import html
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
@@ -16,7 +17,8 @@ from zerotwocloud.mail import MailAttachment, MailParams
 from zerotwocloud.mail import get_setting as get_mail_setting
 from zerotwocloud.mail.mail import sendEmailMessage
 
-from kbsb.fide import turnstile
+from kbsb.core.cells import write_text
+from kbsb.fide import ratelimit, turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,11 @@ FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
 # Read by the dataplatform every 30 minutes; it queues the workbook for processing.
 AUTORATING_MAILBOX = "autoratingfide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
+
+# One plain address: the invoice and contact e-mails become mail headers (To,
+# Reply-To), so no line breaks or spaces, and no comma, semicolon or angle
+# bracket that would turn one address into several recipients.
+EMAIL_RE = re.compile(r"[^\s@,;:<>()\[\]\\\"']+@[^\s@,;:<>()\[\]\\\"']+\.[^\s@,;:<>()\[\]\\\"']+")
 
 router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
 
@@ -248,11 +255,16 @@ def get_form_data():
 
 
 def fill_workbook(form_data):
+    # Every value goes in through write_text: the text is typed by whoever
+    # fills in the public form, and fide@ and the staff open this workbook in
+    # Excel, so a value starting with "=" must stay text, never a formula
+    # (SEC-40). The text itself is kept as typed: the dataplatform reads these
+    # cells. The template's own formulas, in cells not written here, stay.
     wb = load_workbook(TEMPLATE_PATH)
     ws = wb["FIDE Registration Form"]
 
-    ws["B7"] = form_data.get("invoice_email", "")
-    ws["B8"] = form_data.get("invoice_clubnr", "")
+    write_text(ws["B7"], form_data.get("invoice_email", ""))
+    write_text(ws["B8"], form_data.get("invoice_clubnr", ""))
 
     start_row = 10
     lang_labels = {
@@ -268,17 +280,17 @@ def fill_workbook(form_data):
             val = form_data.get(field_key, "")
             if field_key == "communication_language" and val in lang_labels:
                 val = lang_labels[val]
-        ws[f"B{start_row + index}"] = val
+        write_text(ws[f"B{start_row + index}"], val)
 
     if (
         form_data.get("tournament_report") == "New long tournament"
         and "Rounds_Long_Tournament" in wb.sheetnames
     ):
         ws_rounds = wb["Rounds_Long_Tournament"]
-        ws_rounds["B1"] = form_data.get("event_name", "")
+        write_text(ws_rounds["B1"], form_data.get("event_name", ""))
         # D1 is free in the template, so the optional end date gets its own
         # labelled column next to the report number.
-        ws_rounds["D1"] = "End Date (optional)"
+        write_text(ws_rounds["D1"], "End Date (optional)")
         for r in range(2, 150):
             ws_rounds[f"B{r}"] = None
             ws_rounds[f"C{r}"] = None
@@ -292,12 +304,12 @@ def fill_workbook(form_data):
 
         for i in range(1, n_rounds + 1):
             row = i + 1
-            ws_rounds[f"A{row}"] = f"Round {i} Date"
-            ws_rounds[f"B{row}"] = form_data.get(f"round{i}_date", "")
-            ws_rounds[f"C{row}"] = form_data.get(f"round{i}_report", "")
+            write_text(ws_rounds[f"A{row}"], f"Round {i} Date")
+            write_text(ws_rounds[f"B{row}"], form_data.get(f"round{i}_date", ""))
+            write_text(ws_rounds[f"C{row}"], form_data.get(f"round{i}_report", ""))
             # A one day round leaves D empty, which is the normal case.
             end_date = (form_data.get(f"round{i}_end_date") or "").strip()
-            ws_rounds[f"D{row}"] = end_date or None
+            write_text(ws_rounds[f"D{row}"], end_date or None)
 
     buf = BytesIO()
     wb.save(buf)
@@ -556,6 +568,16 @@ def validate_form(form, lang):
             if p_start and p_end and p_start != p_end:
                 logger.error(f"Dates {start_date} ({p_start}) and {end_date} ({p_end}) span multiple FIDE periods for 1 report")
                 errors.append(t_msg.get("all_rounds_one_report_period_error", "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'."))
+
+    for key in ("invoice_email", "contact_email"):
+        value = form.get(key)
+        if not value:
+            continue
+        if not isinstance(value, str) or not (
+            value.strip() == "JORIAN.INTERNAL" or EMAIL_RE.fullmatch(value.strip())
+        ):
+            logger.error(f"{key} is not a valid e-mail address")
+            errors.append(f"{t_fields.get(key, key)} {t_msg['invalid_email']}")
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 -]+", event_name):
@@ -862,6 +884,21 @@ def calculate_standard_total_minutes(form: dict) -> float:
     return total_mins + inc_mins
 
 
+def refuse(key, status_code, locale):
+    """A refused submit, with the translated message of key."""
+    t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
+    return JSONResponse(
+        status_code=status_code,
+        content={"success": False, "errors": [t_refusal[key]]},
+        # the page asks for a file, so it cannot read this JSON body; it
+        # shows its own translation of this key instead
+        headers={
+            "X-Fide-Error": key,
+            "Access-Control-Expose-Headers": "X-Fide-Error",
+        },
+    )
+
+
 @router.post("/generate")
 async def generate_fide_form(locale: str, formdata: dict, request: Request):
     locale = locale or "en"
@@ -869,16 +906,8 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     # Turnstile is off (see kbsb.fide.turnstile).
     refusal = await turnstile.check(request, formdata.get("turnstile_token"))
     if refusal:
-        t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
-        return JSONResponse(
-            status_code=503 if refusal == turnstile.MSG_UNAVAILABLE else 400,
-            content={"success": False, "errors": [t_refusal[refusal]]},
-            # the page asks for a file, so it cannot read this JSON body; it
-            # shows its own translation of this key instead
-            headers={
-                "X-Fide-Error": refusal,
-                "Access-Control-Expose-Headers": "X-Fide-Error",
-            },
+        return refuse(
+            refusal, 503 if refusal == turnstile.MSG_UNAVAILABLE else 400, locale
         )
     form = formdata.get("formdata", {})
     if not TEMPLATE_PATH.exists():
@@ -900,6 +929,32 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
         return JSONResponse(
             status_code=400, content={"success": False, "errors": errors}
         )
+
+    # validate_form checked these are single addresses without line breaks:
+    # they go into the To and Reply-To headers below
+    invoice_email = form.get("invoice_email", "").strip()
+    is_internal_test = (invoice_email == "JORIAN.INTERNAL")
+    contact_email = form.get("contact_email", "").strip()
+
+    # The confirmation copies go to the addresses typed in the form.
+    recipients = []
+    if is_internal_test:
+        recipients.append(INTERNAL_TEST_ADDRESS)
+    else:
+        if invoice_email:
+            recipients.append(invoice_email)
+        if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
+            recipients.append(contact_email)
+
+    # Counted only once the form is valid, since an invalid one mails
+    # nothing. Our own test address is not a stranger's inbox, so only the
+    # IP limit applies to it.
+    limited = await ratelimit.check_and_record(
+        turnstile.client_ip(request),
+        [r for r in recipients if r != INTERNAL_TEST_ADDRESS],
+    )
+    if limited:
+        return refuse(limited, 429, locale)
 
     start_date_str = form.get("start_date", "").strip()
     is_late = False
@@ -1003,16 +1058,13 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     {late_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
-    <p><strong>Clubnummer:</strong> {club_number}</p>
-    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {comm_lang_display}</p>
+    <p><strong>Clubnummer:</strong> {html.escape(str(club_number))}</p>
+    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {html.escape(str(comm_lang_display))}</p>
     <br>
     <p>Groetjes!</p>
     """
 
-    invoice_email = form.get("invoice_email", "").strip()
-    is_internal_test = (invoice_email == "JORIAN.INTERNAL")
     fide_receiver = INTERNAL_TEST_ADDRESS if is_internal_test else FIDE_MAILBOX
-    contact_email = form.get("contact_email", "").strip()
     # Replying to the registration from the fide@ inbox reaches the organiser.
     organiser_email = (
         contact_email if contact_email and contact_email != "JORIAN.INTERNAL" else invoice_email
@@ -1055,15 +1107,6 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
 
     if is_unapproved:
         conf_body = warning_banner + conf_body
-
-    recipients = []
-    if is_internal_test:
-        recipients.append(INTERNAL_TEST_ADDRESS)
-    else:
-        if invoice_email:
-            recipients.append(invoice_email)
-        if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
-            recipients.append(contact_email)
 
     failed_confirmations = []
     for recipient in recipients:
