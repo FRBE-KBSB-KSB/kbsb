@@ -206,7 +206,7 @@ def test_translations_json_and_csv_agree():
             for lang in ("en", "nl", "fr"):
                 value = TRANSLATIONS[lang][section][key]
                 assert value and value == rows[(section, key)][lang], (section, key, lang)
-                assert "—" not in value  # no em-dashes in the texts
+                assert "\u2014" not in value  # no em-dashes in the texts
     for lang in ("en", "nl", "fr"):
         assert TRANSLATIONS[lang]["messages"]["conf_body"] == rows[("messages", "conf_body")][lang]
 
