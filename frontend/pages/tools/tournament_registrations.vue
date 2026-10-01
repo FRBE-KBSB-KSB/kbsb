@@ -2076,7 +2076,10 @@ onMounted(() => {
                     <td>{{ r.id }}</td>
                     <td>{{ r.last_name }} {{ r.first_name }}</td>
                     <td>{{ r.sex }}</td>
-                    <td>{{ formatDateDisplay(r.date_birth) }}</td>
+                    <!-- The full date when the registrant gave one; otherwise the
+                         birth year the API fills from the federation or FIDE record
+                         (a date is only asked of players without a FIDE ID). -->
+                    <td>{{ r.date_birth ? formatDateDisplay(r.date_birth) : (r.birth_year || '') }}</td>
                     <td>{{ r.national_club_name || r.national_club }}</td>
                     <td>{{ categoryLabel(selectedAdminTournament, r.category_index) }}</td>
                     <td>{{ r.fide_id }}</td>
@@ -2126,7 +2129,7 @@ onMounted(() => {
             <v-col cols="12" sm="4">
               <v-select v-model="editRegForm.sex" :items="[{ title: t('trnreg.sex_m'), value: 'M' }, { title: t('trnreg.sex_f'), value: 'F' }]" item-title="title" item-value="value" :label="t('trnreg.field_sex')" variant="outlined" color="green-darken-2" density="compact"></v-select>
             </v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" required class="trnreg-required"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" :required="!editRegForm.fide_id" :class="editRegForm.fide_id ? '' : 'trnreg-required'"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.place_birth" :label="t('trnreg.field_place_birth')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.country_residence" :label="t('trnreg.field_country_residence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.nationality" :label="t('trnreg.field_nationality')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
