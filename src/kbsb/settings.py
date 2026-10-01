@@ -125,6 +125,12 @@ SECRETS = {
         "name": "su_jorian",
         "manager": "googlejson",
     },
+    # the bare Turnstile secret key, read by kbsb.fide.turnstile (not with
+    # get_secret, which only parses JSON or YAML)
+    "turnstile": {
+        "name": "turnstile-secret",
+        "manager": "googletext",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
@@ -139,6 +145,10 @@ TOKEN = {
     "algorithm": "HS256",
     "nocheck": False,
 }
+
+# Cloudflare Turnstile on the FIDE registration form (public site key, set in
+# app.yaml). Empty means Turnstile is off; see kbsb.fide.turnstile.
+TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
 
 if KBSB_MODE == "local":
