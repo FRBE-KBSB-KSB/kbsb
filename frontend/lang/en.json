@@ -595,6 +595,7 @@
 "trnreg.rating_fallback_hint": "No rating in this time control; the standard rating counts",
 "trnreg.admin_export_swar": "SWAR export",
 "trnreg.admin_export_openpairings": "Export for OpenPairings",
+"trnreg.admin_export_swarfile": "Download .swar",
 "trnreg.copy_suffix": "(copy)",
 "trnreg.rule_end_after_start": "The end date cannot be before the start date.",
 "trnreg.rule_closing_after_opening": "Registrations cannot close before they open.",

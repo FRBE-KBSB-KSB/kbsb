@@ -595,6 +595,7 @@
 "trnreg.rating_fallback_hint": "Pas de classement dans cette cadence ; le classement standard compte",
 "trnreg.admin_export_swar": "Export SWAR",
 "trnreg.admin_export_openpairings": "Export pour OpenPairings",
+"trnreg.admin_export_swarfile": "Télécharger le .swar",
 "trnreg.copy_suffix": "(copie)",
 "trnreg.rule_end_after_start": "La date de fin ne peut pas précéder la date de début.",
 "trnreg.rule_closing_after_opening": "Les inscriptions ne peuvent pas se clôturer avant leur ouverture.",
