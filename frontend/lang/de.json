@@ -594,6 +594,7 @@
 "trnreg.fide_id_warning": "Dieses Turnier ist FIDE-gewertet. Stellen Sie sicher, dass Sie entweder eine bestehende FIDE-Nummer haben und sie hier eintragen, oder Mitglied des KSB mit einer in diesem Jahr gültigen Mitgliedschaft sind.",
 "trnreg.rating_fallback_hint": "Keine Wertung in dieser Bedenkzeit; die Standardwertung zählt",
 "trnreg.admin_export_swar": "SWAR-Export",
+"trnreg.admin_export_openpairings": "Export für OpenPairings",
 "trnreg.copy_suffix": "(Kopie)",
 "trnreg.rule_end_after_start": "Das Enddatum darf nicht vor dem Startdatum liegen.",
 "trnreg.rule_closing_after_opening": "Die Anmeldung kann nicht vor ihrer Öffnung schließen.",

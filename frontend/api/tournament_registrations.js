@@ -154,6 +154,15 @@ export default {
     );
   },
 
+  admin_exportOpenPairings: async function (options) {
+    const { id, token, category } = options;
+    const query = category === null || category === undefined ? "" : `?category=${encodeURIComponent(category)}`;
+    return await axios.get(`${prefix}/admin/tournaments/${id}/export/openpairings${query}`, {
+      headers: { Authorization: "Bearer " + token },
+      responseType: "blob",
+    });
+  },
+
   admin_refreshElo: async function (options) {
     const { id, token } = options;
     return await axios.post(
