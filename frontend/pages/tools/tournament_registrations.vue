@@ -1461,12 +1461,13 @@ async function saveTournament() {
 }
 
 // ---------------------------------------------------------------------
-// admin: CSV / SWAR exports + ELO refresh
+// admin: CSV / SWAR / OpenPairings exports + ELO refresh
 // ---------------------------------------------------------------------
 
 // Keyed "all" or the category number, so each button spins on its own.
 const exportingCsv = ref({})
 const exportingSwar = ref({})
+const exportingOpenPairings = ref({})
 
 // One button per category when the tournament exports per category, and a
 // single one for everything otherwise (or when it has at most one category).
@@ -1527,6 +1528,27 @@ async function exportSwar(key) {
     adminActionError.value = t("trnreg.admin_export_failed")
   } finally {
     exportingSwar.value = { ...exportingSwar.value, [key]: false }
+  }
+}
+
+// The registration list as an OpenPairings backup file, for its "Import
+// backup (JSON)". Per category when the SWAR export is, since each category
+// is then its own tournament.
+async function exportOpenPairings(key) {
+  if (!selectedAdminTournament.value) return
+  exportingOpenPairings.value = { ...exportingOpenPairings.value, [key]: true }
+  adminActionError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_exportOpenPairings", {
+      id: selectedAdminTournament.value.id,
+      token: token.value,
+      category: key === "all" ? null : key,
+    })
+    triggerDownload(reply.data, `openpairings_${selectedAdminTournament.value.id}${exportFileTag(key)}.json`)
+  } catch (error) {
+    adminActionError.value = t("trnreg.admin_export_failed")
+  } finally {
+    exportingOpenPairings.value = { ...exportingOpenPairings.value, [key]: false }
   }
 }
 
@@ -2006,6 +2028,7 @@ onMounted(() => {
                 <template v-for="x in exportTargets" :key="'exp-' + x.key">
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingCsv[x.key]" @click="exportCsv(x.key)">{{ t('trnreg.admin_export_csv') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwar[x.key]" @click="exportSwar(x.key)">{{ t('trnreg.admin_export_swar') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
+                  <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingOpenPairings[x.key]" @click="exportOpenPairings(x.key)">{{ t('trnreg.admin_export_openpairings') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                 </template>
                 <v-btn size="small" variant="tonal" color="blue-darken-2" prepend-icon="mdi-refresh" :loading="refreshEloLoading" @click="refreshElo">{{ t('trnreg.admin_refresh_elo') }}</v-btn>
               </v-col>
