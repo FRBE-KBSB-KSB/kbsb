@@ -1461,13 +1461,14 @@ async function saveTournament() {
 }
 
 // ---------------------------------------------------------------------
-// admin: CSV / SWAR / OpenPairings exports + ELO refresh
+// admin: CSV / SWAR / OpenPairings / .swar exports + ELO refresh
 // ---------------------------------------------------------------------
 
 // Keyed "all" or the category number, so each button spins on its own.
 const exportingCsv = ref({})
 const exportingSwar = ref({})
 const exportingOpenPairings = ref({})
+const exportingSwarFile = ref({})
 
 // One button per category when the tournament exports per category, and a
 // single one for everything otherwise (or when it has at most one category).
@@ -1549,6 +1550,27 @@ async function exportOpenPairings(key) {
     adminActionError.value = t("trnreg.admin_export_failed")
   } finally {
     exportingOpenPairings.value = { ...exportingOpenPairings.value, [key]: false }
+  }
+}
+
+// The registration list as a native SWAR tournament file, to open in SWAR
+// itself (the SWAR export above is the CSV for SWAR's import screen). Per
+// category like the others.
+async function exportSwarFile(key) {
+  if (!selectedAdminTournament.value) return
+  exportingSwarFile.value = { ...exportingSwarFile.value, [key]: true }
+  adminActionError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_exportSwarFile", {
+      id: selectedAdminTournament.value.id,
+      token: token.value,
+      category: key === "all" ? null : key,
+    })
+    triggerDownload(reply.data, `tournament_${selectedAdminTournament.value.id}${exportFileTag(key)}.swar`)
+  } catch (error) {
+    adminActionError.value = t("trnreg.admin_export_failed")
+  } finally {
+    exportingSwarFile.value = { ...exportingSwarFile.value, [key]: false }
   }
 }
 
@@ -2029,6 +2051,7 @@ onMounted(() => {
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingCsv[x.key]" @click="exportCsv(x.key)">{{ t('trnreg.admin_export_csv') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwar[x.key]" @click="exportSwar(x.key)">{{ t('trnreg.admin_export_swar') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingOpenPairings[x.key]" @click="exportOpenPairings(x.key)">{{ t('trnreg.admin_export_openpairings') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
+                  <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwarFile[x.key]" @click="exportSwarFile(x.key)">{{ t('trnreg.admin_export_swarfile') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                 </template>
                 <v-btn size="small" variant="tonal" color="blue-darken-2" prepend-icon="mdi-refresh" :loading="refreshEloLoading" @click="refreshElo">{{ t('trnreg.admin_refresh_elo') }}</v-btn>
               </v-col>
