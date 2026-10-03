@@ -1632,8 +1632,8 @@ definePageMeta({
         <div style="font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; font-style: italic;">A confirmation email will be sent to this address. This is typically the email of the organising club.</div>
       </label>
       <label>
-        <span class="required-label">{{ tField('homepage') }}</span>
-        <input type="text" v-model="form.homepage" required>
+        <span>{{ tField('homepage') }}</span>
+        <input type="text" v-model="form.homepage">
         <div v-if="form.homepage && !form.homepage.includes('http')" style="color:var(--error); font-size:0.85rem; margin-top:0.25rem;">
           Warning: URL should usually contain http or https.
         </div>
