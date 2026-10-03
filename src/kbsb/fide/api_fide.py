@@ -150,7 +150,6 @@ MANDATORY_ALWAYS = [
     "tiebreak_method",
     "software",
     "contact_email",
-    "homepage",
 ]
 
 LOOKUP_DATA = {
@@ -930,6 +929,15 @@ def calculate_standard_total_minutes(form: dict) -> float:
     return total_mins + inc_mins
 
 
+def normalise_homepage(form):
+    """The homepage is optional: empty stays empty, a typed one without a
+    scheme gets https://."""
+    homepage = (form.get("homepage") or "").strip()
+    if homepage and not homepage.lower().startswith(("http://", "https://")):
+        homepage = "https://" + homepage
+    form["homepage"] = homepage
+
+
 def refuse(key, status_code, locale):
     """A refused submit, with the translated message of key."""
     t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
@@ -964,11 +972,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
         form["software"] = "Other"
         form["software_other"] = "Swar (with JaVaFo)"
 
-    homepage = form.get("homepage", "").strip()
-    if homepage and not (
-        homepage.startswith("http://") or homepage.startswith("https://")
-    ):
-        form["homepage"] = "https://" + homepage
+    normalise_homepage(form)
 
     errors = validate_form(form, locale)
     if errors:

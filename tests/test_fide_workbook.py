@@ -7,13 +7,26 @@ without changing the text: the dataplatform reads these cells. The template's
 own formulas, in cells the form does not fill, stay formulas.
 """
 
+import json
 from io import BytesIO
+from pathlib import Path
 
 import pytest
 from openpyxl import Workbook, load_workbook
 
 from kbsb.core.cells import write_text
-from kbsb.fide.api_fide import FIDE_FIELDS, fill_workbook
+from kbsb.fide.api_fide import (
+    FIDE_FIELDS,
+    fill_workbook,
+    normalise_homepage,
+    validate_form,
+)
+
+TRANSLATIONS = json.loads(
+    (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(
+        encoding="utf-8"
+    )
+)
 
 MALICIOUS = [
     "=1+1",
@@ -149,3 +162,37 @@ def test_write_text_types():
     assert write_text(ws["A3"], None).value is None
     assert write_text(ws["A4"], ["=1", "x"]).value == "['=1', 'x']"
     assert ws["A4"].data_type == "s"
+
+
+def test_homepage_is_optional():
+    # no "Internet Homepage ..." error without it, and none for it alone
+    form = {"homepage": ""}
+    en = TRANSLATIONS["en"]
+    label = en["fields"]["homepage"]
+    assert not [e for e in validate_form(form, "en") if e.startswith(label)]
+    assert not [e for e in validate_form({}, "en") if e.startswith(label)]
+
+
+def test_empty_homepage_stays_empty_in_the_workbook():
+    for form in ({}, {"homepage": ""}, {"homepage": "   "}, {"homepage": None}):
+        normalise_homepage(form)
+        assert form["homepage"] == ""
+        ws = reload(fill_workbook(form))["FIDE Registration Form"]
+        assert ws[f"B{ROW['homepage']}"].value in (None, "")
+
+
+@pytest.mark.parametrize(
+    "typed,stored",
+    [
+        ("www.example.be", "https://www.example.be"),
+        (" example.be ", "https://example.be"),
+        ("http://example.be", "http://example.be"),
+        ("https://example.be", "https://example.be"),
+    ],
+)
+def test_homepage_without_scheme_gets_https(typed, stored):
+    form = {"homepage": typed}
+    normalise_homepage(form)
+    assert form["homepage"] == stored
+    ws = reload(fill_workbook(form))["FIDE Registration Form"]
+    assert ws[f"B{ROW['homepage']}"].value == stored
