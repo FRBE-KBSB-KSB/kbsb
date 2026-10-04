@@ -10,7 +10,6 @@ from reddevil.core import (
 
 from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_token
-
 from kbsb.interclubs.helpers import check_registration_open
 from kbsb.interclubs.series import anon_getICresults
 from kbsb.member import validate_membertoken
@@ -51,10 +50,8 @@ from . import (
     clb_validateICplanning,
     clb_validateICPlayers,
     find_icregistration,
-    get_bel_report,
     get_fide_report,
     getICvenues,
-    list_bel_reports,
     list_eloprocessing,
     list_fide_reports,
     list_penalties_reports,
@@ -67,7 +64,6 @@ from . import (
     set_interclubvenues,
     trf_report_phase1,
     trf_report_phase2,
-    write_bel_report,
     write_eloprocessing,
     write_fide_report,
     write_penalties_report,
@@ -126,14 +122,13 @@ async def _ic_results_access(results, auth) -> frozenset[int]:
             raise RdForbidden
     return frozenset(idclub for idclub, ok in checked.items() if ok)
 
+
 router = APIRouter(prefix="/api/v1/interclubs")
 
 # registrations
 
 
-@router.get(
-    "/anon/registration/{idclub}", response_model=ICRegistrationPublic | None
-)
+@router.get("/anon/registration/{idclub}", response_model=ICRegistrationPublic | None)
 async def api_find_icregistration(idclub: int):
     """
     return an registration by idclub
@@ -747,56 +742,6 @@ async def api_list_eloprocessing(
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:
         logger.exception("failed api write_eloprocessing_view")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-# bel elo reports
-
-
-@router.post("/mgmt/command/write_bel_report/{round}/{path_elo}", status_code=201)
-async def api_write_belg_report(
-    round: int,
-    path_elo: str,
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    try:
-        await validate_token(auth)
-        await write_bel_report(round, path_elo)
-    except RdException as e:
-        logger.info(f"exception {e}")
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api cacl belgelo")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.post("/mgmt/command/list_bel_reports", response_model=list[str])
-async def api_list_bel_reports(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    try:
-        await validate_token(auth)
-        return await list_bel_reports()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed apilist bel reports")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.get("/mgmt/command/get_bel_report/{path_elo}")
-async def api_get_bel_report(
-    path_elo: str,
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    try:
-        await validate_token(auth)
-        report = await get_bel_report(path_elo)
-        return {"report": base64.b64encode(report)}
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api call get bel report")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 

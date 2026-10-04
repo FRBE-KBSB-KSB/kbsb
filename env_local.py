@@ -24,6 +24,10 @@ SECRETS = {
         "name": "su_ruben",
         "manager": "filejson",
     },
+    "eloserver": {
+        "name": "hetzner-api-master",
+        "manager": "filetext",
+    },
 }
 
 TOKEN = {

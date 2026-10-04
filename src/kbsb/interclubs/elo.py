@@ -1,17 +1,17 @@
 import asyncio
 import logging
-from csv import DictReader, DictWriter
-from datetime import date
+from csv import DictReader
+from datetime import date, datetime
 from io import BytesIO, StringIO
 from operator import attrgetter
 
-from reddevil.core import RdInternalServerError, RdNotFound
+import httpx
+from reddevil.core import RdNotFound, get_secret, get_setting
 from reddevil.filestore.filestore import (
     list_bucket_files,
     read_bucket_content,
     write_bucket_content,
 )
-from unidecode import unidecode
 
 from .helpers import load_icdata
 from .md_elo import DbICTrfRecord, EloGame, EloPlayer, TrfRound
@@ -20,12 +20,9 @@ from .md_interclubs import DbICSeries
 logger = logging.getLogger(__name__)
 icdata = None
 
-# TODO eloprocessing.csv needs to be automated !!!
 
 # data model
 elodata = {}  # elo data indexed by idbel
-belgames1 = []  # divison 1 to 4
-belgames2 = []  # division 5
 fidegames = []
 tlines = {}  # team lines index by team name, list gnr
 elopl = {}  # all players index by idbel
@@ -85,79 +82,34 @@ score4visit = {
 
 async def write_eloprocessing():
     """
-    Reads elo data from infomaniak server and write it down in a csv file
-    in the cloud
+    Reads csv file from from zerotwo cloud server and write it in google cloud
     """
-    pass
-    # TODO change the query using odoo
-    # logger.info("writing eloprocessing")
-    # cnx = get_myZsql()
-    # query = """
-    #     select `esyy_frbekbsbbe`.`signaletique`.`Matricule` AS `idnumber`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`Nom`       AS `last_name`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`Prenom`    AS `first_name`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`MatFIDE`   AS `idfide`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`NatFIDE`   AS `natfide`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`Dnaiss`    AS `birthday`,
-    #            `esyy_frbekbsbbe`.`fide`.`NAME`              AS `fullname`,
-    #            `esyy_frbekbsbbe`.`fide`.`TITLE`             AS `title`,
-    #            `esyy_frbekbsbbe`.`fide`.`ELO`               AS `fiderating`,
-    #            `esyy_frbekbsbbe`.`fide`.`SEX`               AS `gender`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`Sexe`      AS `gender2`,
-    #            `esyy_frbekbsbbe`.`signaletique`.`Club`      AS `idclub`,
-    #            `esyy_frbekbsbbe`.`{elotable}`.`Elo`     AS `belrating`
-    #     from ((`esyy_frbekbsbbe`.`signaletique` left join `esyy_frbekbsbbe`.`fide`
-    #            on ((`esyy_frbekbsbbe`.`signaletique`.`MatFIDE` =
-    #                 `esyy_frbekbsbbe`.`fide`.`ID_NUMBER`))) left join `esyy_frbekbsbbe`.`{elotable}`
-    #           on ((`esyy_frbekbsbbe`.`signaletique`.`Matricule` = `esyy_frbekbsbbe`.`{elotable}`.`Matricule`)))
-    #     where (`esyy_frbekbsbbe`.`signaletique`.`AnneeAffilie` >= 2025);
-
-    # """
-    # try:
-    #     cursor = cnx.cursor(dictionary=True)
-    #     qf = query.format(elotable=get_elotable())
-    #     cursor.execute(qf)
-    #     players = cursor.fetchall()
-    # except Exception as e:  # noqa E741
-    #     logger.exception("Cannot get players from Infomaniak")
-    #     raise RdInternalServerError(description="MyZSQLError")
-    # finally:
-    #     cnx.close()
-    # csvelo = StringIO()
-    # fields = [
-    #     "idnumber",
-    #     "last_name",
-    #     "first_name",
-    #     "idfide",
-    #     "natfide",
-    #     "birthday",
-    #     "fullname",
-    #     "title",
-    #     "fiderating",
-    #     "gender",
-    #     "gender2",
-    #     "idclub",
-    #     "belrating",
-    # ]
-    # writer = DictWriter(csvelo, fields, restval="NULL")
-    # writer.writeheader()
-    # for p in players:
-    #     p["first_name"] = unidecode(p["first_name"])
-    #     p["last_name"] = unidecode(p["last_name"])
-    # writer.writerows(players)
-    # csvelo.seek(0)
-    # csvBytes = BytesIO(initial_bytes=csvelo.read().encode("utf-8"))
-    # csvelo.close()
-    # rd = date.today().strftime("%Y%m%d")
-    # try:
-    #     write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)
-    # except Exception as e:
-    #     logger.info("failed to write test file")
-    #     logger.exception(e)
-    # finally:
-    #     csvBytes.close()
-    # await asyncio.sleep(0)
-    # logger.info(f"eloprocessing/{rd}.csv written")
+    secret = get_secret("eloserver")
+    tz_brussels = get_setting("TZ_BRUSSELS")
+    url_eloserver_csv = get_setting("ELO_SERVER_CSV")
+    logger.info(f"Fetching ELO data from server {url_eloserver_csv}")
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url_eloserver_csv, headers={"x-api-key": secret})
+        if response.status_code != 200:
+            raise RuntimeError(
+                f"Failed to fetch ELO data, status code: {response.status_code}"
+            )
+        response_csv = await client.get(
+            url_eloserver_csv, headers={"x-api-key": secret}
+        )
+        if response_csv.status_code != 200:
+            raise RuntimeError(
+                f"Failed to fetch ELO CSV data, status code: {response_csv.status_code}"
+            )
+    csvBytes = BytesIO(initial_bytes=response.text.encode("utf-8"))
+    rd = datetime.now(tz=tz_brussels).date().strftime("%Y%m%d")
+    try:
+        write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)
+    except Exception as e:
+        logger.info("failed to write eloprocessing file")
+        logger.exception(e)
+    finally:
+        csvBytes.close()
 
 
 def read_eloprocessing(path: str):
@@ -170,9 +122,7 @@ def read_eloprocessing(path: str):
     with StringIO(elocsv.decode("utf-8")) as ff:
         csvfide = DictReader(ff)
         for fd in csvfide:
-            idbel = int(fd["idnumber"])
-            if idbel == 13815:
-                logger.info("found idbel 13815")
+            idbel = int(fd["national_id"])
             elodata[idbel] = fd
 
 
@@ -187,245 +137,6 @@ async def list_eloprocessing() -> list[str]:
         logger.exception(e)
     await asyncio.sleep(0)
     return files
-
-
-# belgian elo
-
-
-async def get_games_bel(round):
-    games1 = []
-    games2 = []
-    for series in await DbICSeries.find_multiple({"_model": DbICSeries.DOCUMENTTYPE}):
-        print(f"processing {series.division} {series.index}")
-        for r in series.rounds:
-            if r.round == round:
-                encounters = r.encounters
-                break
-        for enc in encounters:
-            icclub_home = enc.icclub_home
-            icclub_visit = enc.icclub_visit
-            if icclub_home == 0 or icclub_visit == 0:
-                continue  # skip bye
-            for ix, g in enumerate(enc.games):
-                idnh = g.idnumber_home
-                idnv = g.idnumber_visit
-                if not idnh or not idnv:
-                    continue
-                if g.result not in switch_result:
-                    continue
-                elodatah = elodata[idnh]
-                elodatav = elodata[idnv]
-                if ix % 2:
-                    idbel_white, idbel_black = idnv, idnh
-                    belrating_white, belrating_black = (
-                        elodatav["belrating"],
-                        elodatah["belrating"],
-                    )
-                    fullname_white = (
-                        f"{elodatav['last_name']}, {elodatav['first_name']}"
-                    )
-                    fullname_black = (
-                        f"{elodatah['last_name']}, {elodatah['first_name']}"
-                    )
-                    natfide_white, natfide_black = (
-                        elodatav["natfide"] or "BEL",
-                        elodatah["natfide"] or "BEL",
-                    )
-                    gender_white, gender_black = (
-                        elodatav["gender2"],
-                        elodatah["gender2"],
-                    )
-                    result = switch_result[g.result]
-                else:
-                    idbel_white, idbel_black = idnh, idnv
-                    belrating_white, belrating_black = (
-                        elodatah["belrating"],
-                        elodatav["belrating"],
-                    )
-                    fullname_white = (
-                        f"{elodatah['last_name']}, {elodatah['first_name']}"
-                    )
-                    fullname_black = (
-                        f"{elodatav['last_name']}, {elodatav['first_name']}"
-                    )
-                    natfide_white, natfide_black = (
-                        elodatah["natfide"],
-                        elodatav["natfide"],
-                    )
-                    gender_white, gender_black = (
-                        elodatah["gender"] or elodatah["gender2"],
-                        elodatav["gender"] or elodatav["gender2"],
-                    )
-                    result = g.result
-                game = EloGame(
-                    belrating_white=belrating_white,
-                    fullname_white=fullname_white,
-                    gender_white=gender_white,
-                    idbel_white=idbel_white,
-                    natfide_white=natfide_white,
-                    belrating_black=belrating_black,
-                    fullname_black=fullname_black,
-                    gender_black=gender_black,
-                    idbel_black=idbel_black,
-                    natfide_black=natfide_black,
-                    result=result,
-                )
-                if series.division == 5:
-                    games2.append(game)
-                else:
-                    games1.append(game)
-    return games1, games2
-
-
-def generate_belgian_report(records: list[EloGame], label: str, round: int):
-    """
-    writing a list EloGame records in a Belgian ELO file
-    """
-    hlines = [
-        "00A ### Interclubs",
-        "00B 1 rondes",
-        "00C Envoi des rondes {round} à {round}",
-        "00D Envoi par : interclubs@frbe-kbsb-ksb.be",
-        "00E Envoi par le club : 998",
-        "00F P={npart} R=1 S={icdate:%d/%m/%y} E={icdate:%d/%m/%y} +{won} ={drawn} -{lost}",
-        "012 Belgian Interclubs 2025 - 2026 - Round {round}",
-        "022 Various locations in Belgian Clubs",
-        "032 BEL",
-        "042 {icdate}",
-        "052 {icdate}",
-        "062 {npart}",
-        "102 Cornet, Luc",
-    ]
-    icdate = icdata["rounds"][round]
-    ls = " " * 100
-    # make line 132
-    ls = replaceAt(ls, 0, "132")
-    ls = replaceAt(ls, 91, icdate.strftime("%y.%m.%d"))
-    hlines.append(ls)
-    won = 0
-    drawn = 0
-    lost = 0
-    npart = 0
-    ngames = 0
-    glines = []
-    for g in records:
-        if g.result not in ["1-0", "0-1", "½-½"]:
-            continue
-        # fetch player from signaletique
-        whiteline = {
-            "n": npart + 1,
-            "name": g.fullname_white,
-            "idn": g.idbel_white,
-            "nat": g.natfide_white or "BEL",
-            "elo": g.belrating_white,
-            "opponent": npart + 2,
-            "color": "w",
-        }
-        blackline = {
-            "n": npart + 2,
-            "name": g.fullname_black,
-            "idn": g.idbel_black,
-            "nat": g.natfide_black or "BEL",
-            "elo": g.belrating_black,
-            "opponent": npart + 1,
-            "color": "b",
-        }
-        if g.result == "1-0":
-            whiteline["rs"] = "1"
-            blackline["rs"] = "0"
-            whiteline["score"] = 1.0
-            blackline["score"] = 0.0
-            won += 1
-            lost += 1
-        if g.result == "½-½":
-            drawn += 2
-            whiteline["rs"] = "="
-            blackline["rs"] = "="
-            whiteline["score"] = 0.5
-            blackline["score"] = 0.5
-        if g.result == "0-1":
-            won += 1
-            lost += 1
-            whiteline["rs"] = "0"
-            blackline["rs"] = "1"
-            whiteline["score"] = 0.0
-            blackline["score"] = 1.0
-        glines.append(whiteline)
-        glines.append(blackline)
-        ngames += 1
-        npart += 2
-    ff = BytesIO()
-    headerdict = {
-        "ngames": ngames,
-        "npart": npart,
-        "won": won,
-        "drawn": drawn,
-        "lost": lost,
-        "round": round,
-        "icdate": icdate,
-    }
-    for ln in hlines:
-        fl = ln.format(**headerdict)
-        ff.write(fl.encode("latin-1"))
-        ff.write(b_linefeed)
-    for ln in glines:
-        ls = " " * 100
-        ls = replaceAt(ls, 0, "001")
-        ls = replaceAt(ls, 4, "{:4d}".format(ln["n"]))
-        ls = replaceAt(ls, 14, "{:32s}".format(ln["name"]))
-        ls = replaceAt(ls, 48, "{:4d}".format(ln["elo"]))
-        ls = replaceAt(ls, 63, "{:5d}".format(ln["idn"]))
-        ls = replaceAt(ls, 81, "{:3.1f}".format(ln["score"]))
-        ls = replaceAt(ls, 91, "{:4d}".format(ln["opponent"]))
-        ls = replaceAt(ls, 96, "{:1s}".format(ln["color"]))
-        ls = replaceAt(ls, 98, "{:1s}".format(ln["rs"]))
-        ff.write(ls.encode("latin-1"))
-        ff.write(b_linefeed)
-    ff.seek(0)
-    try:
-        write_bucket_content(f"icn/ICN_bel_R{round}_{label}.txt", ff)
-    except Exception as e:
-        logger.info(f"failed to write belg file icn/ICN_R{round}_{label}.txt")
-        logger.exception(e)
-
-
-async def write_bel_report(round: int, path_elo: str):
-    """
-    end point to generate a belgian elo report to the cloud storage
-    """
-    global icdata
-    icdata = await load_icdata()
-    read_eloprocessing(path_elo)
-    games1, games2 = await get_games_bel(round)
-    logger.info(f"games {len(games1)} {len(games2)}")
-    generate_belgian_report(games1, "part1", round)
-    generate_belgian_report(games2, "part2", round)
-
-
-async def list_bel_reports() -> list[str]:
-    """
-    list the belgian elo files in the cloud
-    """
-    try:
-        files = list_bucket_files("icn")
-    except Exception as e:
-        logger.info("failed to list bel reports")
-        logger.exception(e)
-    await asyncio.sleep(0)
-    return [f.split("/")[1] for f in files if f.startswith("icn/ICN_bel")]
-
-
-async def get_bel_report(path: str) -> str:
-    """
-    get the content of a belgian elo report
-    """
-    try:
-        report = read_bucket_content(f"icn/{path}")
-    except Exception as e:
-        logger.info("failed to list bel reports")
-        logger.exception(e)
-    await asyncio.sleep(0)
-    return report
 
 
 # fide elo
@@ -458,29 +169,18 @@ async def get_games_fide(round):
                     logger.info(
                         "failed fidev or fideh, updateing eloprocessing.csv might help"
                     )
+                assert fideh and fidev
                 if ix % 2:
                     idbel_white, idbel_black = idnv, idnh
                     idfide_white, idfide_black = (
-                        fidev["idfide"] or "",
-                        fideh["idfide"] or "",
+                        fidev["fide_id"] or "",
+                        fideh["fide_id"] or "",
                     )
-                    fullname_white = fidev["fullname"]
-                    if not fullname_white:
-                        ln = unidecode(fidev["last_name"])
-                        fn = unidecode(fidev["first_name"])
-                        fullname_white = f"{ln}, {fn}"
-                    fullname_black = fideh["fullname"]
-                    if not fullname_black:
-                        ln = unidecode(fideh["last_name"])
-                        fn = unidecode(fideh["first_name"])
-                        fullname_black = f"{ln}, {fn}"
+                    fullname_white = f"{fidev['first_name']}, {fidev['last_name']}"
+                    fullname_black = f"{fideh['first_name']}, {fideh['last_name']}"
                     fiderating_white, fiderating_black = (
                         fidev["fiderating"] or 0,
                         fideh["fiderating"] or 0,
-                    )
-                    natfide_white, natfide_black = (
-                        fidev["natfide"] or "BEL",
-                        fideh["natfide"] or "BEL",
                     )
                     birthday_white, birthday_black = (
                         fidev["birthday"],
@@ -500,21 +200,16 @@ async def get_games_fide(round):
                         fideh.get("idfide", "") or "",
                         fidev.get("idfide", "") or "",
                     )
-                    fullname_white = fideh["fullname"]
-                    if not fullname_white:
-                        ln = unidecode(fideh["last_name"])
-                        fn = unidecode(fideh["first_name"])
-                        fullname_white = f"{ln}, {fn}"
-                    fullname_black = fidev["fullname"]
-                    if not fullname_black:
-                        ln = unidecode(fidev["last_name"])
-                        fn = unidecode(fidev["first_name"])
-                        fullname_black = f"{ln}, {fn}"
+                    fullname_white = f"{fideh['last_name']}, {fideh['first_name']}"
+                    fullname_black = f"{fidev['last_name']}, {fidev['first_name']}"
                     fiderating_white, fiderating_black = (
                         fideh["fiderating"] or 0,
                         fidev["fiderating"] or 0,
                     )
-                    natfide_white, natfide_black = fideh["natfide"], fidev["natfide"]
+                    natfide_white, natfide_black = (
+                        fideh.get("natfide", "BEL"),
+                        fidev.get("natfide", "BEL"),
+                    )
                     birthday_white, birthday_black = (
                         fideh["birthday"],
                         fidev["birthday"],
@@ -555,8 +250,8 @@ async def get_games_fide(round):
 def sort_fidegames():
     global sortedplayers
     for g in fidegames:
-        tlines.setdefault(unidecode(g.team_white), [])
-        tlines.setdefault(unidecode(g.team_black), [])
+        tlines.setdefault((g.team_white), [])
+        tlines.setdefault((g.team_black), [])
         if g.result == "1-0":
             wsc1 = 1.0
             bsc1 = 0.0
@@ -594,7 +289,7 @@ def sort_fidegames():
             sc1=wsc1,
             sc2=wsc2,
             idopp=g.idbel_black,
-            team=unidecode(g.team_white),
+            team=(g.team_white),
             color="w",
         )
         black = EloPlayer(
@@ -609,7 +304,7 @@ def sort_fidegames():
             sc1=bsc1,
             sc2=bsc2,
             idopp=g.idbel_white,
-            team=unidecode(g.team_black),
+            team=(g.team_black),
             color="b",
         )
         elopl[white.idbel] = white
@@ -637,7 +332,7 @@ def generate_fide_report(round: int):
     cnt["nrated"] = 0
     cnt["mteams"] = 0.0
     hlines = [
-        "012 Belgian Interclubs 2025 - 2026 - Round {round}",
+        "012 Belgian Interclubs 2026 - 2027 - Round {round}",
         "022 Various locations in Belgian Clubs",
         "032 BEL",
         "042 {icdate}",
@@ -646,11 +341,10 @@ def generate_fide_report(round: int):
         "072 {nrated}",
         "082 {nteams}",
         "092 Standard Team Round Robin",
-        "102 225185 Bailleul, Geert",
-        "112 220574 Scaillet, Timothe",
+        "102 225185 Cornet, Luc",
         """122 90'/40 + 30'/end + 30"/move from move 1""",
     ]
-    icdate = icdata["rounds"][round]
+    icdate = icdata["rounds"][round]  # type: ignore
     print("round date:", icdate, type(icdate))
     ls = " " * 100
     # make line 132
@@ -752,6 +446,7 @@ async def get_fide_report(path: str) -> str:
 
 trfdata_2425 = {"startround": "20240930.csv", "endround": "20250525.csv"}
 trfdata_2526 = {"startround": "20250929.csv", "endround": "20260428.csv"}
+trfdata_2627 = {"startround": "20260930.csv", "endround": "20270524.csv"}
 
 
 async def trf_process_round(round):
@@ -885,8 +580,6 @@ async def trf_process_playerdetails2():
         if not details:
             logger.error(f"no elodata for {trf.idbel}")
             break
-        if trf.idbel == 29099:
-            logger.info("updating trf record 29099")
         upd = {"fiderating": details["fiderating"]}
         if not trf.fullname or trf.fullname == "":
             upd = upd | {

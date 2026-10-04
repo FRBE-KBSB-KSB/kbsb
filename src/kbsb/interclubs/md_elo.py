@@ -1,5 +1,6 @@
+from typing import Literal
+
 from pydantic import BaseModel
-from typing import Literal, List
 from reddevil.core import DbBase
 
 
@@ -84,7 +85,7 @@ class TrfRecord(BaseModel):
     idfide: int | None = None
     player_ix: int | None = None  # the index (1 based after sorting)
     points: float | None = None
-    rounds: List[TrfRound] | None = None
+    rounds: list[TrfRound] | None = None
 
 
 class DbICTrfRecord(DbBase):

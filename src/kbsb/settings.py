@@ -2,6 +2,7 @@
 
 import logging.config
 import os
+import zoneinfo
 from pathlib import Path
 
 API_BASE_URL = "/api"
@@ -12,6 +13,7 @@ COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", False)
 
 ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
+ELO_SERVER_CSV = "https://kbsb-api.zerotwo.cloud/api/v1/players_national/ratings.csv"
 
 EMAIL = {
     "backend": "GMAIL",
@@ -125,6 +127,10 @@ SECRETS = {
         "name": "su_jorian",
         "manager": "googlejson",
     },
+    "eloserver": {
+        "name": "hetzner-api-master",
+        "manager": "googletext",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
@@ -140,17 +146,19 @@ TOKEN = {
     "nocheck": False,
 }
 
+TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
+
 
 if KBSB_MODE == "local":
-    from env_local import *  # noqa F403
+    from env_local import *
 
 
 if KBSB_MODE == "prodtest":
-    from env_prodtest import *  # noqa F403
+    from env_prodtest import *
 
 
 if KBSB_MODE == "testing":
-    from tests.settings import *  # noqa F403
+    from tests.settings import *
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"

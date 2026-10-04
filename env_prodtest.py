@@ -32,6 +32,10 @@ SECRETS = {
         "name": "su_luc",
         "manager": "googlejson",
     },
+    "eloserver": {
+        "name": "hetzner-api-master",
+        "manager": "googletext",
+    },
 }
 
 
