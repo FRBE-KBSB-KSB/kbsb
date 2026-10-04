@@ -152,6 +152,8 @@ MANDATORY_ALWAYS = [
     "contact_email",
 ]
 
+OPENPAIRINGS = "OpenPairings (With Ainalrami)"
+
 LOOKUP_DATA = {
     "yes_no": ["Yes", "No"],
     "age_limit_options": ["None", "Under", "Over"],
@@ -189,6 +191,9 @@ def load_lookup_values():
                 opts.insert(idx, "Swar")
             else:
                 opts.append("Swar")
+        # Right below Swar: also not in FIDE's list, sent as "Other" on submit.
+        if OPENPAIRINGS not in opts:
+            opts.insert(opts.index("Swar") + 1, OPENPAIRINGS)
         LOOKUP_DATA["software_options"] = opts
 
     if "Tournament_Report" in wb.sheetnames:
@@ -971,6 +976,9 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     if form.get("software") == "Swar":
         form["software"] = "Other"
         form["software_other"] = "Swar (with JaVaFo)"
+    elif form.get("software") == OPENPAIRINGS:
+        form["software"] = "Other"
+        form["software_other"] = OPENPAIRINGS
 
     normalise_homepage(form)
 
