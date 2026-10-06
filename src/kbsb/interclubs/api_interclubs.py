@@ -51,6 +51,7 @@ from . import (
     clb_validateICPlayers,
     find_icregistration,
     get_fide_report,
+    get_penalties_report,
     getICvenues,
     list_eloprocessing,
     list_fide_reports,
@@ -833,7 +834,7 @@ async def api_get_penalties_report(
 ):
     try:
         await validate_token(auth)
-        report = await get_bel_report(path)
+        report = await get_penalties_report(path)
         return {"report": base64.b64encode(report)}
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
