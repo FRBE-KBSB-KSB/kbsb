@@ -89,44 +89,6 @@ async function download_playerlists() {
   showSnackbar("Downloading playerlists successful")
 }
 
-async function get_bel_report(bp) {
-  let reply, report
-  showLoading(true)
-  try {
-    reply = await $backend("interclub", "get_bel_report", {
-      token: idtoken.value,
-      path: bp,
-    })
-    report = reply.data.report
-  } catch (error) {
-    showSnackbar("Download error: " + error.detail)
-  } finally {
-    showLoading(false)
-  }
-  const link = document.createElement("a")
-  link.download = bp
-  link.href = "data:text/plain;base64," + report
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  showSnackbar("Downloading bel report successful")
-}
-
-async function list_bel_reports() {
-  let reply, report
-  showLoading(true)
-  try {
-    reply = await $backend("interclub", "list_bel_reports", {
-      token: idtoken.value,
-    })
-    bel_reports.value = reply.data
-  } catch (error) {
-    showSnackbar("Download error: " + error.detail)
-  } finally {
-    showLoading(false)
-  }
-}
-
 async function get_fide_report(bp) {
   let reply, report
   showLoading(true)
@@ -209,7 +171,6 @@ async function setup(icclub_, round_, icdata_) {
   icdata = icdata_
   showSnackbar = refsnackbar.value.showSnackbar
   showLoading = refloading.value.showLoading
-  await list_bel_reports()
   await list_fide_reports()
   await list_penalties_reports()
 }
@@ -225,12 +186,6 @@ async function setup(icclub_, round_, icdata_) {
     <v-btn @click="download_venues">Download venues</v-btn>
     <h3>Playerlists</h3>
     <v-btn @click="download_playerlists">Download playerlists</v-btn>
-    <!-- <h3>Belgian Elo reports</h3>
-    <v-row>
-      <v-col cols="12" sm="6" md="4" lg="3" v-for="br in bel_reports">
-        <v-btn @click="get_bel_report(br)">{{ br }}</v-btn>
-      </v-col>
-    </v-row>
     <h3>FIDE Elo reports</h3>
     <v-row>
       <v-col cols="12" sm="6" md="4" lg="3" v-for="br in fide_reports">
@@ -242,6 +197,6 @@ async function setup(icclub_, round_, icdata_) {
       <v-col cols="12" sm="6" md="4" lg="3" v-for="br in penalties_reports">
         <v-btn @click="get_penalties_report(br)">{{ br }}</v-btn>
       </v-col>
-    </v-row> -->
+    </v-row>
   </VContainer>
 </template>

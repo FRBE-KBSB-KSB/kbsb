@@ -194,7 +194,7 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "playerlist"
+  tab.value = "results"
   changedTab()
 })
 </script>

@@ -284,32 +284,10 @@ export default {
     )
     return resp
   },
-  mgmt_write_bel_report: async function (options) {
-    const { token, round, path_elo } = options
-    const resp = await axios.post(
-      `${prefix}/mgmt/command/write_bel_report/${round}/${path_elo}`,
-      {},
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
-    return resp
-  },
   mgmt_write_fide_report: async function (options) {
     const { token, round, path_elo } = options
     const resp = await axios.post(
       `${prefix}/mgmt/command/write_fide_report/${round}/${path_elo}`,
-      {},
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
-    return resp
-  },
-  list_bel_reports: async function (options) {
-    const { token } = options
-    const resp = await axios.post(
-      `${prefix}/mgmt/command/list_bel_reports`,
       {},
       {
         headers: { Authorization: "Bearer " + token },
@@ -326,13 +304,6 @@ export default {
         headers: { Authorization: "Bearer " + token },
       }
     )
-    return resp
-  },
-  get_bel_report: async function (options) {
-    const { token, path } = options
-    const resp = await axios.get(`${prefix}/mgmt/command/get_bel_report/${path}`, {
-      headers: { Authorization: "Bearer " + token },
-    })
     return resp
   },
   get_fide_report: async function (options) {
