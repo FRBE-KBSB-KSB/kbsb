@@ -194,7 +194,7 @@ onMounted(async () => {
   checkAuth()
   await processICdata()
   getClubs()
-  tab.value = "playerlist"
+  tab.value = "results"
   changedTab()
 })
 </script>
@@ -242,16 +242,19 @@ onMounted(async () => {
     <div class="elevation-2">
       <VTabs v-model="tab" color="purple" @update:modelValue="changedTab">
         <VTab value="results">Results</VTab>
+        <VTab value="standings">Standings</VTab>
         <VTab value="playerlist">Player lists</VTab>
         <VTab value="registration">Registration</VTab>
         <VTab value="venues">Venues</VTab>
-        <!-- <VTab value="standings">Standings</VTab>
-        <VTab value="reports">Reports</VTab> -->
+        <VTab value="reports">Reports</VTab>
         <VTab value="downloads">Downloads</VTab>
       </VTabs>
       <VWindow v-model="tab" @update:modelValue="changedTab">
         <VWindowItem value="results" :eager="true">
           <Results ref="refresults" />
+        </VWindowItem>
+        <VWindowItem value="standings" :eager="true">
+          <Standings ref="refstandings" />
         </VWindowItem>
         <VWindowItem value="registration" :eager="true">
           <Registration ref="refregistration" />
@@ -262,12 +265,9 @@ onMounted(async () => {
         <VWindowItem value="playerlist" :eager="true">
           <Playerlist ref="refplayerlist" />
         </VWindowItem>
-        <!-- <VWindowItem value="standings" :eager="true">
-          <Standings ref="refstandings" />
-        </VWindowItem>
         <VWindowItem value="reports" :eager="true">
           <Reports ref="refreports" />
-        </VWindowItem> -->
+        </VWindowItem>
         <VWindowItem value="downloads" :eager="true">
           <Downloads ref="refdownloads" />
         </VWindowItem>
