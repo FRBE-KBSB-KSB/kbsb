@@ -594,6 +594,8 @@
 "trnreg.fide_id_warning": "Dit toernooi is FIDE-gerateerd. Zorg dat u ofwel een bestaand FIDE-nummer heeft en het hier invult, ofwel lid bent van de KBSB met een aansluiting die dit jaar geldig is.",
 "trnreg.rating_fallback_hint": "Geen rating in dit tempo; de standaardrating telt",
 "trnreg.admin_export_swar": "SWAR-export",
+"trnreg.admin_export_openpairings": "Export voor OpenPairings",
+"trnreg.admin_export_swarfile": ".swar downloaden",
 "trnreg.copy_suffix": "(kopie)",
 "trnreg.rule_end_after_start": "De einddatum kan niet vóór de startdatum liggen.",
 "trnreg.rule_closing_after_opening": "De inschrijvingen kunnen niet sluiten vóór ze openen.",

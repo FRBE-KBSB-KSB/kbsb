@@ -173,7 +173,7 @@ _ALLOWED_PATHS = [
         r"admin/tournaments",
         r"admin/tournaments/mine",
         rf"admin/tournaments/{_SEG}",
-        rf"admin/tournaments/{_SEG}/(registrations|admins|refresh-elo|export/csv)",
+        rf"admin/tournaments/{_SEG}/(registrations|admins|refresh-elo|export/csv|export/openpairings|export/swarfile)",
         rf"admin/tournaments/{_SEG}/admins/{_SEG}",
         rf"admin/tournaments/{_SEG}/export/swar/{_SEG}",
         rf"admin/registrations/{_SEG}",
