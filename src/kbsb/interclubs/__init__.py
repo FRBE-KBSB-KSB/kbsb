@@ -110,8 +110,8 @@ from .elo import (
     list_fide_reports,
     write_fide_report,
     write_eloprocessing,
-    trf_report_phase1,
-    trf_report_phase2,
+    # trf_report_phase1,
+    # trf_report_phase2,
 )
 
 import kbsb.interclubs.api_interclubs  # noqa: F401
@@ -205,8 +205,8 @@ __all__ = [
     "ptable12",
     "set_icregistration",
     "set_interclubvenues",
-    "trf_report_phase1",
-    "trf_report_phase2",
+    # "trf_report_phase1",
+    # "trf_report_phase2",
     "update_icregistration",
     "write_eloprocessing",
     "write_fide_report",

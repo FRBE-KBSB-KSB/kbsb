@@ -62,8 +62,8 @@ from . import (
     mgmt_updateICplayers,
     set_icregistration,
     set_interclubvenues,
-    trf_report_phase1,
-    trf_report_phase2,
+    # trf_report_phase1,
+    # trf_report_phase2,
     write_eloprocessing,
     write_fide_report,
     write_penalties_report,
@@ -686,32 +686,32 @@ async def api_mgmt_register_teamforfeit(
 # trf processing
 
 
-@router.post("/mgmt/command/trf/phase1", status_code=201)
-async def api_trf_phase1(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    try:
-        await validate_token(auth)
-        await trf_report_phase1()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_round")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+# @router.post("/mgmt/command/trf/phase1", status_code=201)
+# async def api_trf_phase1(
+#     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+# ):
+#     try:
+#         await validate_token(auth)
+#         await trf_report_phase1()
+#     except RdException as e:
+#         raise HTTPException(status_code=e.status_code, detail=e.description)
+#     except Exception:
+#         logger.exception("failed api trf_process_round")
+#         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mgmt/command/trf/phase2", status_code=201)
-async def api_trf_phase2(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
-):
-    try:
-        await validate_token(auth)
-        await trf_report_phase2()
-    except RdException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.description)
-    except Exception:
-        logger.exception("failed api trf_process_round")
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+# @router.post("/mgmt/command/trf/phase2", status_code=201)
+# async def api_trf_phase2(
+#     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
+# ):
+#     try:
+#         await validate_token(auth)
+#         await trf_report_phase2()
+#     except RdException as e:
+#         raise HTTPException(status_code=e.status_code, detail=e.description)
+#     except Exception:
+#         logger.exception("failed api trf_process_round")
+#         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 # elo processing
