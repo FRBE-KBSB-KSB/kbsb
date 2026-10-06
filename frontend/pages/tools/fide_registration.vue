@@ -19,6 +19,7 @@ const vDigits = {
 
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useTurnstile } from "~/composables/useTurnstile";
 
 // communication
 const { $backend } = useNuxtApp()
@@ -33,6 +34,17 @@ const errorText = ref("");
 const submitted = ref(false);
 // Addresses the backend could not send the registration copy to.
 const confirmationFailed = ref("");
+// Cloudflare Turnstile: the backend gives a site key only while it checks the
+// token. Without one there is no widget and nothing to wait for.
+const turnstileSitekey = ref("");
+const turnstileEl = ref(null);
+const { token: turnstileToken, reset: resetTurnstile } = useTurnstile({
+  sitekey: turnstileSitekey,
+  element: turnstileEl,
+  language: lang,
+  action: "fide_registration",
+});
+const turnstilePending = computed(() => !!turnstileSitekey.value && !turnstileToken.value);
 
 // Lookups and Translations
 const lookups = ref({
@@ -68,6 +80,9 @@ const form = ref({
   rounds_reported: "",
   multiple_round_days: "0",
   report_per_round: false,
+  // Ticked: the organiser knows a report is due by noon on day x-1 (see
+  // getReportDeadline); the server asks for it for the same reports.
+  report_deadline_ack: false,
   female_only: "No",
   start_date: "",
   end_date: "",
@@ -262,6 +277,19 @@ function getRoundDateError(index) {
 }
 
 // The optional end date of a round: empty means a one day round.
+// A round with an end date is one round played over two dates (a weekend,
+// or a week apart), not the window in which it may be played. Workbooks with
+// 20 to 55 day "rounds" spanning month ends reached FIDE registration in
+// 2026-09, so the form now refuses them:
+//   - start and end in the same FIDE rating period,
+//   - at most a week apart,
+//   - ending before the next round starts.
+const ROUND_MAX_DAYS = 7;
+
+function daysBetween(a, b) {
+  return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+}
+
 function getRoundEndDateError(index) {
   const startDate = form.value[`round${index}_date`];
   const endDate = form.value[`round${index}_end_date`];
@@ -269,8 +297,173 @@ function getRoundEndDateError(index) {
   if (endDate < startDate) {
     return tMsg('round_end_date_order_error').replace(/\{num\}/g, index);
   }
+  const fill = (key, extra = {}) => {
+    let msg = tMsg(key)
+      .replace(/\{num\}/g, index)
+      .replace(/\{start\}/g, startDate)
+      .replace(/\{end\}/g, endDate);
+    for (const [k, v] of Object.entries(extra)) msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+    return msg;
+  };
+  const p1 = getFidePeriod(startDate);
+  const p2 = getFidePeriod(endDate);
+  if (p1 && p2 && p1.key !== p2.key) {
+    return fill('round_end_date_period_error');
+  }
+  const days = daysBetween(startDate, endDate);
+  if (days > ROUND_MAX_DAYS) {
+    return fill('round_end_date_too_long', { days });
+  }
+  const nextStart = form.value[`round${index + 1}_date`];
+  if (index < roundsCount.value && nextStart && endDate > nextStart) {
+    return fill('round_end_date_overlap_error', { next: index + 1, next_start: nextStart });
+  }
   return "";
 }
+
+// KBSB rule: the report reaches the KBSB within 4 days after its end date
+// (for a New long tournament, the end of the report's last round: its end
+// date, else its date). Day x-1 at 12:00, x the last day of the month, is the
+// last chance for that month's FIDE list. An end date from x-6 to x-2 is the
+// critical window: 4 days would be too late, so the form warns and asks for a
+// tick. The last two days of a month are FIDE's transition period
+// (getFidePeriod above): not critical, and the report counts for the next
+// month's list, so its last chance is day x-1 of the next month. Mirrors
+// get_report_deadline in api_fide.py.
+const REPORT_DAYS = 4;
+
+function getReportDeadline(dateString) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString || '');
+  if (!m) return null;
+  const year = parseInt(m[1], 10);
+  const month = parseInt(m[2], 10);
+  const day = parseInt(m[3], 10);
+  if (month < 1 || month > 12) return null;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  if (day < 1 || day > lastDay) return null;
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const critical = day >= lastDay - 6 && day <= lastDay - 2;
+  // Day -1 of the month after next: the day before the next month's last day.
+  const lastChance = day >= lastDay - 1
+    ? iso(new Date(Date.UTC(year, month + 1, -1)))
+    : iso(new Date(Date.UTC(year, month - 1, lastDay - 1)));
+  return {
+    expected: iso(new Date(Date.UTC(year, month - 1, day + REPORT_DAYS))),
+    lastChance,
+    critical,
+    cutoff: critical ? lastChance : null,
+  };
+}
+
+// "5 oktober 2026" / "5 octobre 2026" / "5 October 2026", in the form's language.
+const DATE_LOCALES = { nl: 'nl-BE', fr: 'fr-BE', en: 'en-GB' };
+
+function formatFormDate(isoDate, language, withYear = true) {
+  const [y, mo, d] = isoDate.split('-').map(Number);
+  const options = { day: 'numeric', month: 'long', timeZone: 'UTC' };
+  if (withYear) options.year = 'numeric';
+  return new Intl.DateTimeFormat(DATE_LOCALES[language] || 'en-GB', options)
+    .format(new Date(Date.UTC(y, mo - 1, d)));
+}
+
+// "A, B en C" / "A, B et C" / "A, B and C".
+function formatList(texts, language) {
+  return new Intl.ListFormat(DATE_LOCALES[language] || 'en-GB', { type: 'conjunction' }).format(texts);
+}
+
+// Fills {deadline} (day and month), {month} and {of_month} (French: de/d').
+function fillCutoff(template, cutoff, language) {
+  const [y, mo] = cutoff.split('-').map(Number);
+  const month = new Intl.DateTimeFormat(DATE_LOCALES[language] || 'en-GB', { month: 'long', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(y, mo - 1, 1)));
+  const ofMonth = /^[aeiou]/.test(month) ? `d'${month}` : `de ${month}`;
+  return template
+    .replace(/\{deadline\}/g, formatFormDate(cutoff, language, false))
+    .replace(/\{month\}/g, month)
+    .replace(/\{of_month\}/g, ofMonth);
+}
+
+// "ronde 5" / "rondes 7, 8 en 9", in the form's language.
+function formatRounds(rounds) {
+  const key = rounds.length === 1 ? 'report_rounds_one' : 'report_rounds_many';
+  return tMsg(key).replace('{rounds}', formatList(rounds.map(String), lang.value));
+}
+
+// Fills {num}, {rounds} and {date} (the expected date) for a report.
+function fillReport(template, report) {
+  let text = template.replace(/\{date\}/g, formatFormDate(report.deadline.expected, lang.value));
+  if (report.num !== null) {
+    text = text.replace(/\{num\}/g, report.num).replace(/\{rounds\}/g, formatRounds(report.rounds));
+  }
+  return text;
+}
+
+// A round's end: its optional end date, else its date.
+const roundEnd = (i) => form.value[`round${i}_end_date`] || form.value[`round${i}_date`];
+
+// The reports, each with its deadline. A New long tournament has one report
+// per report number (recalculateReportNumbers below), a file covering its
+// rounds, and the end of its last round decides the deadline. Any other
+// tournament is one report ending on the end date (num and rounds null).
+const reports = computed(() => {
+  if (!isLongTournament.value) {
+    const deadline = getReportDeadline(form.value.end_date);
+    return deadline ? [{ num: null, rounds: null, lastRound: null, deadline }] : [];
+  }
+  const groups = new Map();
+  for (let i = 1; i <= roundsCount.value; i++) {
+    const num = parseInt(form.value[`round${i}_report`], 10);
+    if (!num) continue;
+    const group = groups.get(num) || { num, rounds: [], end: '' };
+    group.rounds.push(i);
+    if (roundEnd(i) > group.end) group.end = roundEnd(i);
+    groups.set(num, group);
+  }
+  return [...groups.values()]
+    .sort((a, b) => a.num - b.num)
+    .map(g => ({ num: g.num, rounds: g.rounds, lastRound: Math.max(...g.rounds), deadline: getReportDeadline(g.end) }))
+    .filter(r => r.deadline);
+});
+
+// The lines for a report: when it is expected and the last chance for its
+// rating list and, in the critical window, the warning.
+function reportLines(report) {
+  const kind = report.num === null ? 'tournament' : 'report';
+  const deadline = report.deadline;
+  return {
+    expected: `${fillReport(tMsg(`report_expected_${kind}`), report)} ${fillCutoff(tMsg('report_last_chance'), deadline.lastChance, lang.value)}`,
+    warning: deadline.critical
+      ? fillCutoff(fillReport(tMsg(`report_deadline_critical_${kind}`), report), deadline.cutoff, lang.value)
+      : '',
+  };
+}
+
+// A long tournament shows each report's lines under its last round.
+const reportLinesByLastRound = computed(() =>
+  Object.fromEntries(reports.value.filter(r => r.num !== null).map(r => [r.lastRound, reportLines(r)]))
+);
+
+const tournamentReportLines = computed(() =>
+  !isLongTournament.value && reports.value.length ? reportLines(reports.value[0]) : null
+);
+
+// The reports whose last round ends in the critical window.
+const criticalReports = computed(() => reports.value.filter(r => r.deadline.critical));
+
+// "rapport 3 (rondes 7, 8 en 9) uiterlijk op 29 juni 2027 om 12u", for the
+// checkbox and its error.
+const criticalReportsText = computed(() =>
+  formatList(criticalReports.value.map(r => fillReport(
+    tMsg(r.num === null ? 'report_ack_item_tournament' : 'report_ack_item_report')
+      .replace(/\{cutoff\}/g, formatFormDate(r.deadline.cutoff, lang.value)),
+    r,
+  )), lang.value)
+);
+
+// A tick counts for the reports it was given for: new reports, new tick.
+watch(() => criticalReports.value.map(r => `${r.num}:${r.rounds}:${r.deadline.cutoff}`).join(','), () => {
+  form.value.report_deadline_ack = false;
+});
 
 function recalculateReportNumbers() {
   if (!isLongTournament.value) return;
@@ -617,6 +810,7 @@ async function loadFormData() {
     const reply = await $backend("fide", "formdata")
     translations.value = reply.data.translations;
     lookups.value = reply.data.lookups;
+    turnstileSitekey.value = reply.data.turnstile_sitekey || "";
   } catch (error) {
     console.error(error?.message);
     errorText.value = "Failed to load form data from backend.";
@@ -640,6 +834,7 @@ function clearFormData() {
     rounds_reported: "",
     multiple_round_days: "0",
     report_per_round: false,
+    report_deadline_ack: false,
     female_only: "No",
     start_date: "",
     end_date: "",
@@ -685,6 +880,8 @@ function clearFormData() {
 
 async function submitForm() {
   if (waitingdialog.value || submitCooldown.value) return;
+  // the hint above the submit button says what is missing
+  if (turnstilePending.value) return;
 
   const invEmail = (form.value.invoice_email || '').trim();
   if (invEmail !== 'JORIAN.INTERNAL' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invEmail)) {
@@ -748,6 +945,17 @@ async function submitForm() {
     return;
   }
 
+  if (criticalReports.value.length && !form.value.report_deadline_ack) {
+    errorText.value = tMsg('report_deadline_ack_required').replace('{reports}', criticalReportsText.value);
+    if (process.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
+      }
+    }
+    return;
+  }
+
   if (ratingRequirement.value !== 'ok') {
     let confirmKey = '';
     if (ratingRequirement.value === 'not_rateable') confirmKey = 'fide_under_60_confirm';
@@ -766,6 +974,7 @@ async function submitForm() {
     const response = await $backend("fide", "generate", {
       locale: lang.value,
       formdata: form.value,
+      turnstile_token: turnstileToken.value,
     })
     // The registration reached fide@ even when a copy did not reach the
     // organiser, so this stays a success, with a notice naming the address.
@@ -788,9 +997,16 @@ async function submitForm() {
     // falls back to "General server error". A 5xx from this endpoint means the
     // registration email was not sent, so say exactly that, and what to do.
     const serverError = error?.code >= 500 && error?.code < 600;
-    errorText.value = serverError
-      ? tMsg('send_failed')
-      : (error?.message || tMsg('send_failed'));
+    // A refused security check names its message key in a header, since
+    // the JSON body is out of reach here; nothing was sent then.
+    const fideError = error?.headers?.["x-fide-error"];
+    errorText.value = fideError
+      ? tMsg(fideError)
+      : serverError
+        ? tMsg('send_failed')
+        : (error?.message || tMsg('send_failed'));
+    // the token was used up by this submit
+    resetTurnstile();
     if (process.client && window.parent !== window) {
       window.parent.postMessage({ type: 'kbsb-scroll-to-top' }, '*');
     }
@@ -1024,6 +1240,12 @@ definePageMeta({
               <span class="required-label">{{ tField('round_report').replace('{num}', i) }}</span>
               <input type="text" v-digits v-model="form[`round${i}_report`]" min="1" required readonly>
             </label>
+            <div v-if="reportLinesByLastRound[i]" class="report-deadline">
+              <div class="report-deadline-expected">{{ reportLinesByLastRound[i].expected }}</div>
+              <div v-if="reportLinesByLastRound[i].warning" class="report-deadline-warning">
+                ⚠ {{ reportLinesByLastRound[i].warning }}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1050,6 +1272,12 @@ definePageMeta({
         </div>
         <div v-if="isSingleReportMultiplePeriods" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('all_rounds_one_report_period_error') }}
+        </div>
+        <div v-if="tournamentReportLines" class="report-deadline">
+          <div class="report-deadline-expected">{{ tournamentReportLines.expected }}</div>
+          <div v-if="tournamentReportLines.warning" class="report-deadline-warning">
+            ⚠ {{ tournamentReportLines.warning }}
+          </div>
         </div>
       </label>
       <label>
@@ -1404,8 +1632,8 @@ definePageMeta({
         <div style="font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; font-style: italic;">A confirmation email will be sent to this address. This is typically the email of the organising club.</div>
       </label>
       <label>
-        <span class="required-label">{{ tField('homepage') }}</span>
-        <input type="text" v-model="form.homepage" required>
+        <span>{{ tField('homepage') }}</span>
+        <input type="text" v-model="form.homepage">
         <div v-if="form.homepage && !form.homepage.includes('http')" style="color:var(--error); font-size:0.85rem; margin-top:0.25rem;">
           Warning: URL should usually contain http or https.
         </div>
@@ -1413,7 +1641,16 @@ definePageMeta({
       <label><span>{{ tField('prize_fund') }}</span><input type="text" v-model="form.prize_fund"></label>
       <label><span>{{ tField('remarks') }}</span><textarea v-model="form.remarks"></textarea></label>
 
-      <button type="submit" :disabled="waitingdialog || submitCooldown">
+      <label v-if="criticalReports.length" class="report-deadline-ack">
+        <input type="checkbox" v-model="form.report_deadline_ack">
+        <span>{{ tUI('report_deadline_ack').replace('{reports}', criticalReportsText) }}</span>
+      </label>
+
+      <div v-if="turnstileSitekey" class="turnstile-box">
+        <div ref="turnstileEl"></div>
+        <div v-if="turnstilePending" class="turnstile-hint">{{ tUI('turnstile_hint') }}</div>
+      </div>
+      <button type="submit" :disabled="waitingdialog || submitCooldown || turnstilePending">
         {{ waitingdialog ? '...' : (submitCooldown ? 'Submitted' : tUI('export_btn')) }}
       </button>
     </form>
@@ -1512,6 +1749,15 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus-ring,
 .input-error { border-color: var(--error, #b91c1c) !important; }
 textarea { min-height: 4rem; }
 .group-title { margin-top: 1.5rem; font-weight: 700; font-size: 0.98rem; color: var(--muted, #4b5563); }
+.turnstile-box {
+  margin-top: 1rem;
+}
+.turnstile-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 0.3rem;
+}
 button[type="submit"] {
   margin-top: 1.5rem;
   padding: 0.6rem 1.2rem;
@@ -1530,6 +1776,22 @@ button[type="submit"]:disabled {
 button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 2px; }
 .hidden { display: none; }
 .round-row.active { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+.round-row .report-deadline { grid-column: 1 / -1; margin-top: -0.4rem; }
+.report-deadline-expected { font-size: 0.8rem; color: var(--muted, #4b5563); margin-top: 0.25rem; }
+.report-deadline-warning { color: #d97706; font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500; }
+.report-deadline-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+.report-deadline-ack input { width: auto; margin-top: 0.2rem; }
+.report-deadline-ack span { margin-bottom: 0; font-weight: 600; }
 .person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
 .organizer-dropdown {
   position: absolute;

@@ -3,18 +3,22 @@ import re
 import calendar
 from pathlib import Path
 from io import BytesIO
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import logging
 import base64
+import html
 from urllib.parse import quote
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from openpyxl import load_workbook
 
 from zerotwocloud.mail import MailAttachment, MailParams
 from zerotwocloud.mail import get_setting as get_mail_setting
 from zerotwocloud.mail.mail import sendEmailMessage
+
+from kbsb.core.cells import write_text
+from kbsb.fide import ratelimit, turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +32,11 @@ FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
 # Read by the dataplatform every 30 minutes; it queues the workbook for processing.
 AUTORATING_MAILBOX = "autoratingfide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
+
+# One plain address: the invoice and contact e-mails become mail headers (To,
+# Reply-To), so no line breaks or spaces, and no comma, semicolon or angle
+# bracket that would turn one address into several recipients.
+EMAIL_RE = re.compile(r"[^\s@,;:<>()\[\]\\\"']+@[^\s@,;:<>()\[\]\\\"']+\.[^\s@,;:<>()\[\]\\\"']+")
 
 router = APIRouter(prefix="/api/v1/fide", tags=["fide"])
 
@@ -141,8 +150,9 @@ MANDATORY_ALWAYS = [
     "tiebreak_method",
     "software",
     "contact_email",
-    "homepage",
 ]
+
+OPENPAIRINGS = "OpenPairings (With Ainalrami)"
 
 LOOKUP_DATA = {
     "yes_no": ["Yes", "No"],
@@ -181,6 +191,9 @@ def load_lookup_values():
                 opts.insert(idx, "Swar")
             else:
                 opts.append("Swar")
+        # Right below Swar: also not in FIDE's list, sent as "Other" on submit.
+        if OPENPAIRINGS not in opts:
+            opts.insert(opts.index("Swar") + 1, OPENPAIRINGS)
         LOOKUP_DATA["software_options"] = opts
 
     if "Tournament_Report" in wb.sheetnames:
@@ -232,19 +245,30 @@ def load_lookup_values():
 
 
 load_lookup_values()
+turnstile.log_status()
 
 
 @router.get("/form-data")
 def get_form_data():
-    return {"translations": TRANSLATIONS, "lookups": LOOKUP_DATA}
+    return {
+        "translations": TRANSLATIONS,
+        "lookups": LOOKUP_DATA,
+        # "" while Turnstile is off: the page then shows no widget
+        "turnstile_sitekey": turnstile.sitekey_if_enabled(),
+    }
 
 
 def fill_workbook(form_data):
+    # Every value goes in through write_text: the text is typed by whoever
+    # fills in the public form, and fide@ and the staff open this workbook in
+    # Excel, so a value starting with "=" must stay text, never a formula
+    # (SEC-40). The text itself is kept as typed: the dataplatform reads these
+    # cells. The template's own formulas, in cells not written here, stay.
     wb = load_workbook(TEMPLATE_PATH)
     ws = wb["FIDE Registration Form"]
 
-    ws["B7"] = form_data.get("invoice_email", "")
-    ws["B8"] = form_data.get("invoice_clubnr", "")
+    write_text(ws["B7"], form_data.get("invoice_email", ""))
+    write_text(ws["B8"], form_data.get("invoice_clubnr", ""))
 
     start_row = 10
     lang_labels = {
@@ -260,17 +284,17 @@ def fill_workbook(form_data):
             val = form_data.get(field_key, "")
             if field_key == "communication_language" and val in lang_labels:
                 val = lang_labels[val]
-        ws[f"B{start_row + index}"] = val
+        write_text(ws[f"B{start_row + index}"], val)
 
     if (
         form_data.get("tournament_report") == "New long tournament"
         and "Rounds_Long_Tournament" in wb.sheetnames
     ):
         ws_rounds = wb["Rounds_Long_Tournament"]
-        ws_rounds["B1"] = form_data.get("event_name", "")
+        write_text(ws_rounds["B1"], form_data.get("event_name", ""))
         # D1 is free in the template, so the optional end date gets its own
         # labelled column next to the report number.
-        ws_rounds["D1"] = "End Date (optional)"
+        write_text(ws_rounds["D1"], "End Date (optional)")
         for r in range(2, 150):
             ws_rounds[f"B{r}"] = None
             ws_rounds[f"C{r}"] = None
@@ -284,12 +308,12 @@ def fill_workbook(form_data):
 
         for i in range(1, n_rounds + 1):
             row = i + 1
-            ws_rounds[f"A{row}"] = f"Round {i} Date"
-            ws_rounds[f"B{row}"] = form_data.get(f"round{i}_date", "")
-            ws_rounds[f"C{row}"] = form_data.get(f"round{i}_report", "")
+            write_text(ws_rounds[f"A{row}"], f"Round {i} Date")
+            write_text(ws_rounds[f"B{row}"], form_data.get(f"round{i}_date", ""))
+            write_text(ws_rounds[f"C{row}"], form_data.get(f"round{i}_report", ""))
             # A one day round leaves D empty, which is the normal case.
             end_date = (form_data.get(f"round{i}_end_date") or "").strip()
-            ws_rounds[f"D{row}"] = end_date or None
+            write_text(ws_rounds[f"D{row}"], end_date or None)
 
     buf = BytesIO()
     wb.save(buf)
@@ -320,6 +344,37 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
     return iv
 
 
+ROUND_MAX_DAYS = 7
+
+
+def round_span_errors(i, start, end, next_start, rounds, t_msg):
+    """
+    A round with an end date: same FIDE rating period, at most a week, and
+    ending before the next round starts. Dates are YYYY-MM-DD strings.
+    """
+
+    def fill(key, **extra):
+        msg = t_msg[key].replace("{num}", str(i)).replace("{start}", start).replace("{end}", end)
+        for k, v in extra.items():
+            msg = msg.replace("{" + k + "}", str(v))
+        return msg
+
+    p1, p2 = get_fide_period(start), get_fide_period(end)
+    if p1 and p2 and p1 != p2:
+        return [fill("round_end_date_period_error")]
+    try:
+        days = (
+            datetime.strptime(end, "%Y-%m-%d") - datetime.strptime(start, "%Y-%m-%d")
+        ).days
+    except ValueError:
+        return []
+    if days > ROUND_MAX_DAYS:
+        return [fill("round_end_date_too_long", days=days)]
+    if next_start and i < rounds and end > str(next_start):
+        return [fill("round_end_date_overlap_error", next=i + 1, next_start=next_start)]
+    return []
+
+
 def get_fide_period(date_str):
     if not date_str:
         return None
@@ -334,6 +389,203 @@ def get_fide_period(date_str):
         return f"{year}-{month:02d}"
     except Exception:
         return None
+
+
+# KBSB rule: the report reaches the KBSB within 4 days after its end date (for
+# a New long tournament, the end of the report's last round: its end date,
+# else its date). Day x-1 at 12:00, x the last day of the month, is the last
+# chance for that month's FIDE list. An end date from x-6 to x-2 is the
+# critical window: 4 days would be too late, so the form warns and asks for a
+# tick. The last two days of a month are FIDE's transition period
+# (get_fide_period): not critical, and the report counts for the next month's
+# list, so its last chance is day x-1 of the next month. Mirrors
+# getReportDeadline in fide_registration.vue.
+REPORT_DAYS = 4
+
+MONTH_NAMES = {
+    "en": ["January", "February", "March", "April", "May", "June", "July",
+           "August", "September", "October", "November", "December"],
+    "nl": ["januari", "februari", "maart", "april", "mei", "juni", "juli",
+           "augustus", "september", "oktober", "november", "december"],
+    "fr": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
+           "août", "septembre", "octobre", "novembre", "décembre"],
+}
+LIST_AND = {"en": "and", "nl": "en", "fr": "et"}
+
+
+def get_report_deadline(date_str):
+    """
+    For an end date (YYYY-MM-DD): the date the report is expected by, the last
+    chance (day x-1 of the month whose FIDE list it counts for, the report due
+    at 12:00), whether the end date is in the critical window, and then the
+    cutoff (the last chance again). None when the date is not valid.
+    """
+    try:
+        end = datetime.strptime(str(date_str or "").strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    _, last_day = calendar.monthrange(end.year, end.month)
+    critical = last_day - 6 <= end.day <= last_day - 2
+    if end.day >= last_day - 1:
+        # transition period: the next month's list
+        year, month = (end.year + 1, 1) if end.month == 12 else (end.year, end.month + 1)
+        last_chance = date(year, month, calendar.monthrange(year, month)[1] - 1)
+    else:
+        last_chance = end.replace(day=last_day - 1)
+    return {
+        "end": end,
+        "expected": end + timedelta(days=REPORT_DAYS),
+        "last_chance": last_chance,
+        "critical": critical,
+        "cutoff": last_chance if critical else None,
+    }
+
+
+def report_groups(form):
+    """
+    The reports of the tournament, in order, as dicts with the report number,
+    its rounds and its end (YYYY-MM-DD). A New long tournament groups its
+    rounds the way recalculateReportNumbers in fide_registration.vue does: one
+    report per FIDE rating period of the round dates, or one per round when
+    report_per_round is ticked. The report's last round decides its deadline.
+    Any other tournament is one report ending on the end date (number and
+    rounds None).
+    """
+    if form.get("tournament_report") != "New long tournament":
+        end = (form.get("end_date") or "").strip()
+        return [{"num": None, "rounds": None, "end": end}] if end else []
+    try:
+        n = int(form.get("rounds_reported") or 0)
+    except ValueError:
+        n = 0
+    per_round = is_ticked(form.get("report_per_round"))
+    groups = {}
+    for i in range(1, n + 1):
+        start = (form.get(f"round{i}_date") or "").strip()
+        period = get_fide_period(start)
+        if not period:
+            continue
+        end = (form.get(f"round{i}_end_date") or "").strip() or start
+        group = groups.setdefault(i if per_round else period, {"rounds": [], "end": ""})
+        group["rounds"].append(i)
+        group["end"] = max(group["end"], end)
+    # Period keys sort like the form sorts them: "2026-09" < "2026-09-late" < "2026-10".
+    return [
+        {"num": num, **groups[key]} for num, key in enumerate(sorted(groups), start=1)
+    ]
+
+
+def report_deadlines(form):
+    """The reports with their deadline (get_report_deadline of their end)."""
+    reports = []
+    for group in report_groups(form):
+        deadline = get_report_deadline(group["end"])
+        if deadline:
+            reports.append({**group, "deadline": deadline})
+    return reports
+
+
+def format_date(d, lang, year=True):
+    """5 October 2026 / 5 oktober 2026 / 5 octobre 2026, as the form shows it."""
+    months = MONTH_NAMES.get(lang, MONTH_NAMES["en"])
+    text = f"{d.day} {months[d.month - 1]}"
+    return f"{text} {d.year}" if year else text
+
+
+def format_list(texts, lang):
+    """A, B and C in the given language, like Intl.ListFormat on the form."""
+    texts = list(texts)
+    if len(texts) < 2:
+        return "".join(texts)
+    return f"{', '.join(texts[:-1])} {LIST_AND.get(lang, 'and')} {texts[-1]}"
+
+
+def format_rounds(rounds, lang):
+    """round 5 / rounds 7, 8 and 9, in the given language."""
+    t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
+    key = "report_rounds_one" if len(rounds) == 1 else "report_rounds_many"
+    return t_msg[key].replace("{rounds}", format_list((str(r) for r in rounds), lang))
+
+
+def fill_cutoff(template, cutoff, lang):
+    """Fills {deadline}, {month} and {of_month} (French: de/d' + month)."""
+    month = MONTH_NAMES.get(lang, MONTH_NAMES["en"])[cutoff.month - 1]
+    of_month = f"d'{month}" if month[0] in "aeiou" else f"de {month}"
+    return (
+        template.replace("{deadline}", format_date(cutoff, lang, year=False))
+        .replace("{month}", month)
+        .replace("{of_month}", of_month)
+    )
+
+
+def fill_report(template, report, lang):
+    """Fills {num}, {rounds} and {date} (the expected date) for a report."""
+    text = template.replace("{date}", format_date(report["deadline"]["expected"], lang))
+    if report["num"] is not None:
+        text = text.replace("{num}", str(report["num"])).replace(
+            "{rounds}", format_rounds(report["rounds"], lang)
+        )
+    return text
+
+
+def report_ack_text(reports, lang):
+    """
+    The reports the tick is for (those in the critical window), as the form's
+    checkbox and the error for a missing tick list them.
+    """
+    t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
+    items = []
+    for report in reports:
+        key = "report_ack_item_tournament" if report["num"] is None else "report_ack_item_report"
+        item = t_msg[key].replace("{cutoff}", format_date(report["deadline"]["cutoff"], lang))
+        items.append(fill_report(item, report, lang))
+    return format_list(items, lang)
+
+
+def is_ticked(value):
+    return value is True or str(value).strip().lower() in ("true", "1", "yes", "on")
+
+
+def report_deadline_mail(form, lang):
+    """
+    The deadline part of the confirmation mail, per report: its rounds, the
+    date it is expected by, the last chance for its rating list and, when its
+    last round ends in the critical window, the warning.
+    """
+    t_msg = TRANSLATIONS.get(lang, TRANSLATIONS["en"])["messages"]
+    warn_style = "color: #b45309; font-weight: bold;"
+    reports = report_deadlines(form)
+    if not reports:
+        return ""
+
+    if reports[0]["num"] is None:
+        report = reports[0]
+        deadline = report["deadline"]
+        text = (
+            t_msg["mail_report_deadline_tournament"]
+            .replace("{end}", format_date(deadline["end"], lang))
+            .replace("{date}", format_date(deadline["expected"], lang))
+        )
+        text += " " + fill_cutoff(t_msg["report_last_chance"], deadline["last_chance"], lang)
+        html = f"<p>{text}</p>"
+        if deadline["critical"]:
+            text = fill_cutoff(t_msg["report_deadline_critical_tournament"], deadline["cutoff"], lang)
+            html += f'<p style="{warn_style}">{text}</p>'
+        return html
+
+    items = []
+    for report in reports:
+        deadline = report["deadline"]
+        item = fill_report(t_msg["mail_report_deadline_report"], report, lang).replace(
+            "{end}", format_date(deadline["end"], lang)
+        )
+        item += " " + fill_cutoff(t_msg["report_last_chance"], deadline["last_chance"], lang)
+        if deadline["critical"]:
+            text = fill_report(t_msg["report_deadline_critical_report"], report, lang)
+            text = fill_cutoff(text, deadline["cutoff"], lang)
+            item += f'<br><span style="{warn_style}">{text}</span>'
+        items.append(f"<li>{item}</li>")
+    return f"<p>{t_msg['mail_report_deadline_intro']}</p><ul>{''.join(items)}</ul>"
 
 
 def validate_form(form, lang):
@@ -363,6 +615,16 @@ def validate_form(form, lang):
             if p_start and p_end and p_start != p_end:
                 logger.error(f"Dates {start_date} ({p_start}) and {end_date} ({p_end}) span multiple FIDE periods for 1 report")
                 errors.append(t_msg.get("all_rounds_one_report_period_error", "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'."))
+
+    for key in ("invoice_email", "contact_email"):
+        value = form.get(key)
+        if not value:
+            continue
+        if not isinstance(value, str) or not (
+            value.strip() == "JORIAN.INTERNAL" or EMAIL_RE.fullmatch(value.strip())
+        ):
+            logger.error(f"{key} is not a valid e-mail address")
+            errors.append(f"{t_fields.get(key, key)} {t_msg['invalid_email']}")
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 -]+", event_name):
@@ -573,6 +835,14 @@ def validate_form(form, lang):
                         errors.append(
                             t_msg["round_end_date_order_error"].replace("{num}", str(i))
                         )
+                    elif date_val:
+                        # Same rules as the form: one round played over two
+                        # dates, not a window (see fide_registration.vue).
+                        errors.extend(
+                            round_span_errors(
+                                i, date_val, end_date_val, form.get(f"round{i + 1}_date"), n, t_msg
+                            )
+                        )
             if not date_val:
                 errors.append(t_msg["round_date_required"].replace("{num}", str(i)))
             else:
@@ -595,6 +865,20 @@ def validate_form(form, lang):
                     lang,
                     min_value=1,
                 )
+
+    # A report whose last round ends in the critical window: the organiser has
+    # to tick that it is due by noon on day x-1 (the checkbox above the submit
+    # button). An earlier round of the report in the window does not count.
+    critical = [r for r in report_deadlines(form) if r["deadline"]["critical"]]
+    if critical and not is_ticked(form.get("report_deadline_ack")):
+        logger.error(
+            f"Report deadline not acknowledged for reports {[(r['num'], r['end']) for r in critical]}"
+        )
+        errors.append(
+            t_msg["report_deadline_ack_required"].replace(
+                "{reports}", report_ack_text(critical, lang)
+            )
+        )
 
     return errors
 
@@ -650,9 +934,40 @@ def calculate_standard_total_minutes(form: dict) -> float:
     return total_mins + inc_mins
 
 
+def normalise_homepage(form):
+    """The homepage is optional: empty stays empty, a typed one without a
+    scheme gets https://."""
+    homepage = (form.get("homepage") or "").strip()
+    if homepage and not homepage.lower().startswith(("http://", "https://")):
+        homepage = "https://" + homepage
+    form["homepage"] = homepage
+
+
+def refuse(key, status_code, locale):
+    """A refused submit, with the translated message of key."""
+    t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
+    return JSONResponse(
+        status_code=status_code,
+        content={"success": False, "errors": [t_refusal[key]]},
+        # the page asks for a file, so it cannot read this JSON body; it
+        # shows its own translation of this key instead
+        headers={
+            "X-Fide-Error": key,
+            "Access-Control-Expose-Headers": "X-Fide-Error",
+        },
+    )
+
+
 @router.post("/generate")
-async def generate_fide_form(locale: str, formdata: dict):
+async def generate_fide_form(locale: str, formdata: dict, request: Request):
     locale = locale or "en"
+    # Turnstile first, before anything is processed or mailed. A no-op while
+    # Turnstile is off (see kbsb.fide.turnstile).
+    refusal = await turnstile.check(request, formdata.get("turnstile_token"))
+    if refusal:
+        return refuse(
+            refusal, 503 if refusal == turnstile.MSG_UNAVAILABLE else 400, locale
+        )
     form = formdata.get("formdata", {})
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")
@@ -661,18 +976,43 @@ async def generate_fide_form(locale: str, formdata: dict):
     if form.get("software") == "Swar":
         form["software"] = "Other"
         form["software_other"] = "Swar (with JaVaFo)"
+    elif form.get("software") == OPENPAIRINGS:
+        form["software"] = "Other"
+        form["software_other"] = OPENPAIRINGS
 
-    homepage = form.get("homepage", "").strip()
-    if homepage and not (
-        homepage.startswith("http://") or homepage.startswith("https://")
-    ):
-        form["homepage"] = "https://" + homepage
+    normalise_homepage(form)
 
     errors = validate_form(form, locale)
     if errors:
         return JSONResponse(
             status_code=400, content={"success": False, "errors": errors}
         )
+
+    # validate_form checked these are single addresses without line breaks:
+    # they go into the To and Reply-To headers below
+    invoice_email = form.get("invoice_email", "").strip()
+    is_internal_test = (invoice_email == "JORIAN.INTERNAL")
+    contact_email = form.get("contact_email", "").strip()
+
+    # The confirmation copies go to the addresses typed in the form.
+    recipients = []
+    if is_internal_test:
+        recipients.append(INTERNAL_TEST_ADDRESS)
+    else:
+        if invoice_email:
+            recipients.append(invoice_email)
+        if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
+            recipients.append(contact_email)
+
+    # Counted only once the form is valid, since an invalid one mails
+    # nothing. Our own test address is not a stranger's inbox, so only the
+    # IP limit applies to it.
+    limited = await ratelimit.check_and_record(
+        turnstile.client_ip(request),
+        [r for r in recipients if r != INTERNAL_TEST_ADDRESS],
+    )
+    if limited:
+        return refuse(limited, 429, locale)
 
     start_date_str = form.get("start_date", "").strip()
     is_late = False
@@ -776,16 +1116,13 @@ async def generate_fide_form(locale: str, formdata: dict):
     {late_banner}
     <p>Beste,</p>
     <p>Hierbij vindt u het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p>
-    <p><strong>Clubnummer:</strong> {club_number}</p>
-    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {comm_lang_display}</p>
+    <p><strong>Clubnummer:</strong> {html.escape(str(club_number))}</p>
+    <p><strong>Voorkeurstaal communicatie / Langue:</strong> {html.escape(str(comm_lang_display))}</p>
     <br>
     <p>Groetjes!</p>
     """
 
-    invoice_email = form.get("invoice_email", "").strip()
-    is_internal_test = (invoice_email == "JORIAN.INTERNAL")
     fide_receiver = INTERNAL_TEST_ADDRESS if is_internal_test else FIDE_MAILBOX
-    contact_email = form.get("contact_email", "").strip()
     # Replying to the registration from the fide@ inbox reaches the organiser.
     organiser_email = (
         contact_email if contact_email and contact_email != "JORIAN.INTERNAL" else invoice_email
@@ -824,18 +1161,10 @@ async def generate_fide_form(locale: str, formdata: dict):
     conf_body = t_msg.get(
         "conf_body", "<p>Thank you for submitting the FIDE registration form.</p>"
     ).replace("{event_name}", event_name)
+    conf_body = conf_body.replace("{report_deadlines}", report_deadline_mail(form, mail_lang))
 
     if is_unapproved:
         conf_body = warning_banner + conf_body
-
-    recipients = []
-    if is_internal_test:
-        recipients.append(INTERNAL_TEST_ADDRESS)
-    else:
-        if invoice_email:
-            recipients.append(invoice_email)
-        if contact_email and contact_email != invoice_email and contact_email != "JORIAN.INTERNAL":
-            recipients.append(contact_email)
 
     failed_confirmations = []
     for recipient in recipients:

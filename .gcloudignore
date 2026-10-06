@@ -11,8 +11,31 @@ __pycache__/
 .env
 .env.*
 env_local.py
+env_staging.py
+env_prod.py
 env_prodtest.py
-tests/
+env_localtest.py
+/tests/
+
+# secrets: filejson secrets resolve under SECRETS_PATH, the repo root by
+# default, so local secret files sit here and must never be uploaded.
+# (Dropped once by mistake in v3.10.1: a deploy from a machine that has these
+# files uploads them.)
+kbsb-*.json
+su_*.json
+/*.json
+*.pem
+*.p12
+*.key
+shared/secrets/
+
+# personal data: trf_report_phase2 writes icn_trf.txt to the working directory
+icn_trf.txt
+
+# local tooling
+.claude/
+scratch/
+src/kbsb/etl/add_interclubadmin.py
 
 # general
 .gcloudignore
@@ -23,4 +46,3 @@ tests/
 License.md
 poe_tasks.yaml
 shared/
-

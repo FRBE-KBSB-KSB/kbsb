@@ -131,6 +131,10 @@ SECRETS = {
         "name": "hetzner-api-master",
         "manager": "googletext",
     },
+    "turnstile": {
+        "name": "turnstile-secret",
+        "manager": "googletext",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
@@ -147,6 +151,10 @@ TOKEN = {
 }
 
 TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
+
+# Cloudflare Turnstile on the FIDE registration form (public site key, set in
+# app.yaml). Empty means Turnstile is off; see kbsb.fide.turnstile.
+TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
 
 if KBSB_MODE == "local":
