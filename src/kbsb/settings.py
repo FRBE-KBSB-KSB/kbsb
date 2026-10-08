@@ -6,7 +6,6 @@ import zoneinfo
 from pathlib import Path
 
 API_BASE_URL = "/api"
-API_KEY = "JeanMarieWampers"
 
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
