@@ -590,7 +590,7 @@ async def anon_getICstandings(idclub: int) -> list[ICStandingsDB] | None:
     options: dict[str, Any] = {"_model": ICStandingsDB}
     if idclub:
         options["teams.idclub"] = idclub
-    docs: list[ICStandingsDB] = await DbICStandings.find_multiple(options)  # pyright: ignore[reportAssignmentType]
+    docs: list[ICStandingsDB] = await DbICStandings.find_multiple(options)
     for ix, d in enumerate(docs):
         assert isinstance(d, ICStandingsDB)
         dirty = d.dirtytime.replace(tzinfo=UTC) if d.dirtytime else None
