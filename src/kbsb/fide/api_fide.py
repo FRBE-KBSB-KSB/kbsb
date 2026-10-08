@@ -1144,7 +1144,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
         logger.info(
             f"FIDE Registration email sent to {fide_receiver} from {sender_email}"
         )
-    except Exception as e:
+    except Exception:
         logger.exception(f"Failed to send FIDE registration email to {fide_receiver}")
         return JSONResponse(
             status_code=500,

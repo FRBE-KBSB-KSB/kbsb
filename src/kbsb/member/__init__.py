@@ -1,7 +1,6 @@
 # copyright Ruben Decrop 2012 - 2022
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
-import kbsb.member.api_member
 
 from .md_member import (
     SALT,
@@ -20,15 +19,15 @@ from .member import (
 )
 
 __all__ = [
+    "SALT",
+    "AnonMember",
     "LoginValidator",
     "Member",
-    "AnonMember",
     "OldUserPasswordValidator",
     "anon_getclubmembers",
     "anon_getmember",
     "login",
-    "mgmt_getmember",
     "mgmt_getclubmembers",
+    "mgmt_getmember",
     "validate_membertoken",
-    "SALT",
 ]

@@ -292,7 +292,7 @@ class LineUpValidation:
                 notfilled = False
                 avgdivs = {}  # key should be (t.division,t.index,t.pairingnumber)
                 for t in clb.teams:
-                    if not (t.division, t.index) in self.seriesdict:
+                    if (t.division, t.index) not in self.seriesdict:
                         # we are bye
                         continue
                     sr = self.seriesdict[(t.division, t.index)]

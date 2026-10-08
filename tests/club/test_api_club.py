@@ -19,4 +19,4 @@ def test_verify_club_access(
     verify_club_access.return_value = True
     resp = client.get("/api/v1/clubs/clb/club/699/access/CLubAdmin,InterclubAdmin")
     assert resp.status_code == 200
-    assert resp.json() == True
+    assert resp.json()

@@ -27,7 +27,6 @@ from kbsb.interclubs import (
     ICPlayerValidationError,
     ICTeam,
     PlayerlistNature,
-    PlayerPeriod,
     load_icdata,
 )
 from kbsb.interclubs.helpers import check_playerlist_open
@@ -385,7 +384,6 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     transferdeletes = []
     oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
-    period = PlayerPeriod.SEPTEMBER
     for p in newplsix.values():
         idn = p.idnumber
         if idn not in oldplsix:
@@ -413,10 +411,10 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     logger.info(f"trout {len(transfersout)} trdel {len(transferdeletes)}")
     for t in transfersout:
         receivingclub = await clb_getICclub(t.idclubvisit)
-        rcplayers = receivingclub.players  
-        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]  
+        rcplayers = receivingclub.players
+        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]
         if not trplayers:
-            rcplayers.append(  
+            rcplayers.append(
                 ICPlayer(
                     assignedrating=t.assignedrating,
                     fiderating=t.fiderating,
@@ -431,14 +429,14 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     titular=None,
                 )
             )
-            dictplayers = [p.model_dump() for p in rcplayers]  
+            dictplayers = [p.model_dump() for p in rcplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
     for t in transferdeletes:
         # we need to remove the transfer from the receiving club if it is existing
         try:
             receivingclub = await clb_getICclub(t.idclubvisit)
-            rcplayers = receivingclub.players  
-            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber] 
+            rcplayers = receivingclub.players
+            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
         except RdException as e:
@@ -501,7 +499,7 @@ async def clb_validateICPlayers(
     registration = await find_icregistration(idclub)
     assert registration
     ix = 1
-    for t in range(registration.teams1):  
+    for t in range(registration.teams1):
         titulars[f"{registration.name} {ix}"] = {
             "division": 1,
             "ntitulars": icdata["ntitulars"][1],
@@ -509,7 +507,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams2):  
+    for t in range(registration.teams2):
         titulars[f"{registration.name} {ix}"] = {
             "division": 2,
             "ntitulars": icdata["ntitulars"][2],
@@ -517,7 +515,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams3):  
+    for t in range(registration.teams3):
         titulars[f"{registration.name} {ix}"] = {
             "division": 3,
             "ntitulars": icdata["ntitulars"][3],
@@ -525,7 +523,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams4):  
+    for t in range(registration.teams4):
         titulars[f"{registration.name} {ix}"] = {
             "division": 4,
             "ntitulars": icdata["ntitulars"][4],
@@ -533,7 +531,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams5):  
+    for t in range(registration.teams5):
         titulars[f"{registration.name} {ix}"] = {
             "division": 5,
             "ntitulars": icdata["ntitulars"][5],
@@ -541,7 +539,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams6):  
+    for t in range(registration.teams6):
         titulars[f"{registration.name} {ix}"] = {
             "division": 6,
             "ntitulars": icdata["ntitulars"][6],
@@ -580,20 +578,20 @@ async def mgmt_get_xlsplayerlists():
     """
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(  
+    ws.append(
         ["club", "idnumber", "name", "cluborig", "rating", "F ELO", "B ELO", "Titular"]
     )
     clubs = await DbICClub.find_multiple({"_model": ICClubDB})
     for c in clubs:
-        if not c.registered:  
+        if not c.registered:
             continue
-        sortedplayers = sorted(c.players, key=lambda x: x.assignedrating, reverse=True) 
+        sortedplayers = sorted(c.players, key=lambda x: x.assignedrating, reverse=True)
         for p in sortedplayers:
             if p.nature not in ["assigned", "imported"]:
                 continue
-            ws.append(  
+            ws.append(
                 [
-                    c.idclub, 
+                    c.idclub,
                     p.idnumber,
                     safe_cell(f"{p.last_name}, {p.first_name}"),
                     p.idcluborig,
@@ -616,15 +614,15 @@ async def anon_get_xlsplayerlist(idclub: int):
     """
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(  
+    ws.append(
         ["club", "idnumber", "name", "cluborig", "rating", "F ELO", "B ELO", "Titular"]
     )
     club = await DbICClub.find_single({"_model": ICClubDB, "idclub": idclub})
-    sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)  
+    sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)
     for p in sortedplayers:
         if p.nature not in ["assigned", "imported"]:
             continue
-        ws.append(  
+        ws.append(
             [
                 idclub,
                 p.idnumber,

@@ -1,12 +1,9 @@
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
-from fastapi.testclient import TestClient
-from fastapi.encoders import jsonable_encoder
 from freezegun import freeze_time
 from datetime import date
 
-from kbsb.main import app
-from kbsb.interclubs import GAMERESULT, ICGame, ICSeriesDB
+from kbsb.interclubs import GAMERESULT, ICSeriesDB
 from kbsb.interclubs.series import (
     mgmt_saveICresults,
     clb_saveICresults,

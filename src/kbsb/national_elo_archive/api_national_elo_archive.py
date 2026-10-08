@@ -34,7 +34,7 @@ def get_api_key() -> str:
         response = client.access_secret_version(request={"name": name})
         _api_key_cache = response.payload.data.decode("UTF-8").strip()
         return _api_key_cache
-    except Exception as e:
+    except Exception:
         logger.exception("Failed to fetch API key from Secret Manager")
         raise HTTPException(status_code=500, detail="Could not retrieve API key for backend")
 

@@ -354,7 +354,7 @@ def test_anon_getICstandings(
 ):
     client = TestClient(app)
     anon_getICstandings.return_value = ic_standings_db_factory.batch(size=3)
-    resp = client.get(f"/api/v1/interclubs/anon/icstandings?idclub=123")
+    resp = client.get("/api/v1/interclubs/anon/icstandings?idclub=123")
     assert resp.status_code == 200
     anon_getICstandings.assert_awaited()
 
