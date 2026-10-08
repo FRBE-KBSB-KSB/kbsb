@@ -209,10 +209,10 @@ async def load_all_icclubs():
                             "index": t.index,
                             "pairingnumber": t.pairingnumber,
                         }
-            load_all_icclubs.playerratings = playerratings  # pyright: ignore[reportFunctionMemberAccess]
-            load_all_icclubs.fideratings = fideratings  # pyright: ignore[reportFunctionMemberAccess]
-            load_all_icclubs.clubs = clubs  # pyright: ignore[reportFunctionMemberAccess]
-            load_all_icclubs.titulars = titulars  # pyright: ignore[reportFunctionMemberAccess]
+            load_all_icclubs.playerratings = playerratings
+            load_all_icclubs.fideratings = fideratings
+            load_all_icclubs.clubs = clubs
+            load_all_icclubs.titulars = titulars
     return (playerratings, clubs, titulars, fideratings)
 
 

@@ -54,7 +54,7 @@ async def main():
             try:
                 club: ICClubDB = await DbICClub.find_single(
                     {"idclub": idclub, "_model": ICClubDB}
-                )  # pyright: ignore[reportAssignmentType]
+                )
             except RdNotFound:
                 logger.exception(f"Error finding club with idclub {idclub}")
                 break

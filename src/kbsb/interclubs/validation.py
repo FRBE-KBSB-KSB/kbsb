@@ -6,12 +6,17 @@ from reddevil.core import RdInternalServerError
 from .helpers import load_all_icclubs, load_icdata
 from .md_interclubs import (
     DbICSeries,
+    ICEncounter,
     ICRound,
     ICSeries,
     ICValidationError,
 )
 
 logger = logging.getLogger(__name__)
+
+empty_encounter = ICEncounter(
+    icclub_home=0, icclub_visit=0, pairingnr_home=0, pairingnr_visit=0, games=[]
+)
 
 
 class LineUpValidation:
@@ -21,8 +26,8 @@ class LineUpValidation:
     """
 
     def __init__(self) -> None:
-        self.validationerrors = []
-        self.doublepairings = []
+        self.validationerrors: list[ICValidationError] = []
+        self.doublepairings: list[tuple[int, int, str, int, int]] = []
         self.seriesread = False
 
     async def a_init(self) -> None:
@@ -62,20 +67,24 @@ class LineUpValidation:
         for encix, enc in enumerate(rnd.encounters):
             if t.pairingnumber in (enc.pairingnr_visit, enc.pairingnr_home):
                 return s, encix
+        logger.error(
+            f"Could not the encounter of team {name} in series {division}{index} round {round}"
+        )
+        raise RuntimeError("Could not find encounter")
 
     def create_issue(
         self,
         reason: str,
         s: ICSeries,
-        encix: int,
         idclub: int,
+        encix: int | None = None,
         pairingnr: int | None = None,
         gameix: int | None = None,
         round: int | None = None,
     ) -> ICValidationError:
         round = round or 0
         rnd = self._get_round(s, round)
-        enc = rnd.encounters[encix]
+        enc = rnd.encounters[encix] if encix else empty_encounter
         nameteams = {t.pairingnumber: t.name for t in s.teams}
         playing_home = enc.icclub_home == idclub
         playing_away = enc.icclub_visit == idclub
@@ -132,9 +141,10 @@ class LineUpValidation:
                         )
 
     def check_signatures(self, round: int, idclub: int):
+        assert self.icdata
         for s in self.seriesdict.values():
             rnd = self._get_round(s, round)
-            nextday = self.icdata["rounds"][round] + timedelta(days=1)
+            nextday = self.icdata["rounds11"][round] + timedelta(days=1)
             homesigndate = datetime.combine(nextday, time(0)).astimezone(UTC)
             visitsigndate = datetime.combine(nextday, time(12)).astimezone(UTC)
             for encix, enc in enumerate(rnd.encounters):
@@ -360,9 +370,7 @@ class LineUpValidation:
                         self.create_issue(
                             reason="Avg elo too high",
                             s=self.seriesdict[(key[0], key[1])],
-                            division=key[0],
-                            index=key[1],
-                            pairingnumber=key[2],
+                            pairingnr=key[2],
                             round=round,
                             idclub=idclub,
                         )
@@ -374,9 +382,7 @@ class LineUpValidation:
                         self.create_issue(
                             reason="Avg elo too high",
                             s=self.seriesdict[(key[0], key[1])],
-                            division=key[0],
-                            index=key[1],
-                            pairingnumber=key[2],
+                            pairingnr=key[2],
                             round=round,
                             idclub=idclub,
                         )
@@ -388,9 +394,7 @@ class LineUpValidation:
                         self.create_issue(
                             reason="Avg elo too high",
                             s=self.seriesdict[(key[0], key[1])],
-                            division=key[0],
-                            index=key[1],
-                            pairingnumber=key[2],
+                            pairingnr=key[2],
                             round=round,
                             idclub=idclub,
                         )
@@ -402,9 +406,7 @@ class LineUpValidation:
                         self.create_issue(
                             reason="Avg elo too high",
                             s=self.seriesdict[(key[0], key[1])],
-                            division=key[0],
-                            index=key[1],
-                            pairingnumber=key[2],
+                            pairingnr=key[2],
                             round=round,
                             idclub=idclub,
                         )
@@ -421,34 +423,32 @@ class LineUpValidation:
                 if idclub not in (enc.icclub_home, enc.icclub_visit):
                     continue
                 for encix, g in enumerate(enc.games):
-                    if g.idnumber_home in self.titulars:
-                        if (
-                            s.division == self.titulars[g.idnumber_home]["division"]
-                            and s.index == self.titulars[g.idnumber_home]["index"]
-                            and enc.pairingnr_home
-                            != self.titulars[g.idnumber_home]["pairingnumber"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_home,
-                                reason="Titular played in wrong team in the series",
-                            )
-                    if g.idnumber_visit in self.titulars:
-                        if (
-                            s.division == self.titulars[g.idnumber_visit]["division"]
-                            and s.index == self.titulars[g.idnumber_visit]["index"]
-                            and enc.pairingnr_visit
-                            != self.titulars[g.idnumber_visit]["pairingnumber"]
-                        ):
-                            self.create_issue(
-                                s=s,
-                                encix=encix,
-                                idclub=idclub,
-                                pairingnr=enc.pairingnr_visit,
-                                reason="Titular played in wrong team in the series",
-                            )
+                    if g.idnumber_home in self.titulars and (
+                        s.division == self.titulars[g.idnumber_home]["division"]
+                        and s.index == self.titulars[g.idnumber_home]["index"]
+                        and enc.pairingnr_home
+                        != self.titulars[g.idnumber_home]["pairingnumber"]
+                    ):
+                        self.create_issue(
+                            s=s,
+                            encix=encix,
+                            idclub=idclub,
+                            pairingnr=enc.pairingnr_home,
+                            reason="Titular played in wrong team in the series",
+                        )
+                    if g.idnumber_visit in self.titulars and (
+                        s.division == self.titulars[g.idnumber_visit]["division"]
+                        and s.index == self.titulars[g.idnumber_visit]["index"]
+                        and enc.pairingnr_visit
+                        != self.titulars[g.idnumber_visit]["pairingnumber"]
+                    ):
+                        self.create_issue(
+                            s=s,
+                            encix=encix,
+                            idclub=idclub,
+                            pairingnr=enc.pairingnr_visit,
+                            reason="Titular played in wrong team in the series",
+                        )
 
     def check_reserves_in_single_series(self, round: int, idclub: int):
         for club, division, index, pnr1, pnr2 in self.doublepairings:
@@ -547,7 +547,7 @@ class LineUpValidation:
     def check_elotoohigh(self, round: int, idclub: int) -> None:
         try:
             for sr in self.seriesdict.values():
-                maxelo = self.icdata["max_elo"][sr.division]  # pyright: ignore[reportOptionalSubscript]
+                maxelo = self.icdata["max_elo"][sr.division]
                 rnd = self._get_round(sr, round)
                 if not rnd:
                     return

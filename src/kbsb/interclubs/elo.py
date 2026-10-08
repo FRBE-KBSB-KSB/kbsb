@@ -210,7 +210,7 @@ async def games_fiderating(round):
                     eg = EloGame(
                         player_white=playervisit,
                         player_black=playerhome,
-                        result=switch_result[g.result],  # pyright: ignore[reportArgumentType]
+                        result=switch_result[g.result],
                     )
                 else:
                     playerhome.color = "w"
@@ -218,7 +218,7 @@ async def games_fiderating(round):
                     eg = EloGame(
                         player_white=playerhome,
                         player_black=playervisit,
-                        result=g.result,  # pyright: ignore[reportArgumentType]
+                        result=g.result,
                     )
                 fidegames.append(eg)
 

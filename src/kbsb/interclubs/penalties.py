@@ -1,21 +1,21 @@
 # copyright Ruben Decrop 2012 - 2022
 
-import logging
 import asyncio
-from io import StringIO, BytesIO
+import logging
 from csv import DictWriter
+from io import BytesIO, StringIO
+
+from reddevil.core import RdInternalServerError
 from reddevil.filestore.filestore import (
     list_bucket_files,
     read_bucket_content,
     write_bucket_content,
 )
-from reddevil.core import RdInternalServerError
+
 from kbsb.core.cells import safe_cell
-from .validation import LineUpValidation
+
 from .icclubs import anon_getICclubs
-from .md_interclubs import (
-    ICTeam,
-)
+from .validation import LineUpValidation
 
 logger = logging.getLogger(__name__)
 icdata = None
@@ -86,7 +86,6 @@ async def list_penalties_reports() -> list[str]:
     """
     endpoint to list the penalties reports in the cloud
     """
-    ...
     try:
         files = list_bucket_files("icn")
     except Exception as e:
@@ -101,7 +100,6 @@ async def get_penalties_report(path: str) -> str:
     """
     get the content of a penalties report
     """
-    ...
     try:
         report = read_bucket_content(f"icn/{path}")
     except Exception as e:

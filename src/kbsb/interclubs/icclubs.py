@@ -60,7 +60,7 @@ async def create_icclub(icclub: ICClubDB) -> str:
     """
     icclubdict = icclub.model_dump()
     icclubdict.pop("id", None)
-    return await DbICClub.add(icclubdict)  # pyright: ignore[reportReturnType]
+    return await DbICClub.add(icclubdict)
 
 
 async def get_icclub(options: dict | None = None) -> ICClubDB:
@@ -71,7 +71,7 @@ async def get_icclub(options: dict | None = None) -> ICClubDB:
     filter = options.copy() if options else {}
     filter["_model"] = filter.get("_model", ICClubDB)
     logger.info(f"get icclub {filter}")
-    club: ICClubDB = await DbICClub.find_single(filter)  # pyright: ignore[reportAssignmentType]
+    club: ICClubDB = await DbICClub.find_single(filter)
     return club
 
 
@@ -85,7 +85,7 @@ async def update_icclub(
     options1 = options.copy() if options else {}
     options1["_model"] = options1.pop("_model", ICClubDB)
     iudict = iu.model_dump(exclude_unset=True)
-    club: ICClubDB = await DbICClub.update({"idclub": iu.idclub}, iudict, options1)  # pyright: ignore[reportAssignmentType]
+    club: ICClubDB = await DbICClub.update({"idclub": iu.idclub}, iudict, options1)
     return club
 
 
@@ -102,7 +102,7 @@ async def anon_getICteams(
     series = await DbICSeries.find_multiple({"teams.idclub": idclub})
     teams = []
     for s in series:
-        for t in s.teams:  # pyright: ignore[reportAttributeAccessIssue]
+        for t in s.teams:
             if t.idclub == idclub:
                 teams.append(t)
     return teams
@@ -118,8 +118,8 @@ async def anon_getICclub(
     filter = options.copy() if options else {}
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
-    club: ICClubDB = await DbICClub.find_single(filter)  # pyright: ignore[reportAssignmentType]
-    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]  # pyright: ignore[reportOptionalIterable]
+    club: ICClubDB = await DbICClub.find_single(filter)
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
     return club
 
 
@@ -134,8 +134,8 @@ async def anon_getICclub_archive(
     filter = options.copy() if options else {}
     filter["_model"] = ICClubDB
     filter["idclub"] = idclub
-    club: ICClubDB = await dbclub.find_single(filter)  # pyright: ignore[reportAssignmentType]
-    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]  # pyright: ignore[reportOptionalIterable]
+    club: ICClubDB = await dbclub.find_single(filter)
+    club.players = [p for p in club.players if p.nature in ONPLAYERLIST]
     return club
 
 
@@ -148,7 +148,7 @@ async def anon_getICclubs() -> list[ICClubItem]:
         "registered": True,
         "_fieldlist": {i: 1 for i in ICClubItem.model_fields},
     }
-    clubs: list[ICClubItem] = await DbICClub.find_multiple(options)  # pyright: ignore[reportAssignmentType]
+    clubs: list[ICClubItem] = await DbICClub.find_multiple(options)
     return clubs
 
 
@@ -157,7 +157,7 @@ async def mgmt_getICclubs() -> list[ICClubDB]:
     get IC club by idclub, returns None if nothing found
     """
     options = {"_model": ICClubDB}
-    clubs: list[ICClubDB] = await DbICClub.find_multiple(options)  # pyright: ignore[reportAssignmentType]
+    clubs: list[ICClubDB] = await DbICClub.find_multiple(options)
     return clubs
 
 
@@ -185,7 +185,7 @@ async def clb_getICclub(idclub: int) -> ICClubDB:
             idclub=idclub,
             players=[],
             registered=False,
-            teams=[],  # pyright: ignore[reportOptionalMemberAccess]
+            teams=[],
         )
         await create_icclub(icc)
         return await get_icclub({"idclub": idclub})
@@ -199,32 +199,32 @@ async def clb_getICclub(idclub: int) -> ICClubDB:
     # we don't have an icclub, or we didi not register the icclub
     teams = []
     ix = 1
-    for t in range(registration.teams1):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams1):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=1)
         )
         ix += 1
-    for t in range(registration.teams2):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams2):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=2)
         )
         ix += 1
-    for t in range(registration.teams3):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams3):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=3)
         )
         ix += 1
-    for t in range(registration.teams4):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams4):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=4)
         )
         ix += 1
-    for t in range(registration.teams5):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams5):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=5)
         )
         ix += 1
-    for t in range(registration.teams6):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams6):
         teams.append(
             ICTeam(idclub=idclub, name=f"{registration.name} {ix}", division=6)
         )
@@ -237,7 +237,7 @@ async def clb_getICclub(idclub: int) -> ICClubDB:
             {"idclub": idclub},
             {"registered": True, "teams": teams_enc},
             {"_model": ICClubDB},
-        )  # pyright: ignore[reportReturnType]
+        )
     else:
         # we create the icclub
         icc = ICClubDB(
@@ -332,10 +332,10 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     logger.info(f"trout {len(transfersout)} trdel {len(transferdeletes)}")
     for t in transfersout:
         receivingclub = await clb_getICclub(t.idclubvisit)
-        rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
-        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]  # pyright: ignore[reportOptionalIterable]
+        rcplayers = receivingclub.players
+        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]
         if not trplayers:
-            rcplayers.append(  # pyright: ignore[reportOptionalMemberAccess]
+            rcplayers.append(
                 ICPlayer(
                     assignedrating=t.assignedrating,
                     fiderating=t.fiderating,
@@ -350,18 +350,18 @@ async def clb_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     titular=None,
                 )
             )
-            dictplayers = [p.model_dump() for p in rcplayers]  # pyright: ignore[reportOptionalIterable]
+            dictplayers = [p.model_dump() for p in rcplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
     for t in transferdeletes:
         # we need to remove the transfer from the receiving club if it is existing
         try:
             receivingclub = await clb_getICclub(t.idclubvisit)
-            rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
+            rcplayers = receivingclub.players
             # only this club's loan of this player, nothing the receiving
             # club owns
-            trplayers = [  # pyright: ignore[reportOptionalIterable]
+            trplayers = [
                 x
-                for x in rcplayers  # pyright: ignore[reportOptionalIterable]
+                for x in rcplayers
                 if not (
                     x.idnumber == t.idnumber
                     and x.nature == PlayerlistNature.IMPORTED
@@ -383,7 +383,7 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     players = pi.players
     transfersout = []
     transferdeletes = []
-    oldplsix = {p.idnumber: p for p in icc.players}  # pyright: ignore[reportOptionalMemberAccess, reportOptionalIterable]
+    oldplsix = {p.idnumber: p for p in icc.players}
     newplsix = {p.idnumber: p for p in players}
     period = PlayerPeriod.SEPTEMBER
     for p in newplsix.values():
@@ -413,10 +413,10 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
     logger.info(f"trout {len(transfersout)} trdel {len(transferdeletes)}")
     for t in transfersout:
         receivingclub = await clb_getICclub(t.idclubvisit)
-        rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
-        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]  # pyright: ignore[reportOptionalIterable]
+        rcplayers = receivingclub.players  
+        trplayers = [x for x in rcplayers if x.idnumber == t.idnumber]  
         if not trplayers:
-            rcplayers.append(  # pyright: ignore[reportOptionalMemberAccess]
+            rcplayers.append(  
                 ICPlayer(
                     assignedrating=t.assignedrating,
                     fiderating=t.fiderating,
@@ -431,14 +431,14 @@ async def mgmt_updateICplayers(idclub: int, pi: ICPlayerUpdate) -> None:
                     titular=None,
                 )
             )
-            dictplayers = [p.model_dump() for p in rcplayers]  # pyright: ignore[reportOptionalIterable]
+            dictplayers = [p.model_dump() for p in rcplayers]  
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
     for t in transferdeletes:
         # we need to remove the transfer from the receiving club if it is existing
         try:
             receivingclub = await clb_getICclub(t.idclubvisit)
-            rcplayers = receivingclub.players  # pyright: ignore[reportOptionalMemberAccess]
-            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber]  # pyright: ignore[reportOptionalIterable]
+            rcplayers = receivingclub.players  
+            trplayers = [x for x in rcplayers if x.idnumber != t.idnumber] 
             dictplayers = [p.model_dump() for p in trplayers]
             await DbICClub.update({"idclub": t.idclubvisit}, {"players": dictplayers})
         except RdException as e:
@@ -501,7 +501,7 @@ async def clb_validateICPlayers(
     registration = await find_icregistration(idclub)
     assert registration
     ix = 1
-    for t in range(registration.teams1):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams1):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 1,
             "ntitulars": icdata["ntitulars"][1],
@@ -509,7 +509,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams2):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams2):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 2,
             "ntitulars": icdata["ntitulars"][2],
@@ -517,7 +517,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams3):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams3):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 3,
             "ntitulars": icdata["ntitulars"][3],
@@ -525,7 +525,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams4):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams4):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 4,
             "ntitulars": icdata["ntitulars"][4],
@@ -533,7 +533,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams5):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams5):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 5,
             "ntitulars": icdata["ntitulars"][5],
@@ -541,7 +541,7 @@ async def clb_validateICPlayers(
             "counter": 0,
         }
         ix += 1
-    for t in range(registration.teams6):  # pyright: ignore[reportArgumentType]
+    for t in range(registration.teams6):  
         titulars[f"{registration.name} {ix}"] = {
             "division": 6,
             "ntitulars": icdata["ntitulars"][6],
@@ -580,20 +580,20 @@ async def mgmt_get_xlsplayerlists():
     """
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(  # pyright: ignore[reportOptionalMemberAccess]
+    ws.append(  
         ["club", "idnumber", "name", "cluborig", "rating", "F ELO", "B ELO", "Titular"]
     )
     clubs = await DbICClub.find_multiple({"_model": ICClubDB})
     for c in clubs:
-        if not c.registered:  # pyright: ignore[reportAttributeAccessIssue]
+        if not c.registered:  
             continue
-        sortedplayers = sorted(c.players, key=lambda x: x.assignedrating, reverse=True)  # pyright: ignore[reportAttributeAccessIssue]
+        sortedplayers = sorted(c.players, key=lambda x: x.assignedrating, reverse=True) 
         for p in sortedplayers:
             if p.nature not in ["assigned", "imported"]:
                 continue
-            ws.append(  # pyright: ignore[reportOptionalMemberAccess]
+            ws.append(  
                 [
-                    c.idclub,  # pyright: ignore[reportAttributeAccessIssue]
+                    c.idclub, 
                     p.idnumber,
                     safe_cell(f"{p.last_name}, {p.first_name}"),
                     p.idcluborig,
@@ -616,15 +616,15 @@ async def anon_get_xlsplayerlist(idclub: int):
     """
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(  # pyright: ignore[reportOptionalMemberAccess]
+    ws.append(  
         ["club", "idnumber", "name", "cluborig", "rating", "F ELO", "B ELO", "Titular"]
     )
     club = await DbICClub.find_single({"_model": ICClubDB, "idclub": idclub})
-    sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)  # pyright: ignore[reportAttributeAccessIssue]
+    sortedplayers = sorted(club.players, key=lambda x: x.assignedrating, reverse=True)  
     for p in sortedplayers:
         if p.nature not in ["assigned", "imported"]:
             continue
-        ws.append(  # pyright: ignore[reportOptionalMemberAccess]
+        ws.append(  
             [
                 idclub,
                 p.idnumber,
