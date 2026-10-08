@@ -1,12 +1,10 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 from polyfactory.pytest_plugin import register_fixture
+
 from kbsb.interclubs import (
     ICClubDB,
     ICClubItem,
     ICEncounter,
-    ICRegistration,
-    ICRegistrationIn,
-    ICRegistrationOut,
     ICGame,
     ICGameDetails,
     ICPlanning,
@@ -14,6 +12,9 @@ from kbsb.interclubs import (
     ICPlayerUpdate,
     ICPlayerUpdateItem,
     ICPlayerValidationError,
+    ICRegistration,
+    ICRegistrationIn,
+    ICRegistrationOut,
     ICResult,
     ICResultItem,
     ICRound,

@@ -84,7 +84,7 @@ async def write_csv(games, round):
 
 async def main():
     round = 1
-    async with lifespan() as writer:
+    async with lifespan() as _:
         games = await games_round(round)
         await write_csv(games, round)
 

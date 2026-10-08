@@ -1,10 +1,10 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
-from unittest.mock import AsyncMock, patch, MagicMock
-
 from kbsb.club.club import (
-    verify_club_access,
     ClubRoleNature,
+    verify_club_access,
 )
 from kbsb.core import RdForbidden
 
@@ -56,7 +56,7 @@ async def test_verify_club_access_no(
     )
     get_club.return_value = club
     club.clubroles = [clubadmin]
-    with pytest.raises(RdForbidden) as e:
+    with pytest.raises(RdForbidden):
         await verify_club_access(301, 54321, "ClubAdmin,InterclubAdmin")
 
 

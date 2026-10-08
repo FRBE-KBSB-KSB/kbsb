@@ -158,15 +158,15 @@ TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
 
 if KBSB_MODE == "local":
-    from env_local import *
+    from env_local import *  # noqa: F403
 
 
 if KBSB_MODE == "prodtest":
-    from env_prodtest import *
+    from env_prodtest import *  # noqa: F403
 
 
 if KBSB_MODE == "testing":
-    from tests.settings import *
+    from tests.settings import *  # noqa: F403
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"

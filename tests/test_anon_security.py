@@ -7,17 +7,19 @@ from fastapi import FastAPI
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi.testclient import TestClient
 from jose import jwt
+from reddevil.core import RdNotAuthorized, get_setting
+
+from kbsb.club import Club, api_club, public_club
+from kbsb.core import RdForbidden, tokens
+from kbsb.interclubs import api_interclubs
+from kbsb.interclubs.md_interclubs import ICSeries
+from kbsb.member import api_member
+from kbsb.member.md_member import SALT
 
 _real_get_secret = reddevil.core.get_secret
 reddevil.core.get_secret = lambda name: {} if name == "odoo" else _real_get_secret(name)
 
 reddevil.core.register_app(FastAPI(), "kbsb.settings", "/api")
-
-from reddevil.core import RdNotAuthorized, get_setting
-
-from kbsb.club import Club, api_club, public_club
-from kbsb.core import tokens
-from kbsb.member.md_member import SALT
 
 SECRET = get_setting("JWT_SECRET")
 
@@ -58,9 +60,9 @@ class TestAdminToken:
     @pytest.mark.asyncio
     async def test_an_admin_token_with_its_account_salt_is_accepted(self):
         with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
-            assert await tokens.validate_token(bearer(token("a@frbe-kbsb-ksb.be", "acct"))) == (
-                "a@frbe-kbsb-ksb.be"
-            )
+            assert await tokens.validate_token(
+                bearer(token("a@frbe-kbsb-ksb.be", "acct"))
+            ) == ("a@frbe-kbsb-ksb.be")
 
     @pytest.mark.asyncio
     async def test_a_member_token_does_not_open_the_admin_api(self):
@@ -76,12 +78,17 @@ class TestAdminToken:
             patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")),
             pytest.raises(RdNotAuthorized),
         ):
-            await tokens.validate_token(bearer(token("a@frbe-kbsb-ksb.be", "acct", key="guessed")))
+            await tokens.validate_token(
+                bearer(token("a@frbe-kbsb-ksb.be", "acct", key="guessed"))
+            )
 
     @pytest.mark.asyncio
     async def test_a_superuser_token_is_accepted(self):
         with patch.object(tokens, "get_tokensalt", AsyncMock(return_value=None)):
-            assert await tokens.validate_token(bearer(token("SU__ruben", SALT))) == "SU__ruben"
+            assert (
+                await tokens.validate_token(bearer(token("SU__ruben", SALT)))
+                == "SU__ruben"
+            )
 
 
 def stored_club():
@@ -210,10 +217,6 @@ async def test_a_second_admin_login_keeps_the_first_token_valid():
 
 # -- who may see or change what, once logged in -------------------------------
 
-from kbsb.core import RdForbidden
-from kbsb.interclubs import api_interclubs
-from kbsb.interclubs.md_interclubs import ICSeries
-from kbsb.member import api_member
 
 full = FastAPI()
 full.include_router(api_club.router)
@@ -227,19 +230,43 @@ def as_member(idnumber):
 
 
 def test_the_full_club_record_is_only_for_that_clubs_admin():
-    with patch("kbsb.club.api_club.verify_club_access", AsyncMock(side_effect=RdForbidden)):
-        assert member_client.get("/api/v1/clubs/clb/club/195", headers=as_member(1)).status_code == 403
+    with patch(
+        "kbsb.club.api_club.verify_club_access", AsyncMock(side_effect=RdForbidden)
+    ):
+        assert (
+            member_client.get(
+                "/api/v1/clubs/clb/club/195", headers=as_member(1)
+            ).status_code
+            == 403
+        )
     with (
         patch("kbsb.club.api_club.verify_club_access", AsyncMock(return_value=True)),
         patch("kbsb.club.api_club.get_club", AsyncMock(return_value=stored_club())),
     ):
-        assert member_client.get("/api/v1/clubs/clb/club/195", headers=as_member(1)).status_code == 200
+        assert (
+            member_client.get(
+                "/api/v1/clubs/clb/club/195", headers=as_member(1)
+            ).status_code
+            == 200
+        )
 
 
 def test_a_member_sees_only_their_own_details():
-    with patch("kbsb.member.api_member.mgmt_getmember", AsyncMock(return_value={"idnumber": 1})):
-        assert member_client.get("/api/v1/member/clb/member/2", headers=as_member(1)).status_code == 403
-        assert member_client.get("/api/v1/member/clb/member/1", headers=as_member(1)).status_code == 200
+    with patch(
+        "kbsb.member.api_member.mgmt_getmember", AsyncMock(return_value={"idnumber": 1})
+    ):
+        assert (
+            member_client.get(
+                "/api/v1/member/clb/member/2", headers=as_member(1)
+            ).status_code
+            == 403
+        )
+        assert (
+            member_client.get(
+                "/api/v1/member/clb/member/1", headers=as_member(1)
+            ).status_code
+            == 200
+        )
 
 
 def test_the_mailinglist_refuses_a_made_up_admin_token():
@@ -255,7 +282,9 @@ def test_a_line_up_for_another_club_is_refused():
         patch("kbsb.club.verify_club_access", AsyncMock(side_effect=RdForbidden)),
         patch("kbsb.interclubs.api_interclubs.clb_saveICplanning", AsyncMock()) as save,
     ):
-        resp = member_client.put("/api/v1/interclubs/clb/icplanning", json=planning, headers=as_member(1))
+        resp = member_client.put(
+            "/api/v1/interclubs/clb/icplanning", json=planning, headers=as_member(1)
+        )
     assert resp.status_code == 403
     save.assert_not_called()
 
