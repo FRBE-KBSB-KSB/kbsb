@@ -1,6 +1,9 @@
 import hmac
 
+from fastapi.security import APIKeyHeader
 from reddevil.core import RdNotAuthorized, get_secret
+
+header_schema = APIKeyHeader(name="X-API-Key")
 
 
 def validate_header(apikey: str):
