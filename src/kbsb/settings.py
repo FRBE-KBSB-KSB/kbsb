@@ -9,7 +9,7 @@ API_BASE_URL = "/api"
 
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
-DEBUG = os.environ.get("DEBUG_KBSB", False)
+DEBUG = os.environ.get("DEBUG_KBSB", "")
 
 ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
 ELO_SERVER_CSV = "https://kbsb-api.zerotwo.cloud/api/v1/players_national/ratings.csv"
@@ -132,6 +132,10 @@ SECRETS = {
     },
     "turnstile": {
         "name": "turnstile-secret",
+        "manager": "googletext",
+    },
+    "mailrelay": {
+        "name": "mail-relay-key",
         "manager": "googletext",
     },
 }

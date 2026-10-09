@@ -28,6 +28,10 @@ SECRETS = {
         "name": "hetzner-api-master",
         "manager": "filetext",
     },
+    "mailrelay": {
+        "name": "mail-relay-key",
+        "manager": "filetext",
+    },    
 }
 
 TOKEN = {
