@@ -9,7 +9,7 @@ API_BASE_URL = "/api"
 
 BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
-DEBUG = os.environ.get("DEBUG_KBSB", False)
+DEBUG = os.environ.get("DEBUG_KBSB", "")
 
 ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
 ELO_SERVER_CSV = "https://kbsb-api.zerotwo.cloud/api/v1/players_national/ratings.csv"
@@ -134,6 +134,10 @@ SECRETS = {
         "name": "turnstile-secret",
         "manager": "googletext",
     },
+    "mailrelay": {
+        "name": "mail-relay-key",
+        "manager": "googletext",
+    },
 }
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
@@ -157,15 +161,15 @@ TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
 
 if KBSB_MODE == "local":
-    from env_local import *  # noqa: F403
+    from env_local import *
 
 
 if KBSB_MODE == "prodtest":
-    from env_prodtest import *  # noqa: F403
+    from env_prodtest import *
 
 
 if KBSB_MODE == "testing":
-    from tests.settings import *  # noqa: F403
+    from tests.settings import *
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"

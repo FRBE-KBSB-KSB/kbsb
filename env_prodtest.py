@@ -36,6 +36,10 @@ SECRETS = {
         "name": "hetzner-api-master",
         "manager": "googletext",
     },
+    "mailrelay": {
+        "name": "mail-relay-key",
+        "manager": "googletext",
+    },
 }
 
 
