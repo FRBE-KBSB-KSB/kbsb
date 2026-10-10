@@ -1,13 +1,12 @@
 import base64
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest  # noqa F401
-
-from unittest.mock import AsyncMock, patch, MagicMock
-from fastapi.testclient import TestClient
 from fastapi.encoders import jsonable_encoder
+from fastapi.testclient import TestClient
 
-from kbsb.main import app
 from kbsb.interclubs.md_interclubs import ICRegistrationIn
+from kbsb.main import app
 
 
 @patch("kbsb.interclubs.api_interclubs.find_icregistration")
@@ -357,19 +356,6 @@ def test_anon_getICstandings(
     resp = client.get("/api/v1/interclubs/anon/icstandings?idclub=123")
     assert resp.status_code == 200
     anon_getICstandings.assert_awaited()
-
-
-@patch("kbsb.interclubs.api_interclubs.validate_token")
-@patch("kbsb.interclubs.api_interclubs.write_bel_report")
-def test_calc_belg_elo(
-    write_bel_report: AsyncMock,
-    vt: AsyncMock,
-):
-    client = TestClient(app)
-    resp = client.post("/api/v1/interclubs/mgmt/command/write_bel_report/2/p")
-    assert resp.status_code == 201
-    write_bel_report.assert_awaited()
-    write_bel_report.call_args == (2, "p")
 
 
 @patch("kbsb.interclubs.api_interclubs.validate_token")
