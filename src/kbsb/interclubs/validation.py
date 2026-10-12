@@ -84,12 +84,12 @@ class LineUpValidation:
     ) -> ICValidationError:
         round = round or 0
         rnd = self._get_round(s, round)
-        enc = rnd.encounters[encix] if encix else empty_encounter
+        enc = rnd.encounters[encix] if encix is not None else empty_encounter
         nameteams = {t.pairingnumber: t.name for t in s.teams}
         playing_home = enc.icclub_home == idclub
-        playing_away = enc.icclub_visit == idclub
+        playing_visit = enc.icclub_visit == idclub
         pnr_offender = enc.pairingnr_home if playing_home else enc.pairingnr_visit
-        if playing_home and playing_away and pairingnr is not None:
+        if playing_home and playing_visit and pairingnr is not None:
             # encounter between two teams of the same club, now choose the the correct team, via the pairingnr
             pnr_offender = pairingnr
         pnr_opponent = enc.pairingnr_visit if playing_home else enc.pairingnr_home
@@ -544,7 +544,7 @@ class LineUpValidation:
                                 gameix=gix,
                             )
 
-    def check_elotoohigh(self, round: int, idclub: int) -> None:
+    def check_elo_limits(self, round: int, idclub: int) -> None:
         try:
             for sr in self.seriesdict.values():
                 maxelo = self.icdata["max_elo"][sr.division]
@@ -557,44 +557,99 @@ class LineUpValidation:
                     if idclub not in (enc.icclub_home, enc.icclub_visit):
                         continue
                     for gix, g in enumerate(enc.games):
-                        # if player is titular for the team skip
-                        if g.idnumber_home in self.titulars:
-                            tit = self.titulars[g.idnumber_home]
-                            if (
-                                tit["division"] == sr.division
-                                and tit["index"] == sr.index
-                            ):
-                                continue
-                        if g.idnumber_visit in self.titulars:
-                            tit = self.titulars[g.idnumber_visit]
-                            if (
-                                tit["division"] == sr.division
-                                and tit["index"] == sr.index
-                            ):
-                                continue
-                        # now check the elo
-                        fide_home = self.fideratings.get(g.idnumber_home, 0)
-                        if fide_home > maxelo:
-                            self.create_issue(
-                                reason="fide rating too high",
-                                s=sr,
-                                round=round,
-                                encix=encix,
-                                idclub=idclub,
-                                gameix=gix,
-                                pairingnr=enc.pairingnr_home,
-                            )
-                        fide_visit = self.fideratings.get(g.idnumber_visit, 0)
-                        if fide_visit > maxelo:
-                            self.create_issue(
-                                reason="fide rating too high",
-                                s=sr,
-                                round=round,
-                                encix=encix,
-                                idclub=idclub,
-                                gameix=gix,
-                                pairingnr=enc.pairingnr_visit,
-                            )
+                        if idclub == enc.icclub_home:
+                            # if division is 1 elo must be 1800 or higher, and 2000 or higher for boards 1-4
+                            if sr.division == 1:
+                                if self.playerratings.get(g.idnumber_home, 0) < 1800:
+                                    self.create_issue(
+                                        reason="elo too low for division 1",
+                                        s=sr,
+                                        round=round,
+                                        encix=encix,
+                                        idclub=idclub,
+                                        gameix=gix,
+                                        pairingnr=enc.pairingnr_home,
+                                    )
+                                if (
+                                    gix < 4
+                                    and self.playerratings.get(g.idnumber_home, 0)
+                                    < 2000
+                                ):
+                                    self.create_issue(
+                                        reason="elo too low for division 1 boards 1-4",
+                                        s=sr,
+                                        round=round,
+                                        encix=encix,
+                                        idclub=idclub,
+                                        gameix=gix,
+                                        pairingnr=enc.pairingnr_home,
+                                    )
+                            # if player is titular for the team skip the reserve check
+                            if g.idnumber_home in self.titulars:
+                                tit = self.titulars[g.idnumber_home]
+                                if (
+                                    tit["division"] == sr.division
+                                    and tit["index"] == sr.index
+                                ):
+                                    continue
+                            # now check the elo of the reserve players
+                            fide_home = self.fideratings.get(g.idnumber_home, 0)
+                            if fide_home > maxelo:
+                                self.create_issue(
+                                    reason="fide rating too high",
+                                    s=sr,
+                                    round=round,
+                                    encix=encix,
+                                    idclub=idclub,
+                                    gameix=gix,
+                                    pairingnr=enc.pairingnr_home,
+                                )
+                        if idclub == enc.icclub_visit:
+                            # if division is 1 elo must be 1800 or higher, and 2000 or higher for boards 1-4
+                            if sr.division == 1:
+                                if self.playerratings.get(g.idnumber_visit, 0) < 1800:
+                                    self.create_issue(
+                                        reason="elo too low for division 1",
+                                        s=sr,
+                                        round=round,
+                                        encix=encix,
+                                        idclub=idclub,
+                                        gameix=gix,
+                                        pairingnr=enc.pairingnr_visit,
+                                    )
+                                if (
+                                    gix < 4
+                                    and self.playerratings.get(g.idnumber_visit, 0)
+                                    < 2000
+                                ):
+                                    self.create_issue(
+                                        reason="elo too low for division 1 boards 1-4",
+                                        s=sr,
+                                        round=round,
+                                        encix=encix,
+                                        idclub=idclub,
+                                        gameix=gix,
+                                        pairingnr=enc.pairingnr_visit,
+                                    )
+                            if g.idnumber_visit in self.titulars:
+                                tit = self.titulars[g.idnumber_visit]
+                                if (
+                                    tit["division"] == sr.division
+                                    and tit["index"] == sr.index
+                                ):
+                                    continue
+
+                            fide_visit = self.fideratings.get(g.idnumber_visit, 0)
+                            if fide_visit > maxelo:
+                                self.create_issue(
+                                    reason="fide rating too high",
+                                    s=sr,
+                                    round=round,
+                                    encix=encix,
+                                    idclub=idclub,
+                                    gameix=gix,
+                                    pairingnr=enc.pairingnr_visit,
+                                )
         except Exception as e:
             logger.exception("Exception in check_elotoohigh")
             raise e
@@ -622,7 +677,7 @@ class LineUpValidation:
         self.check_average_elo(round, idclub)
         self.check_titular_ok(round, idclub)
         self.check_reserves_in_single_series(round, idclub)
-        self.check_elotoohigh(round, idclub)
+        self.check_elo_limits(round, idclub)
         return self.validationerrors
 
     async def validate_results(
@@ -645,5 +700,5 @@ class LineUpValidation:
         self.check_average_elo(round, idclub)
         self.check_titular_ok(round, idclub)
         # self.check_reserves_in_single_series(round, idclub)
-        self.check_elotoohigh(round, idclub)
+        self.check_elo_limits(round, idclub)
         return self.validationerrors

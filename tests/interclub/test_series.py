@@ -1,14 +1,15 @@
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-from freezegun import freeze_time
 from datetime import date
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from freezegun import freeze_time
 
 from kbsb.interclubs import GAMERESULT, ICSeriesDB
 from kbsb.interclubs.series import (
-    mgmt_saveICresults,
-    clb_saveICresults,
     calc_points,
+    clb_saveICresults,
     isRoundOpen,
+    mgmt_saveICresults,
 )
 
 

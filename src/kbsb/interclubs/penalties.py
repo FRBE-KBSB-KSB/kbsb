@@ -45,7 +45,7 @@ async def write_penalties_report(round: int):
     lineUpValidation = LineUpValidation()
     icclubs = await anon_getICclubs()
     for icclub in icclubs:
-        logger.info(f"write penalties for club {icclub.idclub} round {round}")
+        # logger.info(f"write penalties for club {icclub.idclub} round {round}")
         await lineUpValidation.validate_results(icclub.idclub, round)
     logger.info(f"validationerrors: {len(lineUpValidation.validationerrors)}")
     f = StringIO()
