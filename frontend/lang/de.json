@@ -674,5 +674,8 @@
 "trnreg.rule_categories_mixed": "Kategorien sind entweder alle Zahlen (Elo- oder Altersgrenzen) oder alle Namen; SWAR lehnt eine Mischung ab.",
 "trnreg.system_baku_hint": "SWAR 6.65 erkennt dieses System beim CSV-Import nicht; stellen Sie es in SWAR selbst ein.",
 "trnreg.round_dates_single_day": "Das Turnier beginnt und endet am selben Tag, also erhält jede Runde dieses Datum.",
+"trnreg.new_tournament_pin_notice": "Keine Berechtigung erteilt (altes System wird abgeschaltet). Bitte den Override-PIN eingeben.",
+"trnreg.new_tournament_pin_label": "Override-PIN",
+"trnreg.new_tournament_pin_unlock": "Entsperren",
 "ZZZ": "ZZZ"
 }

@@ -1028,6 +1028,14 @@ const tournamentFormMode = ref("create")
 const tournamentForm = ref({ ...EMPTY_TOURNAMENT })
 const tournamentSubmitting = ref(false)
 const tournamentFormError = ref("")
+// The override PIN in front of "new tournament". Asked in its own dialog before
+// the form opens; the one that was accepted is kept (in memory only) to go
+// along with the create call, which judges it again.
+const newTournamentPinDialog = ref(false)
+const newTournamentPin = ref("")
+const newTournamentPinError = ref("")
+const newTournamentPinChecking = ref(false)
+let verifiedNewTournamentPin = ""
 
 const cadenceOptions = computed(() => {
   const table = SWAR_CADENCES[tournamentForm.value.time_control]
@@ -1223,6 +1231,33 @@ function hideArbiterLookupResults(slot) {
 }
 
 function openNewTournament() {
+  newTournamentPin.value = ""
+  newTournamentPinError.value = ""
+  verifiedNewTournamentPin = ""
+  newTournamentPinDialog.value = true
+}
+
+async function unlockNewTournament() {
+  if (!newTournamentPin.value) return
+  newTournamentPinChecking.value = true
+  newTournamentPinError.value = ""
+  try {
+    await $backend("tournament_registrations", "admin_checkNewTournamentPin", {
+      token: token.value,
+      pin: newTournamentPin.value,
+    })
+    verifiedNewTournamentPin = newTournamentPin.value
+    newTournamentPin.value = ""
+    newTournamentPinDialog.value = false
+    openNewTournamentForm()
+  } catch (error) {
+    newTournamentPinError.value = error.message || t("trnreg.admin_save_tournament_failed")
+  } finally {
+    newTournamentPinChecking.value = false
+  }
+}
+
+function openNewTournamentForm() {
   tournamentFormMode.value = "create"
   tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [], tiebreaks: [], round_dates: [], event_codes: [] }
   obligatoryPresenceTime.value = ""
@@ -1265,6 +1300,7 @@ function openEditTournament(trn) {
 
 function closeTournamentForm() {
   tournamentFormDialog.value = false
+  verifiedNewTournamentPin = ""
 }
 
 // A new tournament with every setting of this one, and none of its
@@ -1439,7 +1475,12 @@ async function saveTournament() {
     delete payload.updated_at
     let reply
     if (tournamentFormMode.value === "create") {
-      reply = await $backend("tournament_registrations", "admin_createTournament", { token: token.value, ...payload })
+      reply = await $backend("tournament_registrations", "admin_createTournament", {
+        token: token.value,
+        ...payload,
+        pin: verifiedNewTournamentPin,
+      })
+      verifiedNewTournamentPin = ""
     } else {
       reply = await $backend("tournament_registrations", "admin_updateTournament", {
         id: tournamentForm.value.id,
@@ -2208,6 +2249,23 @@ onMounted(() => {
           <v-spacer />
           <v-btn variant="text" @click="closeEditRegistration">{{ t('trnreg.cancel_btn') }}</v-btn>
           <v-btn color="green-darken-2" :loading="editRegSubmitting" @click="saveEditRegistration">{{ t('trnreg.update_btn') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- ============ dialog: override PIN before a new tournament (admin) ============ -->
+    <v-dialog v-model="newTournamentPinDialog" max-width="440">
+      <v-card>
+        <v-card-title>{{ t('trnreg.admin_new_tournament') }}</v-card-title>
+        <v-card-text>
+          <v-alert type="warning" variant="tonal" class="mb-3">{{ t('trnreg.new_tournament_pin_notice') }}</v-alert>
+          <v-alert v-if="newTournamentPinError" type="error" class="mb-3">{{ newTournamentPinError }}</v-alert>
+          <v-text-field v-model="newTournamentPin" type="password" inputmode="numeric" autocomplete="off" autofocus :label="t('trnreg.new_tournament_pin_label')" variant="outlined" color="green-darken-2" density="compact" @keyup.enter="unlockNewTournament"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="newTournamentPinDialog = false">{{ t('trnreg.cancel_btn') }}</v-btn>
+          <v-btn color="green-darken-2" variant="flat" :loading="newTournamentPinChecking" :disabled="!newTournamentPin" @click="unlockNewTournament">{{ t('trnreg.new_tournament_pin_unlock') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
