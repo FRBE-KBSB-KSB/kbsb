@@ -142,7 +142,7 @@ def read_eloprocessing(path: str):
                 gender=fd.get("gender", "m"),
                 idbel=idbel,
                 idfide=idfide,
-                nationality=fd.get("fidefederation", "BEL"),
+                nationality=fd.get("fide_federation", "BEL"),
                 title=fd.get("title", ""),
             )
 
