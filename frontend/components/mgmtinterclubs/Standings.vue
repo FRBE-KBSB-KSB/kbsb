@@ -28,7 +28,7 @@ async function getStandings() {
   showLoading(true)
   try {
     reply = await $backend("interclub", "anon_getICstandings", {
-      idclub: icclub,
+      idclub: icclub.idclub,
     })
   } catch (error) {
     showSnackbar(error.message)
