@@ -12,6 +12,7 @@ from reddevil.filestore.filestore import (
     read_bucket_content,
     write_bucket_content,
 )
+from unidecode import unidecode
 
 from .helpers import load_icdata
 from .md_elo import EloGame, EloPlayer
@@ -137,11 +138,11 @@ def read_eloprocessing(path: str):
             eloall[idbel] = EloPlayer(
                 birthyear=fd.get("birth_year", "0"),
                 fiderating=fiderating,
-                fullname=f"{last_name}, {first_name}",
+                fullname=unidecode(f"{last_name}, {first_name}"),
                 gender=fd.get("gender", "m"),
                 idbel=idbel,
                 idfide=idfide,
-                nationality=fd.get("fidefederation", "BEL"),
+                nationality=fd.get("fide_federation", "BEL"),
                 title=fd.get("title", ""),
             )
 
