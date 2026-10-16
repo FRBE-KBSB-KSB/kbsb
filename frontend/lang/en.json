@@ -470,6 +470,8 @@
 "trnreg.list_empty": "No registrations yet.",
 "trnreg.list_count": "registrations",
 "trnreg.col_id": "Id",
+"trnreg.col_volgnr": "No.",
+"trnreg.col_stamnr": "KBSB ID",
 "trnreg.col_name": "Name",
 "trnreg.col_sex": "Sex",
 "trnreg.col_birth": "Birth date",

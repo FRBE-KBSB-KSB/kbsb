@@ -470,6 +470,8 @@
 "trnreg.list_empty": "Aucune inscription pour l'instant.",
 "trnreg.list_count": "inscriptions",
 "trnreg.col_id": "Numéro",
+"trnreg.col_volgnr": "N°",
+"trnreg.col_stamnr": "Matricule FRBE",
 "trnreg.col_name": "Nom",
 "trnreg.col_sex": "Sexe",
 "trnreg.col_birth": "Date de naissance",

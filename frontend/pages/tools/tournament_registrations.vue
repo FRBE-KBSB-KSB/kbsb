@@ -588,6 +588,11 @@ const filteredRegistrations = computed(() => {
   return registrations.value.filter((r) => matchesFilter(r, needle))
 })
 
+// "Last, First", as SWAR writes it; no comma when there is no first name.
+function displayName(r) {
+  return [r.last_name, r.first_name].filter(Boolean).join(", ")
+}
+
 const sortedRegistrations = computed(() => {
   const mult = listSortOrder.value === "asc" ? 1 : -1
   return [...filteredRegistrations.value].sort((a, b) => sortCompare(a, b, listSortKey.value, mult, tournament.value))
@@ -1944,18 +1949,21 @@ onMounted(() => {
             <v-table hover>
               <thead class="bg-green-lighten-5">
                 <tr>
+                  <th>{{ t('trnreg.col_volgnr') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ listSortKey === 'last_name' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth_year')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth_year' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }}</th>
                   <th>{{ t('trnreg.col_category') }}</th>
+                  <th>{{ t('trnreg.col_stamnr') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'rating' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="r in sortedRegistrations" :key="r.id">
-                  <td>{{ r.last_name }} {{ r.first_name }}</td>
+                <tr v-for="(r, i) in sortedRegistrations" :key="r.id">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ displayName(r) }}</td>
                   <td>{{ r.sex }}</td>
                   <!-- Birth YEAR only, never the full date -- this is the
                        public listing (no auth beyond x-api-key). See
@@ -1966,6 +1974,7 @@ onMounted(() => {
                   <td>{{ r.birth_year || "" }}</td>
                   <td>{{ r.national_club_name || r.national_club }}</td>
                   <td>{{ categoryLabel(tournament, r.category_index) }}</td>
+                  <td>{{ r.stamnummer || '' }}</td>
                   <td>{{ r.fide_id }}</td>
                   <td>{{ effectiveRating(r, tournament) || '' }}</td>
                 </tr>
@@ -2145,12 +2154,13 @@ onMounted(() => {
               <v-table hover>
                 <thead class="bg-green-lighten-5">
                   <tr>
-                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('id')">{{ t('trnreg.col_id') }} <v-icon size="small">{{ adminListSortKey === 'id' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('id')">{{ t('trnreg.col_volgnr') }} <v-icon size="small">{{ adminListSortKey === 'id' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ adminListSortKey === 'last_name' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th>{{ t('trnreg.col_sex') }}</th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('date_birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ adminListSortKey === 'date_birth' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th>{{ t('trnreg.col_club') }}</th>
                     <th>{{ t('trnreg.col_category') }}</th>
+                    <th>{{ t('trnreg.col_stamnr') }}</th>
                     <th>{{ t('trnreg.col_fide_id') }}</th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ adminListSortKey === 'rating' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th>{{ t('trnreg.col_email') }}</th>
@@ -2159,9 +2169,9 @@ onMounted(() => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="r in sortedAdminRegistrations" :key="r.id">
-                    <td>{{ r.id }}</td>
-                    <td>{{ r.last_name }} {{ r.first_name }}</td>
+                  <tr v-for="(r, i) in sortedAdminRegistrations" :key="r.id">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ displayName(r) }}</td>
                     <td>{{ r.sex }}</td>
                     <!-- The full date when the registrant gave one; otherwise the
                          birth year the API fills from the federation or FIDE record
@@ -2169,6 +2179,7 @@ onMounted(() => {
                     <td>{{ r.date_birth ? formatDateDisplay(r.date_birth) : (r.birth_year || '') }}</td>
                     <td>{{ r.national_club_name || r.national_club }}</td>
                     <td>{{ categoryLabel(selectedAdminTournament, r.category_index) }}</td>
+                    <td>{{ r.stamnummer || '' }}</td>
                     <td>{{ r.fide_id }}</td>
                     <td>{{ effectiveRating(r, selectedAdminTournament) || '' }}</td>
                     <td>{{ r.email }}</td>

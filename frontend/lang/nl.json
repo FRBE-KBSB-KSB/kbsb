@@ -470,6 +470,8 @@
 "trnreg.list_empty": "Nog geen inschrijvingen.",
 "trnreg.list_count": "inschrijvingen",
 "trnreg.col_id": "Nummer",
+"trnreg.col_volgnr": "Volgnr",
+"trnreg.col_stamnr": "KBSB-stamnr",
 "trnreg.col_name": "Naam",
 "trnreg.col_sex": "Geslacht",
 "trnreg.col_birth": "Geboortedatum",
