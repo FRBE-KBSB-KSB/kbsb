@@ -1,14 +1,8 @@
 # copyright Ruben Decrop 2012 - 2024
-import base64
-import binascii
 import logging
-import re
 from asyncio import sleep
-from datetime import UTC, datetime
-from io import BytesIO
 
 from reddevil.core import RdBadRequest, get_setting
-from reddevil.filestore.filestore import write_bucket_content
 from reddevil.mail import MailParams
 from reddevil.mail.mail import sendEmailMessage
 
@@ -41,32 +35,6 @@ def recipients(receiver: str) -> list[str]:
     return found
 
 
-def keep_attachments(mrv: MailRelayValidator) -> None:
-    """
-    a copy of every file the old site sends, under oldsite_relay/<date>/ in the
-    filestore bucket, whether or not the mail then goes out. The old site
-    deletes a SWAR report once it has handed it over, so a mail that failed
-    used to take the only copy of the report with it.
-    Never raises: keeping the copy must not stop the mail.
-    """
-    now = datetime.now(UTC)
-    for i, att in enumerate(mrv.attachments or []):
-        try:
-            raw = att.content_base64
-            if isinstance(raw, str):
-                raw = raw.encode()
-            try:
-                content = base64.b64decode(raw, validate=True)
-            except (binascii.Error, ValueError):
-                content = raw
-            name = re.sub(r"[^A-Za-z0-9._ -]", "_", (att.filename or "file").split("/")[-1].split("\\")[-1]) or "file"
-            path = f"oldsite_relay/{now:%Y-%m-%d}/{now:%H%M%S}_{i}_{name}"
-            write_bucket_content(path, BytesIO(content))
-            logger.info(f"mail relay kept {path}")
-        except Exception:
-            logger.exception("mail relay could not keep an attachment")
-
-
 def check_recipients(receiver: str) -> None:
     addresses = recipients(receiver or "")
     refused = [a for a in addresses if a not in ALLOWED_RECIPIENTS]
@@ -82,7 +50,6 @@ async def mail_relay(mrv: MailRelayValidator):
     :param mrv: Description
     :type mrv: MailRelayValidator
     """
-    keep_attachments(mrv)
     check_recipients(mrv.receiver)
     email_settings = get_setting("EMAIL")
     mp = MailParams(
