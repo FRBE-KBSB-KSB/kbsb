@@ -9,6 +9,10 @@ header_schema = APIKeyHeader(name="X-API-Key")
 def validate_header(apikey: str):
     "use reddevil get_secret to get the mail_relay_key and compare it apikey"
     key = get_secret("mailrelay")
+    # the "googletext" manager hands back the raw payload, as bytes
+    if isinstance(key, bytes):
+        key = key.decode()
+    key = (key or "").strip()
     # constant time, so the key cannot be guessed from response times
     if (
         not key
