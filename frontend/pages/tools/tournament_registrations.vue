@@ -1307,14 +1307,12 @@ function tournamentFormProblem() {
   if (f.opening_registrations && f.closing_registrations && f.closing_registrations < f.opening_registrations) {
     return t("trnreg.rule_closing_after_opening")
   }
-  // Registrations close no later than the tournament starts: not after its
-  // first day, and on that day not after the obligatory presence time.
-  if (f.closing_registrations && f.date_start) {
-    if (f.closing_registrations > f.date_start) return t("trnreg.rule_closing_before_start")
-    if (f.closing_registrations === f.date_start && obligatoryPresenceTime.value &&
-        (closingTime.value || DEFAULT_CLOSING_TIME) > obligatoryPresenceTime.value) {
-      return t("trnreg.rule_closing_before_presence")
-    }
+  // Registrations close no later than the tournament's last day. They may stay
+  // open while it runs, so a weekend tournament can take entries for its
+  // second day after the first.
+  const lastDay = f.date_end || f.date_start
+  if (f.closing_registrations && lastDay && f.closing_registrations > lastDay) {
+    return t("trnreg.rule_closing_before_end")
   }
   const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
   if (codes.some((c) => c && !/^\d{1,12}$/.test(c))) return t("trnreg.rule_event_code_number")
@@ -2242,7 +2240,7 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="obligatoryPresenceTime" type="time" :label="t('trnreg.field_obligatory_presence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.opening_registrations" type="date" :label="t('trnreg.field_opening_registrations')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :min="tournamentForm.opening_registrations || undefined" :max="tournamentForm.date_start || undefined" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact" @focus="prefillFrom('closing_registrations', 'opening_registrations')"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.closing_registrations" type="date" :min="tournamentForm.opening_registrations || undefined" :max="tournamentForm.date_end || tournamentForm.date_start || undefined" :label="t('trnreg.field_closing_registrations')" variant="outlined" color="green-darken-2" density="compact" @focus="prefillFrom('closing_registrations', 'opening_registrations')"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="closingTime" type="time" :label="t('trnreg.field_closing_time')" :hint="t('trnreg.closing_time_hint')" persistent-hint variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
 
             <v-col cols="12" sm="4">
