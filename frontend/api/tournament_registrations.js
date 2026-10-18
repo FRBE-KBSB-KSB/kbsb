@@ -74,20 +74,6 @@ export default {
     });
   },
 
-  // The override PIN in front of "new tournament": asked here before the form
-  // opens, and judged again on the create call itself (its `pin` field), which
-  // is where it counts.
-  admin_checkNewTournamentPin: async function (options) {
-    const { token, pin } = options;
-    return await axios.post(
-      `${prefix}/admin/tournaments/pin`,
-      { pin },
-      {
-        headers: { Authorization: "Bearer " + token },
-      },
-    );
-  },
-
   admin_updateTournament: async function (options) {
     const { id, token, ...tournament } = options;
     return await axios.put(`${prefix}/admin/tournaments/${id}`, tournament, {

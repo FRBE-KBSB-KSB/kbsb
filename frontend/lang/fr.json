@@ -676,8 +676,5 @@
 "trnreg.rule_categories_mixed": "Les catégories sont soit toutes des nombres (limites Elo ou d'âge), soit toutes des noms ; SWAR refuse un mélange.",
 "trnreg.system_baku_hint": "SWAR 6.65 ne reconnaît pas ce système lors d'un import CSV ; réglez-le dans SWAR même.",
 "trnreg.round_dates_single_day": "Le tournoi commence et finit le même jour, donc chaque ronde est datée de ce jour.",
-"trnreg.new_tournament_pin_notice": "Aucun accès accordé (ancien système en cours de désactivation). Saisissez le code PIN de remplacement.",
-"trnreg.new_tournament_pin_label": "Code PIN de remplacement",
-"trnreg.new_tournament_pin_unlock": "Déverrouiller",
 "ZZZ": "ZZZ"
 }
