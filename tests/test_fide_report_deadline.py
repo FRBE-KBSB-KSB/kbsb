@@ -20,6 +20,7 @@ import pytest
 
 from kbsb.fide.api_fide import (
     get_rating_list,
+    single_report_days,
     get_report_deadline,
     report_deadline_mail,
     report_groups,
@@ -366,19 +367,30 @@ def period_errors(start, end, lang="en"):
 @pytest.mark.parametrize(
     "start,end,refused",
     [
-        # 31 October and 1 November both report under December's list: one code.
+        # FIDE's only limit is 30 days (Rating Regulations 4.1). Over the
+        # month's end, or across two rating lists, is still one tournament.
+        ("2026-10-18", "2026-10-31", False),
+        ("2026-10-18", "2026-11-01", False),
         ("2026-10-31", "2026-11-01", False),
-        ("2026-10-30", "2026-11-27", False),
-        ("2026-09-29", "2026-09-30", False),
-        # The 20th is November's list, the 31st December's: two codes.
-        ("2026-10-20", "2026-10-31", True),
-        ("2026-10-31", "2026-11-29", True),
-        ("2026-09-27", "2026-09-29", True),
-        ("2026-09-20", "2026-10-05", True),
+        ("2026-07-25", "2026-08-03", False),
+        ("2026-09-27", "2026-09-29", False),
+        # Both ends counted: 30 days is one report, 31 is not.
+        ("2026-09-01", "2026-09-30", False),
+        ("2026-10-01", "2026-10-31", True),
+        ("2026-10-19", "2026-11-19", True),
+        # February is short: the 19th to the 19th is 29 days.
+        ("2027-02-19", "2027-03-19", False),
     ],
 )
-def test_one_report_needs_one_rating_list(start, end, refused):
+def test_one_report_lasts_at_most_30_days(start, end, refused):
     assert bool(period_errors(start, end)) is refused
+
+
+def test_single_report_days():
+    assert single_report_days("2026-10-18", "2026-11-01") == 15
+    assert single_report_days("2026-09-01", "2026-09-30") == 30
+    assert single_report_days("2026-09-01", "") is None
+    assert single_report_days("nonsense", "2026-09-30") is None
 
 
 def test_rating_list():

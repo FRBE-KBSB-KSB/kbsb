@@ -399,6 +399,10 @@ def get_rating_list(date_str):
     under one list: 31 October and 1 November are one tournament, 20 to 31
     October is two. get_fide_period's stricter windows still split long
     tournaments.
+
+    No longer decides whether "All rounds in 1 report" is allowed: FIDE rates
+    a tournament on the list its last day falls under, whatever list its first
+    day was in. See single_report_days.
     """
     if not date_str:
         return None
@@ -431,6 +435,28 @@ MONTH_NAMES = {
            "août", "septembre", "octobre", "novembre", "décembre"],
 }
 LIST_AND = {"en": "and", "nl": "en", "fr": "et"}
+
+
+
+# FIDE Rating Regulations 4.1: "For tournaments lasting more than 30 days,
+# interim results must be reported on a monthly basis." That is FIDE's only
+# limit on "All rounds in 1 report": a tournament over the month's end
+# (Wapichess, Charleroi from late July into August) is still one report.
+MAX_SINGLE_REPORT_DAYS = 30
+
+
+def single_report_days(start_date, end_date):
+    """
+    How many days a tournament lasts, both ends counted: the 1st to the 30th
+    is 30 days. None when a date is missing or not a date. Same as
+    singleReportDays in fide_registration.vue.
+    """
+    try:
+        start = date.fromisoformat(str(start_date))
+        end = date.fromisoformat(str(end_date))
+    except (ValueError, TypeError):
+        return None
+    return (end - start).days + 1
 
 
 def get_report_deadline(date_str):
@@ -630,11 +656,10 @@ def validate_form(form, lang):
             logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
             errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
         elif form.get("tournament_report") == "All rounds in 1 report":
-            p_start = get_rating_list(start_date)
-            p_end = get_rating_list(end_date)
-            if p_start and p_end and p_start != p_end:
-                logger.error(f"Dates {start_date} ({p_start}) and {end_date} ({p_end}) span multiple FIDE periods for 1 report")
-                errors.append(t_msg.get("all_rounds_one_report_period_error", "These dates fall under different FIDE rating lists (the last two days of a month count towards the next month), so this cannot be one tournament. Please select 'New long tournament'."))
+            days = single_report_days(start_date, end_date)
+            if days and days > MAX_SINGLE_REPORT_DAYS:
+                logger.error(f"Dates {start_date} to {end_date} last {days} days, too long for 1 report")
+                errors.append(t_msg.get("all_rounds_one_report_period_error", "This tournament lasts more than 30 days, and FIDE then wants the results reported every month, so it cannot be all rounds in 1 report. Please select 'New long tournament'."))
 
     for key in ("invoice_email", "contact_email"):
         value = form.get(key)

@@ -245,25 +245,26 @@ function getFidePeriod(dateString) {
   };
 }
 
-// The FIDE rating list a date reports under (YYYY-MM): next month, or the one
-// after for the last two days of a month. "All rounds in 1 report" is one
-// tournament with one FIDE code and only needs one list: 31 October and
-// 1 November are one tournament, 20 to 31 October is two. getFidePeriod's
-// stricter windows still split long tournaments. Same as get_rating_list in
-// api_fide.py.
-function getRatingList(dateString) {
-  const p = getFidePeriod(dateString);
-  if (!p) return null;
-  const months = p.year * 12 + (p.month - 1) + (p.late ? 2 : 1);
-  return `${Math.floor(months / 12)}-${String((months % 12) + 1).padStart(2, '0')}`;
+// How many days a tournament lasts, both ends counted: the 1st to the 30th is
+// 30 days. Same as single_report_days in api_fide.py.
+function singleReportDays(start, end) {
+  const a = Date.parse(`${start}T00:00:00Z`);
+  const b = Date.parse(`${end}T00:00:00Z`);
+  if (isNaN(a) || isNaN(b)) return null;
+  return Math.round((b - a) / 86400000) + 1;
 }
 
-const isSingleReportMultiplePeriods = computed(() => {
+// FIDE Rating Regulations 4.1: a tournament lasting more than 30 days reports
+// its results every month, so it cannot be "All rounds in 1 report". That is
+// FIDE's only limit: crossing a month's end, or two rating lists, is still
+// one tournament, rated on the list its last day falls under.
+const MAX_SINGLE_REPORT_DAYS = 30;
+
+const isSingleReportTooLong = computed(() => {
   if (form.value.tournament_report !== 'All rounds in 1 report') return false;
   if (!form.value.start_date || !form.value.end_date) return false;
-  const p1 = getRatingList(form.value.start_date);
-  const p2 = getRatingList(form.value.end_date);
-  return !!(p1 && p2 && p1 !== p2);
+  const days = singleReportDays(form.value.start_date, form.value.end_date);
+  return days !== null && days > MAX_SINGLE_REPORT_DAYS;
 });
 
 function getRoundDateError(index) {
@@ -1003,7 +1004,7 @@ async function submitForm() {
     }
   }
 
-  if (isSingleReportMultiplePeriods.value) {
+  if (isSingleReportTooLong.value) {
     errorText.value = tMsg('all_rounds_one_report_period_error');
     if (process.client) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1339,7 +1340,7 @@ definePageMeta({
         <div v-if="form.start_date && form.end_date && form.end_date < form.start_date" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('end_date_order_error') }}
         </div>
-        <div v-if="isSingleReportMultiplePeriods" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
+        <div v-if="isSingleReportTooLong" style="color: var(--error); font-size: 0.85rem; margin-top: 0.25rem; font-weight: 500;">
           ⚠ {{ tMsg('all_rounds_one_report_period_error') }}
         </div>
         <div v-if="tournamentReportLines" class="report-deadline">
