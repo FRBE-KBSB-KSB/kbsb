@@ -391,6 +391,26 @@ def get_fide_period(date_str):
         return None
 
 
+def get_rating_list(date_str):
+    """
+    The FIDE rating list a date reports under, as YYYY-MM: next month, or the
+    month after that for the last two days of a month. "All rounds in 1
+    report" is one tournament with one FIDE code, which only needs its dates
+    under one list: 31 October and 1 November are one tournament, 20 to 31
+    October is two. get_fide_period's stricter windows still split long
+    tournaments.
+    """
+    if not date_str:
+        return None
+    try:
+        year, month, day = [int(p) for p in str(date_str).split("-")]
+        _, last_day = calendar.monthrange(year, month)
+        months = year * 12 + (month - 1) + (2 if day >= last_day - 1 else 1)
+        return f"{months // 12}-{months % 12 + 1:02d}"
+    except (ValueError, TypeError):
+        return None
+
+
 # KBSB rule: the report reaches the KBSB within 4 days after its end date (for
 # a New long tournament, the end of the report's last round: its end date,
 # else its date). Day x-1 at 12:00, x the last day of the month, is the last
@@ -610,11 +630,11 @@ def validate_form(form, lang):
             logger.error(f"End date {end_date} cannot be earlier than start date {start_date}")
             errors.append(t_msg.get("end_date_order_error", "End Date cannot be earlier than Start Date."))
         elif form.get("tournament_report") == "All rounds in 1 report":
-            p_start = get_fide_period(start_date)
-            p_end = get_fide_period(end_date)
+            p_start = get_rating_list(start_date)
+            p_end = get_rating_list(end_date)
             if p_start and p_end and p_start != p_end:
                 logger.error(f"Dates {start_date} ({p_start}) and {end_date} ({p_end}) span multiple FIDE periods for 1 report")
-                errors.append(t_msg.get("all_rounds_one_report_period_error", "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'."))
+                errors.append(t_msg.get("all_rounds_one_report_period_error", "These dates fall under different FIDE rating lists (the last two days of a month count towards the next month), so this cannot be one tournament. Please select 'New long tournament'."))
 
     for key in ("invoice_email", "contact_email"):
         value = form.get(key)
@@ -735,22 +755,33 @@ def validate_form(form, lang):
             errors.append(
                 f"{t_fields.get('timectl_other_desc', 'Time Control Description if not listed')} {dep_msg}"
             )
+        # The form asks one sentence: X min/end + S sec, which is FRS's final
+        # session, or with a first period X min / first Y moves + X min/end +
+        # S sec, which adds its first control. Moves and minutes of that
+        # first control go together.
         tc_fields_required = [
             (
-                "timectl1_moves",
-                t_fields.get("timectl1_moves", "Moves to first time control"),
+                "timectl_final_minutes",
+                t_fields.get("timectl_final_minutes", "Minutes for final session"),
             ),
             (
-                "timectl1_minutes",
-                t_fields.get("timectl1_minutes", "Minutes to first time control"),
-            ),
-            (
-                "timectl1_inc_seconds",
+                "timectl_final_inc_seconds",
                 t_fields.get(
-                    "timectl1_inc_seconds", "Seconds of Increment/Delay (1st control)"
+                    "timectl_final_inc_seconds", "Seconds of Increment/Delay (final)"
                 ),
             ),
         ]
+        if form.get("timectl1_moves") or form.get("timectl1_minutes"):
+            tc_fields_required += [
+                (
+                    "timectl1_moves",
+                    t_fields.get("timectl1_moves", "Moves to first time control"),
+                ),
+                (
+                    "timectl1_minutes",
+                    t_fields.get("timectl1_minutes", "Minutes to first time control"),
+                ),
+            ]
         for key, label in tc_fields_required:
             if not form.get(key):
                 dep_msg = (
@@ -796,7 +827,7 @@ def validate_form(form, lang):
         for key, label in tc_fields_optional:
             if form.get(key):
                 parse_int(form.get(key), label, errors, lang, min_value=0)
-        if not form.get("timectl1_inc_type"):
+        if not form.get("timectl_final_inc_type"):
             dep_msg = (
                 t_msg["value_required_for"]
                 .replace(
@@ -805,7 +836,7 @@ def validate_form(form, lang):
                 )
                 .replace("{value}", "Other")
             )
-            errors.append(f"{t_fields.get('timectl1_inc_type', 'timectl1_inc_type')} {dep_msg}")
+            errors.append(f"{t_fields.get('timectl_final_inc_type', 'timectl_final_inc_type')} {dep_msg}")
 
     if form.get("tournament_report") == "New long tournament":
         n = rounds_reported if rounds_reported is not None else 0
@@ -903,7 +934,8 @@ def calculate_standard_total_minutes(form: dict) -> float:
         except ValueError:
             m3 = 0
         try:
-            inc = int(form.get("timectl1_inc_seconds") or 0)
+            # The increment runs the whole game; the final session always has it.
+            inc = int(form.get("timectl_final_inc_seconds") or form.get("timectl1_inc_seconds") or 0)
         except ValueError:
             inc = 0
         return float(m1 + m2 + m3 + inc)

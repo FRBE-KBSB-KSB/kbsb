@@ -25,7 +25,12 @@
       "report_per_round_hint": "Tick this if your pairing program writes one report per round and the reports cannot be merged. The reports are then numbered 1, 2, 3, ... instead of grouped by FIDE rating period.",
       "round_end_date_hint": "Leave empty for a round played on one day. Fill it in only when the round runs until a later date.",
       "communication_language_hint": "This language is used for official communications and confirmation emails.",
-      "report_deadline_ack": "I understand that the KBSB must receive {reports}."
+      "report_deadline_ack": "I understand that the KBSB must receive {reports}.",
+      "tc_min_first": "min / first",
+      "tc_moves": "moves",
+      "tc_min_end": "min / end",
+      "tc_sec": "sec",
+      "tc_second_period": "Add a first period with a number of moves (e.g. 90 min / first 40 moves + 30 min / end)"
     },
     "categories": {
       "tournament_info": "Tournament Info",
@@ -149,7 +154,7 @@
       "round_end_date_overlap_error": "Round {num} ends on {end}, after Round {next} starts ({next_start}). Each round has to end before the next one starts.",
       "round_end_date_invalid": "The end date of Round {num} is not a valid date (YYYY-MM-DD).",
       "end_date_order_error": "End Date cannot be earlier than Start Date.",
-      "all_rounds_one_report_period_error": "Dates span multiple FIDE rating periods. For tournaments across multiple months or end-of-month dates, please select 'New long tournament'.",
+      "all_rounds_one_report_period_error": "These dates fall under different FIDE rating lists (the last two days of a month count towards the next month), so this cannot be one tournament. Please select 'New long tournament'.",
       "conf_subject": "FIDE Registration Confirmation: {event_name}",
       "conf_body": "<p>Dear Organizer / Arbiter,</p><p>Thank you for submitting the FIDE registration form for the tournament: <strong>{event_name}</strong>.</p><p>Your request has been received and sent to the FIDE rating officer.</p>{report_deadlines}<p>Best regards,</p><p>Jorian Burssens</p>",
       "send_failed": "The registration email could not be sent, so your registration has not reached us. Please try again, or contact fide@frbe-kbsb-ksb.be.",
@@ -206,7 +211,12 @@
       "report_per_round_hint": "Vink dit aan als uw paringsprogramma één rapport per ronde schrijft en de rapporten niet samengevoegd kunnen worden. De rapporten worden dan genummerd 1, 2, 3, ... in plaats van gegroepeerd per FIDE-ratingperiode.",
       "round_end_date_hint": "Laat leeg voor een ronde die op één dag wordt gespeeld. Vul dit alleen in als de ronde tot een latere datum loopt.",
       "communication_language_hint": "Deze taal wordt gebruikt voor officiële communicatie en bevestigingsmails.",
-      "report_deadline_ack": "Ik begrijp dat de KBSB {reports} moet ontvangen."
+      "report_deadline_ack": "Ik begrijp dat de KBSB {reports} moet ontvangen.",
+      "tc_min_first": "min / eerste",
+      "tc_moves": "zetten",
+      "tc_min_end": "min / einde",
+      "tc_sec": "sec",
+      "tc_second_period": "Een eerste periode met een aantal zetten toevoegen (bv. 90 min / eerste 40 zetten + 30 min / einde)"
     },
     "categories": {
       "tournament_info": "Toernooi-informatie",
@@ -330,7 +340,7 @@
       "round_end_date_overlap_error": "Ronde {num} eindigt op {end}, na de start van ronde {next} ({next_start}). Elke ronde moet eindigen voor de volgende begint.",
       "round_end_date_invalid": "De einddatum van ronde {num} is geen geldige datum (JJJJ-MM-DD).",
       "end_date_order_error": "Einddatum mag niet vóór de startdatum liggen.",
-      "all_rounds_one_report_period_error": "De datums overspannen meerdere FIDE-ratingperiodes. Voor toernooien over meerdere maanden of maandeinden dient u 'Nieuw lang toernooi' te selecteren.",
+      "all_rounds_one_report_period_error": "Deze datums vallen onder verschillende FIDE-ratinglijsten (de laatste twee dagen van een maand tellen mee voor de volgende maand), dus dit kan geen enkel toernooi zijn. Kies 'Nieuw lang toernooi'.",
       "conf_subject": "FIDE-registratiebevestiging: {event_name}",
       "conf_body": "<p>Beste organisator / scheidsrechter,</p><p>Bedankt voor het indienen van het FIDE-registratieformulier voor het toernooi: <strong>{event_name}</strong>.</p><p>Uw aanvraag is ontvangen en verzonden naar de FIDE rating officer.</p>{report_deadlines}<p>Met vriendelijke groet,</p><p>Jorian Burssens</p>",
       "send_failed": "De registratiemail kon niet worden verzonden, dus uw registratie is niet bij ons aangekomen. Probeer het opnieuw, of neem contact op via fide@frbe-kbsb-ksb.be.",
@@ -387,7 +397,12 @@
       "report_per_round_hint": "Cochez ceci si votre logiciel d'appariement écrit un rapport par ronde et que les rapports ne peuvent pas être fusionnés. Les rapports sont alors numérotés 1, 2, 3, ... au lieu d'être groupés par période de classement FIDE.",
       "round_end_date_hint": "Laissez vide pour une ronde jouée en un seul jour. Ne le remplissez que si la ronde se poursuit jusqu'à une date ultérieure.",
       "communication_language_hint": "Cette langue est utilisée pour les communications officielles et les e-mails de confirmation.",
-      "report_deadline_ack": "Je comprends que la FRBE doit recevoir {reports}."
+      "report_deadline_ack": "Je comprends que la FRBE doit recevoir {reports}.",
+      "tc_min_first": "min / premiers",
+      "tc_moves": "coups",
+      "tc_min_end": "min / fin",
+      "tc_sec": "s",
+      "tc_second_period": "Ajouter une première période avec un nombre de coups (p. ex. 90 min / premiers 40 coups + 30 min / fin)"
     },
     "categories": {
       "tournament_info": "Informations sur le tournoi",
@@ -511,7 +526,7 @@
       "round_end_date_overlap_error": "La ronde {num} se termine le {end}, après le début de la ronde {next} ({next_start}). Chaque ronde doit se terminer avant que la suivante ne commence.",
       "round_end_date_invalid": "La date de fin de la ronde {num} n'est pas une date valide (AAAA-MM-JJ).",
       "end_date_order_error": "La date de fin ne peut pas être antérieure à la date de début.",
-      "all_rounds_one_report_period_error": "Les dates s'étendent sur plusieurs périodes de classement FIDE. Pour les tournois sur plusieurs mois ou fins de mois, veuillez sélectionner 'Nouveau tournoi long'.",
+      "all_rounds_one_report_period_error": "Ces dates relèvent de listes de classement FIDE différentes (les deux derniers jours d'un mois comptent pour le mois suivant), ce ne peut donc pas être un seul tournoi. Veuillez sélectionner 'Nouveau tournoi long'.",
       "conf_subject": "Confirmation d'inscription FIDE : {event_name}",
       "conf_body": "<p>Cher organisateur / arbitre,</p><p>Merci d'avoir soumis le formulaire d'inscription FIDE pour le tournoi : <strong>{event_name}</strong>.</p><p>Votre demande a été reçue et envoyée au responsable des classements FIDE.</p>{report_deadlines}<p>Cordialement,</p><p>Jorian Burssens</p>",
       "send_failed": "L'e-mail d'inscription n'a pas pu être envoyé : votre inscription ne nous est donc pas parvenue. Veuillez réessayer, ou contacter fide@frbe-kbsb-ksb.be.",

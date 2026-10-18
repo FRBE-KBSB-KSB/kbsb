@@ -19,6 +19,7 @@ from pathlib import Path
 import pytest
 
 from kbsb.fide.api_fide import (
+    get_rating_list,
     get_report_deadline,
     report_deadline_mail,
     report_groups,
@@ -354,6 +355,39 @@ NEW_KEYS = {
         "mail_report_deadline_report",
     ],
 }
+
+
+def period_errors(start, end, lang="en"):
+    form = {"tournament_report": "All rounds in 1 report", "start_date": start, "end_date": end}
+    text = TRANSLATIONS[lang]["messages"]["all_rounds_one_report_period_error"]
+    return [e for e in validate_form(form, lang) if e == text]
+
+
+@pytest.mark.parametrize(
+    "start,end,refused",
+    [
+        # 31 October and 1 November both report under December's list: one code.
+        ("2026-10-31", "2026-11-01", False),
+        ("2026-10-30", "2026-11-27", False),
+        ("2026-09-29", "2026-09-30", False),
+        # The 20th is November's list, the 31st December's: two codes.
+        ("2026-10-20", "2026-10-31", True),
+        ("2026-10-31", "2026-11-29", True),
+        ("2026-09-27", "2026-09-29", True),
+        ("2026-09-20", "2026-10-05", True),
+    ],
+)
+def test_one_report_needs_one_rating_list(start, end, refused):
+    assert bool(period_errors(start, end)) is refused
+
+
+def test_rating_list():
+    assert get_rating_list("2026-10-20") == "2026-11"
+    assert get_rating_list("2026-10-30") == "2026-12"
+    assert get_rating_list("2026-11-01") == "2026-12"
+    assert get_rating_list("2026-12-31") == "2027-02"
+    assert get_rating_list("") is None
+    assert get_rating_list("nonsense") is None
 
 
 def test_translations_json_and_csv_agree():

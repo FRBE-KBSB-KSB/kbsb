@@ -152,7 +152,8 @@ const totalMinutes = computed(() => {
     const m1 = parseInt(form.value.timectl1_minutes, 10) || 0;
     const m2 = parseInt(form.value.timectl2_minutes, 10) || 0;
     const m3 = parseInt(form.value.timectl_final_minutes, 10) || 0;
-    const inc = parseInt(form.value.timectl1_inc_seconds, 10) || 0;
+    // The increment runs the whole game; the final session always has it.
+    const inc = parseInt(form.value.timectl_final_inc_seconds || form.value.timectl1_inc_seconds, 10) || 0;
     return m1 + m2 + m3 + inc;
   }
   
@@ -244,12 +245,25 @@ function getFidePeriod(dateString) {
   };
 }
 
+// The FIDE rating list a date reports under (YYYY-MM): next month, or the one
+// after for the last two days of a month. "All rounds in 1 report" is one
+// tournament with one FIDE code and only needs one list: 31 October and
+// 1 November are one tournament, 20 to 31 October is two. getFidePeriod's
+// stricter windows still split long tournaments. Same as get_rating_list in
+// api_fide.py.
+function getRatingList(dateString) {
+  const p = getFidePeriod(dateString);
+  if (!p) return null;
+  const months = p.year * 12 + (p.month - 1) + (p.late ? 2 : 1);
+  return `${Math.floor(months / 12)}-${String((months % 12) + 1).padStart(2, '0')}`;
+}
+
 const isSingleReportMultiplePeriods = computed(() => {
   if (form.value.tournament_report !== 'All rounds in 1 report') return false;
   if (!form.value.start_date || !form.value.end_date) return false;
-  const p1 = getFidePeriod(form.value.start_date);
-  const p2 = getFidePeriod(form.value.end_date);
-  return !!(p1 && p2 && p1.key !== p2.key);
+  const p1 = getRatingList(form.value.start_date);
+  const p2 = getRatingList(form.value.end_date);
+  return !!(p1 && p2 && p1 !== p2);
 });
 
 function getRoundDateError(index) {
@@ -542,6 +556,61 @@ function recalculateReportNumbers() {
     form.value.end_date = "";
   }
 }
+
+// Whether the custom time control has a first period with a number of moves
+// before the rest of the game. Not a form field of its own: it follows from
+// the first control's moves and minutes, so a form loaded back shows the
+// right shape.
+const tcSecondPeriod = ref(false);
+
+watch(
+  () => [form.value.timectl1_moves, form.value.timectl1_minutes],
+  ([moves, minutes]) => {
+    if (moves || minutes) tcSecondPeriod.value = true;
+  },
+  { immediate: true }
+);
+
+watch(tcSecondPeriod, (on) => {
+  if (on) return;
+  form.value.timectl1_moves = "";
+  form.value.timectl1_minutes = "";
+});
+
+// FIDE's own description style, e.g. "90min/40moves+30min/end+30sec/move
+// from move 1". The increment is asked once and runs the whole game, so with
+// a first period it goes on the first control as well as the final session.
+watch(
+  () => [
+    form.value.time_control_desc, tcSecondPeriod.value, form.value.timectl1_minutes,
+    form.value.timectl1_moves, form.value.timectl_final_minutes,
+    form.value.timectl_final_inc_seconds, form.value.timectl_final_inc_type
+  ],
+  () => {
+    const f = form.value;
+    if (f.time_control_desc !== 'Other') return;
+    f.timectl2_moves = "";
+    f.timectl2_minutes = "";
+    f.timectl2_inc_type = "";
+    f.timectl2_inc_seconds = "";
+    f.timectl1_inc_type = tcSecondPeriod.value ? f.timectl_final_inc_type : "";
+    f.timectl1_inc_seconds = tcSecondPeriod.value ? f.timectl_final_inc_seconds : "";
+    if (!f.timectl_final_minutes || (tcSecondPeriod.value && (!f.timectl1_moves || !f.timectl1_minutes))) {
+      f.timectl_other_desc = "";
+      return;
+    }
+    let desc = tcSecondPeriod.value
+      ? `${f.timectl1_minutes}min/${f.timectl1_moves}moves+${f.timectl_final_minutes}min/end`
+      : `${f.timectl_final_minutes}min/end`;
+    const sec = parseInt(f.timectl_final_inc_seconds, 10) || 0;
+    if (sec > 0) {
+      desc += f.timectl_final_inc_type === 'Delay'
+        ? `+${sec}sec DELAY /move from move 1`
+        : `+${sec}sec/move from move 1`;
+    }
+    f.timectl_other_desc = desc;
+  }
+);
 
 watch(() => form.value.time_control_code, () => {
   form.value.time_control_desc = "";
@@ -1519,36 +1588,38 @@ definePageMeta({
         </select>
       </label>
       
-      <div v-if="form.time_control_desc === 'Other'">
-        <label><span class="required-label">{{ tField('timectl_other_desc') }}</span><textarea v-model="form.timectl_other_desc" required></textarea></label>
-        <label><span class="required-label">{{ tField('timectl1_moves') }}</span><input type="text" v-digits v-model="form.timectl1_moves" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl1_minutes') }}</span><input type="text" v-digits v-model="form.timectl1_minutes" min="0" required></label>
-        <label><span class="required-label">{{ tField('timectl1_inc_type') }}</span>
-          <select v-model="form.timectl1_inc_type" required>
+      <!--
+        One sentence instead of twelve boxes: X min/end + S sec increment or
+        delay, or with the tick X min / first Y moves + X min/end + S sec.
+        "X min/end" is FRS's final session; the first period, when ticked, is
+        its first control, and the increment goes on both since it runs the
+        whole game. Same fields as before, so the workbook and the
+        dataplatform read it unchanged; the description is written in FIDE's
+        own style.
+      -->
+      <div v-if="form.time_control_desc === 'Other'" class="tc-custom">
+        <span class="required-label">{{ tField('timectl_other_desc') }}</span>
+        <div class="tc-sentence">
+          <template v-if="tcSecondPeriod">
+            <input type="text" v-digits v-model="form.timectl1_minutes" maxlength="3" required :aria-label="tField('timectl1_minutes')">
+            <span>{{ tUI('tc_min_first') }}</span>
+            <input type="text" v-digits v-model="form.timectl1_moves" maxlength="3" required :aria-label="tField('timectl1_moves')">
+            <span>{{ tUI('tc_moves') }} +</span>
+          </template>
+          <input type="text" v-digits v-model="form.timectl_final_minutes" maxlength="3" required :aria-label="tField('timectl_final_minutes')">
+          <span>{{ tUI('tc_min_end') }} +</span>
+          <input type="text" v-digits v-model="form.timectl_final_inc_seconds" maxlength="3" required :aria-label="tField('timectl_final_inc_seconds')">
+          <span>{{ tUI('tc_sec') }}</span>
+          <select v-model="form.timectl_final_inc_type" required :aria-label="tField('timectl_final_inc_type')">
             <option value="">{{ tUI('select_placeholder') }}</option>
             <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
           </select>
+        </div>
+        <label class="tc-second">
+          <input type="checkbox" v-model="tcSecondPeriod">
+          <span>{{ tUI('tc_second_period') }}</span>
         </label>
-        <label><span class="required-label">{{ tField('timectl1_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl1_inc_seconds" min="0" required></label>
-        
-        <label><span>{{ tField('timectl2_moves') }}</span><input type="text" v-digits v-model="form.timectl2_moves" min="0"></label>
-        <label><span>{{ tField('timectl2_minutes') }}</span><input type="text" v-digits v-model="form.timectl2_minutes" min="0"></label>
-        <label><span>{{ tField('timectl2_inc_type') }}</span>
-          <select v-model="form.timectl2_inc_type">
-            <option value="">{{ tUI('select_placeholder') }}</option>
-            <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
-          </select>
-        </label>
-        <label><span>{{ tField('timectl2_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl2_inc_seconds" min="0"></label>
-        
-        <label><span>{{ tField('timectl_final_minutes') }}</span><input type="text" v-digits v-model="form.timectl_final_minutes" min="0"></label>
-        <label><span>{{ tField('timectl_final_inc_type') }}</span>
-          <select v-model="form.timectl_final_inc_type">
-            <option value="">{{ tUI('select_placeholder') }}</option>
-            <option v-for="opt in lookups.inc_delay_options" :key="opt" :value="opt">{{ tOptInc(opt) }}</option>
-          </select>
-        </label>
-        <label><span>{{ tField('timectl_final_inc_seconds') }}</span><input type="text" v-digits v-model="form.timectl_final_inc_seconds" min="0"></label>
+        <div v-if="form.timectl_other_desc" class="tc-preview">{{ form.timectl_other_desc }}</div>
       </div>
 
       <div class="group-title">{{ tCat('other_parameters') }}</div>
@@ -1748,6 +1819,15 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--focus-ring, #a5d6a7); outline-offset: 1px; }
 .input-error { border-color: var(--error, #b91c1c) !important; }
 textarea { min-height: 4rem; }
+.tc-custom > .required-label { display: block; margin-bottom: 0.25rem; font-weight: 700; font-size: 0.95rem; }
+.tc-sentence { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.tc-sentence input { width: 4.5rem; text-align: right; }
+.tc-sentence select { width: auto; }
+.tc-sentence span { white-space: nowrap; }
+.tc-second { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; }
+.tc-second input { width: auto; }
+.tc-second span { margin: 0; }
+.tc-preview { margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted, #4b5563); font-family: ui-monospace, monospace; }
 .group-title { margin-top: 1.5rem; font-weight: 700; font-size: 0.98rem; color: var(--muted, #4b5563); }
 .turnstile-box {
   margin-top: 1rem;
