@@ -16,6 +16,11 @@ const snackbar = ref(null)
 const errortext = ref("")
 const url = route.query.url
 
+const dialog2fa = ref(false)
+const totpCode = ref("")
+const dialogError = ref("")
+const loading = ref(false)
+
 function gotoOdoo(i) {
   if (i === 1) {
     let odooUrl = "https://frbe-kbsb.odoo.com/web/reset_password"
@@ -26,20 +31,64 @@ function gotoOdoo(i) {
   window.open(odooUrl, "_blank")
 }
 
-async function dologin() {
+function open2faDialog() {
+  dialogError.value = ""
+  dialog2fa.value = true
+}
+
+function close2faDialog() {
+  dialog2fa.value = false
+  totpCode.value = ""
+  dialogError.value = ""
+}
+
+async function submit2fa() {
+  await dologin(true)
+}
+
+async function dologin(withTotp = false) {
   const returnUrl = url ? url.replaceAll("__", "/") : "/"
+  loading.value = true
+  dialogError.value = ""
   let reply
   try {
-    reply = await $backend("accounts", "odoologin", {
+    const payload = {
       email: login.value.email,
       password: login.value.password,
-    })
+    }
+    const cleanTotp = totpCode.value ? totpCode.value.replace(/\s+/g, "") : ""
+    if (cleanTotp) {
+      payload.totp = cleanTotp
+      payload.code = cleanTotp
+    }
+    reply = await $backend("accounts", "odoologin", payload)
   } catch (error) {
+    loading.value = false
     console.error("failed login", error?.message)
-    errortext.value = t(error.message)
-    snackbar.value = true
+    const detail = String(error?.response?.data?.detail || error?.message || "")
+    if (
+      !withTotp &&
+      (detail.toLowerCase().includes("2fa") ||
+        detail.toLowerCase().includes("totp") ||
+        error?.response?.data?.requires_2fa ||
+        error?.response?.data?.totp_required)
+    ) {
+      open2faDialog()
+      return
+    }
+    const message = t(error.message)
+    if (dialog2fa.value) {
+      dialogError.value = message
+    } else {
+      errortext.value = message
+      snackbar.value = true
+    }
     return
+  } finally {
+    loading.value = false
   }
+  dialog2fa.value = false
+  totpCode.value = ""
   idbelstore.updateIdbel(reply.data[0])
   idtokenstore.updateToken(reply.data[1])
   await navigateTo(returnUrl)
@@ -90,7 +139,10 @@ definePageMeta({
             <a @click="gotoOdoo(2)">
               {{ $t("odoo.noaccount") }}
             </a>
-            <VBtn type="submit">
+            <a @click="open2faDialog()">
+              {{ $t("odoo.2fa_link") }}
+            </a>
+            <VBtn type="submit" :loading="loading" :disabled="loading">
               {{ $t("Submit") }}
             </VBtn>
           </VCardActions>
@@ -98,6 +150,47 @@ definePageMeta({
         </VCard>
       </VCol>
     </VRow>
+    <VDialog v-model="dialog2fa" max-width="450">
+      <VCard>
+        <VCardTitle>
+          <VIcon large> mdi-shield-key-outline </VIcon>
+          <label class="headline ml-3">{{ $t("odoo.2fa_title") }}</label>
+        </VCardTitle>
+        <VDivider />
+        <form id="odoo-2fa-form" novalidate @submit.prevent="submit2fa()">
+          <VCardText>
+            <VAlert
+              v-if="dialogError"
+              type="error"
+              density="compact"
+              class="mb-3"
+            >
+              {{ dialogError }}
+            </VAlert>
+            <p class="mb-4">{{ $t("odoo.2fa_prompt") }}</p>
+            <VTextField
+              v-model="totpCode"
+              :label="$t('odoo.2fa_code')"
+              name="totp"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              autofocus
+            />
+          </VCardText>
+          <VCardActions>
+            <VSpacer />
+            <VBtn variant="text" @click="close2faDialog()">
+              {{ $t("Cancel") }}
+            </VBtn>
+            <VBtn type="submit" :loading="loading" :disabled="loading || !totpCode">
+              {{ $t("Submit") }}
+            </VBtn>
+          </VCardActions>
+        </form>
+      </VCard>
+    </VDialog>
     <VSnackbar v-model="snackbar" timeout="6000">
       {{ errortext }}
       <template v-slot:actions>
@@ -111,3 +204,8 @@ definePageMeta({
     </VSnackbar>
   </VContainer>
 </template>
+<style scoped>
+a {
+  cursor: pointer;
+}
+</style>
