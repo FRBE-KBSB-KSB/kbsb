@@ -459,6 +459,21 @@ function yesNoUnknown(v) {
 const ROUNDS_ABSENT_RE = /^\s*\d+(\s*,\s*\d+)*\s*$/
 const roundsAbsentRule = (v) => !v || ROUNDS_ABSENT_RE.test(v) || t("trnreg.rule_rounds_absent")
 
+// FIDE federation (and nationality, which is the same thing here): only a
+// three-letter FIDE code. People typed the country's name ("Belgium"), which
+// the database refused; the box now takes letters only, upper-cased, three
+// at most. Titles are picked from FIDE's list for the same reason.
+const FEDERATION_RE = /^[A-Z]{3}$/
+const federationRule = (v) => !v || FEDERATION_RE.test(v) || t("trnreg.rule_federation_code")
+function federationInput(v) {
+  return String(v || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3)
+}
+const FIDE_TITLES = ["GM", "IM", "FM", "CM", "WGM", "WIM", "WFM", "WCM", "AGM", "AIM", "AFM", "ACM"]
+const fideTitleItems = computed(() => [
+  { title: t("trnreg.title_none"), value: "" },
+  ...FIDE_TITLES.map((code) => ({ title: code, value: code }))
+])
+
 async function submitRegistration() {
   regError.value = ""
   const { valid } = await regFormRef.value.validate()
@@ -1814,10 +1829,10 @@ onMounted(() => {
                     <v-alert type="warning" variant="tonal" density="compact">{{ t('trnreg.fide_id_warning') }}</v-alert>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.fide_title" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                    <v-select v-model="regForm.fide_title" :items="fideTitleItems" item-title="title" item-value="value" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-select>
                   </v-col>
                   <v-col cols="12" sm="4">
-                    <v-text-field v-model="regForm.fide_federation" :label="t('trnreg.field_fide_federation')" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
+                    <v-text-field :model-value="regForm.fide_federation" @update:model-value="(v) => (regForm.fide_federation = federationInput(v))" :label="t('trnreg.field_fide_federation')" :hint="t('trnreg.federation_hint')" placeholder="BEL" maxlength="3" :rules="[federationRule]" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
                   </v-col>
                   <!--
                     Only the rating this tournament is played for. A rapid or
@@ -2190,7 +2205,7 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.date_birth" type="date" :label="t('trnreg.field_date_birth')" variant="outlined" color="green-darken-2" density="compact" :required="!editRegForm.fide_id" :class="editRegForm.fide_id ? '' : 'trnreg-required'"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.place_birth" :label="t('trnreg.field_place_birth')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.country_residence" :label="t('trnreg.field_country_residence')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.nationality" :label="t('trnreg.field_nationality')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="6"><v-text-field :model-value="editRegForm.nationality" @update:model-value="(v) => (editRegForm.nationality = federationInput(v))" :label="t('trnreg.field_nationality')" :hint="t('trnreg.federation_hint')" placeholder="BEL" maxlength="3" :rules="[federationRule]" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.phone" :label="t('trnreg.field_phone')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.gsm" :label="t('trnreg.field_gsm')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.email" type="email" :label="t('trnreg.field_email')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
@@ -2198,8 +2213,8 @@ onMounted(() => {
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.national_club" :label="t('trnreg.field_national_club')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4" class="d-flex align-center"><v-checkbox v-model="editRegForm.affiliated" :label="t('trnreg.field_affiliated')" color="green-darken-2" density="compact" hide-details></v-checkbox></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_id" :label="t('trnreg.field_fide_id')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_title" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_federation" :label="t('trnreg.field_fide_federation')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-select v-model="editRegForm.fide_title" :items="fideTitleItems" item-title="title" item-value="value" :label="t('trnreg.field_fide_title')" variant="outlined" color="green-darken-2" density="compact"></v-select></v-col>
+            <v-col cols="12" sm="4"><v-text-field :model-value="editRegForm.fide_federation" @update:model-value="(v) => (editRegForm.fide_federation = federationInput(v))" :label="t('trnreg.field_fide_federation')" :hint="t('trnreg.federation_hint')" placeholder="BEL" maxlength="3" :rules="[federationRule]" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_standard" v-digits :label="t('trnreg.field_fide_rating_standard')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_rapid" v-digits :label="t('trnreg.field_fide_rating_rapid')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4"><v-text-field v-model="editRegForm.fide_rating_blitz" v-digits :label="t('trnreg.field_fide_rating_blitz')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
