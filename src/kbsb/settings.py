@@ -1,4 +1,6 @@
-# copyright Ruben Decrop 2012 - 2022
+# copyright Ruben Decrop 2012 - 2024
+# copyright Chessdevil Consulting 2015 - 2026
+
 
 import logging.config
 import os
@@ -7,7 +9,6 @@ from pathlib import Path
 
 API_BASE_URL = "/api"
 
-BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", "")
 
@@ -20,13 +21,6 @@ EMAIL = {
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
     "account": "ruben.decrop@frbe-kbsb-ksb.be",
     "blindcopy": "ruben.kbsb@gmail.com",
-}
-
-EXTRASALT = "Zugzwang"
-
-FILESTORE = {
-    "manager": "google",
-    "bucket": os.environ.get("FILESTORE_BUCKET", "website-kbsb-prod.appspot.com"),
 }
 
 # login details
@@ -86,11 +80,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "odoo"
-
 ODOO = {
     "url": "https://frbe-kbsb.odoo.com",
     "db": "frbe-kbsb",
+    "timeout": 10.0,
+    "max_keepalive": 20,
+    "max_connections": 100,
 }
 
 SECRETS = {
@@ -140,11 +135,13 @@ SECRETS = {
     },
 }
 
+SALT = "NobodyExpectsTheSpanishInquisition"
+
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 
 SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
 
-TEMPLATES_MODULE = "kbsb"
+TEMPLATES_MODULE = "kbsb"  # needed for reddevil to lacte templates path
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
@@ -153,26 +150,26 @@ TOKEN = {
     "nocheck": False,
 }
 
-TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
-
 # Cloudflare Turnstile on the FIDE registration form (public site key, set in
 # app.yaml). Empty means Turnstile is off; see kbsb.fide.turnstile.
 TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
+TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
+
 
 if KBSB_MODE == "local":
-    from env_local import *  # noqa: F403
+    from env_local import *
 
 
 if KBSB_MODE == "prodtest":
-    from env_prodtest import *  # noqa: F403
+    from env_prodtest import *
 
 
 if KBSB_MODE == "testing":
-    from tests.settings import *  # noqa: F403
+    from tests.settings import *
 
 if COLORLOG:
-    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
+    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"  # noqa:
 
 logging.config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)

@@ -1,48 +1,46 @@
+# important remark
 
-# frontend:
+# if you want to change this file, it is mandatory to check which files 
+# are effectively uploaded to the App engine, using 
+# `gcloud meta list-files-for-upload`
+
+# Changes to this file will be reverted if there is no impact
+
+
+# important paths:
 frontend/
+shared/
+tests/
 
-# Python:
-.pytest_cache
-.mypy_cache
-.ruff_cache
-__pycache__/
-.venv/
-.env
-.env.*
+# files in the root dir
 env_local.py
 env_staging.py
-env_prod.py
 env_prodtest.py
 env_localtest.py
-/tests/
+uv.lock
+License.md
+poe_tasks.yaml
+README.md
+ruff.toml
 
-# secrets: filejson secrets resolve under SECRETS_PATH, the repo root by
-# default, so local secret files sit here and must never be uploaded.
-# (Dropped once by mistake in v3.10.1: a deploy from a machine that has these
-# files uploads them.)
-kbsb-*.json
-su_*.json
-/*.json
-*.pem
-*.p12
-*.key
-shared/secrets/
-
-# personal data: trf_report_phase2 writes icn_trf.txt to the working directory
-icn_trf.txt
-
-# local tooling
+# Hidden files and directoris:
 .claude/
-scratch/
-src/kbsb/etl/add_interclubadmin.py
-
-# general
+.DS_Store
+.env
+.env.*
 .gcloudignore
 .git
 .gitignore
-.DS_Store
+.github
+.mypy_cache
+.pytest_cache
+.python-version
+.ruff_cache
+.venv/
 .vscode
-License.md
-poe_tasks.yaml
-shared/
+__pycache__/
+
+
+# local tooling
+scratch/
+src/kbsb/etl/add_interclubadmin.py
