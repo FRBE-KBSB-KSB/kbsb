@@ -11,7 +11,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import RdException, bearer_schema
 
 from kbsb.core import RdForbidden
-from kbsb.core.tokens import validate_token
+from kbsb.core.tokens import validate_membertoken, validate_token
 
 from . import (
     AnonMember,
@@ -25,7 +25,6 @@ from . import (
     login2FA,
     mgmt_getclubmembers,
     mgmt_getmember,
-    validate_membertoken,
 )
 
 logger = logging.getLogger(__name__)

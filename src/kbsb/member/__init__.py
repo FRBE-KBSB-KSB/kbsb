@@ -5,7 +5,6 @@
 from .login import (
     login,
     login2FA,
-    validate_membertoken,
 )
 from .md_member import (
     AnonMember,
@@ -34,5 +33,4 @@ __all__ = [
     "login2FA",
     "mgmt_getclubmembers",
     "mgmt_getmember",
-    "validate_membertoken",
 ]

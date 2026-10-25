@@ -1,4 +1,4 @@
-# copyright Ruben Decrop 2012 - 2024
+# copyright Ruben Decrop 2012 - 2026
 # copyright Chessdevil Consulting 2015 - 2026
 
 import logging
@@ -76,39 +76,13 @@ if get_setting("KBSB_MODE") != "production":
     )
 
 # import api endpoints
+# Ruben Decrop: I removed the existing code bacause it was based
+# on tha incorrect assumption that 2 unrelated items: loading
+# the endpoints and signing in  with frbe-kbsb-ksb.be accounts,
+# are somewhere interfering with each other.  They are not.
+
 logger.info("loading api_account")
-
-from reddevil.account import api_account  # noqa
-
-# Ruben Decrop:  the code below unti >>>EOF<<< assumes things that are not fully correct
-# TODO: clean this up
-
-from kbsb.core.tokens import validate_token as _verified_token
-
-api_account.validate_token = _verified_token
-
-
-# reddevil's anonymous self-registration of admin accounts. Nothing here uses
-# it (admins sign in with Google) and it would create accounts in rd_account,
-# so it is taken off the router before the router is mounted.
-api_account.router.routes = [
-    r
-    for r in api_account.router.routes
-    if not (isinstance(r, APIRoute) and r.path.endswith("/anon/register"))
-]
-
-import reddevil.account.account as _rd_account
-
-_rd_get_token = _rd_account.get_token
-
-
-async def _get_token_keep_salt(acc, duration, invalidate=True):
-    return await _rd_get_token(acc, duration, invalidate=False)
-
-
-_rd_account.get_token = _get_token_keep_salt
-
-# >>>EOF<<<
+from reddevil.account import api_account
 
 logger.info("loading api_club")
 from kbsb.club import api_club
@@ -165,5 +139,7 @@ for route in app.routes:
         route.operation_id = route.name[4:]
 
 # test endpoints should always be loaded, even in production
-# this limits of course what can be written in test endpoints
+# this is intended behaviour
+# this makes the content of test endpoints relevant for security checking
+# but currently this is OK
 import kbsb.tst_endpoints  # noqa

@@ -35,8 +35,10 @@ GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 ICDATA = "cloud"
 INTERCLUBS_CC_EMAIL = "interclubs@frbe-kbsb-ksb.be"
 
-JWT_ALGORITHM = "HS256"
-JWT_SECRET = "levedetorrevanostende"
+JWT = {
+    "algorithm": "HS256",
+    "secret": "levedetorrevanostende",
+}
 
 
 LOG_CONFIG = {
@@ -109,6 +111,10 @@ SECRETS = {
         "name": "kbsb-odoo",
         "manager": "googlejson",
     },
+    "salt": {
+        "name": "kbsb-salt",
+        "manager": "googlejson",
+    },
     "SU__ruben": {
         "name": "su_ruben",
         "manager": "googlejson",
@@ -134,8 +140,6 @@ SECRETS = {
         "manager": "googletext",
     },
 }
-
-SALT = "NobodyExpectsTheSpanishInquisition"
 
 SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 

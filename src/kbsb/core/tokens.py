@@ -2,16 +2,11 @@ import logging
 
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import ExpiredSignatureError, JWTError, jwt
-from reddevil.core import RdNotAuthorized, get_setting
+from reddevil.core import RdNotAuthorized, get_secret, get_setting
 from reddevil.core.security import get_tokensalt
 
 logger = logging.getLogger(__name__)
-
-
-def _member_salt() -> str:
-    from kbsb.member.md_member import SALT
-
-    return SALT
+salt = get_secret("salt")["salt"]
 
 
 def _claims(token: str, salt: str) -> dict:

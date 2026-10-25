@@ -6,11 +6,9 @@ import re
 from datetime import UTC, datetime, timedelta
 
 import httpx
-from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import (
     RdException,
     RdNotAuthorized,
-    get_secret,
     get_setting,
     jwt_encode,
 )
@@ -22,8 +20,6 @@ from .md_member import (
 )
 
 logger = logging.getLogger(__name__)
-token_settings = get_setting("TOKEN")
-salt = get_setting("SALT")
 
 
 async def superuser_login(superid: str, password: str) -> str:
@@ -53,6 +49,8 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
     if 2FA is activated on the account, is2FAneeded is set as True, and the user must
        provide the 2FA token in the login2FA method, where the JWT token can be returned
     """
+    from kbsb.core.tokens import salt
+
     if ol.email.startswith("SU__"):
         return LoginReply(id=0, jwttoken=await superuser_login(ol.email, ol.password))
     # we are requesting the login page on odoo, which is a kind of hack
@@ -103,6 +101,8 @@ async def login2FA(
     """
     return a JWT token
     """
+    from kbsb.core.tokens import salt
+
     logger.info("called Odoo /web/login/totp")
     response = await odoo_client.post(
         "/web/login/totp",
@@ -120,15 +120,3 @@ async def login2FA(
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
     return LoginReply(id=1, jwttoken=jwt_encode(payload, salt))
-
-
-def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
-    """
-    checks a JWT token for validity
-    return an str with the if of the member if the token is correctly validated,
-    if token validation fails, the function raises RdNotAuthorized
-
-    """
-    from kbsb.core.tokens import validate_membertoken as verified
-
-    return verified(auth)
