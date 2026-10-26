@@ -29,17 +29,17 @@ async def lifespan(app: FastAPI):
     It is however run before any http request is processed
     """
 
-    # strangely a_connect_mongodb is synchronous, even for the async mongdb driver
+    # a_connect_mongodb is synchronous, even for the async mongdb driver
     a_connect_mongodb()
 
     # create an async httpx session to the Odoo platform
-    odoo_settings = get_setting("ODOO")
+    odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
     app.state.odoo_client = httpx.AsyncClient(
-        base_url=odoo_settings["url"],
-        timeout=httpx.Timeout(odoo_settings["timeout"]),
+        base_url=odoo_params["url"],
+        timeout=httpx.Timeout(odoo_params["timeout"]),
         limits=httpx.Limits(
-            max_keepalive_connections=odoo_settings["max_keepalive"],
-            max_connections=odoo_settings["max_connections"],
+            max_keepalive_connections=odoo_params["max_keepalive"],
+            max_connections=odoo_params["max_connections"],
         ),
     )
 

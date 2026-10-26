@@ -4,10 +4,12 @@ import xmlrpc.client
 from datetime import date, datetime
 from typing import Any
 
+import httpx
 import requests
+from fastapi import FastAPI
 from reddevil.core import (
     RdBadRequest,
-    # RdInternalServerError,
+    RdException,
     RdNotFound,
     get_secret,
     get_setting,
@@ -19,10 +21,26 @@ from . import AnonMember, Member
 
 logger = logging.getLogger(__name__)
 
-odoo_settings = get_setting("ODOO")
 token_settings = get_setting("TOKEN")
+odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
 odoo_secrets = get_secret("odoo")
 tzone = get_setting("TZ_BRUSSELS")
+
+
+def get_extra_asynclient() -> httpx.AsyncClient:
+    # we need a separate httpx session so we don't interfere with the cookies
+    # in the login session
+    # we cache it in the functional attribute session
+    if not hasattr(get_extra_asynclient, "session"):
+        get_extra_asynclient.session = httpx.AsyncClient(  # type: ignore[attr-defined]
+            base_url=odoo_params["url"],
+            timeout=httpx.Timeout(odoo_params["timeout"]),
+            limits=httpx.Limits(
+                max_keepalive_connections=odoo_params["max_keepalive"],
+                max_connections=odoo_params["max_connections"],
+            ),
+        )
+    return get_extra_asynclient.session  # type: ignore[attr-defined]
 
 
 def current_affiliation_year() -> int:
@@ -290,3 +308,41 @@ async def mgmt_getclubmembers(idclub: int):
         )
         for member in members  # type: ignore
     ]
+
+
+async def odoo_email2idbel(email: str, myapp: FastAPI | None = None):
+
+    url = odoo_params.get("url")
+    db = odoo_params.get("db")
+    password = odoo_secrets.get("password")
+    payload = {
+        "fields": [
+            "id",
+            "name",
+            "email",
+            "x_studio_contact_nationalid_int",
+            "x_studio_contact_clubid",
+            "x_studio_contact_clubid_link",
+        ],
+        "domain": [["email", "=", "ruben.decrop@gmail.com"]],
+    }
+    headers = {
+        "X-Odoo-Database": db,
+        "Authorization": f"Bearer {password}",
+        "Content-Type": "application/json",
+    }
+    client = get_extra_asynclient()
+    try:
+        response = await client.post(
+            url=f"{url}/json/2/res.partner/search_read",
+            json=payload,
+            headers=headers,
+            timeout=5.0,  # 5-second timeout (default is 5.0)
+        )
+        results = response.json()
+        if len(results) != 1:
+            logger.info(f"search_read results={results}")
+            raise RuntimeError("Odoo search_read failed")
+        return results[0]["x_studio_contact_nationalid_int"]
+    except httpx.RequestError:
+        raise RdException()

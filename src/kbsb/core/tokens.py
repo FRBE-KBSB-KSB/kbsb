@@ -3,7 +3,6 @@ import logging
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import ExpiredSignatureError, JWTError, jwt
 from reddevil.core import RdNotAuthorized, get_secret, get_setting
-from reddevil.core.security import get_tokensalt
 
 logger = logging.getLogger(__name__)
 salt = get_secret("salt")["salt"]
@@ -39,7 +38,7 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     if get_setting("TOKEN").get("nocheck"):
         return "0"
     try:
-        sub = _claims(token, _member_salt()).get("sub")
+        sub = _claims(token, salt).get("sub")
     except ExpiredSignatureError:
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError:
@@ -56,10 +55,6 @@ async def validate_token(auth: HTTPAuthorizationCredentials) -> str:
         return "anonymous"
     sub = _unverified_sub(token)
 
-    salt = _member_salt() if sub.startswith("SU__") else await get_tokensalt(sub)
-    if not salt:
-        logger.info("admin token refused: no account for its subject")
-        raise RdNotAuthorized(description="BadToken")
     try:
         claims = _claims(token, salt)
     except ExpiredSignatureError:

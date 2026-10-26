@@ -9,6 +9,14 @@ EMAIL = {
 
 ICDATA = "local"
 
+ODOO_CONNECTION_PARAMETERS = {
+    "url": "https://frbe-kbsb.odoo.com",
+    "db": "frbe-kbsb",
+    "timeout": 10.0,
+    "max_keepalive": 20,
+    "max_connections": 100,
+}
+
 # The test suite must start without any real secret and without network
 # access (CI has neither). All secrets resolve to dummy files in
 # tests/secrets; nothing in there is a real credential.
@@ -26,9 +34,13 @@ SECRETS = {
         "manager": "filejson",
     },
     "odoo": {
-        # read at import time by kbsb.member.odoo_member; the tests mock
-        # every Odoo call, so the values only need to exist
+        # read real odoo secret
         "name": "test-odoo",
+        "manager": "filejson",
+    },
+    "salt": {
+        # use dummy salt
+        "name": "test-salt",
         "manager": "filejson",
     },
 }

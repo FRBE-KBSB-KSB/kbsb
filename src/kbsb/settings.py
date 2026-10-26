@@ -40,6 +40,11 @@ JWT = {
     "secret": "levedetorrevanostende",
 }
 
+# backwards compatibility
+# should be gone in the next release or reddevil
+JWT_ALGORITHM = JWT["algorithm"]
+JWT_SECRET = JWT["secret"]
+
 
 LOG_CONFIG = {
     "version": 1,
@@ -82,7 +87,7 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-ODOO = {
+ODOO_CONNECTION_PARAMETERS = {
     "url": "https://frbe-kbsb.odoo.com",
     "db": "frbe-kbsb",
     "timeout": 10.0,

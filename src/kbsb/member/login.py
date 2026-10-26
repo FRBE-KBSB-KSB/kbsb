@@ -9,6 +9,7 @@ import httpx
 from reddevil.core import (
     RdException,
     RdNotAuthorized,
+    get_secret,
     get_setting,
     jwt_encode,
 )
@@ -20,6 +21,8 @@ from .md_member import (
 )
 
 logger = logging.getLogger(__name__)
+token_settings = get_setting("TOKEN")
+odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
 
 
 async def superuser_login(superid: str, password: str) -> str:
@@ -51,6 +54,8 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
     """
     from kbsb.core.tokens import salt
 
+    from .member import odoo_email2idbel
+
     if ol.email.startswith("SU__"):
         return LoginReply(id=0, jwttoken=await superuser_login(ol.email, ol.password))
     # we are requesting the login page on odoo, which is a kind of hack
@@ -72,7 +77,7 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
             "login": ol.email,
             "password": ol.password,
             "csrf_token": csrf_token,
-            "db": get_setting("ODOO")["db"],
+            "db": odoo_params["db"],
         },
     )
     if response.status_code >= 400:
@@ -86,10 +91,11 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
         if not csrf_match:
             raise RuntimeError("Could not find CSRF token on the /web/login/totp page")
         csrf_token = csrf_match.group(1)
-        return LoginReply(id=-1, csrf=csrf_token, is2FAneeded=True)
+        return LoginReply(id=-1, csrf=csrf_token, is2FAneeded=True, email=ol.email)
     # create JWT token and return it
+    idbel = await odoo_email2idbel(ol.email)
     payload = {
-        "sub": "1",
+        "sub": str(idbel),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
     return LoginReply(id=1, jwttoken=jwt_encode(payload, salt))
@@ -103,6 +109,8 @@ async def login2FA(
     """
     from kbsb.core.tokens import salt
 
+    from .member import odoo_email2idbel
+
     logger.info("called Odoo /web/login/totp")
     response = await odoo_client.post(
         "/web/login/totp",
@@ -115,8 +123,9 @@ async def login2FA(
         raise RdException(
             status_code=response.status_code, description="CannotPostOdooLogin2FA"
         )
+    idbel = await odoo_email2idbel(l2fa.email)
     payload = {
-        "sub": "1",
+        "sub": str(idbel),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
     return LoginReply(id=1, jwttoken=jwt_encode(payload, salt))

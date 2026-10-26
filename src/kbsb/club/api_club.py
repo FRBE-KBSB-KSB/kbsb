@@ -29,7 +29,7 @@ from kbsb.club import (
     set_club,
     verify_club_access,
 )
-from kbsb.core.tokens import validate_token
+from kbsb.core.tokens import validate_membertoken, validate_token
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,6 @@ async def api_verify_club_access(
     """
     verifies if a user identified by token has access to a club role
     """
-    from kbsb.member import validate_membertoken
 
     try:
         logger.info(f"api verify_club_access idclub: {idclub}, role: {role}")
