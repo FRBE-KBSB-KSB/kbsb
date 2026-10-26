@@ -11,13 +11,14 @@ from . import MailRelayValidator
 logger = logging.getLogger("kbsb")
 
 # The only addresses the old site mails in practice. SWAR sends its results to
-# fide@ or ratings@ with a copy to Ruben, or to its own test address; the club
-# and player scripts copy admin@. Anything else is refused, so the relay key
+# fide@ or ratings@ with a copy to Ruben and to the rating automation mailbox,
+# or to its own test address; the club and player scripts copy admin@. Anything else is refused, so the relay key
 # alone cannot be used to mail members or anyone else from noreply@.
 ALLOWED_RECIPIENTS = {
     "fide@frbe-kbsb-ksb.be",
     "ratings@frbe-kbsb-ksb.be",
     "admin@frbe-kbsb-ksb.be",
+    "autoratingfide@frbe-kbsb-ksb.be",
     "ruben.kbsb@gmail.com",
     "le666.echecs@gmail.com",
 }

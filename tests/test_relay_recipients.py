@@ -17,6 +17,7 @@ def _mrv(receiver):
         "fide@frbe-kbsb-ksb.be,ruben.kbsb@gmail.com",  # SWAR results to FIDE
         "ratings@frbe-kbsb-ksb.be,ruben.kbsb@gmail.com",  # SWAR results to FRBE
         "Le666.echecs@gmail.com,ruben.kbsb@gmail.com",  # SWAR test
+        "fide@frbe-kbsb-ksb.be,ruben.kbsb@gmail.com,autoratingfide@frbe-kbsb-ksb.be",  # SWAR results, copied to the automation mailbox
         "fide@frbe-kbsb-ksb.be",  # FIDE Elo report
         " FIDE@frbe-kbsb-ksb.be ; Ruben <ruben.kbsb@gmail.com> ",
     ],
