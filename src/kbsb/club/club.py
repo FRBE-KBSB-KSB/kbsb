@@ -5,7 +5,7 @@ import csv
 import io
 import logging
 from tempfile import NamedTemporaryFile
-from typing import List, Optional, cast
+from typing import cast
 
 import openpyxl
 from fastapi import BackgroundTasks
@@ -107,7 +107,7 @@ async def anon_get_club(idclub: int) -> ClubPublic:
     return public_club(await get_club({"idclub": idclub}))
 
 
-async def get_clubs(options: dict = {}) -> List[ClubItem]:
+async def get_clubs(options: dict = {}) -> list[ClubItem]:
     """
     get all the Clubs
     """
@@ -140,7 +140,7 @@ async def create_club(c: ClubIn, user: str = "admin") -> str:
     return await DbClub.add(docin)
 
 
-async def get_club_idclub(idclub: int) -> Optional[Club]:
+async def get_club_idclub(idclub: int) -> Club | None:
     """
     find an club by idclub, returns None if not found
     """
@@ -150,7 +150,7 @@ async def get_club_idclub(idclub: int) -> Optional[Club]:
         return None
 
 
-async def get_anon_clubs() -> List[ClubItem]:
+async def get_anon_clubs() -> list[ClubItem]:
     """
     get anon view of all  active clubs
     """
@@ -203,9 +203,8 @@ async def verify_club_access(idclub: int, idmember: str | int, role: str) -> boo
     for r in roles:
         # looking for a single matching role
         for cr in club.clubroles:  # type: ignore
-            if r == cr.nature.value:
-                if idnumber in cr.memberlist:
-                    return True
+            if r == cr.nature.value and idnumber in cr.memberlist:
+                return True
     raise RdForbidden
 
 
