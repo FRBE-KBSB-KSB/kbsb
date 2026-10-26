@@ -566,12 +566,43 @@ function effectiveRating(r, trn) {
   return std > 0 ? std : null
 }
 
+// What the birth column is sorted on: the full date when there is one,
+// otherwise the birth year as 1 January of it. The two kinds used to sort
+// apart (every full date first, then every bare year), because a date and a
+// year were compared as different kinds of text. Only the sort uses the
+// invented 1 January; what is shown and stored is unchanged.
+function birthSortKey(r) {
+  if (r.date_birth) return String(r.date_birth).slice(0, 10)
+  return r.birth_year ? `${r.birth_year}-01-01` : ""
+}
+
+// Rows with nothing in a column go to the bottom, whichever way it sorts.
+function sortBlank(key, row) {
+  if (key === "birth") return !birthSortKey(row)
+  if (key === "national_club") return !(Number(row.national_club) > 0)
+  if (key === "category_index") return row.category_index == null || row.category_index === ""
+  return false
+}
+
+const NAME_TIEBREAK = ["rating", "fide_rating_standard", "birth", "national_club", "category_index", "sex"]
+
 function sortCompare(a, b, key, mult, trn) {
+  const blankA = sortBlank(key, a)
+  const blankB = sortBlank(key, b)
+  if (blankA !== blankB) return blankA ? 1 : -1
+
   let valA = a[key]
   let valB = b[key]
   if (key === "rating") {
     valA = effectiveRating(a, trn) || 0
     valB = effectiveRating(b, trn) || 0
+  } else if (key === "birth") {
+    valA = birthSortKey(a)
+    valB = birthSortKey(b)
+  } else if (key === "national_club") {
+    // Club numbers as numbers: as text 1000 sorts before 99.
+    valA = Number(valA) || 0
+    valB = Number(valB) || 0
   } else if (key === "category_index" || key === "fide_rating_standard" || key === "id") {
     valA = Number(valA) || 0
     valB = Number(valB) || 0
@@ -581,9 +612,9 @@ function sortCompare(a, b, key, mult, trn) {
   }
   if (valA < valB) return -1 * mult
   if (valA > valB) return 1 * mult
-  // Equal rating (including two unrated players): always break by name,
-  // A-Z regardless of the rating column's own sort direction.
-  if (key === "rating" || key === "fide_rating_standard") {
+  // Equal values (two unrated players, two of one club, one category): always
+  // break by name, A-Z regardless of the column's own sort direction.
+  if (NAME_TIEBREAK.includes(key)) {
     const nameA = `${a.last_name || ""} ${a.first_name || ""}`.toLowerCase()
     const nameB = `${b.last_name || ""} ${b.first_name || ""}`.toLowerCase()
     if (nameA < nameB) return -1
@@ -1926,10 +1957,10 @@ onMounted(() => {
                 <tr>
                   <th>{{ t('trnreg.col_volgnr') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ listSortKey === 'last_name' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }}</th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth_year')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth_year' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }}</th>
-                  <th>{{ t('trnreg.col_category') }}</th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }} <v-icon size="small">{{ listSortKey === 'sex' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }} <v-icon size="small">{{ listSortKey === 'national_club' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('category_index')">{{ t('trnreg.col_category') }} <v-icon size="small">{{ listSortKey === 'category_index' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th>{{ t('trnreg.col_stamnr') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'rating' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
@@ -2131,10 +2162,10 @@ onMounted(() => {
                   <tr>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('id')">{{ t('trnreg.col_volgnr') }} <v-icon size="small">{{ adminListSortKey === 'id' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('last_name')">{{ t('trnreg.col_name') }} <v-icon size="small">{{ adminListSortKey === 'last_name' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                    <th>{{ t('trnreg.col_sex') }}</th>
-                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('date_birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ adminListSortKey === 'date_birth' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                    <th>{{ t('trnreg.col_club') }}</th>
-                    <th>{{ t('trnreg.col_category') }}</th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('sex')">{{ t('trnreg.col_sex') }} <v-icon size="small">{{ adminListSortKey === 'sex' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ adminListSortKey === 'birth' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('national_club')">{{ t('trnreg.col_club') }} <v-icon size="small">{{ adminListSortKey === 'national_club' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('category_index')">{{ t('trnreg.col_category') }} <v-icon size="small">{{ adminListSortKey === 'category_index' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th>{{ t('trnreg.col_stamnr') }}</th>
                     <th>{{ t('trnreg.col_fide_id') }}</th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ adminListSortKey === 'rating' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
