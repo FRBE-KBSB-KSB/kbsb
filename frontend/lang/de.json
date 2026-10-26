@@ -477,6 +477,7 @@
 "trnreg.col_birth": "Geburtsdatum",
 "trnreg.col_club": "Verein",
 "trnreg.col_category": "Kategorie",
+"trnreg.category_all": "Alle Kategorien",
 "trnreg.col_fide_id": "FIDE-Nummer",
 "trnreg.col_rating": "Wertung",
 "trnreg.col_email": "E-Mail",

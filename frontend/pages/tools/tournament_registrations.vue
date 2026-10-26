@@ -17,7 +17,7 @@ const vDigits = {
   },
 }
 
-import { ref, computed, onMounted, onBeforeUnmount } from "vue"
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import { useI18n } from "vue-i18n"
 import { storeToRefs } from "pinia"
@@ -580,11 +580,10 @@ function birthSortKey(r) {
 function sortBlank(key, row) {
   if (key === "birth") return !birthSortKey(row)
   if (key === "national_club") return !(Number(row.national_club) > 0)
-  if (key === "category_index") return row.category_index == null || row.category_index === ""
   return false
 }
 
-const NAME_TIEBREAK = ["rating", "fide_rating_standard", "birth", "national_club", "category_index", "sex"]
+const NAME_TIEBREAK = ["rating", "fide_rating_standard", "birth", "national_club", "sex"]
 
 function sortCompare(a, b, key, mult, trn) {
   const blankA = sortBlank(key, a)
@@ -631,7 +630,7 @@ function matchesFilter(row, needle) {
 
 const filteredRegistrations = computed(() => {
   const needle = listFilter.value.trim().toLowerCase()
-  return registrations.value.filter((r) => matchesFilter(r, needle))
+  return registrations.value.filter((r) => matchesFilter(r, needle) && matchesCategory(r, listCategoryFilter.value))
 })
 
 // "Last, First", as SWAR writes it; no comma when there is no first name.
@@ -652,6 +651,27 @@ function toggleListSort(key) {
     listSortOrder.value = "asc"
   }
 }
+
+// Category filter of the two lists: "" is every category, otherwise the index
+// of one. Reset when another tournament is opened, because an index means
+// something different in each.
+const listCategoryFilter = ref("")
+const adminCategoryFilter = ref("")
+
+function categoryCount(trn) {
+  return trn && Array.isArray(trn.categories) ? trn.categories.length : 0
+}
+
+function matchesCategory(row, filter) {
+  if (filter === "") return true
+  return row.category_index !== null && row.category_index !== undefined && String(row.category_index) === filter
+}
+
+function categoryFilterLabel(trn, filter) {
+  return filter === "" ? t("trnreg.col_category") : categoryLabel(trn, filter)
+}
+
+watch(trnId, () => { listCategoryFilter.value = "" })
 
 function categoryLabel(trn, index) {
   if (!trn || !Array.isArray(trn.categories)) return ""
@@ -874,6 +894,7 @@ const adminActionError = ref("")
 const adminActionNotice = ref("")
 
 const selectedAdminTournament = ref(null)
+watch(() => selectedAdminTournament.value && selectedAdminTournament.value.id, () => { adminCategoryFilter.value = "" })
 const adminRegistrations = ref([])
 const loadingAdminRegistrations = ref(false)
 const adminListSortKey = ref("id")
@@ -881,7 +902,7 @@ const adminListSortOrder = ref("asc")
 
 const sortedAdminRegistrations = computed(() => {
   const mult = adminListSortOrder.value === "asc" ? 1 : -1
-  return [...adminRegistrations.value].sort((a, b) => sortCompare(a, b, adminListSortKey.value, mult, selectedAdminTournament.value))
+  return adminRegistrations.value.filter((r) => matchesCategory(r, adminCategoryFilter.value)).sort((a, b) => sortCompare(a, b, adminListSortKey.value, mult, selectedAdminTournament.value))
 })
 
 function toggleAdminListSort(key) {
@@ -1960,7 +1981,18 @@ onMounted(() => {
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('sex')">{{ t('trnreg.col_sex') }} <v-icon size="small">{{ listSortKey === 'sex' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ listSortKey === 'birth' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('national_club')">{{ t('trnreg.col_club') }} <v-icon size="small">{{ listSortKey === 'national_club' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                  <th style="cursor:pointer;user-select:none;" @click="toggleListSort('category_index')">{{ t('trnreg.col_category') }} <v-icon size="small">{{ listSortKey === 'category_index' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                  <th>
+                    <v-menu v-if="categoryCount(tournament) > 1">
+                      <template #activator="{ props }">
+                        <span v-bind="props" style="cursor:pointer;user-select:none;" :class="{ 'text-green-darken-2 font-weight-bold': listCategoryFilter !== '' }">{{ categoryFilterLabel(tournament, listCategoryFilter) }} <v-icon size="small">mdi-filter-variant</v-icon></span>
+                      </template>
+                      <v-list density="compact">
+                        <v-list-item :active="listCategoryFilter === ''" :title="t('trnreg.category_all')" @click="listCategoryFilter = ''"></v-list-item>
+                        <v-list-item v-for="(c, ci) in tournament.categories" :key="ci" :active="listCategoryFilter === String(ci)" :title="c" @click="listCategoryFilter = String(ci)"></v-list-item>
+                      </v-list>
+                    </v-menu>
+                    <span v-else>{{ t('trnreg.col_category') }}</span>
+                  </th>
                   <th>{{ t('trnreg.col_stamnr') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('fide_id')">{{ t('trnreg.col_fide_id') }}</th>
                   <th style="cursor:pointer;user-select:none;" @click="toggleListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ listSortKey === 'rating' ? (listSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
@@ -2165,7 +2197,18 @@ onMounted(() => {
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('sex')">{{ t('trnreg.col_sex') }} <v-icon size="small">{{ adminListSortKey === 'sex' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('birth')">{{ t('trnreg.col_birth') }} <v-icon size="small">{{ adminListSortKey === 'birth' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('national_club')">{{ t('trnreg.col_club') }} <v-icon size="small">{{ adminListSortKey === 'national_club' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
-                    <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('category_index')">{{ t('trnreg.col_category') }} <v-icon size="small">{{ adminListSortKey === 'category_index' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
+                    <th>
+                    <v-menu v-if="categoryCount(selectedAdminTournament) > 1">
+                      <template #activator="{ props }">
+                        <span v-bind="props" style="cursor:pointer;user-select:none;" :class="{ 'text-green-darken-2 font-weight-bold': adminCategoryFilter !== '' }">{{ categoryFilterLabel(selectedAdminTournament, adminCategoryFilter) }} <v-icon size="small">mdi-filter-variant</v-icon></span>
+                      </template>
+                      <v-list density="compact">
+                        <v-list-item :active="adminCategoryFilter === ''" :title="t('trnreg.category_all')" @click="adminCategoryFilter = ''"></v-list-item>
+                        <v-list-item v-for="(c, ci) in selectedAdminTournament.categories" :key="ci" :active="adminCategoryFilter === String(ci)" :title="c" @click="adminCategoryFilter = String(ci)"></v-list-item>
+                      </v-list>
+                    </v-menu>
+                    <span v-else>{{ t('trnreg.col_category') }}</span>
+                  </th>
                     <th>{{ t('trnreg.col_stamnr') }}</th>
                     <th>{{ t('trnreg.col_fide_id') }}</th>
                     <th style="cursor:pointer;user-select:none;" @click="toggleAdminListSort('rating')">{{ t('trnreg.col_rating') }} <v-icon size="small">{{ adminListSortKey === 'rating' ? (adminListSortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down') : 'mdi-swap-vertical' }}</v-icon></th>
