@@ -41,7 +41,7 @@ JWT = {
 }
 
 # backwards compatibility
-# should be gone in the next release or reddevil
+# should be gone in the next release of reddevil
 JWT_ALGORITHM = JWT["algorithm"]
 JWT_SECRET = JWT["secret"]
 
@@ -150,7 +150,7 @@ SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 
 SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
 
-TEMPLATES_MODULE = "kbsb"  # needed for reddevil to lacte templates path
+TEMPLATES_MODULE = "kbsb"  # needed for reddevil to find templates path
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes

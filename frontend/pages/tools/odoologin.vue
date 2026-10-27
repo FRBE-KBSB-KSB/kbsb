@@ -21,9 +21,9 @@ let showLoading
 
 const login = ref({})
 const returnUrl = route.query.url ? route.query.url.replaceAll("__", "/") : "/"
-
+let csrf = ""
 const dialog2fa = ref(false)
-const totpCode = ref("")
+const code2FA = ref("")
 
 function gotoOdoo(i) {
   if (i === 1) {
@@ -53,11 +53,10 @@ async function dologin() {
   let loginreply = reply.data
   console.log("reply from login", loginreply)
   if (loginreply.is2FAneeded) {
+    csrf = loginreply.csrf
     dialog2fa.value = true
   } else {
     idtokenstore.updateToken(loginreply.jwttoken)
-    // TODO check if idbel is needed
-    // (getting it via the standard APIkey interface of Odoo)
     await navigateTo(returnUrl)
   }
 }
@@ -66,9 +65,10 @@ async function dologin2FA() {
   let reply
   showLoading(true)
   try {
-    reply = await $backend("accounts", "odoologin", {
+    reply = await $backend("accounts", "odoologin2fa", {
       email: login.value.email,
-      password: login.value.password,
+      csrf: csrf,
+      code2FA: code2FA.value,
     })
   } catch (error) {
     console.error("failed login", error?.message)
@@ -160,7 +160,7 @@ onMounted(() => {
           <VCardText>
             <p class="mb-4">{{ $t("odoo.2fa_prompt") }}</p>
             <VTextField
-              v-model="totpCode"
+              v-model="code2FA"
               :label="$t('odoo.2fa_code')"
               name="totp"
               type="text"
@@ -175,7 +175,7 @@ onMounted(() => {
             <VBtn variant="text" @click="dialog2fa = false">
               {{ $t("Cancel") }}
             </VBtn>
-            <VBtn type="submit" :disabled="!totpCode">
+            <VBtn type="submit" :disabled="!code2FA">
               {{ $t("Submit") }}
             </VBtn>
           </VCardActions>

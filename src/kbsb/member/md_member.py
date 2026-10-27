@@ -37,7 +37,6 @@ class LoginReply(BaseModel):
     is2FAneeded: bool | None = (
         False  # if 2FA is needed, the frontend should show the 2FA dialog
     )
-    email: str = ""  # we need the email address, enabling the calc of idbel in login2fa
 
 
 class OldUserPasswordValidator(BaseModel):

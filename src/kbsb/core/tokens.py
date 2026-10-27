@@ -5,14 +5,24 @@ from jose import ExpiredSignatureError, JWTError, jwt
 from reddevil.core import RdNotAuthorized, get_secret, get_setting
 
 logger = logging.getLogger(__name__)
-salt = get_secret("salt")["salt"]
+jwt_settings = get_setting("JWT")
+token_settings = get_setting("TOKEN")
+
+
+def get_salt():
+    """
+    singleton returing the salt
+    """
+    if not hasattr(get_salt, "salt"):
+        get_salt.salt = get_secret("salt")["salt"]
+    return get_salt.salt
 
 
 def _claims(token: str, salt: str) -> dict:
     return jwt.decode(
         token,
-        get_setting("JWT_SECRET") + salt,
-        algorithms=[get_setting("JWT_ALGORITHM")],
+        jwt_settings["secret"] + salt,
+        algorithms=[jwt_settings["algorithm"]],
     )
 
 
@@ -35,10 +45,10 @@ def _token(auth: HTTPAuthorizationCredentials | None) -> str:
 
 def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     token = _token(auth)
-    if get_setting("TOKEN").get("nocheck"):
+    if token_settings.get("nocheck"):
         return "0"
     try:
-        sub = _claims(token, salt).get("sub")
+        sub = _claims(token, get_salt()).get("sub")
     except ExpiredSignatureError:
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError:
@@ -51,12 +61,12 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
 
 async def validate_token(auth: HTTPAuthorizationCredentials) -> str:
     token = _token(auth)
-    if get_setting("TOKEN").get("nocheck"):
+    if token_settings.get("nocheck"):
         return "anonymous"
     sub = _unverified_sub(token)
 
     try:
-        claims = _claims(token, salt)
+        claims = _claims(token, get_salt())
     except ExpiredSignatureError:
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError:

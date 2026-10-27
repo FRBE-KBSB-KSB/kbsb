@@ -1,7 +1,6 @@
 # copyright Ruben Decrop 2012 - 2022
 # copyright Chessdevil Consulting BVBA 2015 - 2022
 
-
 from .login import (
     login,
     login2FA,

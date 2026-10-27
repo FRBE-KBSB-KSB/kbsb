@@ -194,7 +194,6 @@ async def api_verify_club_access(
     """
 
     try:
-        logger.info(f"api verify_club_access idclub: {idclub}, role: {role}")
         idmember = validate_membertoken(auth)
         return await verify_club_access(idclub=idclub, idmember=idmember, role=role)
     except RdException as e:

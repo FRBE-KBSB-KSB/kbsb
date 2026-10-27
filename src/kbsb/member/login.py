@@ -14,6 +14,8 @@ from reddevil.core import (
     jwt_encode,
 )
 
+from kbsb.core.tokens import get_salt
+
 from .md_member import (
     Login2FAValidator,
     LoginReply,
@@ -42,7 +44,7 @@ async def superuser_login(superid: str, password: str) -> str:
         "sub": superid,
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
-    return jwt_encode(payload, salt)
+    return jwt_encode(payload, get_salt())
 
 
 async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginReply:
@@ -52,8 +54,6 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
     if 2FA is activated on the account, is2FAneeded is set as True, and the user must
        provide the 2FA token in the login2FA method, where the JWT token can be returned
     """
-    from kbsb.core.tokens import salt
-
     from .member import odoo_email2idbel
 
     if ol.email.startswith("SU__"):
@@ -69,14 +69,14 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
     csrf_match = re.search(r'name="csrf_token" value="([^"]+)"', response.text)
     if not csrf_match:
         raise RuntimeError("Could not find CSRF token on the /web/login page")
-    csrf_token = csrf_match.group(1)
+    csrf = csrf_match.group(1)
     # we perform a POST in the login page
     response = await odoo_client.post(
         "/web/login",
         data={
             "login": ol.email,
             "password": ol.password,
-            "csrf_token": csrf_token,
+            "csrf_token": csrf,
             "db": odoo_params["db"],
         },
     )
@@ -90,15 +90,15 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
         csrf_match = re.search(r'name="csrf_token" value="([^"]+)"', response.text)
         if not csrf_match:
             raise RuntimeError("Could not find CSRF token on the /web/login/totp page")
-        csrf_token = csrf_match.group(1)
-        return LoginReply(id=-1, csrf=csrf_token, is2FAneeded=True, email=ol.email)
+        csrf = csrf_match.group(1)
+        return LoginReply(id=-1, csrf=csrf, is2FAneeded=True)
     # create JWT token and return it
     idbel = await odoo_email2idbel(ol.email)
     payload = {
         "sub": str(idbel),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
-    return LoginReply(id=1, jwttoken=jwt_encode(payload, salt))
+    return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))
 
 
 async def login2FA(
@@ -107,7 +107,6 @@ async def login2FA(
     """
     return a JWT token
     """
-    from kbsb.core.tokens import salt
 
     from .member import odoo_email2idbel
 
@@ -128,4 +127,4 @@ async def login2FA(
         "sub": str(idbel),
         "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
     }
-    return LoginReply(id=1, jwttoken=jwt_encode(payload, salt))
+    return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))

@@ -9,4 +9,7 @@ export default {
   odoologin: async function(options) {
     return await axios.post(`${prefix2}/login`, options);
   },
+  odoologin2fa: async function(options) {
+    return await axios.post(`${prefix2}/login2fa`, options);
+  },
 };
