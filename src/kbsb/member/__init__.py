@@ -7,7 +7,7 @@ from .login import (
 )
 from .md_member import (
     AnonMember,
-    Login2FAValidator,
+    Login2FaValidator,
     LoginReply,
     LoginValidator,
     Member,
@@ -21,7 +21,7 @@ from .member import (
 
 __all__ = [
     "AnonMember",
-    "Login2FAValidator",
+    "Login2FaValidator",
     "LoginReply",
     "LoginValidator",
     "Member",

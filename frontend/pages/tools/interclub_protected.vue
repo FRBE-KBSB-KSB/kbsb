@@ -22,16 +22,12 @@ let dialogcounter = 0
 const errortext = ref(null)
 const snackbar = ref(null)
 
-// login
+// globals
 const idbelstore = useIdbelStore()
-
-// locale
+const idtokenstore = useIdtokenStore()
 const { locale, t } = useI18n()
-
-// API backend
 const { $backend } = useNuxtApp()
-const idstore = useIdtokenStore()
-const { token } = storeToRefs(idstore)
+const { token } = storeToRefs(idtokenstore)
 
 // data model
 const tab = ref("registration")
@@ -157,7 +153,7 @@ async function getClubDetails() {
 // The login is kept in the browser (store/idtoken.js), so leaving it takes
 // a button: the token and member number are forgotten, back to the login.
 async function logout() {
-  idstore.updateToken(null)
+  idtokenstore.updateToken(null)
   idbelstore.updateIdbel(0)
   await gotoLogin()
 }
@@ -192,7 +188,7 @@ async function selectClub() {
 onMounted(async () => {
   let l = route.query.locale
   locale.value = l ? l : "nl"
-  idstore.startup()
+  idtokenstore.startup()
   idbelstore.startup()
   checkAuth()
   await processICdata()
@@ -211,12 +207,7 @@ definePageMeta({
     <div class="d-flex align-center">
       <h1>Interclubs Manager 2026-27</h1>
       <VSpacer />
-      <VBtn
-        v-if="token"
-        variant="text"
-        prepend-icon="mdi-logout"
-        @click="logout"
-      >
+      <VBtn v-if="token" variant="text" prepend-icon="mdi-logout" @click="logout">
         {{ $t("trnreg.nav_logout") }}
       </VBtn>
     </div>

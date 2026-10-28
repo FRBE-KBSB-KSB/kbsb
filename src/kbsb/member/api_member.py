@@ -15,7 +15,7 @@ from kbsb.core.tokens import validate_membertoken, validate_token
 
 from . import (
     AnonMember,
-    Login2FAValidator,
+    Login2FaValidator,
     LoginReply,
     LoginValidator,
     Member,
@@ -55,14 +55,15 @@ async def api_login(
         raise HTTPException(status_code=500)
 
 
-@router.post("/login2FA")
-async def api_login2FA(
-    l2fa: Login2FAValidator,
+@router.post("/login2fa")
+async def api_login2fa(
+    l2fa: Login2FaValidator,
     odoo_client: HttpClient,
 ) -> LoginReply:
     """
     do a 2FA login return a JWT token
     """
+    logger.info("processing 2FA code")
     try:
         return await login2FA(l2fa, odoo_client)
     except RdException as e:

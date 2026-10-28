@@ -22,6 +22,7 @@ let showLoading
 const login = ref({})
 const returnUrl = route.query.url ? route.query.url.replaceAll("__", "/") : "/"
 let csrf = ""
+let session_id = ""
 const dialog2fa = ref(false)
 const code2FA = ref("")
 
@@ -54,6 +55,7 @@ async function dologin() {
   console.log("reply from login", loginreply)
   if (loginreply.is2FAneeded) {
     csrf = loginreply.csrf
+    session_id = loginreply.session_id
     dialog2fa.value = true
   } else {
     idtokenstore.updateToken(loginreply.jwttoken)
@@ -69,6 +71,7 @@ async function dologin2FA() {
       email: login.value.email,
       csrf: csrf,
       code2FA: code2FA.value,
+      session_id: session_id,
     })
   } catch (error) {
     console.error("failed login", error?.message)
