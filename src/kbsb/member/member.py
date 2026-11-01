@@ -6,6 +6,7 @@ import httpx
 from reddevil.core import (  # type: ignore[import-untyped]
     RdBadRequest,
     RdException,
+    RdNotAuthorized,
     RdNotFound,
     get_secret,
     get_setting,
@@ -317,9 +318,56 @@ async def mgmt_getclubmembers(idclub: int):
     ]
 
 
-async def odoo_email2idbel(email: str):
+async def odoo_session_partner_id(
+    odoo_client: httpx.AsyncClient, session_id: str
+) -> int | None:
     """
-    obtain the idbel from the email using the session linked to the APIkey
+    The Odoo partner the given (just authenticated) web session belongs to, or
+    None when Odoo does not say. This is who actually passed the login, which an
+    email address cannot tell: members of one family often share one.
+    """
+    if not session_id:
+        return None
+    try:
+        response = await odoo_client.post(
+            "/web/session/get_session_info",
+            json={"jsonrpc": "2.0", "method": "call", "params": {}},
+            headers={"Cookie": f"session_id={session_id}"},
+        )
+        result = response.json().get("result") or {}
+    except (httpx.RequestError, ValueError):
+        return None
+    partner_id = result.get("partner_id")
+    return partner_id if isinstance(partner_id, int) and partner_id > 0 else None
+
+
+async def odoo_member_number(
+    email: str, odoo_client: httpx.AsyncClient, session_id: str
+) -> int:
+    """
+    The member number of the account that has just logged in to Odoo.
+
+    The partner of the authenticated session is used when Odoo names it. Only
+    when it does not is the email searched, and then only a single match is
+    accepted: with none or several there is no telling who logged in, and the
+    answer is a refusal, not a server error.
+    """
+    partner_id = await odoo_session_partner_id(odoo_client, session_id)
+    if partner_id is not None:
+        idbel = await odoo_email2idbel(email, partner_id=partner_id)
+        if idbel:
+            return idbel
+        logger.info("session partner has no member number, trying the email")
+    try:
+        return await odoo_email2idbel(email)
+    except RuntimeError:
+        raise RdNotAuthorized(description="MemberNotFoundForThisLogin")
+
+
+async def odoo_email2idbel(email: str, partner_id: int | None = None):
+    """
+    obtain the idbel from the email using the session linked to the APIkey,
+    or from the partner when that is known (then the email is not used)
     """
     payload = {
         "fields": [
@@ -327,7 +375,11 @@ async def odoo_email2idbel(email: str):
             "email_normalized",
             "x_studio_contact_nationalid_int",
         ],
-        "domain": [["email", "=", email]],
+        "domain": (
+            [["id", "=", partner_id]]
+            if partner_id is not None
+            else [["email", "=", email]]
+        ),
     }
     headers = {
         "X-Odoo-Database": odoo_db,

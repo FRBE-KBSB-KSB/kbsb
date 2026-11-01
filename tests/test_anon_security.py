@@ -1,6 +1,6 @@
 import io
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
@@ -364,13 +364,13 @@ def second_step(**changes):
 
 @pytest.mark.asyncio
 async def test_the_2fa_token_is_for_the_account_that_passed_the_password_step():
-    email2idbel = AsyncMock(return_value=111)
-    with patch("kbsb.member.member.odoo_email2idbel", email2idbel):
+    member_number = AsyncMock(return_value=111)
+    with patch("kbsb.member.member.odoo_member_number", member_number):
         # the email the browser sends is somebody else's
         reply = await login2FA(
             second_step(email="victim@example.org"), odoo_2fa_client()
         )
-    email2idbel.assert_awaited_once_with("me@example.org")
+    assert member_number.await_args.args[0] == "me@example.org"
     assert tokens.validate_membertoken(bearer(reply.jwttoken)) == "111"
 
 
@@ -407,7 +407,7 @@ async def test_an_old_2fa_state_is_refused():
 @pytest.mark.asyncio
 async def test_a_wrong_2fa_code_gives_no_token():
     with (
-        patch("kbsb.member.member.odoo_email2idbel", AsyncMock(return_value=111)),
+        patch("kbsb.member.member.odoo_member_number", AsyncMock(return_value=111)),
         pytest.raises(RdNotAuthorized),
     ):
         await login2FA(second_step(), odoo_2fa_client(accepts=False))
@@ -456,3 +456,69 @@ async def test_odoo_login_refuses_2fa_accounts_and_superusers():
         await odoo_login("me@example.org", "pw")
     with pytest.raises(RdNotAuthorized):
         await odoo_login("SU__ruben", "pw")
+
+
+# -- which member has logged in -----------------------------------------------
+
+
+def odoo_session_client(partner_id=None):
+    def handler(request):
+        assert request.headers["cookie"] == "session_id=sess"
+        return httpx.Response(200, json={"result": {"partner_id": partner_id}})
+
+    return httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="https://odoo.test"
+    )
+
+
+@pytest.mark.asyncio
+async def test_the_member_is_the_partner_of_the_session_not_whoever_shares_the_email():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        number = await odoo_member_number(
+            "family@example.org", odoo_session_client(183705), "sess"
+        )
+    assert number == 19833
+    lookup.assert_awaited_once_with("family@example.org", partner_id=183705)
+
+
+@pytest.mark.asyncio
+async def test_without_a_session_partner_a_single_email_match_is_used():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        number = await odoo_member_number(
+            "me@example.org", odoo_session_client(None), "sess"
+        )
+    assert number == 19833
+    lookup.assert_awaited_once_with("me@example.org")
+
+
+@pytest.mark.asyncio
+async def test_no_or_several_email_matches_is_a_refusal_not_a_server_error():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(side_effect=RuntimeError("Odoo search_read failed"))
+    with (
+        patch("kbsb.member.member.odoo_email2idbel", lookup),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_member_number("me@example.org", odoo_session_client(None), "sess")
+
+
+@pytest.mark.asyncio
+async def test_odoo_failing_to_name_the_session_falls_back_to_the_email():
+    from kbsb.member.member import odoo_member_number
+
+    def broken(request):
+        return httpx.Response(500, text="boom")
+
+    client = httpx.AsyncClient(
+        transport=httpx.MockTransport(broken), base_url="https://odoo.test"
+    )
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        assert await odoo_member_number("me@example.org", client, "sess") == 19833
