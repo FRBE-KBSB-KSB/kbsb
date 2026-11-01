@@ -37,6 +37,11 @@ EMAIL = {
     "blindcopy": "ruben.kbsb@gmail.com",
 }
 
+FILESTORE = {
+    "manager": "google",
+    "bucket": os.environ.get("FILESTORE_BUCKET", "website-kbsb-prod.appspot.com"),
+}
+
 # login details
 GOOGLE_CLIENT_ID = os.environ.get(
     "GOOGLE_CLIENT_ID",

@@ -20,7 +20,6 @@ env_localtest.py
 uv.lock
 License.md
 poe_tasks.yaml
-README.md
 ruff.toml
 
 # Hidden files and directoris:
