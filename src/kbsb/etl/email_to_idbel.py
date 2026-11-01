@@ -23,7 +23,7 @@ settings = get_settings()
 
 async def email_to_idbel(email: str):
     async with lifespan(app):
-        idbel = await odoo_email2idbel(email, app)
+        idbel = await odoo_email2idbel(email)
     return idbel
 
 

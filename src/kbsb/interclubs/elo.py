@@ -5,14 +5,15 @@ from datetime import date, datetime
 from io import BytesIO, StringIO
 from typing import Any
 
-import httpx
-from reddevil.core import get_secret, get_setting
+from reddevil.core import get_setting
 from reddevil.filestore.filestore import (
     list_bucket_files,
     read_bucket_content,
     write_bucket_content,
 )
 from unidecode import unidecode
+
+from kbsb.core.eloserver import get_ratingcsv
 
 from .helpers import load_icdata
 from .md_elo import EloGame, EloPlayer
@@ -87,24 +88,11 @@ async def write_eloprocessing():
     """
     Reads csv file from from zerotwo cloud server and write it in google cloud
     """
-    secret = get_secret("eloserver")
+
     tz_brussels = get_setting("TZ_BRUSSELS")
-    url_eloserver_csv = get_setting("ELO_SERVER_CSV")
-    logger.info(f"Fetching ELO data from server {url_eloserver_csv}")
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url_eloserver_csv, headers={"x-api-key": secret})
-        if response.status_code != 200:
-            raise RuntimeError(
-                f"Failed to fetch ELO data, status code: {response.status_code}"
-            )
-        response_csv = await client.get(
-            url_eloserver_csv, headers={"x-api-key": secret}
-        )
-        if response_csv.status_code != 200:
-            raise RuntimeError(
-                f"Failed to fetch ELO CSV data, status code: {response_csv.status_code}"
-            )
-    csvBytes = BytesIO(initial_bytes=response.text.encode("utf-8"))
+    csvtext = await get_ratingcsv()
+    logger.info("Fetching ELO data from eloserver: read len(csvtext) bytes")
+    csvBytes = BytesIO(initial_bytes=csvtext.encode("utf-8"))
     rd = datetime.now(tz=tz_brussels).date().strftime("%Y%m%d")
     try:
         write_bucket_content(f"eloprocessing/{rd}.csv", csvBytes)

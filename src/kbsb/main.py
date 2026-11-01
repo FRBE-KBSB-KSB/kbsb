@@ -11,7 +11,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
-from reddevil.core import a_close_mongodb, a_connect_mongodb, get_setting, register_app
+from reddevil.core import (  # type: ignore[import-untyped]
+    a_close_mongodb,
+    a_connect_mongodb,
+    get_setting,
+    register_app,
+)
 
 from . import version
 
@@ -33,6 +38,7 @@ async def lifespan(app: FastAPI):
     a_connect_mongodb()
 
     # create an async httpx session to the Odoo platform
+    # this session registers any cookies set in the login functionality
     odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
     app.state.odoo_client = httpx.AsyncClient(
         base_url=odoo_params["url"],
@@ -42,8 +48,6 @@ async def lifespan(app: FastAPI):
             max_connections=odoo_params["max_connections"],
         ),
     )
-
-    # TODO apply the same for the httpx session to the KBSB database platform
 
     yield
 
@@ -76,13 +80,13 @@ if get_setting("KBSB_MODE") != "production":
     )
 
 # import api endpoints
-# Ruben Decrop: I removed the existing code bacause it was based
-# on tha incorrect assumption that 2 unrelated items: loading
-# the endpoints and signing in  with frbe-kbsb-ksb.be accounts,
+# Ruben Decrop: I removed the existing code because it was based
+# on tha incorrect assumption that 2 unrelated items ( loading
+# the endpoints and signing in  with frbe-kbsb-ksb.be accounts)
 # are somewhere interfering with each other.  They are not.
 
 logger.info("loading api_account")
-from reddevil.account import api_account
+from reddevil.account import api_account  # type: ignore[import-untyped]
 
 logger.info("loading api_club")
 from kbsb.club import api_club
@@ -112,7 +116,7 @@ logger.info("loading api_tournament_registrations")
 from kbsb.tournament_registrations import api_tournament_registrations
 
 logger.info("loading api_zerotwocloud_mail")
-from zerotwocloud.mail import api as api_zerotwocloud_mail
+from zerotwocloud.mail import api as api_zerotwocloud_mail  # type: ignore[import-untyped]  # noqa: I001
 
 app.include_router(api_account.router)
 app.include_router(api_club.router)

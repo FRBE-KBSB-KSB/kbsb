@@ -6,14 +6,28 @@ import logging.config
 import os
 import zoneinfo
 from pathlib import Path
+from typing import Any
 
 API_BASE_URL = "/api"
 
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", "")
 
-ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
-ELO_SERVER_CSV = "https://kbsb-api.zerotwo.cloud/api/v1/players_national/ratings.csv"
+
+ELOSERVER_CONNECTION_PARAMETERS = {
+    "url": "https://kbsb-api.zerotwo.cloud",
+    "path_rating": "/api/v1/public/rating",
+    "path_ratingcsv": "/api/v1/players_national/ratings.csv",
+    "timeout": 10.0,
+    "max_keepalive": 20,
+    "max_connections": 100,
+}
+
+# backwards compabitibility
+# will be deprecated
+ELO_SERVER = f"{ELOSERVER_CONNECTION_PARAMETERS['url']}{ELOSERVER_CONNECTION_PARAMETERS['path_rating']}"
+ELO_SERVERCSV = f"{ELOSERVER_CONNECTION_PARAMETERS['url']}{ELOSERVER_CONNECTION_PARAMETERS['path_ratingcsv']}"
+
 
 EMAIL = {
     "backend": "GMAIL",
@@ -41,12 +55,12 @@ JWT = {
 }
 
 # backwards compatibility
-# should be gone in the next release of reddevil
+# will be deprecated, should be gone in the next release of reddevil
 JWT_ALGORITHM = JWT["algorithm"]
 JWT_SECRET = JWT["secret"]
 
 
-LOG_CONFIG = {
+LOG_CONFIG: dict[str, Any] = {
     "version": 1,
     "formatters": {
         "simple": {
@@ -178,7 +192,7 @@ if KBSB_MODE == "testing":
     from tests.settings import *
 
 if COLORLOG:
-    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"  # noqa:
+    LOG_CONFIG["handlers"]["console"]["formatter"] = "color"
 
 logging.config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger(__name__)
