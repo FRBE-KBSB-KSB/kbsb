@@ -1,7 +1,8 @@
 import io
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 import reddevil.core
 from fastapi import FastAPI
@@ -15,13 +16,14 @@ from kbsb.core import RdForbidden, tokens
 from kbsb.core.tokens import get_salt
 from kbsb.interclubs import api_interclubs
 from kbsb.interclubs.md_interclubs import ICSeries
-from kbsb.member import api_member
+from kbsb.member import Login2FaValidator, LoginReply, api_member, login2FA
 
 reddevil.core.register_app(FastAPI(), "kbsb.settings", "/api")
 
 jwt_secret = get_setting("JWT")["secret"]
 jwt_algorithm = get_setting("JWT")["algorithm"]
 salt = get_salt()
+member_salt = tokens.get_member_salt()
 
 
 def token(sub, salt, key=None, minutes=30):
@@ -34,12 +36,12 @@ def bearer(tok):
 
 
 def test_a_token_the_site_signed_is_accepted():
-    assert tokens.validate_membertoken(bearer(token("123456", salt))) == "123456"
+    assert tokens.validate_membertoken(bearer(token("123456", member_salt))) == "123456"
 
 
 def test_a_token_signed_with_another_key_is_refused():
     with pytest.raises(RdNotAuthorized):
-        tokens.validate_membertoken(bearer(token("123456", salt, key="guessed")))
+        tokens.validate_membertoken(bearer(token("123456", member_salt, key="guessed")))
 
 
 def test_an_unsigned_token_is_refused():
@@ -50,7 +52,7 @@ def test_an_unsigned_token_is_refused():
 
 def test_an_expired_token_is_refused():
     with pytest.raises(RdNotAuthorized) as e:
-        tokens.validate_membertoken(bearer(token("123456", salt, minutes=-1)))
+        tokens.validate_membertoken(bearer(token("123456", member_salt, minutes=-1)))
     assert e.value.description == "TokenExpired"
 
 
@@ -61,7 +63,7 @@ def test_no_token_is_refused():
 
 @pytest.mark.asyncio
 async def test_an_admin_token_with_its_account_salt_is_accepted():
-    with patch.object(tokens, "get_salt", MagicMock(return_value="acct")):
+    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
         assert await tokens.validate_token(
             bearer(token("a@frbe-kbsb-ksb.be", "acct"))
         ) == ("a@frbe-kbsb-ksb.be")
@@ -69,17 +71,15 @@ async def test_an_admin_token_with_its_account_salt_is_accepted():
 
 @pytest.mark.asyncio
 async def test_a_member_token_does_not_open_the_admin_api():
-    with (
-        patch.object(tokens, "get_salt", MagicMock(return_value="")),
-        pytest.raises(RdNotAuthorized),
-    ):
-        await tokens.validate_token(bearer(token("123456", salt)))
+    # signed the way login signs it, with the real salts and nothing patched
+    with pytest.raises(RdNotAuthorized):
+        await tokens.validate_token(bearer(token("123456", member_salt)))
 
 
 @pytest.mark.asyncio
 async def test_an_admin_token_signed_with_another_key_is_refused():
     with (
-        patch.object(tokens, "get_salt", MagicMock(return_value="acct")),
+        patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")),
         pytest.raises(RdNotAuthorized),
     ):
         await tokens.validate_token(
@@ -195,11 +195,16 @@ def test_the_public_route_serves_the_public_view():
 def test_the_club_csv_needs_an_admin(get_csv_clubs):
     get_csv_clubs.return_value = io.StringIO("a,b\nAA,BB\nCC,DD")
     assert client.get("/api/v1/clubs/anon/csvclubs").status_code in (401, 403)
-    member = token("123456", salt)
+    admin = token("SU__ruben", salt)
+    resp = client.get(
+        "/api/v1/clubs/anon/csvclubs", headers={"Authorization": f"Bearer {admin}"}
+    )
+    assert resp.status_code == 200
+    member = token("123456", member_salt)
     resp = client.get(
         "/api/v1/clubs/anon/csvclubs", headers={"Authorization": f"Bearer {member}"}
     )
-    assert resp.status_code == 200
+    assert resp.status_code == 401
 
 
 # -- who may see or change what, once logged in -------------------------------
@@ -213,7 +218,7 @@ member_client = TestClient(full)
 
 
 def as_member(idnumber):
-    return {"Authorization": f"Bearer {token(str(idnumber), salt)}"}
+    return {"Authorization": f"Bearer {token(str(idnumber), member_salt)}"}
 
 
 def test_the_full_club_record_is_only_for_that_clubs_admin():
@@ -258,7 +263,7 @@ def test_a_member_sees_only_their_own_details():
 
 def test_the_mailinglist_refuses_a_made_up_admin_token():
     forged = token("anyone@frbe-kbsb-ksb.be", "whatever", key="guessed")
-    with patch.object(tokens, "get_salt", MagicMock(return_value="acct")):
+    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
         resp = member_client.get(f"/api/v1/clubs/mgmt/mailinglist?token={forged}")
     assert resp.status_code == 401
 
@@ -312,3 +317,208 @@ async def test_other_clubs_line_ups_are_hidden_before_the_round():
     own, other = out.rounds[0].encounters
     assert (own.games[0].idnumber_home, own.games[0].idnumber_visit) == (11, 0)
     assert (other.games[0].idnumber_home, other.games[0].idnumber_visit) == (0, 0)
+
+
+# -- member tokens are not admin tokens ---------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_a_member_number_is_never_an_admin_whatever_it_was_signed_with():
+    with pytest.raises(RdNotAuthorized):
+        await tokens.validate_token(bearer(token("123456", salt)))
+
+
+def test_an_admin_token_is_not_a_member_token():
+    with pytest.raises(RdNotAuthorized):
+        tokens.validate_membertoken(bearer(token("a@frbe-kbsb-ksb.be", salt)))
+
+
+def test_a_superuser_token_still_works_on_the_member_routes():
+    sub = tokens.validate_membertoken(bearer(token("SU__ruben", salt)))
+    assert sub == "SU__ruben"
+
+
+# -- the 2FA step belongs to the account that passed the password step --------
+
+
+def odoo_2fa_client(accepts=True):
+    def handler(request):
+        if accepts:
+            return httpx.Response(303, headers={"location": "/my"})
+        return httpx.Response(200, text="wrong code")
+
+    return httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="https://odoo.test"
+    )
+
+
+def second_step(**changes):
+    fields = {
+        "csrf": "c",
+        "code2FA": "123456",
+        "session_id": "sess",
+        "state": tokens.issue_2fa_state("me@example.org", "sess"),
+    }
+    return Login2FaValidator(**{**fields, **changes})
+
+
+@pytest.mark.asyncio
+async def test_the_2fa_token_is_for_the_account_that_passed_the_password_step():
+    member_number = AsyncMock(return_value=111)
+    with patch("kbsb.member.member.odoo_member_number", member_number):
+        # the email the browser sends is somebody else's
+        reply = await login2FA(
+            second_step(email="victim@example.org"), odoo_2fa_client()
+        )
+    assert member_number.await_args.args[0] == "me@example.org"
+    assert tokens.validate_membertoken(bearer(reply.jwttoken)) == "111"
+
+
+@pytest.mark.asyncio
+async def test_a_2fa_state_cannot_be_used_with_another_odoo_session():
+    with pytest.raises(RdNotAuthorized):
+        await login2FA(second_step(session_id="someone-elses"), odoo_2fa_client())
+
+
+@pytest.mark.asyncio
+async def test_a_forged_2fa_state_is_refused():
+    forged = jwt.encode(
+        {
+            "sub": "victim@example.org",
+            "sid": "sess",
+            "exp": datetime.now(tz=UTC) + timedelta(minutes=5),
+        },
+        jwt_secret + salt,
+        jwt_algorithm,
+    )
+    for state in ("garbage", forged):
+        with pytest.raises(RdNotAuthorized):
+            await login2FA(second_step(state=state), odoo_2fa_client())
+
+
+@pytest.mark.asyncio
+async def test_an_old_2fa_state_is_refused():
+    with patch.object(tokens, "STATE_2FA_MINUTES", -1):
+        state = tokens.issue_2fa_state("me@example.org", "sess")
+    with pytest.raises(RdNotAuthorized):
+        await login2FA(second_step(state=state), odoo_2fa_client())
+
+
+@pytest.mark.asyncio
+async def test_a_wrong_2fa_code_gives_no_token():
+    with (
+        patch("kbsb.member.member.odoo_member_number", AsyncMock(return_value=111)),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await login2FA(second_step(), odoo_2fa_client(accepts=False))
+
+
+# -- the Odoo login sessions ----------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_every_request_gets_its_own_odoo_client():
+    first, second = api_member.get_odoo_client(), api_member.get_odoo_client()
+    one, two = await anext(first), await anext(second)
+    one.cookies.set("session_id", "belongs-to-one")
+    assert one is not two
+    assert two.cookies.get("session_id") is None
+    await first.aclose()
+    await second.aclose()
+
+
+# -- the tournament dashboard's Odoo login -------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_odoo_login_gives_the_member_number():
+    from kbsb.member.member import odoo_login
+
+    member_token = jwt.encode(
+        {"sub": "777", "exp": datetime.now(tz=UTC) + timedelta(minutes=5)},
+        jwt_secret + member_salt,
+        jwt_algorithm,
+    )
+    reply = LoginReply(id=1, jwttoken=member_token)
+    with patch("kbsb.member.login.login", AsyncMock(return_value=reply)):
+        assert await odoo_login("me@example.org", "pw") == (777, member_token)
+
+
+@pytest.mark.asyncio
+async def test_odoo_login_refuses_2fa_accounts_and_superusers():
+    from kbsb.member.member import odoo_login
+
+    asks_2fa = LoginReply(id=-1, is2FAneeded=True, session_id="s", csrf="c")
+    with (
+        patch("kbsb.member.login.login", AsyncMock(return_value=asks_2fa)),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_login("me@example.org", "pw")
+    with pytest.raises(RdNotAuthorized):
+        await odoo_login("SU__ruben", "pw")
+
+
+# -- which member has logged in -----------------------------------------------
+
+
+def odoo_session_client(partner_id=None):
+    def handler(request):
+        assert request.headers["cookie"] == "session_id=sess"
+        return httpx.Response(200, json={"result": {"partner_id": partner_id}})
+
+    return httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="https://odoo.test"
+    )
+
+
+@pytest.mark.asyncio
+async def test_the_member_is_the_partner_of_the_session_not_whoever_shares_the_email():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        number = await odoo_member_number(
+            "family@example.org", odoo_session_client(183705), "sess"
+        )
+    assert number == 19833
+    lookup.assert_awaited_once_with("family@example.org", partner_id=183705)
+
+
+@pytest.mark.asyncio
+async def test_without_a_session_partner_a_single_email_match_is_used():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        number = await odoo_member_number(
+            "me@example.org", odoo_session_client(None), "sess"
+        )
+    assert number == 19833
+    lookup.assert_awaited_once_with("me@example.org")
+
+
+@pytest.mark.asyncio
+async def test_no_or_several_email_matches_is_a_refusal_not_a_server_error():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(side_effect=RuntimeError("Odoo search_read failed"))
+    with (
+        patch("kbsb.member.member.odoo_email2idbel", lookup),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_member_number("me@example.org", odoo_session_client(None), "sess")
+
+
+@pytest.mark.asyncio
+async def test_odoo_failing_to_name_the_session_falls_back_to_the_email():
+    from kbsb.member.member import odoo_member_number
+
+    def broken(request):
+        return httpx.Response(500, text="boom")
+
+    client = httpx.AsyncClient(
+        transport=httpx.MockTransport(broken), base_url="https://odoo.test"
+    )
+    lookup = AsyncMock(return_value=19833)
+    with patch("kbsb.member.member.odoo_email2idbel", lookup):
+        assert await odoo_member_number("me@example.org", client, "sess") == 19833

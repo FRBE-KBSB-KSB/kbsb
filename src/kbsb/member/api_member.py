@@ -3,12 +3,13 @@
 
 
 import logging
+from collections.abc import AsyncIterator
 from typing import Annotated
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
-from reddevil.core import RdException, bearer_schema
+from reddevil.core import RdException, bearer_schema, get_setting
 
 from kbsb.core import RdForbidden
 from kbsb.core.tokens import validate_membertoken, validate_token
@@ -31,8 +32,19 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/member")
 
 
-def get_odoo_client(request: Request) -> httpx.AsyncClient:
-    return request.app.state.odoo_client
+async def get_odoo_client() -> AsyncIterator[httpx.AsyncClient]:
+    """
+    A new Odoo client for every request. A client keeps the cookies Odoo sets,
+    and a login is a conversation held through those cookies, so one client
+    shared by everybody would mix the sessions of people logging in at the same
+    time and keep the last person's session alive in memory.
+    """
+    params = get_setting("ODOO_CONNECTION_PARAMETERS")
+    async with httpx.AsyncClient(
+        base_url=params["url"],
+        timeout=httpx.Timeout(params["timeout"]),
+    ) as client:
+        yield client
 
 
 HttpClient = Annotated[httpx.AsyncClient, Depends(get_odoo_client)]

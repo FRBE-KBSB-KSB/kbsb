@@ -23,6 +23,7 @@ const login = ref({})
 const returnUrl = route.query.url ? route.query.url.replaceAll("__", "/") : "/"
 let csrf = ""
 let session_id = ""
+let state = ""
 const dialog2fa = ref(false)
 const code2FA = ref("")
 
@@ -56,6 +57,7 @@ async function dologin() {
   if (loginreply.is2FAneeded) {
     csrf = loginreply.csrf
     session_id = loginreply.session_id
+    state = loginreply.state
     dialog2fa.value = true
   } else {
     idtokenstore.updateToken(loginreply.jwttoken)
@@ -68,10 +70,10 @@ async function dologin2FA() {
   showLoading(true)
   try {
     reply = await $backend("accounts", "odoologin2fa", {
-      email: login.value.email,
       csrf: csrf,
       code2FA: code2FA.value,
       session_id: session_id,
+      state: state,
     })
   } catch (error) {
     console.error("failed login", error?.message)

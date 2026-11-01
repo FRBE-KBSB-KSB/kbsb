@@ -25,7 +25,12 @@ from reddevil.core import (  # type: ignore[import-untyped]
     jwt_encode,
 )
 
-from kbsb.core.tokens import get_salt
+from kbsb.core.tokens import (
+    get_member_salt,
+    get_salt,
+    issue_2fa_state,
+    read_2fa_state,
+)
 
 from .md_member import (
     Login2FaValidator,
@@ -65,7 +70,7 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
     if 2FA is activated on the account, is2FAneeded is set as True, and the user must
        provide the 2FA token in the login2FA method, where the JWT token can be returned
     """
-    from .member import odoo_email2idbel
+    from .member import odoo_member_number
 
     logger.info(f"logging in {ol.email}")
     if ol.email.startswith("SU__"):
@@ -122,17 +127,23 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
         if not csrf_match:
             raise RuntimeError("Could not find CSRF token on the /web/login/totp page")
         csrf = csrf_match.group(1)
-        return LoginReply(id=-1, csrf=csrf, is2FAneeded=True, session_id=session_id)
+        return LoginReply(
+            id=-1,
+            csrf=csrf,
+            is2FAneeded=True,
+            session_id=session_id,
+            state=issue_2fa_state(ol.email, session_id),
+        )
 
     # login successfull but 2FA not active, so we return JWT token
     if response2.status_code == 303 and "/my" in response2.headers.get("location", ""):
-        idbel = await odoo_email2idbel(ol.email)
+        idbel = await odoo_member_number(ol.email, odoo_client, session_id)
         logger.info(f"{idbel} succesfully logged in without 2FA")
         payload = {
             "sub": str(idbel),
             "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
         }
-        return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))
+        return LoginReply(id=1, jwttoken=jwt_encode(payload, get_member_salt()))
     # login unseccessful
     raise RdNotAuthorized()
 
@@ -144,7 +155,11 @@ async def login2FA(
     performs the 2nd fase in a 2FA login process
     """
 
-    from .member import odoo_email2idbel
+    from .member import odoo_member_number
+
+    # whose login this is comes from what the server signed in the first step,
+    # never from the request: Odoo only says that *some* account passed 2FA
+    email = read_2fa_state(l2fa.state, l2fa.session_id)
 
     # posting on the 2FA page, submitting the 2FA code
     response = await odoo_client.post(
@@ -163,13 +178,15 @@ async def login2FA(
         )
     # If we are redirected to the /my page, the 2FA is handled successfully
     if response.status_code == 303 and "/my" in response.headers.get("location", ""):
-        idbel = await odoo_email2idbel(l2fa.email)
+        # Odoo may hand out a new session once the code is accepted
+        session_id = response.cookies.get("session_id") or l2fa.session_id
+        idbel = await odoo_member_number(email, odoo_client, session_id)
         logger.info(f"{idbel} succesfully logged in with 2FA")
         payload = {
             "sub": str(idbel),
             "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
         }
-        return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))
+        return LoginReply(id=1, jwttoken=jwt_encode(payload, get_member_salt()))
 
     # if not raise not authorized
     raise RdNotAuthorized
