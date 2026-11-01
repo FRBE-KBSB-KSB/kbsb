@@ -163,13 +163,14 @@ async def get_anon_clubs() -> list[ClubItem]:
     return clubs
 
 
-async def get_csv_clubs(options: dict = {}) -> io.StringIO:
+async def get_csv_clubs(options: dict | None = None) -> io.StringIO:
     """
     get all the Clubs
     """
-    options.pop("_class", None)
+    myoptions = options or {}
+    myoptions.pop("_class", None)
     fieldnames = ["idclub", "name_short", "name_long", "enabled", "email_main"]
-    docs = await DbClub.find_multiple(options)
+    docs = await DbClub.find_multiple(myoptions)
     docs = [{k: safe_cell(v) for k, v in d.items() if k in fieldnames} for d in docs]
     stream = io.StringIO()
     writer = csv.DictWriter(stream, fieldnames=fieldnames)

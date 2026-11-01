@@ -105,8 +105,6 @@ async def api_update_club(
 async def api_clb_get_club(
     idclub: int, auth: HTTPAuthorizationCredentials = Depends(bearer_schema)
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         idnumber = validate_membertoken(auth)
         await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)
@@ -125,8 +123,6 @@ async def api_clb_update_club(
     bt: BackgroundTasks,
     auth: HTTPAuthorizationCredentials = Depends(bearer_schema),
 ):
-    from kbsb.member import validate_membertoken
-
     try:
         idnumber = validate_membertoken(auth)
         await verify_club_access(idclub, idnumber, ClubRoleNature.ClubAdmin)

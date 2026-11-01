@@ -43,6 +43,11 @@ SECRETS = {
         "name": "test-salt",
         "manager": "filejson",
     },
+    "eloserver": {
+        # use dummy salt
+        "name": "test-eloserver",
+        "manager": "filetext",
+    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = True

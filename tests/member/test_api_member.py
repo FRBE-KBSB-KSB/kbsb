@@ -1,5 +1,6 @@
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from kbsb.main import app
@@ -16,6 +17,7 @@ def test_anon_getmember(anon_getmember: AsyncMock, anon_member_factory):
     anon_getmember.assert_awaited()
 
 
+@pytest.mark.skip(reason="API endpoint no longer available")
 @patch("kbsb.member.api_member.anon_getfidemember", create=True)
 def test_anon_getfidemember(anon_getmember: AsyncMock, anon_member_factory):
     client = TestClient(app)
