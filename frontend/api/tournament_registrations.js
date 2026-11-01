@@ -55,6 +55,17 @@ export default {
     return await axios.post(`${prefix}/odoo-login`, { email, password });
   },
 
+  // the second step for an account with 2FA; answers like admin_odooLogin
+  admin_odooLogin2fa: async function (options) {
+    const { csrf, code2FA, session_id, state } = options;
+    return await axios.post(`${prefix}/odoo-login-2fa`, {
+      csrf,
+      code2FA,
+      session_id,
+      state,
+    });
+  },
+
   admin_login: async function (options) {
     const { username, password } = options;
     return await axios.post(`${prefix}/admin/login`, { username, password });
