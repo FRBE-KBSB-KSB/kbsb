@@ -15,9 +15,12 @@ from zerotwocloud.mail.mail import sendEmailMessage
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/tournament_registrations", tags=["tournament_registrations"])
+router = APIRouter(
+    prefix="/api/v1/tournament_registrations", tags=["tournament_registrations"]
+)
 
 _api_key_cache = None
+
 
 def get_api_key() -> str:
     global _api_key_cache
@@ -43,7 +46,10 @@ def get_api_key() -> str:
         return _api_key_cache
     except Exception:
         logger.exception("Failed to fetch master API key from Secret Manager")
-        raise HTTPException(status_code=500, detail="Could not retrieve API key for backend")
+        raise HTTPException(
+            status_code=500, detail="Could not retrieve API key for backend"
+        )
+
 
 _mail_bridge_secret_cache = None
 
@@ -87,7 +93,9 @@ def get_mail_bridge_secret() -> str:
         return _mail_bridge_secret_cache
     except Exception:
         logger.exception("Failed to fetch mail bridge secret from Secret Manager")
-        raise HTTPException(status_code=500, detail="Could not retrieve mail bridge secret")
+        raise HTTPException(
+            status_code=500, detail="Could not retrieve mail bridge secret"
+        )
 
 
 class SendConfirmationPayload(BaseModel):
@@ -122,7 +130,10 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
 
     all_recipients = payload.to + payload.cc + payload.bcc
     if not all_recipients:
-        raise HTTPException(status_code=400, detail="At least one recipient (to, cc, or bcc) must not be empty")
+        raise HTTPException(
+            status_code=400,
+            detail="At least one recipient (to, cc, or bcc) must not be empty",
+        )
 
     # zerotwocloud.mail only sends as the mailbox it acts as, same as
     # fide_registration's own send: Gmail would silently rewrite any other
@@ -218,17 +229,21 @@ class OdooLoginPayload(BaseModel):
 async def odoo_login_for_tournaments(payload: OdooLoginPayload):
     from reddevil.core import RdNotAuthorized
 
-    from kbsb.member.odoo_member import odoo_login
+    from kbsb.member.member import odoo_login
 
     if not payload.email.strip() or not payload.password:
         raise HTTPException(status_code=400, detail="Email and password are required")
     try:
-        national_id, _member_token = await odoo_login(payload.email.strip(), payload.password)
+        national_id, _member_token = await odoo_login(
+            payload.email.strip(), payload.password
+        )
     except RdNotAuthorized:
         raise HTTPException(status_code=401, detail="WrongUsernamePasswordCombination")
     except Exception:
         logger.exception("Odoo login for tournament registrations failed")
-        raise HTTPException(status_code=502, detail="Could not reach Odoo to check the login")
+        raise HTTPException(
+            status_code=502, detail="Could not reach Odoo to check the login"
+        )
 
     if not national_id:
         raise HTTPException(
@@ -298,7 +313,7 @@ async def proxy_to_vps(request: Request, path: str = ""):
                 url=target_url,
                 headers=headers,
                 content=body,
-                timeout=30.0
+                timeout=30.0,
             )
         except httpx.RequestError as exc:
             logger.exception(f"An error occurred while requesting {exc.request.url!r}.")
@@ -307,12 +322,21 @@ async def proxy_to_vps(request: Request, path: str = ""):
     response_headers = {}
     for k, v in proxy_response.headers.items():
         kl = k.lower()
-        if kl not in ("content-encoding", "content-length", "transfer-encoding", "connection", "etag", "last-modified", "cache-control", "set-cookie") and not kl.startswith("access-control-"):
+        if kl not in (
+            "content-encoding",
+            "content-length",
+            "transfer-encoding",
+            "connection",
+            "etag",
+            "last-modified",
+            "cache-control",
+            "set-cookie",
+        ) and not kl.startswith("access-control-"):
             response_headers[k] = v
     response_headers["cache-control"] = "no-store"
 
     return Response(
         content=proxy_response.content,
         status_code=proxy_response.status_code,
-        headers=response_headers
+        headers=response_headers,
     )

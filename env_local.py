@@ -20,6 +20,10 @@ SECRETS = {
         "name": "kbsb-gdrive-staging",
         "manager": "filejson",
     },
+    "salt": {
+        "name": "kbsb-salt",
+        "manager": "googlejson",
+    },
     "SU__ruben": {
         "name": "su_ruben",
         "manager": "filejson",
@@ -31,7 +35,7 @@ SECRETS = {
     "mailrelay": {
         "name": "mail-relay-key",
         "manager": "filetext",
-    },    
+    },
 }
 
 TOKEN = {

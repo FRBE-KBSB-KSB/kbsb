@@ -1,7 +1,8 @@
 import logging
-from fastapi import APIRouter, Request, Response, HTTPException
-import httpx
+
 import google.auth
+import httpx
+from fastapi import APIRouter, HTTPException, Request, Response
 from google.cloud import secretmanager
 
 logger = logging.getLogger(__name__)
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/players_fide", tags=["players_fide"])
 
 _api_key_cache = None
+
 
 def get_api_key() -> str:
     global _api_key_cache
@@ -36,7 +38,10 @@ def get_api_key() -> str:
         return _api_key_cache
     except Exception:
         logger.exception("Failed to fetch master API key from Secret Manager")
-        raise HTTPException(status_code=500, detail="Could not retrieve API key for backend")
+        raise HTTPException(
+            status_code=500, detail="Could not retrieve API key for backend"
+        )
+
 
 TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/players_fide"
 
@@ -46,11 +51,13 @@ TARGET_BASE_URL = "https://kbsb-api.zerotwo.cloud/api/v1/players_fide"
 # at players_fide with the master-scoped key instead of oldelo.
 _client: httpx.AsyncClient | None = None
 
+
 def get_client() -> httpx.AsyncClient:
     global _client
     if _client is None or _client.is_closed:
         _client = httpx.AsyncClient(timeout=30.0)
     return _client
+
 
 @router.api_route("/{path:path}", methods=["GET", "HEAD"])
 @router.api_route("", methods=["GET", "HEAD"])
@@ -87,12 +94,21 @@ async def proxy_to_vps(request: Request, path: str = ""):
     response_headers = {}
     for k, v in proxy_response.headers.items():
         kl = k.lower()
-        if kl not in ("content-encoding", "content-length", "transfer-encoding", "connection", "etag", "last-modified", "cache-control", "set-cookie") and not kl.startswith("access-control-"):
+        if kl not in (
+            "content-encoding",
+            "content-length",
+            "transfer-encoding",
+            "connection",
+            "etag",
+            "last-modified",
+            "cache-control",
+            "set-cookie",
+        ) and not kl.startswith("access-control-"):
             response_headers[k] = v
     response_headers["cache-control"] = "no-store"
 
     return Response(
         content=proxy_response.content,
         status_code=proxy_response.status_code,
-        headers=response_headers
+        headers=response_headers,
     )

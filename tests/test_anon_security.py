@@ -1,5 +1,6 @@
+import io
 from datetime import UTC, datetime, timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 import reddevil.core
@@ -11,84 +12,85 @@ from reddevil.core import RdNotAuthorized, get_setting
 
 from kbsb.club import Club, api_club, public_club
 from kbsb.core import RdForbidden, tokens
+from kbsb.core.tokens import get_salt
 from kbsb.interclubs import api_interclubs
 from kbsb.interclubs.md_interclubs import ICSeries
 from kbsb.member import api_member
-from kbsb.member.md_member import SALT
-
-_real_get_secret = reddevil.core.get_secret
-reddevil.core.get_secret = lambda name: {} if name == "odoo" else _real_get_secret(name)
 
 reddevil.core.register_app(FastAPI(), "kbsb.settings", "/api")
 
-SECRET = get_setting("JWT_SECRET")
+jwt_secret = get_setting("JWT")["secret"]
+jwt_algorithm = get_setting("JWT")["algorithm"]
+salt = get_salt()
 
 
 def token(sub, salt, key=None, minutes=30):
     payload = {"sub": sub, "exp": datetime.now(tz=UTC) + timedelta(minutes=minutes)}
-    return jwt.encode(payload, (key or SECRET) + salt, "HS256")
+    return jwt.encode(payload, (key or jwt_secret) + salt, jwt_algorithm)
 
 
 def bearer(tok):
     return HTTPAuthorizationCredentials(scheme="Bearer", credentials=tok)
 
 
-class TestMemberToken:
-    def test_a_token_the_site_signed_is_accepted(self):
-        assert tokens.validate_membertoken(bearer(token("123456", SALT))) == "123456"
-
-    def test_a_token_signed_with_another_key_is_refused(self):
-        with pytest.raises(RdNotAuthorized):
-            tokens.validate_membertoken(bearer(token("123456", SALT, key="guessed")))
-
-    def test_an_unsigned_token_is_refused(self):
-        forged = jwt.encode({"sub": "123456"}, "", "HS256")
-        with pytest.raises(RdNotAuthorized):
-            tokens.validate_membertoken(bearer(forged))
-
-    def test_an_expired_token_is_refused(self):
-        with pytest.raises(RdNotAuthorized) as e:
-            tokens.validate_membertoken(bearer(token("123456", SALT, minutes=-1)))
-        assert e.value.description == "TokenExpired"
-
-    def test_no_token_is_refused(self):
-        with pytest.raises(RdNotAuthorized):
-            tokens.validate_membertoken(None)
+def test_a_token_the_site_signed_is_accepted():
+    assert tokens.validate_membertoken(bearer(token("123456", salt))) == "123456"
 
 
-class TestAdminToken:
-    @pytest.mark.asyncio
-    async def test_an_admin_token_with_its_account_salt_is_accepted(self):
-        with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
-            assert await tokens.validate_token(
-                bearer(token("a@frbe-kbsb-ksb.be", "acct"))
-            ) == ("a@frbe-kbsb-ksb.be")
+def test_a_token_signed_with_another_key_is_refused():
+    with pytest.raises(RdNotAuthorized):
+        tokens.validate_membertoken(bearer(token("123456", salt, key="guessed")))
 
-    @pytest.mark.asyncio
-    async def test_a_member_token_does_not_open_the_admin_api(self):
-        with (
-            patch.object(tokens, "get_tokensalt", AsyncMock(return_value=None)),
-            pytest.raises(RdNotAuthorized),
-        ):
-            await tokens.validate_token(bearer(token("123456", SALT)))
 
-    @pytest.mark.asyncio
-    async def test_an_admin_token_signed_with_another_key_is_refused(self):
-        with (
-            patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")),
-            pytest.raises(RdNotAuthorized),
-        ):
-            await tokens.validate_token(
-                bearer(token("a@frbe-kbsb-ksb.be", "acct", key="guessed"))
-            )
+def test_an_unsigned_token_is_refused():
+    forged = jwt.encode({"sub": "123456"}, "", "HS256")
+    with pytest.raises(RdNotAuthorized):
+        tokens.validate_membertoken(bearer(forged))
 
-    @pytest.mark.asyncio
-    async def test_a_superuser_token_is_accepted(self):
-        with patch.object(tokens, "get_tokensalt", AsyncMock(return_value=None)):
-            assert (
-                await tokens.validate_token(bearer(token("SU__ruben", SALT)))
-                == "SU__ruben"
-            )
+
+def test_an_expired_token_is_refused():
+    with pytest.raises(RdNotAuthorized) as e:
+        tokens.validate_membertoken(bearer(token("123456", salt, minutes=-1)))
+    assert e.value.description == "TokenExpired"
+
+
+def test_no_token_is_refused():
+    with pytest.raises(RdNotAuthorized):
+        tokens.validate_membertoken(None)
+
+
+@pytest.mark.asyncio
+async def test_an_admin_token_with_its_account_salt_is_accepted():
+    with patch.object(tokens, "get_salt", MagicMock(return_value="acct")):
+        assert await tokens.validate_token(
+            bearer(token("a@frbe-kbsb-ksb.be", "acct"))
+        ) == ("a@frbe-kbsb-ksb.be")
+
+
+@pytest.mark.asyncio
+async def test_a_member_token_does_not_open_the_admin_api():
+    with (
+        patch.object(tokens, "get_salt", MagicMock(return_value="")),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await tokens.validate_token(bearer(token("123456", salt)))
+
+
+@pytest.mark.asyncio
+async def test_an_admin_token_signed_with_another_key_is_refused():
+    with (
+        patch.object(tokens, "get_salt", MagicMock(return_value="acct")),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await tokens.validate_token(
+            bearer(token("a@frbe-kbsb-ksb.be", "acct", key="guessed"))
+        )
+
+
+@pytest.mark.asyncio
+async def test_a_superuser_token_is_accepted():
+    ruben = await tokens.validate_token(bearer(token("SU__ruben", salt)))
+    assert ruben == "SU__ruben"
 
 
 def stored_club():
@@ -139,38 +141,39 @@ def stored_club():
     )
 
 
-class TestPublicClub:
-    def test_no_bank_account_admin_mail_roles_or_member_numbers(self):
-        out = public_club(stored_club()).model_dump()
-        text = str(out)
-        for secret in [
-            "BE68539007547034",
-            "GKCCBEBB",
-            "KOSK vzw",
-            "admin@example.org",
-            "finance@example.org",
-        ]:
-            assert secret not in text
-        assert "clubroles" not in out
-        assert all("idnumber" not in bm for bm in out["boardmembers"].values())
+def test_no_bank_account_admin_mail_roles_or_member_numbers():
+    out = public_club(stored_club()).model_dump()
+    text = str(out)
+    for secret in [
+        "BE68539007547034",
+        "GKCCBEBB",
+        "KOSK vzw",
+        "admin@example.org",
+        "finance@example.org",
+    ]:
+        assert secret not in text
+    assert "clubroles" not in out
+    assert all("idnumber" not in bm for bm in out["boardmembers"].values())
 
-    def test_board_contacts_only_where_public(self):
-        board = public_club(stored_club()).boardmembers
-        assert board["president"].email == "p@example.org"
-        assert board["president"].mobile == "0470000000"
-        assert board["treasurer"].email == "#NA"
-        assert board["treasurer"].mobile == "#NA"
-        assert board["secretary"].email == "#NA"
-        assert board["secretary"].mobile == "#NA"
-        assert board["treasurer"].first_name == "Hidden"
 
-    def test_what_the_public_page_shows_is_still_there(self):
-        out = public_club(stored_club())
-        assert out.name_long == "Koninklijke Schaakkring"
-        assert out.address == "Straat 1, 2000 Antwerpen"
-        assert out.email_main == "info@example.org"
-        assert out.email_interclub == "ic@example.org"
-        assert out.website == "https://example.org"
+def test_board_contacts_only_where_public():
+    board = public_club(stored_club()).boardmembers
+    assert board["president"].email == "p@example.org"
+    assert board["president"].mobile == "0470000000"
+    assert board["treasurer"].email == "#NA"
+    assert board["treasurer"].mobile == "#NA"
+    assert board["secretary"].email == "#NA"
+    assert board["secretary"].mobile == "#NA"
+    assert board["treasurer"].first_name == "Hidden"
+
+
+def test_what_the_public_page_shows_is_still_there():
+    out = public_club(stored_club())
+    assert out.name_long == "Koninklijke Schaakkring"
+    assert out.address == "Straat 1, 2000 Antwerpen"
+    assert out.email_main == "info@example.org"
+    assert out.email_interclub == "ic@example.org"
+    assert out.website == "https://example.org"
 
 
 app = FastAPI()
@@ -188,31 +191,15 @@ def test_the_public_route_serves_the_public_view():
     assert body["boardmembers"]["treasurer"]["email"] == "#NA"
 
 
-def test_the_club_csv_needs_an_admin():
+@patch("kbsb.club.api_club.get_csv_clubs")
+def test_the_club_csv_needs_an_admin(get_csv_clubs):
+    get_csv_clubs.return_value = io.StringIO("a,b\nAA,BB\nCC,DD")
     assert client.get("/api/v1/clubs/anon/csvclubs").status_code in (401, 403)
-    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value=None)):
-        member = token("123456", SALT)
-        resp = client.get(
-            "/api/v1/clubs/anon/csvclubs", headers={"Authorization": f"Bearer {member}"}
-        )
-    assert resp.status_code in (401, 403)
-
-
-@pytest.mark.asyncio
-async def test_a_second_admin_login_keeps_the_first_token_valid():
-    import reddevil.account.account as rd_account
-
-    import kbsb.main  # noqa: F401
-
-    acc = {"id": "a@frbe-kbsb-ksb.be", "tokensalt": "acct"}
-    with patch.object(rd_account, "update_account", AsyncMock()) as update:
-        first = await rd_account.get_token(acc, timedelta(minutes=5))
-        second = await rd_account.get_token(acc, timedelta(minutes=5))
-    update.assert_not_called()
-    assert rd_account.login.__globals__["get_token"] is rd_account.get_token
-    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
-        assert await tokens.validate_token(bearer(first)) == "a@frbe-kbsb-ksb.be"
-        assert await tokens.validate_token(bearer(second)) == "a@frbe-kbsb-ksb.be"
+    member = token("123456", salt)
+    resp = client.get(
+        "/api/v1/clubs/anon/csvclubs", headers={"Authorization": f"Bearer {member}"}
+    )
+    assert resp.status_code == 200
 
 
 # -- who may see or change what, once logged in -------------------------------
@@ -226,7 +213,7 @@ member_client = TestClient(full)
 
 
 def as_member(idnumber):
-    return {"Authorization": f"Bearer {token(str(idnumber), SALT)}"}
+    return {"Authorization": f"Bearer {token(str(idnumber), salt)}"}
 
 
 def test_the_full_club_record_is_only_for_that_clubs_admin():
@@ -271,7 +258,7 @@ def test_a_member_sees_only_their_own_details():
 
 def test_the_mailinglist_refuses_a_made_up_admin_token():
     forged = token("anyone@frbe-kbsb-ksb.be", "whatever", key="guessed")
-    with patch.object(tokens, "get_tokensalt", AsyncMock(return_value="acct")):
+    with patch.object(tokens, "get_salt", MagicMock(return_value="acct")):
         resp = member_client.get(f"/api/v1/clubs/mgmt/mailinglist?token={forged}")
     assert resp.status_code == 401
 

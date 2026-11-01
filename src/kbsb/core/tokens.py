@@ -2,23 +2,27 @@ import logging
 
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import ExpiredSignatureError, JWTError, jwt
-from reddevil.core import RdNotAuthorized, get_setting
-from reddevil.core.security import get_tokensalt
+from reddevil.core import RdNotAuthorized, get_secret, get_setting
 
 logger = logging.getLogger(__name__)
+jwt_settings = get_setting("JWT")
+token_settings = get_setting("TOKEN")
 
 
-def _member_salt() -> str:
-    from kbsb.member.md_member import SALT
-
-    return SALT
+def get_salt():
+    """
+    singleton returing the salt
+    """
+    if not hasattr(get_salt, "salt"):
+        get_salt.salt = get_secret("salt")["salt"]
+    return get_salt.salt
 
 
 def _claims(token: str, salt: str) -> dict:
     return jwt.decode(
         token,
-        get_setting("JWT_SECRET") + salt,
-        algorithms=[get_setting("JWT_ALGORITHM")],
+        jwt_settings["secret"] + salt,
+        algorithms=[jwt_settings["algorithm"]],
     )
 
 
@@ -41,10 +45,10 @@ def _token(auth: HTTPAuthorizationCredentials | None) -> str:
 
 def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
     token = _token(auth)
-    if get_setting("TOKEN").get("nocheck"):
+    if token_settings.get("nocheck"):
         return "0"
     try:
-        sub = _claims(token, _member_salt()).get("sub")
+        sub = _claims(token, get_salt()).get("sub")
     except ExpiredSignatureError:
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError:
@@ -57,16 +61,12 @@ def validate_membertoken(auth: HTTPAuthorizationCredentials) -> str:
 
 async def validate_token(auth: HTTPAuthorizationCredentials) -> str:
     token = _token(auth)
-    if get_setting("TOKEN").get("nocheck"):
+    if token_settings.get("nocheck"):
         return "anonymous"
     sub = _unverified_sub(token)
 
-    salt = _member_salt() if sub.startswith("SU__") else await get_tokensalt(sub)
-    if not salt:
-        logger.info("admin token refused: no account for its subject")
-        raise RdNotAuthorized(description="BadToken")
     try:
-        claims = _claims(token, salt)
+        claims = _claims(token, get_salt())
     except ExpiredSignatureError:
         raise RdNotAuthorized(description="TokenExpired")
     except JWTError:

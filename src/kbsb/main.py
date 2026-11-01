@@ -1,26 +1,60 @@
-# copyright Ruben Decrop 2015 - 2024
-# copyright Chessdevil Consulting 2015 - 2024
+# copyright Ruben Decrop 2012 - 2026
+# copyright Chessdevil Consulting 2015 - 2026
 
 import logging
 import logging.config
 from contextlib import asynccontextmanager
 
+import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
-from reddevil.core import a_close_mongodb, a_connect_mongodb, get_setting, register_app
+from reddevil.core import (  # type: ignore[import-untyped]
+    a_close_mongodb,
+    a_connect_mongodb,
+    get_setting,
+    register_app,
+)
+
+from . import version
+
+# the production deployment is the default
+# so we should never have code like
+# if get_setting("KBSB_MODE") == "production":
+#     ...
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    The async startup code comes here, it is only called after this file
+    is fully loaded, including the settings.
+    It is however run before any http request is processed
+    """
+
+    # a_connect_mongodb is synchronous, even for the async mongdb driver
     a_connect_mongodb()
+
+    # create an async httpx session to the Odoo platform
+    # this session registers any cookies set in the login functionality
+    odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
+    app.state.odoo_client = httpx.AsyncClient(
+        base_url=odoo_params["url"],
+        timeout=httpx.Timeout(odoo_params["timeout"]),
+        limits=httpx.Limits(
+            max_keepalive_connections=odoo_params["max_keepalive"],
+            max_connections=odoo_params["max_connections"],
+        ),
+    )
+
     yield
+
+    # closing down
+    await app.state.odoo_client.aclose()
     await a_close_mongodb()
 
-
-from . import version
 
 # register app
 app = FastAPI(
@@ -32,19 +66,11 @@ app = FastAPI(
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
 logger = logging.getLogger(__name__)
-
-if get_setting("KBSB_MODE") == "production":
-    from reddevil.core import get_secret, get_settings
-
-    get_settings().JWT_SECRET = get_secret("jwt")["secret"]
 logger.info(f"Starting website KBSB {version}")
-logger.info(f"icdata: {get_setting('ICDATA')}")
+logger.info(f"icdata: loading from {get_setting('ICDATA')}")
 
-# the modes that run on a developer machine, never on App Engine
-DEV_MODES = ("local", "prodtest", "testing")
-
-# add CORS middleware for dev only
-if get_setting("KBSB_MODE") in DEV_MODES:
+# add CORS middleware for non production deployments
+if get_setting("KBSB_MODE") != "production":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:3000"],
@@ -54,32 +80,13 @@ if get_setting("KBSB_MODE") in DEV_MODES:
     )
 
 # import api endpoints
+# Ruben Decrop: I removed the existing code because it was based
+# on tha incorrect assumption that 2 unrelated items ( loading
+# the endpoints and signing in  with frbe-kbsb-ksb.be accounts)
+# are somewhere interfering with each other.  They are not.
+
 logger.info("loading api_account")
-from reddevil.account import api_account
-
-from kbsb.core.tokens import validate_token as _verified_token
-
-api_account.validate_token = _verified_token
-
-# reddevil's anonymous self-registration of admin accounts. Nothing here uses
-# it (admins sign in with Google) and it would create accounts in rd_account,
-# so it is taken off the router before the router is mounted.
-api_account.router.routes = [
-    r
-    for r in api_account.router.routes
-    if not (isinstance(r, APIRoute) and r.path.endswith("/anon/register"))
-]
-
-import reddevil.account.account as _rd_account
-
-_rd_get_token = _rd_account.get_token
-
-
-async def _get_token_keep_salt(acc, duration, invalidate=True):
-    return await _rd_get_token(acc, duration, invalidate=False)
-
-
-_rd_account.get_token = _get_token_keep_salt
+from reddevil.account import api_account  # type: ignore[import-untyped]
 
 logger.info("loading api_club")
 from kbsb.club import api_club
@@ -109,7 +116,7 @@ logger.info("loading api_tournament_registrations")
 from kbsb.tournament_registrations import api_tournament_registrations
 
 logger.info("loading api_zerotwocloud_mail")
-from zerotwocloud.mail import api as api_zerotwocloud_mail
+from zerotwocloud.mail import api as api_zerotwocloud_mail  # type: ignore[import-untyped]  # noqa: I001
 
 app.include_router(api_account.router)
 app.include_router(api_club.router)
@@ -135,6 +142,8 @@ for route in app.routes:
     if isinstance(route, APIRoute):
         route.operation_id = route.name[4:]
 
-# importing test endpoints, dev only
-if get_setting("KBSB_MODE") in DEV_MODES:
-    import kbsb.tst_endpoints  # noqa
+# test endpoints should always be loaded, even in production
+# this is intended behaviour
+# this makes the content of test endpoints relevant for security checking
+# but currently this is OK
+import kbsb.tst_endpoints  # noqa

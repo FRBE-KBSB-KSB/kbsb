@@ -24,6 +24,10 @@ SECRETS = {
         "name": "kbsb-odoo",
         "manager": "filejson",
     },
+    "salt": {
+        "name": "kbsb-salt",
+        "manager": "googlejson",
+    },
     "SU__ruben": {
         "name": "su_ruben",
         "manager": "filejson",

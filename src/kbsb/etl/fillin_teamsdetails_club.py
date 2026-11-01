@@ -1,18 +1,19 @@
 import asyncio
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from reddevil.core import (
-    register_app,
-    connect_mongodb,
-    close_mongodb,
-    get_settings,
-)
-from dotenv import load_dotenv
 import logging
+from contextlib import asynccontextmanager
+from typing import Any
 
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from reddevil.core import (
+    close_mongodb,
+    connect_mongodb,
+    get_settings,
+    register_app,
+)
+
+from kbsb.interclubs.icclubs import DbICClub, mgmt_getICclubs
 from kbsb.interclubs.series import get_icseries_all
-from kbsb.interclubs.icclubs import mgmt_getICclubs
-from kbsb.interclubs.icclubs import DbICClub
 
 app = FastAPI(
     title="FRBE-KBSB-KSB",
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI):
     close_mongodb()
 
 
-allseries = {}
+allseries: dict[str, Any] = {}
 
 
 async def fill_in_teamsdetails_club():

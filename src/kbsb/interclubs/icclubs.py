@@ -263,7 +263,7 @@ async def _lendable(idclub: int, idnumber: int, stored: ICPlayer | None) -> bool
             0,
             idclub,
         )
-    from kbsb.member.odoo_member import odoo_anon_getmember
+    from kbsb.member.member import odoo_anon_getmember
 
     try:
         member = await odoo_anon_getmember(idnumber)

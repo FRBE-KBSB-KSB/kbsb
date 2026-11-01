@@ -156,8 +156,7 @@ async function selectClub() {
   await getClubMembers()
 }
 
-function updateClubDetails() {
-}
+function updateClubDetails() {}
 
 onMounted(() => {
   showSnackbar = refsnackbar.value.showSnackbar

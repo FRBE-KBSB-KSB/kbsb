@@ -1,18 +1,33 @@
-# copyright Ruben Decrop 2012 - 2022
+# copyright Ruben Decrop 2012 - 2024
+# copyright Chessdevil Consulting 2015 - 2026
+
 
 import logging.config
 import os
 import zoneinfo
 from pathlib import Path
+from typing import Any
 
 API_BASE_URL = "/api"
 
-BOARDROLES_PATH = os.environ.get("BOARDROLES", "./boardroles.yaml")
 COLORLOG = False
 DEBUG = os.environ.get("DEBUG_KBSB", "")
 
-ELO_SERVER = "https://kbsb-api.zerotwo.cloud/api/v1/public/rating"
-ELO_SERVER_CSV = "https://kbsb-api.zerotwo.cloud/api/v1/players_national/ratings.csv"
+
+ELOSERVER_CONNECTION_PARAMETERS = {
+    "url": "https://kbsb-api.zerotwo.cloud",
+    "path_rating": "/api/v1/public/rating",
+    "path_ratingcsv": "/api/v1/players_national/ratings.csv",
+    "timeout": 10.0,
+    "max_keepalive": 20,
+    "max_connections": 100,
+}
+
+# backwards compabitibility
+# will be deprecated
+ELO_SERVER = f"{ELOSERVER_CONNECTION_PARAMETERS['url']}{ELOSERVER_CONNECTION_PARAMETERS['path_rating']}"
+ELO_SERVERCSV = f"{ELOSERVER_CONNECTION_PARAMETERS['url']}{ELOSERVER_CONNECTION_PARAMETERS['path_ratingcsv']}"
+
 
 EMAIL = {
     "backend": "GMAIL",
@@ -20,13 +35,6 @@ EMAIL = {
     "sender": "ruben.decrop@frbe-kbsb-ksb.be",
     "account": "ruben.decrop@frbe-kbsb-ksb.be",
     "blindcopy": "ruben.kbsb@gmail.com",
-}
-
-EXTRASALT = "Zugzwang"
-
-FILESTORE = {
-    "manager": "google",
-    "bucket": os.environ.get("FILESTORE_BUCKET", "website-kbsb-prod.appspot.com"),
 }
 
 # login details
@@ -41,11 +49,18 @@ GOOGLEDRIVE_TRANSLATIONID = "1sLMHvI9nM_EmT3kqqxQRz59b42zGjfbOdlzoFEStbD0"
 ICDATA = "cloud"
 INTERCLUBS_CC_EMAIL = "interclubs@frbe-kbsb-ksb.be"
 
-JWT_ALGORITHM = "HS256"
-JWT_SECRET = "levedetorrevanostende"
+JWT = {
+    "algorithm": "HS256",
+    "secret": "levedetorrevanostende",
+}
+
+# backwards compatibility
+# will be deprecated, should be gone in the next release of reddevil
+JWT_ALGORITHM = JWT["algorithm"]
+JWT_SECRET = JWT["secret"]
 
 
-LOG_CONFIG = {
+LOG_CONFIG: dict[str, Any] = {
     "version": 1,
     "formatters": {
         "simple": {
@@ -86,11 +101,12 @@ LOG_CONFIG = {
 
 KBSB_MODE = os.environ.get("KBSB_MODE", "production")
 
-MEMBERDB = "odoo"
-
-ODOO = {
+ODOO_CONNECTION_PARAMETERS = {
     "url": "https://frbe-kbsb.odoo.com",
     "db": "frbe-kbsb",
+    "timeout": 10.0,
+    "max_keepalive": 20,
+    "max_connections": 100,
 }
 
 SECRETS = {
@@ -112,6 +128,10 @@ SECRETS = {
     },
     "odoo": {
         "name": "kbsb-odoo",
+        "manager": "googlejson",
+    },
+    "salt": {
+        "name": "kbsb-salt",
         "manager": "googlejson",
     },
     "SU__ruben": {
@@ -144,7 +164,7 @@ SECRETS_PATH = Path(os.environ.get("SECRETS_PATH", ""))
 
 SHARED_PATH = Path(os.environ.get("SHARED_PATH", "./shared"))
 
-TEMPLATES_MODULE = "kbsb"
+TEMPLATES_MODULE = "kbsb"  # needed for reddevil to find templates path
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
@@ -153,23 +173,23 @@ TOKEN = {
     "nocheck": False,
 }
 
-TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
-
 # Cloudflare Turnstile on the FIDE registration form (public site key, set in
 # app.yaml). Empty means Turnstile is off; see kbsb.fide.turnstile.
 TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
+TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
+
 
 if KBSB_MODE == "local":
-    from env_local import *  # noqa: F403
+    from env_local import *
 
 
 if KBSB_MODE == "prodtest":
-    from env_prodtest import *  # noqa: F403
+    from env_prodtest import *
 
 
 if KBSB_MODE == "testing":
-    from tests.settings import *  # noqa: F403
+    from tests.settings import *
 
 if COLORLOG:
     LOG_CONFIG["handlers"]["console"]["formatter"] = "color"

@@ -9,10 +9,9 @@ from reddevil.core import (
 )
 
 from kbsb.core import RdForbidden
-from kbsb.core.tokens import validate_token
+from kbsb.core.tokens import validate_membertoken, validate_token
 from kbsb.interclubs.helpers import check_registration_open
 from kbsb.interclubs.series import anon_getICresults
-from kbsb.member import validate_membertoken
 
 from . import (
     ICClubDB,
