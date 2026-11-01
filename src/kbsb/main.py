@@ -5,7 +5,6 @@ import logging
 import logging.config
 from contextlib import asynccontextmanager
 
-import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,22 +36,12 @@ async def lifespan(app: FastAPI):
     # a_connect_mongodb is synchronous, even for the async mongdb driver
     a_connect_mongodb()
 
-    # create an async httpx session to the Odoo platform
-    # this session registers any cookies set in the login functionality
-    odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
-    app.state.odoo_client = httpx.AsyncClient(
-        base_url=odoo_params["url"],
-        timeout=httpx.Timeout(odoo_params["timeout"]),
-        limits=httpx.Limits(
-            max_keepalive_connections=odoo_params["max_keepalive"],
-            max_connections=odoo_params["max_connections"],
-        ),
-    )
+    # the Odoo login sessions are made per request, see
+    # kbsb.member.api_member.get_odoo_client
 
     yield
 
     # closing down
-    await app.state.odoo_client.aclose()
     await a_close_mongodb()
 
 

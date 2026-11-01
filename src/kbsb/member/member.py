@@ -45,6 +45,36 @@ def _get_extra_asynclient() -> httpx.AsyncClient:
     return _get_extra_asynclient.session  # type: ignore[attr-defined]
 
 
+async def odoo_login(email: str, password: str) -> tuple[int, str]:
+    """
+    Checks an Odoo email and password and returns the member number and a
+    member token. Used by the tournament registrations dashboard, which only
+    wants to know *who* logged in. An account with 2FA is refused here: the
+    dashboard has no second step.
+    """
+    from fastapi.security import HTTPAuthorizationCredentials
+    from reddevil.core import RdNotAuthorized  # type: ignore[import-untyped]
+
+    from kbsb.core.tokens import validate_membertoken
+
+    from .login import login
+    from .md_member import LoginValidator
+
+    # superusers sign in on the site's own login page, not through here
+    if email.startswith("SU__"):
+        raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
+    async with httpx.AsyncClient(
+        base_url=odoo_url, timeout=httpx.Timeout(odoo_timeout)
+    ) as client:
+        reply = await login(LoginValidator(email=email, password=password), client)
+    if reply.is2FAneeded or not reply.jwttoken:
+        raise RdNotAuthorized(description="TwoFactorNotSupported")
+    idbel = validate_membertoken(
+        HTTPAuthorizationCredentials(scheme="Bearer", credentials=reply.jwttoken)
+    )
+    return int(idbel), reply.jwttoken
+
+
 def _current_affiliation_year() -> int:
     today = datetime.now(tz=tzone).date()
     year = today.year
