@@ -97,6 +97,9 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
         raise RdException(
             status_code=response2.status_code, description="CannotPostOdooLoginPage"
         )
+    logger.info(
+        f"after login {response2.status_code} {response2.headers.get('location', '')}"
+    )
     session_id = response2.cookies.get("session_id") or ""
 
     # if we are redirected to the /web/login/totp , 2FA is active
@@ -121,14 +124,17 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
         csrf = csrf_match.group(1)
         return LoginReply(id=-1, csrf=csrf, is2FAneeded=True, session_id=session_id)
 
-    # 2FA not active, so we return JWT token
-    idbel = await odoo_email2idbel(ol.email)
-    logger.info(f"{idbel} succesfully logged in without 2FA")
-    payload = {
-        "sub": str(idbel),
-        "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
-    }
-    return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))
+    # login successfull but 2FA not active, so we return JWT token
+    if response2.status_code == 303 and "/my" in response2.headers.get("location", ""):
+        idbel = await odoo_email2idbel(ol.email)
+        logger.info(f"{idbel} succesfully logged in without 2FA")
+        payload = {
+            "sub": str(idbel),
+            "exp": datetime.now(tz=UTC) + timedelta(minutes=token_settings["timeout"]),
+        }
+        return LoginReply(id=1, jwttoken=jwt_encode(payload, get_salt()))
+    # login unseccessful
+    raise RdNotAuthorized()
 
 
 async def login2FA(
