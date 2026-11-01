@@ -84,6 +84,40 @@ def _current_affiliation_year() -> int:
     return year
 
 
+async def _club_id_of_partner(parent: Any) -> int:
+    """
+    The club number of the club a member belongs to. A member points to its club
+    through parent_id (a [id, name] pair); the number is a field of the club's
+    own partner record. Odoo used to carry it on the member as well
+    (x_studio_contact_clubid_link), which no longer exists.
+    """
+    if not parent:
+        return 0
+    parent_id = parent[0] if isinstance(parent, list | tuple) else parent
+    headers = {
+        "X-Odoo-Database": odoo_db,
+        "Authorization": f"Bearer {odoo_apikey}",
+        "Content-Type": "application/json",
+    }
+    client = _get_extra_asynclient()
+    try:
+        response = await client.post(
+            url=f"{odoo_url}/json/2/res.partner/search_read",
+            json={
+                "domain": [["id", "=", parent_id]],
+                "fields": ["x_studio_contact_clubid"],
+            },
+            headers=headers,
+            timeout=5.0,
+        )
+        clubs = response.json()
+    except httpx.RequestError:
+        raise RdException()
+    if not isinstance(clubs, list) or not clubs:
+        return 0
+    return clubs[0].get("x_studio_contact_clubid") or 0
+
+
 async def mgmt_getmember(idmember: int | str) -> Member:
     """
     use the session linked to the APIkey to get the member from the idbel
@@ -101,7 +135,7 @@ async def mgmt_getmember(idmember: int | str) -> Member:
             "phone_sanitized",
             "x_studio_contact_affiliationyear",
             "x_studio_contact_birthday_date",
-            "x_studio_contact_clubid_link",
+            "parent_id",
             "x_studio_contact_fideid_int",
             "x_studio_contact_fidenat_id",
             "x_studio_contact_fidetitle",
@@ -144,7 +178,7 @@ async def mgmt_getmember(idmember: int | str) -> Member:
         fidetitle=member["x_studio_contact_fidetitle"] or "",
         first_name=member["x_studio_contact_firstname"],
         gender=member["x_studio_contact_gender"],
-        idclub=member["x_studio_contact_clubid_link"],
+        idclub=await _club_id_of_partner(member.get("parent_id")),
         idfide=member["x_studio_contact_fideid_int"],
         idnumber=idmember,
         last_name=member["x_studio_contact_name"],
@@ -190,7 +224,6 @@ async def anon_getclubmembers(idclub: int) -> list[AnonMember]:
             "phone_sanitized",
             "x_studio_contact_affiliationyear",
             "x_studio_contact_birthday_date",
-            "x_studio_contact_clubid_link",
             "x_studio_contact_fideid_int",
             "x_studio_contact_fidenat_id",
             "x_studio_contact_fidetitle",
@@ -232,7 +265,7 @@ async def anon_getclubmembers(idclub: int) -> list[AnonMember]:
             fidetitle=member["x_studio_contact_fidetitle"] or "",
             first_name=member["x_studio_contact_firstname"] or "",
             gender=member["x_studio_contact_gender"] or "",
-            idclub=member.get("x_studio_contact_clubid_link") or idclub,
+            idclub=idclub,
             idfide=member.get("x_studio_contact_fideid_int") or 0,
             idnumber=member.get("x_studio_contact_nationalid_int") or 0,
             last_name=member.get("x_studio_contact_name") or "",
@@ -251,7 +284,7 @@ async def mgmt_getclubmembers(idclub: int):
     """
     payload = {
         "domain": [
-            ["x_studio_contact_clubid_link", "=", idclub],
+            ["parent_id.x_studio_contact_clubid", "=", idclub],
             ["x_studio_contact_affiliationyear", "=", _current_affiliation_year()],
         ],
         "fields": [
@@ -260,7 +293,6 @@ async def mgmt_getclubmembers(idclub: int):
             "phone_sanitized",
             "x_studio_contact_affiliationyear",
             "x_studio_contact_birthday_date",
-            "x_studio_contact_clubid_link",
             "x_studio_contact_fideid_int",
             "x_studio_contact_fidenat_id",
             "x_studio_contact_fidetitle",
@@ -303,7 +335,7 @@ async def mgmt_getclubmembers(idclub: int):
             fidetitle=member["x_studio_contact_fidetitle"] or "",
             first_name=member["x_studio_contact_firstname"],
             gender=member["x_studio_contact_gender"],
-            idclub=member["x_studio_contact_clubid_link"],
+            idclub=idclub,
             idfide=member["x_studio_contact_fideid_int"],
             idnumber=member["x_studio_contact_nationalid_int"],
             last_name=member["x_studio_contact_name"],
