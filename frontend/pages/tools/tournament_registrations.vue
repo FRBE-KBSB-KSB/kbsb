@@ -833,6 +833,9 @@ const loginSubmitting = ref(false)
 const odooEmail = ref("")
 const odooPassword = ref("")
 const showPasswordLogin = ref(false)
+// an account with 2FA is asked for its code after the password was accepted
+const odooCode = ref("")
+const twoFa = ref(null)
 
 async function startAdminSession(reply) {
   tokenStore.updateToken(reply.data.token)
@@ -852,6 +855,14 @@ async function submitOdooLogin() {
       password: odooPassword.value,
     })
     odooPassword.value = ""
+    if (reply.data.is2FAneeded) {
+      twoFa.value = {
+        csrf: reply.data.csrf,
+        session_id: reply.data.session_id,
+        state: reply.data.state,
+      }
+      return
+    }
     await startAdminSession(reply)
   } catch (error) {
     if (error.code === 401) loginError.value = t("trnreg.login_failed")
@@ -860,6 +871,32 @@ async function submitOdooLogin() {
   } finally {
     loginSubmitting.value = false
   }
+}
+
+async function submitOdooCode() {
+  loginSubmitting.value = true
+  loginError.value = ""
+  try {
+    const reply = await $backend("tournament_registrations", "admin_odooLogin2fa", {
+      ...twoFa.value,
+      code2FA: odooCode.value,
+    })
+    odooCode.value = ""
+    twoFa.value = null
+    await startAdminSession(reply)
+  } catch (error) {
+    if (error.code === 401) loginError.value = t("trnreg.odoo_2fa_failed")
+    else if (error.code === 403) loginError.value = t("trnreg.odoo_not_member")
+    else loginError.value = error.message || t("trnreg.odoo_2fa_failed")
+  } finally {
+    loginSubmitting.value = false
+  }
+}
+
+function cancelOdooCode() {
+  odooCode.value = ""
+  twoFa.value = null
+  loginError.value = ""
 }
 
 async function submitLogin() {
@@ -2036,7 +2073,13 @@ onMounted(() => {
             as one login: without them Bitwarden filled the e-mail and left the
             password empty.
           -->
-          <v-form id="odoo-login-form" name="odoo-login" @submit.prevent="submitOdooLogin">
+          <v-form v-if="twoFa" id="odoo-2fa-form" name="odoo-2fa" @submit.prevent="submitOdooCode">
+            <p class="text-body-2 mb-3">{{ t('trnreg.odoo_2fa_prompt') }}</p>
+            <v-text-field v-model="odooCode" id="odoo-2fa-code" name="otp" :label="t('trnreg.odoo_2fa_code')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="one-time-code" inputmode="numeric" autofocus required></v-text-field>
+            <v-btn type="submit" color="green-darken-2" block :loading="loginSubmitting">{{ t('trnreg.odoo_login_btn') }}</v-btn>
+            <v-btn variant="text" size="small" block class="mt-1" @click="cancelOdooCode">{{ t('trnreg.odoo_2fa_back') }}</v-btn>
+          </v-form>
+          <v-form v-else id="odoo-login-form" name="odoo-login" @submit.prevent="submitOdooLogin">
             <v-text-field v-model="odooEmail" id="odoo-login-email" name="username" type="email" :label="t('trnreg.field_odoo_email')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="username" required></v-text-field>
             <v-text-field v-model="odooPassword" id="odoo-login-password" name="password" type="password" :label="t('trnreg.field_password')" variant="outlined" color="green-darken-2" density="comfortable" autocomplete="current-password" required></v-text-field>
             <v-btn type="submit" color="green-darken-2" block :loading="loginSubmitting">{{ t('trnreg.odoo_login_btn') }}</v-btn>

@@ -9,6 +9,7 @@ import httpx
 import google.auth
 from google.cloud import secretmanager
 
+from kbsb.member.api_member import HttpClient
 from zerotwocloud.mail import MailParams
 from zerotwocloud.mail import get_setting as get_mail_setting
 from zerotwocloud.mail.mail import sendEmailMessage
@@ -225,26 +226,38 @@ class OdooLoginPayload(BaseModel):
 # confirmation mails; a browser reaching the same path through the proxy
 # below does not have it. Everyone sees only their own tournaments there.
 # Declared before the proxy's catch-all, which would otherwise take the path.
-@router.post("/odoo-login")
-async def odoo_login_for_tournaments(payload: OdooLoginPayload):
-    from reddevil.core import RdNotAuthorized
+def _tournament_login_failed(e: Exception) -> HTTPException:
+    """What the browser is told when Odoo does not let somebody in."""
+    from reddevil.core import RdException, RdNotAuthorized
 
-    from kbsb.member.member import odoo_login
-
-    if not payload.email.strip() or not payload.password:
-        raise HTTPException(status_code=400, detail="Email and password are required")
-    try:
-        national_id, _member_token = await odoo_login(
-            payload.email.strip(), payload.password
+    if isinstance(e, RdNotAuthorized):
+        return HTTPException(
+            status_code=401, detail=e.description or "WrongUsernamePasswordCombination"
         )
-    except RdNotAuthorized:
-        raise HTTPException(status_code=401, detail="WrongUsernamePasswordCombination")
-    except Exception:
-        logger.exception("Odoo login for tournament registrations failed")
-        raise HTTPException(
+    if isinstance(e, RdException):
+        logger.warning("Odoo login for tournament registrations refused: %s", e)
+        return HTTPException(
             status_code=502, detail="Could not reach Odoo to check the login"
         )
+    logger.exception("Odoo login for tournament registrations failed")
+    return HTTPException(
+        status_code=502, detail="Could not reach Odoo to check the login"
+    )
 
+
+async def _tournament_session_for(reply) -> Response:
+    """
+    The dashboard session of the member an accepted Odoo login belongs to.
+    """
+    from fastapi.security import HTTPAuthorizationCredentials
+
+    from kbsb.core.tokens import validate_membertoken
+
+    national_id = int(
+        validate_membertoken(
+            HTTPAuthorizationCredentials(scheme="Bearer", credentials=reply.jwttoken)
+        )
+    )
     if not national_id:
         raise HTTPException(
             status_code=403,
@@ -253,13 +266,13 @@ async def odoo_login_for_tournaments(payload: OdooLoginPayload):
 
     async with httpx.AsyncClient() as client:
         try:
-            reply = await client.post(
+            upstream = await client.post(
                 f"{TARGET_BASE_URL}/admin/odoo-login",
                 headers={
                     "x-api-key": get_api_key(),
                     "x-bridge-secret": get_mail_bridge_secret(),
                 },
-                json={"national_id": int(national_id)},
+                json={"national_id": national_id},
                 timeout=30.0,
             )
         except httpx.RequestError:
@@ -267,11 +280,74 @@ async def odoo_login_for_tournaments(payload: OdooLoginPayload):
             raise HTTPException(status_code=502, detail="Bad Gateway")
 
     return Response(
-        content=reply.content,
-        status_code=reply.status_code,
+        content=upstream.content,
+        status_code=upstream.status_code,
         media_type="application/json",
         headers={"cache-control": "no-store"},
     )
+
+
+@router.post("/odoo-login")
+async def odoo_login_for_tournaments(
+    payload: OdooLoginPayload, odoo_client: HttpClient
+):
+    from kbsb.member.login import login
+    from kbsb.member.md_member import LoginValidator
+
+    email = payload.email.strip()
+    if not email or not payload.password:
+        raise HTTPException(status_code=400, detail="Email and password are required")
+    # superusers sign in on the site's own login page, not through Odoo
+    if email.startswith("SU__"):
+        raise HTTPException(status_code=401, detail="WrongUsernamePasswordCombination")
+    try:
+        reply = await login(
+            LoginValidator(email=email, password=payload.password), odoo_client
+        )
+    except Exception as e:
+        raise _tournament_login_failed(e)
+
+    if reply.is2FAneeded:
+        # the account has 2FA: the browser sends the code to /odoo-login-2fa
+        # together with this signed state, which carries who passed the password
+        return {
+            "is2FAneeded": True,
+            "csrf": reply.csrf,
+            "session_id": reply.session_id,
+            "state": reply.state,
+        }
+    return await _tournament_session_for(reply)
+
+
+class OdooLogin2FaPayload(BaseModel):
+    csrf: str
+    code2FA: str
+    session_id: str
+    state: str
+
+
+@router.post("/odoo-login-2fa")
+async def odoo_login_2fa_for_tournaments(
+    payload: OdooLogin2FaPayload, odoo_client: HttpClient
+):
+    from kbsb.member.login import login2FA
+    from kbsb.member.md_member import Login2FaValidator
+
+    if not payload.code2FA.strip():
+        raise HTTPException(status_code=400, detail="The code is required")
+    try:
+        reply = await login2FA(
+            Login2FaValidator(
+                csrf=payload.csrf,
+                code2FA=payload.code2FA,
+                session_id=payload.session_id,
+                state=payload.state,
+            ),
+            odoo_client,
+        )
+    except Exception as e:
+        raise _tournament_login_failed(e)
+    return await _tournament_session_for(reply)
 
 
 # Unlike api_players_fide.py / api_national_elo_archive.py, this feature has

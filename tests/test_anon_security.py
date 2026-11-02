@@ -1,4 +1,5 @@
 import io
+import json
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, patch
 
@@ -522,3 +523,121 @@ async def test_odoo_failing_to_name_the_session_falls_back_to_the_email():
     lookup = AsyncMock(return_value=19833)
     with patch("kbsb.member.member.odoo_email2idbel", lookup):
         assert await odoo_member_number("me@example.org", client, "sess") == 19833
+
+
+# -- the tournament dashboard login, with and without 2FA ---------------------
+
+
+def member_jwt(number):
+    return jwt.encode(
+        {"sub": str(number), "exp": datetime.now(tz=UTC) + timedelta(minutes=5)},
+        jwt_secret + member_salt,
+        jwt_algorithm,
+    )
+
+
+@pytest.mark.asyncio
+async def test_the_tournament_login_asks_an_account_with_2fa_for_its_code():
+    from fastapi import HTTPException
+
+    from kbsb.tournament_registrations import api_tournament_registrations as api
+
+    asks = LoginReply(id=-1, is2FAneeded=True, session_id="s", csrf="c", state="st")
+    with patch("kbsb.member.login.login", AsyncMock(return_value=asks)):
+        reply = await api.odoo_login_for_tournaments(
+            api.OdooLoginPayload(email="me@example.org", password="pw"), object()
+        )
+    assert reply == {
+        "is2FAneeded": True,
+        "csrf": "c",
+        "session_id": "s",
+        "state": "st",
+    }
+    # and a superuser name never goes to Odoo
+    with pytest.raises(HTTPException) as refused:
+        await api.odoo_login_for_tournaments(
+            api.OdooLoginPayload(email="SU__ruben", password="pw"), object()
+        )
+    assert refused.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_a_wrong_password_is_a_401_for_the_tournament_login():
+    from fastapi import HTTPException
+
+    from kbsb.tournament_registrations import api_tournament_registrations as api
+
+    with (
+        patch("kbsb.member.login.login", AsyncMock(side_effect=RdNotAuthorized())),
+        pytest.raises(HTTPException) as refused,
+    ):
+        await api.odoo_login_for_tournaments(
+            api.OdooLoginPayload(email="me@example.org", password="bad"), object()
+        )
+    assert refused.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_the_tournament_2fa_step_gives_the_session_of_the_member():
+    from kbsb.tournament_registrations import api_tournament_registrations as api
+
+    accepted = LoginReply(id=1, jwttoken=member_jwt(777))
+    session = AsyncMock(return_value="dashboard session")
+    with (
+        patch("kbsb.member.login.login2FA", AsyncMock(return_value=accepted)),
+        patch.object(api, "_tournament_session_for", session),
+    ):
+        out = await api.odoo_login_2fa_for_tournaments(
+            api.OdooLogin2FaPayload(
+                csrf="c", code2FA="123456", session_id="s", state="st"
+            ),
+            object(),
+        )
+    assert out == "dashboard session"
+    assert session.await_args.args[0] is accepted
+
+
+@pytest.mark.asyncio
+async def test_a_wrong_tournament_2fa_code_is_a_401():
+    from fastapi import HTTPException
+
+    from kbsb.tournament_registrations import api_tournament_registrations as api
+
+    with (
+        patch("kbsb.member.login.login2FA", AsyncMock(side_effect=RdNotAuthorized())),
+        pytest.raises(HTTPException) as refused,
+    ):
+        await api.odoo_login_2fa_for_tournaments(
+            api.OdooLogin2FaPayload(
+                csrf="c", code2FA="000000", session_id="s", state="st"
+            ),
+            object(),
+        )
+    assert refused.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_the_dashboard_session_is_asked_for_the_member_number_only():
+    from kbsb.tournament_registrations import api_tournament_registrations as api
+
+    sent = {}
+
+    def upstream(request):
+        sent["body"] = json.loads(request.content)
+        return httpx.Response(200, json={"token": "t", "name": "Me"})
+
+    real_client = httpx.AsyncClient
+
+    def client(*args, **kwargs):
+        return real_client(transport=httpx.MockTransport(upstream))
+
+    with (
+        patch.object(api.httpx, "AsyncClient", client),
+        patch.object(api, "get_api_key", lambda: "key"),
+        patch.object(api, "get_mail_bridge_secret", lambda: "secret"),
+    ):
+        reply = await api._tournament_session_for(
+            LoginReply(id=1, jwttoken=member_jwt(777))
+        )
+    assert sent["body"] == {"national_id": 777}
+    assert reply.status_code == 200
