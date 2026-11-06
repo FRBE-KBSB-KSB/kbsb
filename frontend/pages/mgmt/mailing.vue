@@ -50,7 +50,7 @@ async function checkAuth() {
   showLoading(true)
   // now login using the Google auth token
   try {
-    reply = await $backend("accounts", "login", {
+    reply = await $backend("accounts", "googlelogin", {
       logintype: "google",
       token: person.value.credentials,
       username: null,
