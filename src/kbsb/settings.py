@@ -139,16 +139,8 @@ SECRETS = {
         "name": "kbsb-salt",
         "manager": "googlejson",
     },
-    "SU__ruben": {
-        "name": "su_ruben",
-        "manager": "googlejson",
-    },
-    "SU__luc": {
-        "name": "su_luc",
-        "manager": "googlejson",
-    },
-    "SU__jorian": {
-        "name": "su_jorian",
+    "superuser": {
+        "name": "kbsb-superuser",
         "manager": "googlejson",
     },
     "eloserver": {
@@ -162,6 +154,10 @@ SECRETS = {
     "mailrelay": {
         "name": "mail-relay-key",
         "manager": "googletext",
+    },
+    "incoming-server": {
+        "name": "incoming-server",
+        "manager": "googlejson",
     },
 }
 

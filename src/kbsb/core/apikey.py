@@ -20,3 +20,17 @@ def validate_header(apikey: str):
         or not hmac.compare_digest(key.encode(), apikey.encode())
     ):
         raise RdNotAuthorized(description="InvalidKey")
+
+
+def validate_header_incoming(apikey: str, domain: str):
+    "validates the incoming api key for the given domain, using the incoming-server secret"
+    keys = get_secret("incoming-server")
+    if not keys or not isinstance(keys, dict):
+        raise RdNotAuthorized(description="InvalidIncomingServerKey")
+    key = keys.get(domain, "").strip()
+    if (
+        not key
+        or not isinstance(apikey, str)
+        or not hmac.compare_digest(key.encode(), apikey.encode())
+    ):
+        raise RdNotAuthorized(description="InvalidIncomingServerKey")
