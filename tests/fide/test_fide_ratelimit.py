@@ -11,7 +11,6 @@ never sent.
 
 import json
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -19,11 +18,14 @@ from reddevil.core import get_settings
 from zerotwocloud.mail import MailParams, ZcBadRequest
 from zerotwocloud.mail import mail as zc_mail
 
+from kbsb import ROOT_DIR
 from kbsb.fide import api_fide, ratelimit, turnstile
 from kbsb.main import app
 
 T = json.loads(
-    (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(encoding="utf-8")
+    (ROOT_DIR / "src" / "kbsb" / "fide" / "translations.json").read_text(
+        encoding="utf-8"
+    )
 )
 
 IP = "203.0.113.7"
@@ -43,20 +45,26 @@ class FakeCollection:
 
     async def count_documents(self, query):
         since = query["ts"]["$gte"]
-        return sum(1 for d in self.docs if d["key"] == query["key"] and d["ts"] >= since)
+        return sum(
+            1 for d in self.docs if d["key"] == query["key"] and d["ts"] >= since
+        )
 
     async def insert_many(self, docs):
         self.docs.extend(docs)
 
     def add(self, kind, value, n, age):
         ts = datetime.now(UTC) - age
-        self.docs.extend({"key": ratelimit.hashed_key(kind, value), "ts": ts} for _ in range(n))
+        self.docs.extend(
+            {"key": ratelimit.hashed_key(kind, value), "ts": ts} for _ in range(n)
+        )
 
 
 @pytest.fixture
 def db(monkeypatch):
     coll = FakeCollection()
-    monkeypatch.setattr(ratelimit, "a_get_mongodb", lambda: {ratelimit.COLLECTION: coll})
+    monkeypatch.setattr(
+        ratelimit, "a_get_mongodb", lambda: {ratelimit.COLLECTION: coll}
+    )
     monkeypatch.setattr(ratelimit, "_index", {"done": False})
     return coll
 
@@ -67,7 +75,9 @@ def sent(monkeypatch):
     monkeypatch.setattr(get_settings(), "TURNSTILE_SITEKEY", "", raising=False)
     monkeypatch.setattr(turnstile, "_secret_cache", {"value": None, "failed_at": 0.0})
     mails = []
-    monkeypatch.setattr(api_fide, "sendEmailMessage", lambda params: mails.append(params))
+    monkeypatch.setattr(
+        api_fide, "sendEmailMessage", lambda params: mails.append(params)
+    )
     return mails
 
 
@@ -140,16 +150,23 @@ def test_a_valid_submit_goes_through_and_is_counted(db, sent):
     # stored hashed: no IP or address in the collection
     assert IP not in str(db.docs) and INVOICE not in str(db.docs)
     # the TTL index
-    assert ("ts", {"expireAfterSeconds": int(ratelimit.KEEP.total_seconds())}) in db.indexes
+    assert (
+        "ts",
+        {"expireAfterSeconds": int(ratelimit.KEEP.total_seconds())},
+    ) in db.indexes
 
 
 def test_ip_hourly_limit(db, sent):
     for i in range(ratelimit.IP_PER_HOUR):
         # other addresses each time, so only the IP limit can be reached
-        form = valid_form(invoice_email=f"club{i}@example.be", contact_email=f"org{i}@example.be")
+        form = valid_form(
+            invoice_email=f"club{i}@example.be", contact_email=f"org{i}@example.be"
+        )
         assert submit(form).status_code == 200
     n = len(sent)
-    r = submit(valid_form(invoice_email="new@example.be", contact_email="new2@example.be"))
+    r = submit(
+        valid_form(invoice_email="new@example.be", contact_email="new2@example.be")
+    )
     assert_limited(r)
     assert len(sent) == n  # nothing mailed
     # another IP is not affected
@@ -160,7 +177,9 @@ def test_ip_hourly_limit(db, sent):
 def test_ip_daily_limit(db, sent):
     db.add("ip", IP, ratelimit.IP_PER_DAY - 1, timedelta(hours=3))
     assert submit().status_code == 200
-    r = submit(valid_form(invoice_email="new@example.be", contact_email="new2@example.be"))
+    r = submit(
+        valid_form(invoice_email="new@example.be", contact_email="new2@example.be")
+    )
     assert_limited(r)
 
 
@@ -200,11 +219,13 @@ def test_invalid_form_is_not_counted(db, sent):
 
 def test_internal_test_address_has_only_the_ip_limit(db, sent):
     db.add("mail", api_fide.INTERNAL_TEST_ADDRESS, 50, timedelta(hours=1))
-    r = submit(valid_form(invoice_email="JORIAN.INTERNAL", contact_email="JORIAN.INTERNAL"))
+    r = submit(
+        valid_form(invoice_email="JORIAN.INTERNAL", contact_email="JORIAN.INTERNAL")
+    )
     assert r.status_code == 200, r.text
-    assert {d["key"] for d in db.docs if d["ts"] > datetime.now(UTC) - timedelta(minutes=1)} == {
-        ratelimit.hashed_key("ip", IP)
-    }
+    assert {
+        d["key"] for d in db.docs if d["ts"] > datetime.now(UTC) - timedelta(minutes=1)
+    } == {ratelimit.hashed_key("ip", IP)}
 
 
 def test_client_host_without_the_app_engine_header(db, sent):

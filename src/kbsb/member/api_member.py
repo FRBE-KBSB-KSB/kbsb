@@ -12,6 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import RdException, bearer_schema, get_setting
 
 from kbsb.core import RdForbidden
+from kbsb.core.apikey import header_schema, validate_header_incoming
 from kbsb.core.tokens import validate_membertoken, validate_token
 
 from . import (
@@ -143,6 +144,25 @@ async def api_clb_get_member(
         requester = validate_membertoken(auth)
         if requester != str(idmember) and not requester.startswith("SU__"):
             raise RdForbidden
+        return await mgmt_getmember(idmember)
+    except RdException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.description)
+    except Exception:
+        logger.exception("failed api call get_activemember")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/incoming/{domain}/member/{idmember}", response_model=Member)
+async def api_incoming_get_member(
+    domain: str,
+    idmember: int,
+    apikey: str = Depends(header_schema),
+):
+    """
+    get full details a member by his idnumber
+    """
+    try:
+        validate_header_incoming(apikey, domain)
         return await mgmt_getmember(idmember)
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)

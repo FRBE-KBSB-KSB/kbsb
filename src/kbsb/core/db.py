@@ -21,7 +21,7 @@ def date2datetime(d: dict, f: str):
 
 def get_odoo():
     """
-    Setup the Odoo database connection.
+    Configure the Odoo database connection.
     """
     if not hasattr(get_odoo, "secrets"):
         get_odoo.secrets = get_secret("odoo")  # type: ignore

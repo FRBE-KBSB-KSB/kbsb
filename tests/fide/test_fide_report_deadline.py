@@ -14,20 +14,20 @@ import csv
 import json
 import re
 from datetime import date
-from pathlib import Path
 
 import pytest
 
+from kbsb import ROOT_DIR
 from kbsb.fide.api_fide import (
     get_rating_list,
-    single_report_days,
     get_report_deadline,
     report_deadline_mail,
     report_groups,
+    single_report_days,
     validate_form,
 )
 
-FIDE_DIR = Path(__file__).parents[1] / "src/kbsb/fide"
+FIDE_DIR = ROOT_DIR / "src" / "kbsb" / "fide"
 TRANSLATIONS = json.loads((FIDE_DIR / "translations.json").read_text(encoding="utf-8"))
 
 
@@ -110,12 +110,19 @@ def test_invalid_dates_have_no_deadline(end):
 
 
 def ack_errors(form, lang="en"):
-    marker = TRANSLATIONS[lang]["messages"]["report_deadline_ack_required"].split("{reports}")[0]
+    marker = TRANSLATIONS[lang]["messages"]["report_deadline_ack_required"].split(
+        "{reports}"
+    )[0]
     return [e for e in validate_form(dict(form), lang) if e.startswith(marker)]
 
 
 def single(end, **extra):
-    return {"tournament_report": "All rounds in 1 report", "start_date": end, "end_date": end, **extra}
+    return {
+        "tournament_report": "All rounds in 1 report",
+        "start_date": end,
+        "end_date": end,
+        **extra,
+    }
 
 
 def long_tournament(rounds, **extra):
@@ -160,11 +167,15 @@ def test_reports_group_the_rounds_like_the_form():
         (3, [7, 8, 9], "2027-06-25"),
     ]
     # A round on the last two days of a month is a report of its own.
-    late = long_tournament([("2026-09-05", "", "1"), ("2026-09-30", "", "2"), ("2026-10-03", "", "3")])
+    late = long_tournament(
+        [("2026-09-05", "", "1"), ("2026-09-30", "", "2"), ("2026-10-03", "", "3")]
+    )
     assert [g["rounds"] for g in report_groups(late)] == [[1], [2], [3]]
     # Report per round: one report per round, whatever the periods.
     per_round = {**SEASON, "report_per_round": True}
-    assert [g["rounds"] for g in report_groups(per_round)] == [[i] for i in range(1, 10)]
+    assert [g["rounds"] for g in report_groups(per_round)] == [
+        [i] for i in range(1, 10)
+    ]
 
 
 def test_season_mail_per_report_nl():
@@ -173,14 +184,18 @@ def test_season_mail_per_report_nl():
     first, second, third = items
     # report 1: 18 December, outside the window: expected 22 December, last
     # chance 30 December (December has 31 days), no warning
-    assert first.startswith("Rapport 1 (rondes 1, 2 en 3), laatste ronde op 18 december 2026")
+    assert first.startswith(
+        "Rapport 1 (rondes 1, 2 en 3), laatste ronde op 18 december 2026"
+    )
     assert "verwacht uiterlijk op 22 december 2026" in first
     assert "Laatste kans voor de ratinglijst van december: 30 december om 12u." in first
     assert "Opgepast" not in first
     assert "Laatste kans voor de ratinglijst van maart: 30 maart om 12u." in second
     assert "Opgepast" not in second
     # report 3: 25 June, in the window
-    assert third.startswith("Rapport 3 (rondes 7, 8 en 9), laatste ronde op 25 juni 2027")
+    assert third.startswith(
+        "Rapport 3 (rondes 7, 8 en 9), laatste ronde op 25 juni 2027"
+    )
     assert "Laatste kans voor de ratinglijst van juni: 29 juni om 12u." in third
     assert (
         "Opgepast: dien het rapport voor de rondes 7, 8 en 9 in uiterlijk op 29 juni om 12u, "
@@ -192,11 +207,20 @@ def test_season_mail_per_report_en_fr():
     en = mail_items(report_deadline_mail(SEASON, "en"))
     assert en[0].startswith("Report 1 (rounds 1, 2 and 3)")
     assert "Last chance for the December rating list: 30 December at 12:00." in en[0]
-    assert "Please note: send in the report for rounds 7, 8 and 9 by 29 June at 12:00" in en[2]
+    assert (
+        "Please note: send in the report for rounds 7, 8 and 9 by 29 June at 12:00"
+        in en[2]
+    )
     fr = mail_items(report_deadline_mail(SEASON, "fr"))
     assert fr[0].startswith("Rapport 1 (rondes 1, 2 et 3)")
-    assert "Dernière chance pour la liste de classement de décembre : le 30 décembre à 12h." in fr[0]
-    assert "Attention : envoyez le rapport 3 (rondes 7, 8 et 9) au plus tard le 29 juin à 12h" in fr[2]
+    assert (
+        "Dernière chance pour la liste de classement de décembre : le 30 décembre à 12h."
+        in fr[0]
+    )
+    assert (
+        "Attention : envoyez le rapport 3 (rondes 7, 8 et 9) au plus tard le 29 juin à 12h"
+        in fr[2]
+    )
 
 
 def test_season_tick_only_for_report_3():
@@ -214,11 +238,15 @@ def test_season_tick_only_for_report_3():
 def test_single_tournament_in_window_needs_the_tick():
     errors = ack_errors(single("2026-09-26"))
     assert len(errors) == 1
-    assert "the tournament report by 29 September 2026 at 12:00 at the latest" in errors[0]
+    assert (
+        "the tournament report by 29 September 2026 at 12:00 at the latest" in errors[0]
+    )
     assert ack_errors(single("2026-09-26", report_deadline_ack=True)) == []
 
 
-@pytest.mark.parametrize("end", ["2026-09-23", "2026-09-29", "2026-09-30", "2026-10-05"])
+@pytest.mark.parametrize(
+    "end", ["2026-09-23", "2026-09-29", "2026-09-30", "2026-10-05"]
+)
 def test_single_tournament_outside_window_needs_no_tick(end):
     assert ack_errors(single(end)) == []
 
@@ -301,16 +329,30 @@ def test_mail_single_tournament_ending_on_the_18th():
 @pytest.mark.parametrize(
     "end,lang,text",
     [
-        ("2026-09-30", "nl", "Laatste kans voor de ratinglijst van oktober: 30 oktober om 12u."),
-        ("2026-12-30", "en", "Last chance for the January rating list: 30 January at 12:00."),
-        ("2027-01-31", "fr", "Dernière chance pour la liste de classement de février : le 27 février à 12h."),
+        (
+            "2026-09-30",
+            "nl",
+            "Laatste kans voor de ratinglijst van oktober: 30 oktober om 12u.",
+        ),
+        (
+            "2026-12-30",
+            "en",
+            "Last chance for the January rating list: 30 January at 12:00.",
+        ),
+        (
+            "2027-01-31",
+            "fr",
+            "Dernière chance pour la liste de classement de février : le 27 février à 12h.",
+        ),
     ],
 )
 def test_transition_days_count_for_the_next_list(end, lang, text):
     html = report_deadline_mail(single(end), lang)
     assert text in html
     assert "color: #b45309" not in html
-    late = report_deadline_mail(long_tournament([("2026-09-05", "", "1"), (end, "", "2")]), lang)
+    late = report_deadline_mail(
+        long_tournament([("2026-09-05", "", "1"), (end, "", "2")]), lang
+    )
     assert text in mail_items(late)[1]
 
 
@@ -359,7 +401,11 @@ NEW_KEYS = {
 
 
 def period_errors(start, end, lang="en"):
-    form = {"tournament_report": "All rounds in 1 report", "start_date": start, "end_date": end}
+    form = {
+        "tournament_report": "All rounds in 1 report",
+        "start_date": start,
+        "end_date": end,
+    }
     text = TRANSLATIONS[lang]["messages"]["all_rounds_one_report_period_error"]
     return [e for e in validate_form(form, lang) if e == text]
 
@@ -409,10 +455,17 @@ def test_translations_json_and_csv_agree():
         for key in keys:
             for lang in ("en", "nl", "fr"):
                 value = TRANSLATIONS[lang][section][key]
-                assert value and value == rows[(section, key)][lang], (section, key, lang)
+                assert value and value == rows[(section, key)][lang], (
+                    section,
+                    key,
+                    lang,
+                )
                 assert "\u2014" not in value  # no em-dashes in the texts
     for lang in ("en", "nl", "fr"):
-        assert TRANSLATIONS[lang]["messages"]["conf_body"] == rows[("messages", "conf_body")][lang]
+        assert (
+            TRANSLATIONS[lang]["messages"]["conf_body"]
+            == rows[("messages", "conf_body")][lang]
+        )
     # Retired with the per round deadline lines.
     assert ("ui", "report_expected_by") not in rows
     assert ("messages", "report_deadline_critical_round") not in rows
@@ -428,4 +481,6 @@ def test_translations_json_and_csv_agree():
 )
 def test_critical_warnings_mention_the_fine(lang, fine):
     for kind in ("tournament", "report"):
-        assert fine in TRANSLATIONS[lang]["messages"][f"report_deadline_critical_{kind}"]
+        assert (
+            fine in TRANSLATIONS[lang]["messages"][f"report_deadline_critical_{kind}"]
+        )

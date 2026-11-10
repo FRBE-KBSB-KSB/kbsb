@@ -6,12 +6,14 @@ its first control (fide_registration.vue, validate_form).
 """
 
 import json
-from pathlib import Path
 
+from kbsb import ROOT_DIR
 from kbsb.fide.api_fide import calculate_standard_total_minutes, validate_form
 
-FIDE_DIR = Path(__file__).parents[1] / "src/kbsb/fide"
-FIELDS = json.loads((FIDE_DIR / "translations.json").read_text(encoding="utf-8"))["en"]["fields"]
+FIDE_DIR = ROOT_DIR / "src" / "kbsb" / "fide"
+FIELDS = json.loads((FIDE_DIR / "translations.json").read_text(encoding="utf-8"))["en"][
+    "fields"
+]
 
 TC_KEYS = [
     "timectl_other_desc",
@@ -28,16 +30,23 @@ TC_KEYS = [
 def tc_errors(**fields):
     form = {"time_control_code": "Standard", "time_control_desc": "Other", **fields}
     labels = [FIELDS[k] for k in TC_KEYS]
-    return [e for e in validate_form(form, "en") if any(e.startswith(label) for label in labels)]
+    return [
+        e
+        for e in validate_form(form, "en")
+        if any(e.startswith(label) for label in labels)
+    ]
 
 
 def test_minutes_to_the_end_with_an_increment_is_enough():
-    assert tc_errors(
-        timectl_other_desc="40min/end+5sec/move from move 1",
-        timectl_final_minutes="40",
-        timectl_final_inc_type="Increment",
-        timectl_final_inc_seconds="5",
-    ) == []
+    assert (
+        tc_errors(
+            timectl_other_desc="40min/end+5sec/move from move 1",
+            timectl_final_minutes="40",
+            timectl_final_inc_type="Increment",
+            timectl_final_inc_seconds="5",
+        )
+        == []
+    )
 
 
 def test_a_first_period_needs_both_its_moves_and_its_minutes():
@@ -52,16 +61,19 @@ def test_a_first_period_needs_both_its_moves_and_its_minutes():
 
 
 def test_the_full_shape_passes():
-    assert tc_errors(
-        timectl_other_desc="90min/40moves+30min/end+30sec/move from move 1",
-        timectl1_moves="40",
-        timectl1_minutes="90",
-        timectl1_inc_type="Increment",
-        timectl1_inc_seconds="30",
-        timectl_final_minutes="30",
-        timectl_final_inc_type="Increment",
-        timectl_final_inc_seconds="30",
-    ) == []
+    assert (
+        tc_errors(
+            timectl_other_desc="90min/40moves+30min/end+30sec/move from move 1",
+            timectl1_moves="40",
+            timectl1_minutes="90",
+            timectl1_inc_type="Increment",
+            timectl1_inc_seconds="30",
+            timectl_final_minutes="30",
+            timectl_final_inc_type="Increment",
+            timectl_final_inc_seconds="30",
+        )
+        == []
+    )
 
 
 def test_minutes_to_the_end_and_the_increment_are_required():

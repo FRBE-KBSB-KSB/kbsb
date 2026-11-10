@@ -24,8 +24,8 @@ SECRETS = {
         "name": "kbsb-salt",
         "manager": "googlejson",
     },
-    "SU__ruben": {
-        "name": "su_ruben",
+    "superuser": {
+        "name": "superuser",
         "manager": "filejson",
     },
     "eloserver": {
@@ -35,6 +35,10 @@ SECRETS = {
     "mailrelay": {
         "name": "mail-relay-key",
         "manager": "filetext",
+    },
+    "incoming-server": {
+        "name": "incoming-server",
+        "manager": "googlejson",
     },
 }
 

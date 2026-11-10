@@ -48,6 +48,14 @@ SECRETS = {
         "name": "test-eloserver",
         "manager": "filetext",
     },
+    "superuser": {
+        "name": "test-superuser",
+        "manager": "filejson",
+    },
+    "incoming-server": {
+        "name": "test-incoming-server",
+        "manager": "filejson",
+    },
 }
 
 SHORTCUT_INFOMANIAKLOGIN = True
@@ -96,8 +104,6 @@ LOG_CONFIG = {
 }
 
 TEMPLATES_PATH = "./src/kbsb/templates"
-
-TESTING = True
 
 TOKEN = {
     "timeout": 180,  # timeout in minutes
