@@ -14,7 +14,6 @@ manual test, Cloudflare's test keys (see kbsb.fide.turnstile) are
 """
 
 import json
-from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
@@ -22,11 +21,14 @@ import pytest
 from fastapi.testclient import TestClient
 from reddevil.core import get_settings
 
+from kbsb import ROOT_DIR
 from kbsb.fide import api_fide, turnstile
 from kbsb.main import app
 
 T = json.loads(
-    (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(encoding="utf-8")
+    (ROOT_DIR / "src" / "kbsb" / "fide" / "translations.json").read_text(
+        encoding="utf-8"
+    )
 )
 MSG = T["en"]["messages"]
 
@@ -53,7 +55,9 @@ class FakeAsyncClient:
         return False
 
     async def post(self, url, data=None, **kwargs):
-        FakeAsyncClient.calls.append({"url": url, "data": data, "timeout": self.kwargs.get("timeout")})
+        FakeAsyncClient.calls.append(
+            {"url": url, "data": data, "timeout": self.kwargs.get("timeout")}
+        )
         if isinstance(FakeAsyncClient.answer, Exception):
             raise FakeAsyncClient.answer
         return httpx.Response(
@@ -71,7 +75,9 @@ def cloudflare(monkeypatch):
         "hostname": "www.frbe-kbsb-ksb.be",
         "action": "fide_registration",
     }
-    monkeypatch.setattr(turnstile, "httpx", SimpleNamespace(AsyncClient=FakeAsyncClient))
+    monkeypatch.setattr(
+        turnstile, "httpx", SimpleNamespace(AsyncClient=FakeAsyncClient)
+    )
     return FakeAsyncClient
 
 
@@ -79,7 +85,9 @@ def cloudflare(monkeypatch):
 def stop_at_validation(monkeypatch):
     monkeypatch.setattr(api_fide, "validate_form", lambda form, lang: [REACHED])
     sent = []
-    monkeypatch.setattr(api_fide, "sendEmailMessage", lambda params: sent.append(params))
+    monkeypatch.setattr(
+        api_fide, "sendEmailMessage", lambda params: sent.append(params)
+    )
     return sent
 
 
@@ -102,7 +110,9 @@ def submit(token=None, locale="en", headers=None):
     if token is not None:
         body["turnstile_token"] = token
     client = TestClient(app)
-    return client.post(f"/api/v1/fide/generate?locale={locale}", json=body, headers=headers or {})
+    return client.post(
+        f"/api/v1/fide/generate?locale={locale}", json=body, headers=headers or {}
+    )
 
 
 def assert_reached(response):
@@ -125,7 +135,9 @@ def assert_refused(response, key, status=400, locale="en"):
     [("", ""), (SITEKEY, ""), ("", SECRET)],
     ids=["nothing", "no secret", "no site key"],
 )
-def test_off_submit_is_as_before(monkeypatch, cloudflare, stop_at_validation, sitekey, secret):
+def test_off_submit_is_as_before(
+    monkeypatch, cloudflare, stop_at_validation, sitekey, secret
+):
     configure(monkeypatch, sitekey, secret)
     assert_reached(submit())
     assert_reached(submit(token="anything"))
@@ -144,7 +156,9 @@ def test_off_form_data_has_no_site_key(monkeypatch, sitekey, secret):
     assert "translations" in data and "lookups" in data
 
 
-def test_secret_manager_failure_keeps_it_off(monkeypatch, cloudflare, stop_at_validation):
+def test_secret_manager_failure_keeps_it_off(
+    monkeypatch, cloudflare, stop_at_validation
+):
     configure(monkeypatch, SITEKEY)
 
     def broken():
@@ -171,12 +185,18 @@ def test_missing_token_is_refused(on, cloudflare, stop_at_validation, token):
 
 
 def test_accepted_token_goes_through(on, cloudflare, stop_at_validation):
-    response = submit(token="good-token", headers={"X-Appengine-User-IP": "203.0.113.7"})
+    response = submit(
+        token="good-token", headers={"X-Appengine-User-IP": "203.0.113.7"}
+    )
     assert_reached(response)
     assert len(cloudflare.calls) == 1
     call = cloudflare.calls[0]
     assert call["url"] == "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-    assert call["data"] == {"secret": SECRET, "response": "good-token", "remoteip": "203.0.113.7"}
+    assert call["data"] == {
+        "secret": SECRET,
+        "response": "good-token",
+        "remoteip": "203.0.113.7",
+    }
     assert call["timeout"] == 10.0
 
 
@@ -197,9 +217,19 @@ def test_remoteip_falls_back_to_the_client(on, cloudflare, stop_at_validation):
         {"success": True, "hostname": "www.frbe-kbsb-ksb.be", "action": "login"},
         {"success": True, "hostname": "www.frbe-kbsb-ksb.be"},
         {"success": False, "error-codes": ["invalid-input-response"]},
-        {"success": "true", "hostname": "www.frbe-kbsb-ksb.be", "action": "fide_registration"},
+        {
+            "success": "true",
+            "hostname": "www.frbe-kbsb-ksb.be",
+            "action": "fide_registration",
+        },
     ],
-    ids=["wrong hostname", "wrong action", "no action", "success false", "success not a bool"],
+    ids=[
+        "wrong hostname",
+        "wrong action",
+        "no action",
+        "success false",
+        "success not a bool",
+    ],
 )
 def test_bad_answers_are_refused(on, cloudflare, stop_at_validation, answer):
     cloudflare.answer = answer
@@ -217,7 +247,11 @@ def test_localhost_only_in_dev_modes(on, cloudflare, stop_at_validation, monkeyp
 
 @pytest.mark.parametrize(
     "error",
-    [httpx.ConnectError("down"), httpx.ReadTimeout("slow"), RuntimeError("network access blocked")],
+    [
+        httpx.ConnectError("down"),
+        httpx.ReadTimeout("slow"),
+        RuntimeError("network access blocked"),
+    ],
     ids=["connect", "timeout", "other"],
 )
 def test_unreachable_cloudflare_is_refused(on, cloudflare, stop_at_validation, error):
@@ -231,15 +265,23 @@ def test_unreachable_cloudflare_is_refused(on, cloudflare, stop_at_validation, e
 def test_refusals_are_translated(on, cloudflare, stop_at_validation, locale):
     assert_refused(submit(locale=locale), turnstile.MSG_REQUIRED, locale=locale)
     cloudflare.answer = {"success": False}
-    assert_refused(submit(token="t", locale=locale), turnstile.MSG_FAILED, locale=locale)
+    assert_refused(
+        submit(token="t", locale=locale), turnstile.MSG_FAILED, locale=locale
+    )
     cloudflare.answer = httpx.ConnectError("down")
-    assert_refused(submit(token="t", locale=locale), turnstile.MSG_UNAVAILABLE, 503, locale)
+    assert_refused(
+        submit(token="t", locale=locale), turnstile.MSG_UNAVAILABLE, 503, locale
+    )
 
 
 def test_messages_exist_in_every_language():
     for lang in ("en", "nl", "fr"):
         assert T[lang]["ui"]["turnstile_hint"]
-        for key in (turnstile.MSG_REQUIRED, turnstile.MSG_FAILED, turnstile.MSG_UNAVAILABLE):
+        for key in (
+            turnstile.MSG_REQUIRED,
+            turnstile.MSG_FAILED,
+            turnstile.MSG_UNAVAILABLE,
+        ):
             assert T[lang]["messages"][key], (lang, key)
 
 

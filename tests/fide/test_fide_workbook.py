@@ -9,11 +9,11 @@ own formulas, in cells the form does not fill, stay formulas.
 
 import json
 from io import BytesIO
-from pathlib import Path
 
 import pytest
 from openpyxl import Workbook, load_workbook
 
+from kbsb import ROOT_DIR
 from kbsb.core.cells import write_text
 from kbsb.fide.api_fide import (
     FIDE_FIELDS,
@@ -23,7 +23,7 @@ from kbsb.fide.api_fide import (
 )
 
 TRANSLATIONS = json.loads(
-    (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(
+    (ROOT_DIR / "src" / "kbsb" / "fide" / "translations.json").read_text(
         encoding="utf-8"
     )
 )

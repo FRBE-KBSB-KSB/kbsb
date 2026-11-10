@@ -6,14 +6,16 @@ refuse that (kbsb.fide.api_fide.round_span_errors, fide_registration.vue).
 """
 
 import json
-from pathlib import Path
 
 import pytest
 
+from kbsb import ROOT_DIR
 from kbsb.fide.api_fide import round_span_errors
 
 MSG = json.loads(
-    (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(encoding="utf-8")
+    (ROOT_DIR / "src" / "kbsb" / "fide" / "translations.json").read_text(
+        encoding="utf-8"
+    )
 )["en"]["messages"]
 
 
@@ -65,7 +67,9 @@ def test_last_round_has_no_next_round():
 
 def test_messages_exist_in_every_language():
     t = json.loads(
-        (Path(__file__).parents[1] / "src/kbsb/fide/translations.json").read_text(encoding="utf-8")
+        (ROOT_DIR / "src" / "kbsb" / "fide" / "translations.json").read_text(
+            encoding="utf-8"
+        )
     )
     for lang in ("en", "nl", "fr"):
         for key in (
