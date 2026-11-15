@@ -335,7 +335,7 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
         return None
     try:
         iv = int(value)
-    except ValueError:
+    except (TypeError, ValueError):
         logger.error(f"{field_label} must be an integer")
         errors.append(f"{field_label} {t_msg['field_must_be_integer']}")
         return None
@@ -1008,6 +1008,19 @@ def normalise_homepage(form):
     form["homepage"] = homepage
 
 
+def non_text_fields(form) -> list[str]:
+    """
+    The fields of a submit that are neither text nor a tick box. The page only
+    sends those; anything else (a list, an object, a number) would reach the
+    string and date handling below and give a 500 instead of a 400.
+    """
+    if not isinstance(form, dict):
+        return ["formdata"]
+    return [
+        k for k, v in form.items() if not (v is None or isinstance(v, (str, bool)))
+    ]
+
+
 def refuse(key, status_code, locale):
     """A refused submit, with the translated message of key."""
     t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
@@ -1034,6 +1047,16 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
             refusal, 503 if refusal == turnstile.MSG_UNAVAILABLE else 400, locale
         )
     form = formdata.get("formdata", {})
+    bad_fields = non_text_fields(form)
+    if bad_fields:
+        logger.error(f"FIDE form fields that are not text: {bad_fields}")
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "errors": [f"{k}: not a text value" for k in bad_fields],
+            },
+        )
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")
 
