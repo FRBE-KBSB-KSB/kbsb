@@ -140,7 +140,7 @@ SECRETS = {
         "manager": "googlejson",
     },
     "superuser": {
-        "name": "kbsb-superuser",
+        "name": "superuser",
         "manager": "googlejson",
     },
     "eloserver": {
