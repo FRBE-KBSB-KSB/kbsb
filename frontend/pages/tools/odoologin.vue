@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useIdtokenStore } from "@/store/idtoken"
-import { useIdbelStore } from "~/store/idbel"
+import { useIdbelStore, memberFromToken } from "~/store/idbel"
 import ProgressLoading from "@/components/ProgressLoading.vue"
 import SnackbarMessage from "@/components/SnackbarMessage.vue"
 
@@ -61,6 +61,7 @@ async function dologin() {
     dialog2fa.value = true
   } else {
     idtokenstore.updateToken(loginreply.jwttoken)
+    idbelstore.updateIdbel(memberFromToken(loginreply.jwttoken))
     await navigateTo(returnUrl)
   }
 }
@@ -88,8 +89,8 @@ async function dologin2FA() {
     dialog2fa.value = true
   } else {
     idtokenstore.updateToken(loginreply.jwttoken)
-    // TODO check if idbel is needed
-    // (getting it via the standard APIkey interface of Odoo)
+    // the member number signs interclub result cards; it is in the token
+    idbelstore.updateIdbel(memberFromToken(loginreply.jwttoken))
     await navigateTo(returnUrl)
   }
 }
