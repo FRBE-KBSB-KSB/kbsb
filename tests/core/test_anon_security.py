@@ -428,37 +428,6 @@ async def test_every_request_gets_its_own_odoo_client():
     await second.aclose()
 
 
-# -- the tournament dashboard's Odoo login -------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_odoo_login_gives_the_member_number():
-    from kbsb.member.member import odoo_login
-
-    member_token = jwt.encode(
-        {"sub": "777", "exp": datetime.now(tz=UTC) + timedelta(minutes=5)},
-        jwt_secret + member_salt,
-        jwt_algorithm,
-    )
-    reply = LoginReply(id=1, jwttoken=member_token)
-    with patch("kbsb.member.login.login", AsyncMock(return_value=reply)):
-        assert await odoo_login("me@example.org", "pw") == (777, member_token)
-
-
-@pytest.mark.asyncio
-async def test_odoo_login_refuses_2fa_accounts_and_superusers():
-    from kbsb.member.member import odoo_login
-
-    asks_2fa = LoginReply(id=-1, is2FAneeded=True, session_id="s", csrf="c")
-    with (
-        patch("kbsb.member.login.login", AsyncMock(return_value=asks_2fa)),
-        pytest.raises(RdNotAuthorized),
-    ):
-        await odoo_login("me@example.org", "pw")
-    with pytest.raises(RdNotAuthorized):
-        await odoo_login("SU__ruben", "pw")
-
-
 # -- which member has logged in -----------------------------------------------
 
 

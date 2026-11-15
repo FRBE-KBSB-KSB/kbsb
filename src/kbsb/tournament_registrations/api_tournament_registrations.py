@@ -221,12 +221,12 @@ class OdooLoginPayload(BaseModel):
 
 # Logging in to the tournament dashboard with a KBSB Odoo account.
 #
-# Odoo itself checks the email and password (odoo_login, the same call the
-# site's own Odoo login page makes), and only the member number Odoo answers
-# with is passed on. Nothing here trusts a token a browser holds: the member
-# tokens this site hands out are signed with a key that sits in the public
-# repository, and validate_membertoken does not check signatures at all, so a
-# token is no proof of who somebody is.
+# Odoo itself checks the email and password (kbsb.member.login.login, the
+# same call the site's own Odoo login page makes), and only the member number
+# Odoo answers with is passed on. Nothing here trusts a token a browser
+# holds: validate_membertoken does check signatures, but half of the signing
+# key (JWT_SECRET) sits in the repository, so a member token from a browser
+# is still no proof of who somebody is.
 #
 # The VPS gives out its own dashboard session for that member number, and
 # only to a caller presenting the secret the two already share for the
