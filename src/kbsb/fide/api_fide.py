@@ -8,6 +8,7 @@ import logging
 import base64
 import html
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -32,6 +33,13 @@ FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
 # Read by the dataplatform every 30 minutes; it queues the workbook for processing.
 AUTORATING_MAILBOX = "autoratingfide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
+
+BRUSSELS = ZoneInfo("Europe/Brussels")
+
+
+def today_in_brussels() -> date:
+    """Today's date where the federation is; the server's clock is UTC."""
+    return datetime.now(BRUSSELS).date()
 
 # One plain address: the invoice and contact e-mails become mail headers (To,
 # Reply-To), so no line breaks or spaces, and no comma, semicolon or angle
@@ -1076,7 +1084,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     if start_date_str:
         try:
             start_date_val = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-            today = datetime.now().date()
+            today = today_in_brussels()
             if (start_date_val - today).days < 14:
                 is_late = True
         except Exception:
