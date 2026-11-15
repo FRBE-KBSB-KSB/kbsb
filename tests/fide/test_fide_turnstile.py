@@ -1,8 +1,9 @@
 """
 Cloudflare Turnstile on the FIDE registration form (kbsb.fide.turnstile).
 
-Turnstile is on only when both the site key and the secret key are there;
-otherwise the submit works as before and Cloudflare is never called. When on,
+Turnstile is off without a site key: the submit works as before and
+Cloudflare is never called. With a site key but no readable secret key, the
+submit is refused as unavailable, not let through unchecked. When on,
 a submit goes through only when Cloudflare accepts the token for our hostname
 and action; when Cloudflare cannot be reached, the submit is refused.
 
@@ -132,8 +133,8 @@ def assert_refused(response, key, status=400, locale="en"):
 
 @pytest.mark.parametrize(
     "sitekey,secret",
-    [("", ""), (SITEKEY, ""), ("", SECRET)],
-    ids=["nothing", "no secret", "no site key"],
+    [("", ""), ("", SECRET)],
+    ids=["nothing", "no site key"],
 )
 def test_off_submit_is_as_before(
     monkeypatch, cloudflare, stop_at_validation, sitekey, secret
@@ -156,7 +157,16 @@ def test_off_form_data_has_no_site_key(monkeypatch, sitekey, secret):
     assert "translations" in data and "lookups" in data
 
 
-def test_secret_manager_failure_keeps_it_off(
+def test_a_site_key_without_a_secret_refuses_the_submit(
+    monkeypatch, cloudflare, stop_at_validation
+):
+    configure(monkeypatch, SITEKEY)
+    assert_refused(submit(), turnstile.MSG_UNAVAILABLE, status=503)
+    assert_refused(submit(token="anything"), turnstile.MSG_UNAVAILABLE, status=503)
+    assert cloudflare.calls == []
+
+
+def test_secret_manager_failure_refuses_the_submit(
     monkeypatch, cloudflare, stop_at_validation
 ):
     configure(monkeypatch, SITEKEY)
@@ -166,8 +176,31 @@ def test_secret_manager_failure_keeps_it_off(
 
     monkeypatch.setattr(turnstile, "_read_secret", broken)
     assert turnstile.is_enabled() is False
-    assert_reached(submit())
+    assert_refused(submit(), turnstile.MSG_UNAVAILABLE, status=503)
     assert cloudflare.calls == []
+
+
+def test_an_empty_secret_is_not_cached(monkeypatch):
+    configure(monkeypatch, SITEKEY)
+    answers = ["", SECRET]
+    monkeypatch.setattr(turnstile, "_read_secret", lambda: answers.pop(0))
+    assert turnstile.get_secret_key() == ""
+    assert turnstile._secret_cache["value"] is None
+    # read again once the retry time is over
+    monkeypatch.setattr(
+        turnstile,
+        "_secret_cache",
+        {"value": None, "failed_at": turnstile._secret_cache["failed_at"] - 3600},
+    )
+    assert turnstile.get_secret_key() == SECRET
+
+
+def test_a_token_that_is_not_text_is_refused(on, cloudflare, stop_at_validation):
+    r = TestClient(app).post(
+        "/api/v1/fide/generate?locale=en",
+        json={"formdata": {"event_name": "Test Open"}, "turnstile_token": ["x"]},
+    )
+    assert_refused(r, turnstile.MSG_REQUIRED)
 
 
 # on
