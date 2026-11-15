@@ -36,7 +36,7 @@ def test_today_in_summer_time(monkeypatch):
     assert api_fide.today_in_brussels() == date(2027, 7, 2)
 
 
-def _submit(monkeypatch, today, start):
+def _submit(monkeypatch, today, start, send=None):
     from fastapi.testclient import TestClient
     from reddevil.core import get_settings
 
@@ -47,7 +47,7 @@ def _submit(monkeypatch, today, start):
     monkeypatch.setattr(turnstile, "_secret_cache", {"value": None, "failed_at": 0.0})
     monkeypatch.setattr(ratelimit, "a_get_mongodb", lambda: None)
     mails = []
-    monkeypatch.setattr(api_fide, "sendEmailMessage", lambda p: mails.append(p))
+    monkeypatch.setattr(api_fide, "sendEmailMessage", send or mails.append)
     monkeypatch.setattr(api_fide, "today_in_brussels", lambda: today)
     end = start.isoformat()
     form = {
@@ -97,3 +97,25 @@ def test_thirteen_days_ahead_in_brussels_is_late(monkeypatch):
 def test_fourteen_days_ahead_in_brussels_is_not_late(monkeypatch):
     disposition, mails = _submit(monkeypatch, date(2027, 3, 7), date(2027, 3, 21))
     assert "LATE_" not in disposition
+
+
+def _on_the_event_loop():
+    import asyncio
+
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return False
+    return True
+
+
+def test_the_mails_are_sent_off_the_event_loop(monkeypatch):
+    # the send blocks; on the event loop it would stall every other request
+    seen = []
+    _submit(
+        monkeypatch,
+        date(2027, 3, 1),
+        date(2027, 6, 1),
+        send=lambda p: seen.append(_on_the_event_loop()),
+    )
+    assert seen == [False, False, False]

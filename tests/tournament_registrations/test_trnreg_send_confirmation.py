@@ -47,3 +47,23 @@ def test_the_right_secret_sends(monkeypatch, sent):
     )
     assert r.status_code == 200, r.text
     assert [m.receiver for m in sent] == ["a@example.be"]
+
+
+def test_the_send_runs_off_the_event_loop(monkeypatch, sent):
+    import asyncio
+
+    def send(params):
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            sent.append("off the loop")
+        else:
+            sent.append("on the loop")
+
+    monkeypatch.setattr(trn, "sendEmailMessage", send)
+    monkeypatch.setattr(trn, "get_mail_bridge_secret", lambda: "s3cret")
+    r = TestClient(app).post(
+        URL, json=PAYLOAD, headers={"x-mail-bridge-secret": "s3cret"}
+    )
+    assert r.status_code == 200, r.text
+    assert sent == ["off the loop"]

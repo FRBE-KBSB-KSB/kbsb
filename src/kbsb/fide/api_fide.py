@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
+from starlette.concurrency import run_in_threadpool
 from openpyxl import load_workbook
 
 from zerotwocloud.mail import MailAttachment, MailParams
@@ -1227,8 +1228,10 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
         bcc="" if is_internal_test else AUTORATING_MAILBOX,
     )
 
+    # the send blocks (Gmail over HTTP); off the event loop, so the
+    # instance's other requests do not wait on it
     try:
-        sendEmailMessage(mail_params)
+        await run_in_threadpool(sendEmailMessage, mail_params)
         logger.info(
             f"FIDE Registration email sent to {fide_receiver} from {sender_email}"
         )
@@ -1266,7 +1269,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
             reply_to=INTERNAL_TEST_ADDRESS if is_internal_test else FIDE_MAILBOX,
         )
         try:
-            sendEmailMessage(conf_params)
+            await run_in_threadpool(sendEmailMessage, conf_params)
             logger.info(
                 f"FIDE Registration confirmation email sent from {sender_email}"
             )

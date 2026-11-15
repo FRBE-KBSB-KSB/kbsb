@@ -5,6 +5,7 @@ import re
 from typing import List
 from fastapi import APIRouter, Request, Response, HTTPException
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 import httpx
 import google.auth
 from google.cloud import secretmanager
@@ -159,8 +160,10 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
         bcc=bcc_str,
     )
 
+    # the send blocks (Gmail over HTTP); off the event loop, so the
+    # instance's other requests do not wait on it
     try:
-        sendEmailMessage(mail_params)
+        await run_in_threadpool(sendEmailMessage, mail_params)
         logger.info(
             f"tournament_registrations confirmation email sent (to={len(payload.to)}, cc={len(payload.cc)}, bcc={len(payload.bcc)})"
         )
