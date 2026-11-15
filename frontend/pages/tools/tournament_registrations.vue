@@ -1115,6 +1115,20 @@ function publicTournamentUrl(trn) {
   return `${PUBLIC_PAGE_PATH}?trn=${encodeURIComponent(trn.id)}`
 }
 
+// A tournament's website, as a link only when it is a plain http(s) address.
+// The organiser types it, and a javascript: or data: address in an href runs
+// on this site when a visitor clicks it, where the member token is kept.
+function webLink(url) {
+  const text = String(url || "").trim()
+  try {
+    const parsed = new URL(text)
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href
+  } catch (e) {
+    // not an absolute address: no link
+  }
+  return ""
+}
+
 async function loadAdminRegistrations() {
   if (!selectedAdminTournament.value) return
   loadingAdminRegistrations.value = true
@@ -1828,7 +1842,7 @@ onMounted(() => {
                 <span v-if="tournament.chief_organizer_email">({{ tournament.chief_organizer_email }})</span>
               </v-col>
               <v-col cols="12" v-if="tournament.url">
-                <strong>{{ t('trnreg.th_website') }}:</strong> <a :href="tournament.url" target="_blank" rel="noopener">{{ tournament.url }}</a>
+                <strong>{{ t('trnreg.th_website') }}:</strong> <a v-if="webLink(tournament.url)" :href="webLink(tournament.url)" target="_blank" rel="noopener">{{ tournament.url }}</a><span v-else>{{ tournament.url }}</span>
               </v-col>
             </v-row>
           </v-card-text>
