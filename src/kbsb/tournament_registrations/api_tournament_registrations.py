@@ -126,7 +126,11 @@ class SendConfirmationPayload(BaseModel):
 async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     presented = request.headers.get("x-mail-bridge-secret", "")
     expected = get_mail_bridge_secret()
-    if not hmac.compare_digest(presented.encode("utf-8"), expected.encode("utf-8")):
+    # an empty secret would match a request that presents none at all, and
+    # make this an open relay; refuse instead, as core/apikey.py does
+    if not expected or not hmac.compare_digest(
+        presented.encode("utf-8"), expected.encode("utf-8")
+    ):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     all_recipients = payload.to + payload.cc + payload.bcc
