@@ -310,12 +310,33 @@ async def mgmt_saveICresults(results: list[ICResultItem]) -> None:
         await calc_standings(s)
 
 
+def _games_key(games) -> list[tuple[int, int, str]]:
+    """
+    the games of a result as plain values, trailing empty boards dropped, so a
+    card padded to the number of boards compares equal to the stored one
+    """
+    key = [
+        (g.idnumber_home or 0, g.idnumber_visit or 0, str(g.result or ""))
+        for g in games
+    ]
+    while key and key[-1] == (0, 0, ""):
+        key.pop()
+    return key
+
+
 async def clb_saveICresults(
     results: list[ICResultItem], signing_clubs: frozenset[int] = frozenset()
 ) -> None:
     """
     save a list of results per team
     signing_clubs: the clubs the caller may sign for (an interclub role there)
+
+    A signature is for the result as it stands. So:
+    - changing the games of a played result (an overwrite) removes both
+      signatures; the clubs sign the new result again
+    - a new signature sent with games that differ from the stored ones is
+      refused (ResultChangedReload): the card was loaded before someone else
+      overwrote it, and signing must not quietly put the old games back
     """
     await check_results_open([(res.round, res.division) for res in results])
     for res in results:
@@ -338,14 +359,40 @@ async def clb_saveICresults(
                 and enc.pairingnr_home == res.pairingnr_home
                 and enc.pairingnr_visit == res.pairingnr_visit
             ):
+                changed = enc.played and _games_key(res.games) != _games_key(enc.games)
+                signs_now = bool(
+                    (
+                        res.signhome_idnumber
+                        and res.signhome_idnumber != enc.signhome_idnumber
+                        and enc.icclub_home in signing_clubs
+                    )
+                    or (
+                        res.signvisit_idnumber
+                        and res.signvisit_idnumber != enc.signvisit_idnumber
+                        and enc.icclub_visit in signing_clubs
+                    )
+                )
+                if changed and signs_now:
+                    raise RdBadRequest(description="ResultChangedReload")
+                # a club cannot set or clear an overrule: each board keeps the
+                # one the tournament director stored
+                stored = {ix: g.overruled for ix, g in enumerate(enc.games)}
                 enc.games = [
                     ICGame(
                         idnumber_home=g.idnumber_home,
                         idnumber_visit=g.idnumber_visit,
                         result=g.result,
+                        overruled=stored.get(ix) or GAMERESULT.NOTOVERRULED,
                     )
-                    for g in res.games
+                    for ix, g in enumerate(res.games)
                 ]
+                if changed:
+                    enc.signhome_idnumber = 0
+                    enc.signhome_ts = None
+                    enc.signvisit_idnumber = 0
+                    enc.signvisit_ts = None
+                    res.signhome_idnumber = 0
+                    res.signvisit_idnumber = 0
                 # a club signs only its own side, at the server's time; a
                 # signature sent back unchanged keeps its stored time
                 if (
