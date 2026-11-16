@@ -2,14 +2,22 @@ tasks:
   be_run:
     cmd: uv run fastapi dev -e kbsb.main:app --reload
     help: run the backend fastapi server
+  check_before:
+    cmd: uv run python scripts/deploy_check.py before
+    help: secrets and tests, before a deploy (read-only)
+  check_after:
+    cmd: uv run python scripts/deploy_check.py after
+    help: the live site after a deploy (read-only)
   deploy:
     sequence:
+      - ref: check_before
       - cmd: yarn generate
         cwd: frontend
         env:
           API_URL: https://www.frbe-kbsb-ksb.be/
       - cmd: gcloud app deploy
-    help: deploy app on google cloud
+      - ref: check_after
+    help: deploy app on google cloud (stops before the upload if a check fails)
   fe_build:
     shell: |
       pushd frontend
