@@ -5,6 +5,7 @@ import re
 from typing import List
 from fastapi import APIRouter, Request, Response, HTTPException
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 import httpx
 import google.auth
 from google.cloud import secretmanager
@@ -126,7 +127,11 @@ class SendConfirmationPayload(BaseModel):
 async def send_confirmation(request: Request, payload: SendConfirmationPayload):
     presented = request.headers.get("x-mail-bridge-secret", "")
     expected = get_mail_bridge_secret()
-    if not hmac.compare_digest(presented.encode("utf-8"), expected.encode("utf-8")):
+    # an empty secret would match a request that presents none at all, and
+    # make this an open relay; refuse instead, as core/apikey.py does
+    if not expected or not hmac.compare_digest(
+        presented.encode("utf-8"), expected.encode("utf-8")
+    ):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     all_recipients = payload.to + payload.cc + payload.bcc
@@ -155,8 +160,10 @@ async def send_confirmation(request: Request, payload: SendConfirmationPayload):
         bcc=bcc_str,
     )
 
+    # the send blocks (Gmail over HTTP); off the event loop, so the
+    # instance's other requests do not wait on it
     try:
-        sendEmailMessage(mail_params)
+        await run_in_threadpool(sendEmailMessage, mail_params)
         logger.info(
             f"tournament_registrations confirmation email sent (to={len(payload.to)}, cc={len(payload.cc)}, bcc={len(payload.bcc)})"
         )
@@ -214,12 +221,12 @@ class OdooLoginPayload(BaseModel):
 
 # Logging in to the tournament dashboard with a KBSB Odoo account.
 #
-# Odoo itself checks the email and password (odoo_login, the same call the
-# site's own Odoo login page makes), and only the member number Odoo answers
-# with is passed on. Nothing here trusts a token a browser holds: the member
-# tokens this site hands out are signed with a key that sits in the public
-# repository, and validate_membertoken does not check signatures at all, so a
-# token is no proof of who somebody is.
+# Odoo itself checks the email and password (kbsb.member.login.login, the
+# same call the site's own Odoo login page makes), and only the member number
+# Odoo answers with is passed on. Nothing here trusts a token a browser
+# holds: validate_membertoken does check signatures, but half of the signing
+# key (JWT_SECRET) sits in the repository, so a member token from a browser
+# is still no proof of who somebody is.
 #
 # The VPS gives out its own dashboard session for that member number, and
 # only to a caller presenting the secret the two already share for the

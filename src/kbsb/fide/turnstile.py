@@ -1,9 +1,11 @@
 # Cloudflare Turnstile on the FIDE registration form.
 #
-# Turnstile is on only when BOTH the site key (TURNSTILE_SITEKEY, public, set
-# in app.yaml) and the secret key (Secret Manager "turnstile-secret") are
-# there. When either is missing the form works as it always did: no widget,
-# no check. So this code can be deployed before the site key is known.
+# Turnstile is on when the site key (TURNSTILE_SITEKEY, public, set in
+# app.yaml) is there. Without a site key the form works as it always did: no
+# widget, no check. With one, the secret key (Secret Manager
+# "turnstile-secret") is needed too: while it cannot be read, or reads empty,
+# submits are refused as "unavailable" rather than let through unchecked, so
+# a Secret Manager hiccup does not open the form to bots.
 #
 # For a manual test on a developer machine (local, prodtest, testing), set
 # the environment variables TURNSTILE_SITEKEY and TURNSTILE_SECRET to one of
@@ -38,8 +40,9 @@ DEV_ACTIONS = {"test"}
 # the modes that run on a developer machine, never on App Engine (as in main.py)
 DEV_MODES = ("local", "prodtest", "testing")
 
-# after a failed Secret Manager read, try again after this many seconds
-SECRET_RETRY_SECONDS = 300
+# after a failed or empty Secret Manager read, try again after this many
+# seconds; submits are refused in between
+SECRET_RETRY_SECONDS = 60
 
 # message keys in translations.json
 MSG_REQUIRED = "turnstile_required"
@@ -80,8 +83,12 @@ def _read_secret() -> str:
 
 
 def get_secret_key() -> str:
-    """The secret key, read once and cached; "" when there is none."""
-    if _secret_cache["value"] is not None:
+    """The secret key, read once and cached; "" while it cannot be read.
+
+    Only a key that was read is cached: an empty or failed read is tried
+    again after SECRET_RETRY_SECONDS, not kept until the next restart.
+    """
+    if _secret_cache["value"]:
         return _secret_cache["value"]
     failed_at = _secret_cache["failed_at"]
     if failed_at and time.monotonic() - failed_at < SECRET_RETRY_SECONDS:
@@ -90,9 +97,14 @@ def get_secret_key() -> str:
         value = _read_secret()
     except Exception as e:
         _secret_cache["failed_at"] = time.monotonic()
-        logger.warning(f"Turnstile secret could not be read ({type(e).__name__}); Turnstile stays off")
+        logger.warning(f"Turnstile secret could not be read ({type(e).__name__}); submits are refused")
+        return ""
+    if not value:
+        _secret_cache["failed_at"] = time.monotonic()
+        logger.warning("Turnstile secret is empty; submits are refused")
         return ""
     _secret_cache["value"] = value
+    _secret_cache["failed_at"] = 0.0
     return value
 
 
@@ -110,7 +122,7 @@ def log_status():
     if not get_sitekey():
         logger.info("Turnstile off: no site key configured")
     elif not get_secret_key():
-        logger.info("Turnstile off: site key configured but no secret key")
+        logger.warning("Turnstile on, but no secret key: submits are refused until it can be read")
     else:
         logger.info("Turnstile on for the FIDE registration form")
 
@@ -162,7 +174,11 @@ async def check(request, token) -> str | None:
     token is accepted, else the message key of the refusal."""
     from starlette.concurrency import run_in_threadpool
 
-    # the secret is cached after the first read; the first read blocks
-    if not await run_in_threadpool(is_enabled):
+    if not get_sitekey():
         return None
-    return await verify(str(token or "").strip(), client_ip(request))
+    # the secret is cached after the first read; the first read blocks
+    if not await run_in_threadpool(get_secret_key):
+        return MSG_UNAVAILABLE
+    if not isinstance(token, str):
+        token = ""
+    return await verify(token.strip(), client_ip(request))

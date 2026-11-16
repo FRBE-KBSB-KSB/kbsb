@@ -16,6 +16,23 @@ const idclub = ref(null)
 // wating dialog
 let dialogcounter = 0
 const waitingdialog = ref(false)
+
+// A club's website, as a link only when it is a plain http(s) address. A club
+// admin types it, and a javascript: or data: address in an href runs on this
+// site when a visitor clicks it, where the member token is kept. An address
+// typed without a scheme ("www.club.be") gets https://.
+function webLink(url) {
+  let text = String(url || "").trim()
+  if (!text) return ""
+  if (!text.includes(":")) text = "https://" + text
+  try {
+    const parsed = new URL(text)
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href
+  } catch (e) {
+    // not an address: no link
+  }
+  return ""
+}
 function changeDialogCounter(i) {
   dialogcounter += i
   waitingdialog.value = dialogcounter > 0
@@ -137,7 +154,11 @@ definePageMeta({
           </div>
           <div>
             <span class="text-green-darken-2">{{ $t("Website") }}</span
-            >: <a :href="club.website" target="_blank">{{ club.website }}</a>
+            >:
+            <a v-if="webLink(club.website)" :href="webLink(club.website)" target="_blank" rel="noopener">{{
+              club.website
+            }}</a>
+            <span v-else>{{ club.website }}</span>
           </div>
         </v-col>
 

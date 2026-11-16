@@ -8,9 +8,11 @@ import logging
 import base64
 import html
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse, JSONResponse
+from starlette.concurrency import run_in_threadpool
 from openpyxl import load_workbook
 
 from zerotwocloud.mail import MailAttachment, MailParams
@@ -32,6 +34,13 @@ FIDE_MAILBOX = "fide@frbe-kbsb-ksb.be"
 # Read by the dataplatform every 30 minutes; it queues the workbook for processing.
 AUTORATING_MAILBOX = "autoratingfide@frbe-kbsb-ksb.be"
 INTERNAL_TEST_ADDRESS = "jorian.burssens@frbe-kbsb-ksb.be"
+
+BRUSSELS = ZoneInfo("Europe/Brussels")
+
+
+def today_in_brussels() -> date:
+    """Today's date where the federation is; the server's clock is UTC."""
+    return datetime.now(BRUSSELS).date()
 
 # One plain address: the invoice and contact e-mails become mail headers (To,
 # Reply-To), so no line breaks or spaces, and no comma, semicolon or angle
@@ -327,7 +336,7 @@ def parse_int(value, field_label, errors, lang, min_value=None, max_value=None):
         return None
     try:
         iv = int(value)
-    except ValueError:
+    except (TypeError, ValueError):
         logger.error(f"{field_label} must be an integer")
         errors.append(f"{field_label} {t_msg['field_must_be_integer']}")
         return None
@@ -1000,6 +1009,19 @@ def normalise_homepage(form):
     form["homepage"] = homepage
 
 
+def non_text_fields(form) -> list[str]:
+    """
+    The fields of a submit that are neither text nor a tick box. The page only
+    sends those; anything else (a list, an object, a number) would reach the
+    string and date handling below and give a 500 instead of a 400.
+    """
+    if not isinstance(form, dict):
+        return ["formdata"]
+    return [
+        k for k, v in form.items() if not (v is None or isinstance(v, (str, bool)))
+    ]
+
+
 def refuse(key, status_code, locale):
     """A refused submit, with the translated message of key."""
     t_refusal = TRANSLATIONS.get(locale, TRANSLATIONS["en"])["messages"]
@@ -1026,6 +1048,16 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
             refusal, 503 if refusal == turnstile.MSG_UNAVAILABLE else 400, locale
         )
     form = formdata.get("formdata", {})
+    bad_fields = non_text_fields(form)
+    if bad_fields:
+        logger.error(f"FIDE form fields that are not text: {bad_fields}")
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "errors": [f"{k}: not a text value" for k in bad_fields],
+            },
+        )
     if not TEMPLATE_PATH.exists():
         raise HTTPException(status_code=500, detail="Template not found")
 
@@ -1076,7 +1108,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
     if start_date_str:
         try:
             start_date_val = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-            today = datetime.now().date()
+            today = today_in_brussels()
             if (start_date_val - today).days < 14:
                 is_late = True
         except Exception:
@@ -1196,8 +1228,10 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
         bcc="" if is_internal_test else AUTORATING_MAILBOX,
     )
 
+    # the send blocks (Gmail over HTTP); off the event loop, so the
+    # instance's other requests do not wait on it
     try:
-        sendEmailMessage(mail_params)
+        await run_in_threadpool(sendEmailMessage, mail_params)
         logger.info(
             f"FIDE Registration email sent to {fide_receiver} from {sender_email}"
         )
@@ -1235,7 +1269,7 @@ async def generate_fide_form(locale: str, formdata: dict, request: Request):
             reply_to=INTERNAL_TEST_ADDRESS if is_internal_test else FIDE_MAILBOX,
         )
         try:
-            sendEmailMessage(conf_params)
+            await run_in_threadpool(sendEmailMessage, conf_params)
             logger.info(
                 f"FIDE Registration confirmation email sent from {sender_email}"
             )

@@ -8,6 +8,11 @@
 # submit stores one document per key (the client IP, each confirmation
 # address) with its time; a submit is refused when a key already has its
 # maximum within the window. A TTL index removes the documents after KEEP.
+#
+# The submit's own documents are written first and only then counted, so
+# submits sent in parallel all see each other: a count taken before the write
+# let every one of N parallel submits through. A refused submit takes its
+# documents back out, so it is not counted.
 # The keys are stored hashed, so the collection holds no IPs or addresses.
 #
 # When MongoDB cannot be reached the submit is let through (and logged): a
@@ -72,28 +77,31 @@ async def check_and_record(ip: str, addresses: list[str]) -> str | None:
     None when it is within the limits, and then it is counted; else the
     message key of the refusal, and nothing is counted.
     """
-    keys = []
+    # (key, window, maximum, what the log says)
+    checks = []
+    if ip:
+        key = hashed_key("ip", ip)
+        checks.append((key, HOUR, IP_PER_HOUR, "too many submits from one IP in an hour"))
+        checks.append((key, DAY, IP_PER_DAY, "too many submits from one IP in a day"))
+    for address in dict.fromkeys(a.strip().lower() for a in addresses if a):
+        key = hashed_key("mail", address)
+        checks.append(
+            (key, DAY, ADDRESS_PER_DAY, "too many confirmation mails to one address in a day")
+        )
+    keys = list(dict.fromkeys(c[0] for c in checks))
+    if not keys:
+        return None
     try:
         coll = _collection()
         await _ensure_index(coll)
         now = datetime.now(UTC)
-        if ip:
-            key = hashed_key("ip", ip)
-            if await _count(coll, key, now - HOUR) >= IP_PER_HOUR:
-                logger.warning("FIDE form refused: too many submits from one IP in an hour")
+        written = await coll.insert_many([{"key": k, "ts": now} for k in keys])
+        for key, window, maximum, reason in checks:
+            # the count includes this submit's own document
+            if await _count(coll, key, now - window) > maximum:
+                logger.warning(f"FIDE form refused: {reason}")
+                await coll.delete_many({"_id": {"$in": list(written.inserted_ids)}})
                 return MSG_RATE_LIMITED
-            if await _count(coll, key, now - DAY) >= IP_PER_DAY:
-                logger.warning("FIDE form refused: too many submits from one IP in a day")
-                return MSG_RATE_LIMITED
-            keys.append(key)
-        for address in dict.fromkeys(a.strip().lower() for a in addresses if a):
-            key = hashed_key("mail", address)
-            if await _count(coll, key, now - DAY) >= ADDRESS_PER_DAY:
-                logger.warning("FIDE form refused: too many confirmation mails to one address in a day")
-                return MSG_RATE_LIMITED
-            keys.append(key)
-        if keys:
-            await coll.insert_many([{"key": k, "ts": now} for k in keys])
     except Exception as e:
         logger.warning(f"FIDE form rate limit not checked ({type(e).__name__}); submit let through")
         return None

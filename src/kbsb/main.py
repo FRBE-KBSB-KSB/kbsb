@@ -77,6 +77,15 @@ if get_setting("KBSB_MODE") != "production":
 logger.info("loading api_account")
 from reddevil.account import api_account  # type: ignore[import-untyped]
 
+# reddevil's own validate_token reads the token without checking its
+# signature, so a forged token with any "sub" could list, create, change and
+# delete the admin accounts. Its account routes check the token with the
+# site's validate_token instead, which verifies the signature (HS256 only)
+# against the account's own salt.
+from kbsb.core import tokens as _tokens  # noqa: E402
+
+api_account.validate_token = _tokens.validate_token
+
 logger.info("loading api_club")
 from kbsb.club import api_club
 

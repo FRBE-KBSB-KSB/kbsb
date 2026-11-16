@@ -428,37 +428,6 @@ async def test_every_request_gets_its_own_odoo_client():
     await second.aclose()
 
 
-# -- the tournament dashboard's Odoo login -------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_odoo_login_gives_the_member_number():
-    from kbsb.member.member import odoo_login
-
-    member_token = jwt.encode(
-        {"sub": "777", "exp": datetime.now(tz=UTC) + timedelta(minutes=5)},
-        jwt_secret + member_salt,
-        jwt_algorithm,
-    )
-    reply = LoginReply(id=1, jwttoken=member_token)
-    with patch("kbsb.member.login.login", AsyncMock(return_value=reply)):
-        assert await odoo_login("me@example.org", "pw") == (777, member_token)
-
-
-@pytest.mark.asyncio
-async def test_odoo_login_refuses_2fa_accounts_and_superusers():
-    from kbsb.member.member import odoo_login
-
-    asks_2fa = LoginReply(id=-1, is2FAneeded=True, session_id="s", csrf="c")
-    with (
-        patch("kbsb.member.login.login", AsyncMock(return_value=asks_2fa)),
-        pytest.raises(RdNotAuthorized),
-    ):
-        await odoo_login("me@example.org", "pw")
-    with pytest.raises(RdNotAuthorized):
-        await odoo_login("SU__ruben", "pw")
-
-
 # -- which member has logged in -----------------------------------------------
 
 
@@ -523,6 +492,50 @@ async def test_odoo_failing_to_name_the_session_falls_back_to_the_email():
     lookup = AsyncMock(return_value=19833)
     with patch("kbsb.member.member.odoo_email2idbel", lookup):
         assert await odoo_member_number("me@example.org", client, "sess") == 19833
+
+
+@pytest.mark.asyncio
+async def test_a_session_partner_without_a_member_number_is_refused_not_searched_by_email():
+    # A parent without a membership logs in; the child's record carries the
+    # parent's email. The email must not be searched, or the parent gets the
+    # child's member token.
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(side_effect=[False, 19833])
+    with (
+        patch("kbsb.member.member.odoo_email2idbel", lookup),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_member_number(
+            "family@example.org", odoo_session_client(183705), "sess"
+        )
+    lookup.assert_awaited_once_with("family@example.org", partner_id=183705)
+
+
+@pytest.mark.asyncio
+async def test_a_session_partner_odoo_cannot_find_is_a_refusal_not_a_server_error():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(side_effect=RuntimeError("Odoo search_read failed"))
+    with (
+        patch("kbsb.member.member.odoo_email2idbel", lookup),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_member_number(
+            "family@example.org", odoo_session_client(183705), "sess"
+        )
+
+
+@pytest.mark.asyncio
+async def test_an_email_match_without_a_member_number_is_a_refusal():
+    from kbsb.member.member import odoo_member_number
+
+    lookup = AsyncMock(return_value=False)
+    with (
+        patch("kbsb.member.member.odoo_email2idbel", lookup),
+        pytest.raises(RdNotAuthorized),
+    ):
+        await odoo_member_number("me@example.org", odoo_session_client(None), "sess")
 
 
 # -- the tournament dashboard login, with and without 2FA ---------------------

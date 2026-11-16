@@ -46,36 +46,6 @@ def _get_extra_asynclient() -> httpx.AsyncClient:
     return _get_extra_asynclient.session  # type: ignore[attr-defined]
 
 
-async def odoo_login(email: str, password: str) -> tuple[int, str]:
-    """
-    Checks an Odoo email and password and returns the member number and a
-    member token. Used by the tournament registrations dashboard, which only
-    wants to know *who* logged in. An account with 2FA is refused here: the
-    dashboard has no second step.
-    """
-    from fastapi.security import HTTPAuthorizationCredentials
-    from reddevil.core import RdNotAuthorized  # type: ignore[import-untyped]
-
-    from kbsb.core.tokens import validate_membertoken
-
-    from .login import login
-    from .md_member import LoginValidator
-
-    # superusers sign in on the site's own login page, not through here
-    if email.startswith("SU__"):
-        raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
-    async with httpx.AsyncClient(
-        base_url=odoo_url, timeout=httpx.Timeout(odoo_timeout)
-    ) as client:
-        reply = await login(LoginValidator(email=email, password=password), client)
-    if reply.is2FAneeded or not reply.jwttoken:
-        raise RdNotAuthorized(description="TwoFactorNotSupported")
-    idbel = validate_membertoken(
-        HTTPAuthorizationCredentials(scheme="Bearer", credentials=reply.jwttoken)
-    )
-    return int(idbel), reply.jwttoken
-
-
 def _current_affiliation_year() -> int:
     today = datetime.now(tz=tzone).date()
     year = today.year
@@ -379,21 +349,28 @@ async def odoo_member_number(
     """
     The member number of the account that has just logged in to Odoo.
 
-    The partner of the authenticated session is used when Odoo names it. Only
-    when it does not is the email searched, and then only a single match is
-    accepted: with none or several there is no telling who logged in, and the
-    answer is a refusal, not a server error.
+    The partner of the authenticated session is used when Odoo names it, and
+    then only that partner: when it has no member number the answer is a
+    refusal, not an email search. Family members often share one address, so
+    the email would hand a parent without a membership the child's.
+
+    Only when Odoo does not name the partner is the email searched, and then
+    only a single match is accepted: with none or several there is no telling
+    who logged in. Every miss is a refusal, not a server error.
     """
     partner_id = await odoo_session_partner_id(odoo_client, session_id)
-    if partner_id is not None:
-        idbel = await odoo_email2idbel(email, partner_id=partner_id)
-        if idbel:
-            return idbel
-        logger.info("session partner has no member number, trying the email")
     try:
-        return await odoo_email2idbel(email)
+        if partner_id is not None:
+            idbel = await odoo_email2idbel(email, partner_id=partner_id)
+        else:
+            idbel = await odoo_email2idbel(email)
     except RuntimeError:
         raise RdNotAuthorized(description="MemberNotFoundForThisLogin")
+    if not idbel:
+        if partner_id is not None:
+            logger.info("session partner has no member number, login refused")
+        raise RdNotAuthorized(description="MemberNotFoundForThisLogin")
+    return idbel
 
 
 async def odoo_email2idbel(email: str, partner_id: int | None = None):

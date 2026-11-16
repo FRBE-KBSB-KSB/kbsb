@@ -306,6 +306,13 @@ async function saveResults(tr) {
     overwriteDialog.value = false
     await getICSeries()
   } catch (error) {
+    if (error.message == "ResultChangedReload") {
+      // someone overwrote the result since this page loaded: show the
+      // current one, which the club can then sign
+      showSnackbar(t("icn.result_changed_reload"))
+      await getICSeries()
+      return
+    }
     showSnackbar(t(error.message))
     return
   } finally {
@@ -325,35 +332,21 @@ async function setup(icclub_, round_, icdata_) {
 }
 
 async function sign(tr, who) {
-  let plinpll = false
-  if (who == "home") {
-    const clb = tr.icclub_home
-    playerlist_buffer.value[clb].forEach((p) => {
-      if (p.idnumber == idn.value) {
-        plinpll = true
-      }
-    })
-    if (!plinpll && idn.value < 200000) {
-      console.error("idn not in club home")
-      return
-    }
-    tr.signhome_idnumber = idn
-    tr.signhome_ts = new Date().toISOString()
-  } else {
-    const clb = tr.icclub_visit
-    playerlist_buffer.value[clb].forEach((p) => {
-      if (p.idnumber == idn.value) {
-        plinpll = true
-      }
-    })
-    if (!plinpll && idn.value < 200000) {
-      console.error("idn not in club visit")
-      return
-    }
-    tr.signvisit_idnumber = idn
-    tr.signvisit_ts = new Date().toISOString()
+  const home = who == "home"
+  const clb = home ? tr.icclub_home : tr.icclub_visit
+  const plinpll = (playerlist_buffer.value[clb] || []).some(
+    (p) => p.idnumber == idn.value,
+  )
+  if (!plinpll && idn.value < 200000) {
+    console.error(home ? "idn not in club home" : "idn not in club visit")
+    return
   }
-  await saveResults(tr)
+  // only the copy that is sent carries the signature; the card shows it once
+  // the server has stored it (the server sets the time)
+  const signed = { ...tr }
+  if (home) signed.signhome_idnumber = idn.value
+  else signed.signvisit_idnumber = idn.value
+  await saveResults(signed)
 }
 </script>
 

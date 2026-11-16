@@ -9,8 +9,11 @@ MongoDB. MongoDB is replaced by an in-memory fake here; mails are recorded,
 never sent.
 """
 
+import asyncio
+import itertools
 import json
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -39,18 +42,30 @@ class FakeCollection:
     def __init__(self):
         self.docs = []
         self.indexes = []
+        self.ids = itertools.count(1)
 
     async def create_index(self, keys, **kwargs):
         self.indexes.append((keys, kwargs))
 
     async def count_documents(self, query):
+        # a pause, as a round trip to MongoDB would make, so that submits sent
+        # in parallel interleave here
+        await asyncio.sleep(0)
         since = query["ts"]["$gte"]
         return sum(
             1 for d in self.docs if d["key"] == query["key"] and d["ts"] >= since
         )
 
     async def insert_many(self, docs):
+        await asyncio.sleep(0)
+        for d in docs:
+            d["_id"] = next(self.ids)
         self.docs.extend(docs)
+        return SimpleNamespace(inserted_ids=[d["_id"] for d in docs])
+
+    async def delete_many(self, query):
+        gone = set(query["_id"]["$in"])
+        self.docs = [d for d in self.docs if d.get("_id") not in gone]
 
     def add(self, kind, value, n, age):
         ts = datetime.now(UTC) - age
@@ -209,6 +224,39 @@ def test_address_just_under_the_limit(db, sent):
 def test_refusal_is_translated(db, sent, locale):
     db.add("ip", IP, ratelimit.IP_PER_HOUR, timedelta(minutes=5))
     assert_limited(submit(locale=locale), locale)
+
+
+def test_parallel_submits_cannot_all_pass_the_check(db):
+    # every submit writes before it counts, so N submits at once cannot all
+    # see a count of zero and all go through
+    async def burst():
+        return await asyncio.gather(
+            *(
+                ratelimit.check_and_record(IP, [f"club{i}@example.be"])
+                for i in range(3 * ratelimit.IP_PER_HOUR)
+            )
+        )
+
+    results = asyncio.run(burst())
+    assert results.count(None) <= ratelimit.IP_PER_HOUR
+    assert ratelimit.MSG_RATE_LIMITED in results
+    # what was let through is exactly what is counted
+    ip_key = ratelimit.hashed_key("ip", IP)
+    assert sum(1 for d in db.docs if d["key"] == ip_key) == results.count(None)
+
+
+def test_parallel_submits_to_one_address_cannot_all_pass(db):
+    async def burst():
+        return await asyncio.gather(
+            *(
+                ratelimit.check_and_record(f"198.51.100.{i}", [CONTACT])
+                for i in range(3 * ratelimit.ADDRESS_PER_DAY)
+            )
+        )
+
+    results = asyncio.run(burst())
+    assert results.count(None) <= ratelimit.ADDRESS_PER_DAY
+    assert ratelimit.MSG_RATE_LIMITED in results
 
 
 def test_invalid_form_is_not_counted(db, sent):
