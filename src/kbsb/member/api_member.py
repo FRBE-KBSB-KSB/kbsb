@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 from typing import Annotated
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from reddevil.core import RdException, bearer_schema, get_setting
 
@@ -55,12 +55,15 @@ HttpClient = Annotated[httpx.AsyncClient, Depends(get_odoo_client)]
 async def api_login(
     ol: LoginValidator,
     odoo_client: HttpClient,
+    request: Request,
 ) -> LoginReply:
     """
     login by using the idnumber, return a JWT token
     """
+    from kbsb.fide.turnstile import client_ip
+
     try:
-        return await login(ol, odoo_client)
+        return await login(ol, odoo_client, client_ip(request))
     except RdException as e:
         raise HTTPException(status_code=e.status_code, detail=e.description)
     except Exception:

@@ -12,6 +12,7 @@
 # to the https://frbe-kbsb.odoo.com/web/login/totp page.
 # In other words this is a hacky solution, that requires maintenance
 
+import hmac
 import logging
 import re
 from datetime import UTC, datetime, timedelta
@@ -25,6 +26,7 @@ from reddevil.core import (  # type: ignore[import-untyped]
     jwt_encode,
 )
 
+from kbsb.core import loginlimit
 from kbsb.core.tokens import (
     get_member_salt,
     get_salt,
@@ -43,18 +45,30 @@ token_settings = get_setting("TOKEN")
 odoo_params = get_setting("ODOO_CONNECTION_PARAMETERS")
 
 
-async def superuser_login(superid: str, password: str) -> str:
+def _same(a: str, b: str) -> bool:
+    """Compares two passwords in constant time (no timing hint)."""
+    return hmac.compare_digest(a.encode("utf-8"), b.encode("utf-8"))
+
+
+async def superuser_login(superid: str, password: str, ip: str = "") -> str:
     """
     Performs a superuser login with the password stored in GCP secret manager
     returns a JWT token
+
+    A superuser token passes every member and club check, so guessing is
+    limited: after 5 failures for a name, or 20 from one IP, in 15 minutes,
+    the login is refused (429) until the window has passed.
     """
     token_settings = get_setting("TOKEN")
+    await loginlimit.check(ip, superid)
     try:
-        su_secret = get_secret("superuser")
-        if su_secret.get(superid) != password:
-            raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
+        stored = get_secret("superuser").get(superid)
+        ok = isinstance(stored, str) and _same(stored, password)
     except Exception:
         logger.exception("Superuser login failed")
+        ok = False
+    if not ok:
+        await loginlimit.record_failure(ip, superid)
         raise RdNotAuthorized(description="WrongUsernamePasswordCombination")
     payload = {
         "sub": superid,
@@ -63,7 +77,9 @@ async def superuser_login(superid: str, password: str) -> str:
     return jwt_encode(payload, get_salt())
 
 
-async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginReply:
+async def login(
+    ol: LoginValidator, odoo_client: httpx.AsyncClient, ip: str = ""
+) -> LoginReply:
     """
     Do a login based on email and password
     if successful returns a JWT token
@@ -74,7 +90,9 @@ async def login(ol: LoginValidator, odoo_client: httpx.AsyncClient) -> LoginRepl
 
     logger.info(f"logging in {ol.email}")
     if ol.email.startswith("SU__"):
-        return LoginReply(id=0, jwttoken=await superuser_login(ol.email, ol.password))
+        return LoginReply(
+            id=0, jwttoken=await superuser_login(ol.email, ol.password, ip)
+        )
 
     # we are simulating the login page on odoo
     response1 = await odoo_client.get("/web/login")

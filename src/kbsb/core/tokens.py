@@ -4,10 +4,33 @@ from datetime import UTC, datetime, timedelta
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import ExpiredSignatureError, JWTError, jwt
 from reddevil.core import RdNotAuthorized, get_secret, get_setting
-from reddevil.core.security import get_tokensalt  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 jwt_settings = get_setting("JWT")
+
+
+async def get_tokensalt(username: str) -> str | None:
+    """
+    The token salt of an enabled admin account, or None when there is no such
+    account or it is disabled. reddevil's own version ignores "enabled", and
+    its login does too, so switching an admin off changed nothing: this makes
+    every token of a disabled account fail, on every route.
+    """
+    from reddevil.account import DbAccount  # type: ignore[import-untyped]
+    from reddevil.core import RdNotFound  # type: ignore[import-untyped]
+
+    try:
+        acc = await DbAccount.find_single(
+            {"id": username, "_fieldlist": ["tokensalt", "enabled"]}
+        )
+    except RdNotFound:
+        return None
+    if not isinstance(acc, dict) or acc.get("enabled") is not True:
+        logger.info("admin token refused: the account is disabled")
+        return None
+    return acc.get("tokensalt") or None
+
+
 token_settings = get_setting("TOKEN")
 
 
