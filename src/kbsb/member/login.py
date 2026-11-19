@@ -88,7 +88,7 @@ async def login(
     """
     from .member import odoo_member_number
 
-    logger.info(f"logging in {ol.email}")
+    logger.info("member login attempt")
     if ol.email.startswith("SU__"):
         return LoginReply(
             id=0, jwttoken=await superuser_login(ol.email, ol.password, ip)

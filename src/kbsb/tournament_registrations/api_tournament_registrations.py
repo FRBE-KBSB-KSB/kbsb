@@ -383,6 +383,15 @@ async def proxy_to_vps(request: Request, path: str = ""):
     # Only odoo_login_for_tournaments above ever sends this to the VPS.
     headers.pop("x-bridge-secret", None)
     headers["x-api-key"] = api_key
+    # Every request reaches the VPS from Google's egress IPs, so without this
+    # the API counts all visitors as one: one person's failed admin logins
+    # would lock the login for everybody. X-Appengine-User-IP is set by App
+    # Engine and cannot come from the browser; a browser sending its own
+    # x-kbsb-visitor-ip is overwritten here. The API believes this header
+    # only on a request with a valid key. Local runs fall back to the socket.
+    headers["x-kbsb-visitor-ip"] = request.headers.get("x-appengine-user-ip") or (
+        request.client.host if request.client else ""
+    )
     headers["accept-encoding"] = "identity"
     headers.pop("if-none-match", None)
     headers.pop("if-modified-since", None)

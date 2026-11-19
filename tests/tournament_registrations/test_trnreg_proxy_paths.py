@@ -54,3 +54,41 @@ def test_anything_else_is_refused(path):
     with pytest.raises(HTTPException) as exc:
         _proxied_url(path)
     assert exc.value.status_code == 404
+
+
+def test_the_visitor_address_is_sent_and_cannot_be_forged(monkeypatch):
+    """
+    The API counts limits per visitor, and every request arrives from Google's
+    address, so the proxy names the visitor. A browser cannot pick the name.
+    """
+    import httpx
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from kbsb.tournament_registrations import api_tournament_registrations as mod
+
+    seen = []
+    real_client = httpx.AsyncClient
+
+    def fake_client(*args, **kwargs):
+        kwargs["transport"] = httpx.MockTransport(
+            lambda r: seen.append(r) or httpx.Response(200, json={})
+        )
+        return real_client(*args, **kwargs)
+
+    monkeypatch.setattr(mod, "get_api_key", lambda: "the-key")
+    monkeypatch.setattr(mod.httpx, "AsyncClient", fake_client)
+    app = FastAPI()
+    app.include_router(mod.router)
+    client = TestClient(app)
+    url = f"{mod.router.prefix}/admin/tournaments/42/registrations"
+
+    client.get(
+        url,
+        headers={"x-appengine-user-ip": "203.0.113.7", "x-kbsb-visitor-ip": "1.2.3.4"},
+    )
+    client.get(url, headers={"x-kbsb-visitor-ip": "1.2.3.4"})
+
+    assert seen[0].headers["x-kbsb-visitor-ip"] == "203.0.113.7"
+    assert seen[1].headers["x-kbsb-visitor-ip"] == "testclient"
+    assert seen[0].headers["x-api-key"] == "the-key"

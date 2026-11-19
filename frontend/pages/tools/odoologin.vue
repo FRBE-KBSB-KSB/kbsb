@@ -53,7 +53,6 @@ async function dologin() {
     showLoading(false)
   }
   let loginreply = reply.data
-  console.log("reply from login", loginreply)
   if (loginreply.is2FAneeded) {
     csrf = loginreply.csrf
     session_id = loginreply.session_id
@@ -84,7 +83,6 @@ async function dologin2FA() {
     showLoading(false)
   }
   let loginreply = reply.data
-  console.log("reply from login", loginreply)
   if (loginreply.is2FAneeded) {
     dialog2fa.value = true
   } else {
