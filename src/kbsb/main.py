@@ -17,6 +17,7 @@ from reddevil.core import (  # type: ignore[import-untyped]
     register_app,
 )
 
+from . import settings as kbsb_settings
 from . import version
 
 # the production deployment is the default
@@ -51,9 +52,36 @@ app = FastAPI(
     description="Website Belgian Chess federation FRBE KBSB KSB",
     version=version,
     lifespan=lifespan,
+    # read from the module: register_app has not run yet at this point
+    openapi_url=kbsb_settings.OPENAPI_URL,
 )
 load_dotenv()
 register_app(app, "kbsb.settings", "/api")
+
+
+def _use_jwt_secret_from_secret_manager() -> None:
+    """
+    Every login token (member, superuser, admin) is signed with JWT["secret"]
+    plus a salt. The value in settings.py is public, and an admin token's salt
+    is a uuid1 (a timestamp and a node id), so with the public value an admin
+    token could be guessed. In production the secret comes from kbsb-jwt;
+    without it the site refuses to start rather than fall back to the public
+    one. Changing kbsb-jwt logs everybody out once.
+    """
+    from reddevil.core import get_secret, get_settings  # type: ignore[import-untyped]
+
+    value = get_secret("jwt")
+    secret = value.get("secret") if isinstance(value, dict) else None
+    if not isinstance(secret, str) or len(secret) < 32:
+        raise RuntimeError('secret kbsb-jwt needs a "secret" of at least 32 characters')
+    # kbsb.core.tokens keeps a reference to this same dict; reddevil reads
+    # JWT_SECRET from the settings object on every call.
+    get_setting("JWT")["secret"] = secret
+    get_settings().JWT_SECRET = secret
+
+
+if get_setting("JWT_FROM_SECRET_MANAGER"):
+    _use_jwt_secret_from_secret_manager()
 logger = logging.getLogger(__name__)
 logger.info(f"Starting website KBSB {version}")
 logger.info(f"icdata: loading from {get_setting('ICDATA')}")

@@ -15,6 +15,7 @@ after (against the live site; read-only):
   - the home page, a public interclub page and a public API answer
   - a forged admin token is refused on the account routes (401)
   - a superuser login with a wrong password is refused (401), not a 500
+  - /openapi.json is not served (404)
 
 Prints what it checks, never a secret's value. Exits 1 when anything fails,
 which stops `poe deploy` before the upload (before) or flags it (after).
@@ -51,13 +52,24 @@ SHAPES = {
         and all(k.startswith("SU__") and isinstance(p, str) and p for k, p in v.items())
         else "must map SU__ names to non-empty passwords"
     ),
-    "salt": lambda v: None if isinstance(v, dict) and v.get("salt") else 'needs a "salt"',
+    "salt": lambda v: (
+        None if isinstance(v, dict) and v.get("salt") else 'needs a "salt"'
+    ),
     "mongodb": lambda v: (
-        None if isinstance(v, dict) and (v.get("url") or v.get("uri")) else "needs a url"
+        None
+        if isinstance(v, dict) and (v.get("url") or v.get("uri"))
+        else "needs a url"
     ),
     "turnstile": lambda v: None if isinstance(v, str) and v.strip() else "is empty",
     "mailrelay": lambda v: None if isinstance(v, str) and v.strip() else "is empty",
     "eloserver": lambda v: None if isinstance(v, str) and v.strip() else "is empty",
+    "jwt": lambda v: (
+        None
+        if isinstance(v, dict)
+        and isinstance(v.get("secret"), str)
+        and len(v["secret"]) >= 32
+        else 'needs a "secret" of at least 32 characters'
+    ),
 }
 
 failures: list[str] = []
@@ -121,7 +133,9 @@ def check_secrets() -> None:
         version = cfg.get("version", "latest")
         try:
             reply = client.access_secret_version(
-                request={"name": f"projects/{PROJECT}/secrets/{sname}/versions/{version}"}
+                request={
+                    "name": f"projects/{PROJECT}/secrets/{sname}/versions/{version}"
+                }
             )
         except Exception as e:
             fail(f"{name}: secret {sname} cannot be read ({type(e).__name__})")
@@ -176,7 +190,10 @@ def check_live() -> None:
 
         status("GET", "/", 200, "home page")
         status("GET", "/tools/interclub_public", 200, "public interclub page")
-        status("GET", "/api/v1/interclubs/anon/icstandings?idclub=190", 200, "public API")
+        status(
+            "GET", "/api/v1/interclubs/anon/icstandings?idclub=190", 200, "public API"
+        )
+        status("GET", "/openapi.json", 404, "API description not served")
 
         forged = ".".join(
             [

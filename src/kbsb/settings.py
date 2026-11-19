@@ -17,6 +17,7 @@ DEBUG = os.environ.get("DEBUG_KBSB", "")
 ELOSERVER_CONNECTION_PARAMETERS = {
     "url": "https://kbsb-api.zerotwo.cloud",
     "path_rating": "/api/v1/public/rating",
+    "path_ratings_lookup": "/api/v1/ratings/lookup",
     "path_ratingcsv": "/api/v1/players_national/ratings.csv",
     "timeout": 10.0,
     "max_keepalive": 20,
@@ -179,6 +180,16 @@ TOKEN = {
 TURNSTILE_SITEKEY = os.environ.get("TURNSTILE_SITEKEY", "").strip()
 
 TZ_BRUSSELS = zoneinfo.ZoneInfo("Europe/Brussels")
+
+# JWT["secret"] above is in a public repository. In production the real one is
+# read at startup from the secret kbsb-jwt ({"secret": "..."}), see main.py,
+# and the site does not start without it. Local and test runs keep the value
+# above.
+JWT_FROM_SECRET_MANAGER = KBSB_MODE == "production"
+
+# The API description (/openapi.json, /docs, /redoc) is for development; the
+# live site does not hand out a map of its routes.
+OPENAPI_URL = None if KBSB_MODE == "production" else "/openapi.json"
 
 
 if KBSB_MODE == "local":
