@@ -12,7 +12,7 @@ from reddevil.core import (  # type: ignore[import-untyped]
     get_setting,
 )
 
-from kbsb.core.eloserver import get_fideelo
+from kbsb.core.eloserver import get_fideelo, get_fideelos
 
 from . import AnonMember, Member
 
@@ -223,8 +223,7 @@ async def anon_getclubmembers(idclub: int) -> list[AnonMember]:
     if not members:
         return []
     # get the ratings of all members
-    idbeliter = (m["x_studio_contact_nationalid_int"] for m in members)
-    ratings = [await get_fideelo(i) for i in idbeliter]
+    ratings = await get_fideelos(m["x_studio_contact_nationalid_int"] for m in members)
 
     return [
         AnonMember(
@@ -293,8 +292,7 @@ async def mgmt_getclubmembers(idclub: int):
     if not members:
         return []
     # get the ratings of all members
-    idbeliter = (m["x_studio_contact_nationalid_int"] for m in members)
-    ratings = [await get_fideelo(i) for i in idbeliter]
+    ratings = await get_fideelos(m["x_studio_contact_nationalid_int"] for m in members)
     return [
         Member(  # type: ignore
             birthdate=date.fromisoformat(member["x_studio_contact_birthday_date"]),

@@ -60,6 +60,44 @@ async def get_fideelo(id: str | int) -> int:
     return 0
 
 
+# the API takes at most this many ids per request
+RATINGS_LOOKUP_MAX = 1000
+
+
+async def get_fideelos(ids) -> list[int]:
+    """
+    The standard ratings of many members, in the order of ids (0 = unrated or
+    unknown). One keyed request per 1000 members instead of one public request
+    per member: the public route allows 300 requests a minute, and every
+    request from this site comes from the same Google address, so two big
+    club pages in a minute would run out. If the API refuses the batch (an
+    older API, or a key without the ratings scope), the ratings are fetched one
+    by one as before, so a club page never loses its ratings over this.
+    """
+    ids = list(ids)
+    wanted = sorted({int(i) for i in ids if i and int(i) > 0})
+    found: dict[int, int] = {}
+    try:
+        for start in range(0, len(wanted), RATINGS_LOOKUP_MAX):
+            chunk = wanted[start : start + RATINGS_LOOKUP_MAX]
+            response = await _get_eloserver_asynclient().post(
+                eloserver_params["path_ratings_lookup"],
+                json={"national_ids": chunk},
+                headers={"x-api-key": eloserver_secret},
+            )
+            response.raise_for_status()
+            for key, rating in (response.json().get("ratings") or {}).items():
+                std = rating.get("standard") if isinstance(rating, dict) else None
+                if isinstance(std, (int, float)):
+                    found[int(key)] = int(std)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(
+            f"ratings lookup refused ({type(e).__name__}), one by one instead"
+        )
+        return [await get_fideelo(i) for i in ids]
+    return [found.get(int(i), 0) if i else 0 for i in ids]
+
+
 async def get_ratingcsv():
     """
     get a full ratingtable (in csv format)
