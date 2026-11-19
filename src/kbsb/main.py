@@ -114,6 +114,17 @@ from kbsb.core import tokens as _tokens  # noqa: E402
 
 api_account.validate_token = _tokens.validate_token
 
+# reddevil's /api/v1/accounts/anon/register lets anyone create an account,
+# and new accounts are enabled admins by default. Nothing on the site uses
+# it (admins sign in with Google or are made by an admin), and it only fails
+# today because settings has no ACCOUNT block. Taken off the router here, so
+# adding that setting can never bring it back to life.
+api_account.router.routes[:] = [
+    r
+    for r in api_account.router.routes
+    if getattr(r, "path", "") != "/api/v1/accounts/anon/register"
+]
+
 logger.info("loading api_club")
 from kbsb.club import api_club
 
