@@ -111,7 +111,11 @@ const EMPTY_TOURNAMENT = {
   tiebreaks: [],
   round_dates: [],
   event_codes: [],
+  // SWAR's FIDE dialog: first round, last round, FIDE ID; at most 16 rows.
+  fide_id_ranges: [],
 }
+
+const SWAR_FIDE_ID_RANGES = 16
 
 // SWAR's tie-break systems (line 17 of the CSV) and its numbered tie-breaks
 // (_TB_01.._TB_16), in the order of the SWAR manual's list and its
@@ -1024,7 +1028,7 @@ async function addTournamentAdmin() {
     tournamentAdmins.value = reply.data.admins || []
     newAdminNationalId.value = ""
   } catch (error) {
-    adminsError.value = error.code === 404 ? t("trnreg.share_no_member").replace("{id}", id) : error.message
+    adminsError.value = error.code === 404 ? t("trnreg.share_no_member", { id: id }) : error.message
   } finally {
     adminsBusy.value = false
   }
@@ -1032,7 +1036,7 @@ async function addTournamentAdmin() {
 
 async function removeTournamentAdmin(admin) {
   const label = admin.name ? `${admin.name} (${admin.national_id})` : String(admin.national_id)
-  if (typeof window !== "undefined" && !window.confirm(t("trnreg.share_remove_confirm").replace("{who}", label))) return
+  if (typeof window !== "undefined" && !window.confirm(t("trnreg.share_remove_confirm", { who: label }))) return
   adminsBusy.value = true
   adminsError.value = ""
   try {
@@ -1347,7 +1351,8 @@ function hideArbiterLookupResults(slot) {
 
 function openNewTournament() {
   tournamentFormMode.value = "create"
-  tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [], tiebreaks: [], round_dates: [], event_codes: [] }
+  tournamentForm.value = { ...EMPTY_TOURNAMENT, categories: [], tiebreaks: [], round_dates: [], event_codes: [], fide_id_ranges: [] }
+  fideIdsByRound.value = false
   obligatoryPresenceTime.value = ""
   closingTime.value = DEFAULT_CLOSING_TIME
   resetArbiterLookupState()
@@ -1372,7 +1377,15 @@ function openEditTournament(trn) {
     event_codes: Array.isArray(trn.event_codes) && trn.event_codes.length
       ? [...trn.event_codes]
       : [trn.event_code_fide_a, trn.event_code_fide_b, trn.event_code_fide_c].map((c) => c || ""),
+    fide_id_ranges: Array.isArray(trn.fide_id_ranges)
+      ? trn.fide_id_ranges.map((r) => ({
+          from_round: r.from_round ?? "",
+          to_round: r.to_round ?? "",
+          fide_tournament_id: r.fide_tournament_id ?? "",
+        }))
+      : [],
   }
+  fideIdsByRound.value = tournamentForm.value.fide_id_ranges.length > 0
   obligatoryPresenceTime.value = utcIsoToBrusselsHHMM(trn.obligatory_presence)
   closingTime.value = closingParts(trn.closing_registrations).time
   // trn already carries <slot>_person_id/_name from the API -- those show up
@@ -1432,9 +1445,14 @@ function tournamentFormProblem() {
   if (f.closing_registrations && lastDay && f.closing_registrations > lastDay) {
     return t("trnreg.rule_closing_before_end")
   }
-  const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
-  if (codes.some((c) => c && !/^\d{1,12}$/.test(c))) return t("trnreg.rule_event_code_number")
-  if (f.fide_homologated && !codes.some((c) => c)) return t("trnreg.rule_event_code_required")
+  if (usesFideIdRanges.value) {
+    const problem = fideIdRangesProblem()
+    if (problem) return problem
+  } else {
+    const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
+    if (codes.some((c) => c && !/^\d{1,12}$/.test(c))) return t("trnreg.rule_event_code_number")
+    if (f.fide_homologated && !codes.some((c) => c)) return t("trnreg.rule_event_code_required")
+  }
   if (ROBIN_SYSTEMS.includes(f.system) && f.tiebreak_system && f.tiebreak_system !== "_TB_PERSONEL") {
     return t("trnreg.rule_robin_tiebreaks")
   }
@@ -1469,6 +1487,88 @@ const eventCodeSlots = computed(() => {
   const f = tournamentForm.value
   const named = (f.categories || []).filter((c) => c && c.trim())
   return f.export_per_category && named.length >= 2 ? named : [""]
+})
+
+// FIDE IDs by round range, as SWAR's FIDE dialog has them, for a tournament
+// FIDE registered as more than one event by round (rounds 1-4 in one rating
+// period, 5-9 in the next). Only for a tournament that is one event: with a
+// code per category each category has its own.
+const fideIdsByRound = ref(false)
+const usesFideIdRanges = computed(
+  () => !!tournamentForm.value.fide_homologated && fideIdsByRound.value && eventCodeSlots.value.length === 1,
+)
+
+function setFideIdsByRound(on) {
+  fideIdsByRound.value = !!on
+  const f = tournamentForm.value
+  if (on && f.fide_id_ranges.length === 0) {
+    const n = Number(f.rounds)
+    f.fide_id_ranges.push({
+      from_round: 1,
+      to_round: Number.isInteger(n) && n > 0 ? n : "",
+      fide_tournament_id: String(f.event_codes[0] || ""),
+    })
+  }
+}
+
+function addFideIdRange() {
+  const f = tournamentForm.value
+  if (f.fide_id_ranges.length >= SWAR_FIDE_ID_RANGES) return
+  const last = f.fide_id_ranges[f.fide_id_ranges.length - 1]
+  const from = last && Number(last.to_round) > 0 ? Number(last.to_round) + 1 : ""
+  const n = Number(f.rounds)
+  f.fide_id_ranges.push({ from_round: from, to_round: Number.isInteger(n) && n > 0 ? n : "", fide_tournament_id: "" })
+}
+
+function removeFideIdRange(i) {
+  tournamentForm.value.fide_id_ranges.splice(i, 1)
+}
+
+function cleanFideIdRanges() {
+  const round = (v) => (/^\s*\d{1,3}\s*$/.test(String(v ?? "")) ? parseInt(v, 10) : null)
+  return tournamentForm.value.fide_id_ranges
+    .map((r) => ({
+      from_round: round(r.from_round),
+      to_round: round(r.to_round),
+      fide_tournament_id: String(r.fide_tournament_id ?? "").trim(),
+    }))
+    .filter((r) => r.from_round !== null || r.to_round !== null || r.fide_tournament_id)
+}
+
+// The same checks the API makes.
+function fideIdRangesProblem() {
+  const ranges = cleanFideIdRanges()
+  if (ranges.length === 0) return t("trnreg.rule_event_code_required")
+  if (ranges.length > SWAR_FIDE_ID_RANGES) return t("trnreg.rule_fide_range_max")
+  if (ranges.some((r) => !/^\d{1,10}$/.test(r.fide_tournament_id) || Number(r.fide_tournament_id) <= 0)) {
+    return t("trnreg.rule_event_code_number")
+  }
+  if (ranges.some((r) => r.from_round === null || r.to_round === null || r.from_round < 1 || r.to_round < r.from_round)) {
+    return t("trnreg.rule_fide_range_order")
+  }
+  const n = Number(tournamentForm.value.rounds)
+  if (Number.isInteger(n) && n > 0 && ranges.some((r) => r.to_round > n)) {
+    return t("trnreg.rule_fide_range_past", { rounds: n })
+  }
+  const sorted = [...ranges].sort((a, b) => a.from_round - b.from_round)
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].from_round <= sorted[i - 1].to_round) {
+      return t("trnreg.rule_fide_range_overlap", { round: sorted[i].from_round })
+    }
+  }
+  return ""
+}
+
+// Rounds in no range: SWAR does not report them to FIDE. Allowed, but said.
+const roundsWithoutFideId = computed(() => {
+  const n = Number(tournamentForm.value.rounds)
+  if (!usesFideIdRanges.value || !Number.isInteger(n) || n < 1 || n > 60) return []
+  const ranges = cleanFideIdRanges().filter((r) => r.from_round !== null && r.to_round !== null)
+  const out = []
+  for (let k = 1; k <= n; k++) {
+    if (!ranges.some((r) => r.from_round <= k && k <= r.to_round)) out.push(k)
+  }
+  return out
 })
 
 // A date box per round, once the number of rounds is known.
@@ -1507,7 +1607,14 @@ function removeTiebreakRow(i) {
 // The SWAR fields as the API wants them: only what is filled in, sized to the
 // rounds and categories actually there.
 function swarPayload(f) {
-  const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
+  const ranges = usesFideIdRanges.value
+    ? cleanFideIdRanges().sort((a, b) => a.from_round - b.from_round)
+    : []
+  // With ranges, the first range's ID stands as the event code, for the CSV
+  // export and anything that reads one code.
+  const codes = ranges.length
+    ? [ranges[0].fide_tournament_id]
+    : eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
   const dates = roundDateSlots.value.map((_, i) => (singleDay.value ? f.date_start : f.round_dates[i] || ""))
   return {
     tiebreak_system: f.tiebreak_system || "",
@@ -1519,6 +1626,7 @@ function swarPayload(f) {
     event_code_fide_a: codes[0] || "",
     event_code_fide_b: codes[1] || "",
     event_code_fide_c: codes[2] || "",
+    fide_id_ranges: ranges,
   }
 }
 
@@ -2202,7 +2310,7 @@ onMounted(() => {
               </v-col>
             </v-row>
             <v-alert v-if="refreshEloResult !== null" type="success" density="compact" class="mt-3">
-              {{ t('trnreg.admin_refresh_elo_result').replace('{count}', refreshEloResult) }}
+              {{ t('trnreg.admin_refresh_elo_result', { count: refreshEloResult }) }}
             </v-alert>
           </v-card-text>
         </v-card>
@@ -2457,10 +2565,74 @@ onMounted(() => {
               category, since each category is then its own event.
             -->
             <template v-if="tournamentForm.fide_homologated">
+              <v-col v-if="eventCodeSlots.length === 1" cols="12" class="py-0">
+                <v-checkbox
+                  :model-value="fideIdsByRound"
+                  @update:model-value="setFideIdsByRound"
+                  :label="t('trnreg.field_fide_ids_by_round')"
+                  :hint="t('trnreg.fide_ids_by_round_hint')"
+                  persistent-hint
+                  color="green-darken-2" density="compact"
+                ></v-checkbox>
+              </v-col>
+            </template>
+            <template v-if="usesFideIdRanges">
+              <v-col cols="12" class="pt-6">
+                <div
+                  v-for="(r, i) in tournamentForm.fide_id_ranges"
+                  :key="'fide-range-' + i"
+                  class="d-flex align-center ga-2 mb-2 flex-wrap"
+                >
+                  <v-text-field
+                    v-model="r.from_round"
+                    :label="t('trnreg.field_fide_range_from')"
+                    inputmode="numeric"
+                    style="max-width: 7.5em"
+                    hide-details
+                    variant="outlined" color="green-darken-2" density="compact"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="r.to_round"
+                    :label="t('trnreg.field_fide_range_to')"
+                    inputmode="numeric"
+                    style="max-width: 7.5em"
+                    hide-details
+                    variant="outlined" color="green-darken-2" density="compact"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="r.fide_tournament_id"
+                    :label="t('trnreg.field_fide_range_id')"
+                    inputmode="numeric"
+                    style="max-width: 12em"
+                    hide-details
+                    variant="outlined" color="green-darken-2" density="compact"
+                  ></v-text-field>
+                  <v-btn
+                    icon="mdi-close"
+                    size="small"
+                    variant="text"
+                    :aria-label="t('trnreg.fide_range_remove')"
+                    @click="removeFideIdRange(i)"
+                  ></v-btn>
+                </div>
+                <v-btn
+                  v-if="tournamentForm.fide_id_ranges.length < SWAR_FIDE_ID_RANGES"
+                  size="small"
+                  variant="tonal"
+                  color="green-darken-2"
+                  prepend-icon="mdi-plus"
+                  @click="addFideIdRange"
+                >{{ t('trnreg.fide_range_add') }}</v-btn>
+                <div v-if="roundsWithoutFideId.length" class="text-caption text-orange-darken-3 mt-2">
+                  {{ t('trnreg.fide_range_gap', { rounds: roundsWithoutFideId.join(', ') }) }}
+                </div>
+              </v-col>
+            </template>
+            <template v-else-if="tournamentForm.fide_homologated">
               <v-col v-for="(label, i) in eventCodeSlots" :key="'code-' + i" cols="12" sm="4">
                 <v-text-field
                   v-model="tournamentForm.event_codes[i]"
-                  :label="label ? t('trnreg.field_event_code_for').replace('{category}', label) : t('trnreg.field_event_code')"
+                  :label="label ? t('trnreg.field_event_code_for', { category: label }) : t('trnreg.field_event_code')"
                   inputmode="numeric"
                   variant="outlined" color="green-darken-2" density="compact"
                 ></v-text-field>
@@ -2508,7 +2680,7 @@ onMounted(() => {
                       type="date"
                       :min="tournamentForm.date_start || undefined"
                       :max="tournamentForm.date_end || undefined"
-                      :label="t('trnreg.round_n').replace('{n}', r)"
+                      :label="t('trnreg.round_n', { n: r })"
                       variant="outlined" color="green-darken-2" density="compact" hide-details
                     ></v-text-field>
                   </v-col>
