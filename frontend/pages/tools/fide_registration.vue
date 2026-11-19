@@ -1368,9 +1368,6 @@ definePageMeta({
       <div class="group-title">{{ tCat('arbiters') }}</div>
 
       <div class="person-row">
-        <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span>
-          <input type="text" v-model="form.chief_arbiter_fide_id" @blur="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" @keydown.enter.prevent="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
-        </label>
         <label style="position: relative;">
           <span class="required-label">
             {{ tField('chief_arbiter_name') }}
@@ -1387,12 +1384,12 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span>
+          <input type="text" v-model="form.chief_arbiter_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" @keydown.enter.prevent="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+        </label>
       </div>
 
       <div class="person-row">
-        <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" @blur="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
-        </label>
         <label style="position: relative;">
           <span>
             {{ tField('dep_chief_arbiter1_name') }}
@@ -1409,12 +1406,12 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+        </label>
       </div>
 
       <div class="person-row">
-        <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" @blur="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
-        </label>
         <label style="position: relative;">
           <span>
             {{ tField('dep_chief_arbiter2_name') }}
@@ -1431,6 +1428,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span>
+          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+        </label>
       </div>
 
       <label>
@@ -1442,7 +1442,6 @@ definePageMeta({
       </label>
 
       <div class="person-row">
-        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" @blur="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')"></label>
         <label style="position: relative;">
           <span>
             {{ tField('arbiter1_name') }}
@@ -1459,9 +1458,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')"></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" @blur="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')"></label>
         <label style="position: relative;">
           <span>
             {{ tField('arbiter2_name') }}
@@ -1478,9 +1477,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')"></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" @blur="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')"></label>
         <label style="position: relative;">
           <span>
             {{ tField('arbiter3_name') }}
@@ -1497,9 +1496,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')"></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" @blur="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')"></label>
         <label style="position: relative;">
           <span>
             {{ tField('arbiter4_name') }}
@@ -1516,6 +1515,7 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')"></label>
       </div>
 
       <div style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin-top: -0.25rem; font-style: italic;">{{ tUI('more_arbiters_note') }}</div>
@@ -1523,7 +1523,6 @@ definePageMeta({
       <div class="group-title">{{ tCat('organizers') }}</div>
 
       <div class="person-row">
-        <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" @blur="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" @keydown.enter.prevent="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
         <label style="position: relative;">
           <span class="required-label">{{ tField('chief_organizer_name') }}<span v-if="organizerSearching['chief_organizer_name']" class="organizer-searching-hint">…</span></span>
           <input type="text" v-model="form.chief_organizer_name" autocomplete="off" @input="searchOrganizer('chief_organizer_name')" @blur="hideOrganizerResults('chief_organizer_name')" @keydown.enter.prevent="selectTopOrganizerResult('chief_organizer_name', 'chief_organizer_fide_id')" required>
@@ -1533,9 +1532,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span class="required-label">{{ tField('chief_organizer_fide_id') }}</span><input type="text" v-model="form.chief_organizer_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" @keydown.enter.prevent="lookupOrganizerById('chief_organizer_name', 'chief_organizer_fide_id')" required></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id" @blur="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')"></label>
         <label style="position: relative;">
           <span>{{ tField('organizer1_name') }}<span v-if="organizerSearching['organizer1_name']" class="organizer-searching-hint">…</span></span>
           <input type="text" v-model="form.organizer1_name" autocomplete="off" @input="searchOrganizer('organizer1_name')" @blur="hideOrganizerResults('organizer1_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer1_name', 'organizer1_fide_id')">
@@ -1545,9 +1544,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('organizer1_fide_id') }}</span><input type="text" v-model="form.organizer1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer1_name', 'organizer1_fide_id')"></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id" @blur="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')"></label>
         <label style="position: relative;">
           <span>{{ tField('organizer2_name') }}<span v-if="organizerSearching['organizer2_name']" class="organizer-searching-hint">…</span></span>
           <input type="text" v-model="form.organizer2_name" autocomplete="off" @input="searchOrganizer('organizer2_name')" @blur="hideOrganizerResults('organizer2_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer2_name', 'organizer2_fide_id')">
@@ -1557,9 +1556,9 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('organizer2_fide_id') }}</span><input type="text" v-model="form.organizer2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer2_name', 'organizer2_fide_id')"></label>
       </div>
       <div class="person-row">
-        <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id" @blur="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')"></label>
         <label style="position: relative;">
           <span>{{ tField('organizer3_name') }}<span v-if="organizerSearching['organizer3_name']" class="organizer-searching-hint">…</span></span>
           <input type="text" v-model="form.organizer3_name" autocomplete="off" @input="searchOrganizer('organizer3_name')" @blur="hideOrganizerResults('organizer3_name')" @keydown.enter.prevent="selectTopOrganizerResult('organizer3_name', 'organizer3_fide_id')">
@@ -1569,6 +1568,7 @@ definePageMeta({
             </li>
           </ul>
         </label>
+        <label><span>{{ tField('organizer3_fide_id') }}</span><input type="text" v-model="form.organizer3_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')" @keydown.enter.prevent="lookupOrganizerById('organizer3_name', 'organizer3_fide_id')"></label>
       </div>
 
       <div class="group-title">{{ tCat('time_control') }}</div>
@@ -1873,7 +1873,9 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
 }
 .report-deadline-ack input { width: auto; margin-top: 0.2rem; }
 .report-deadline-ack span { margin-bottom: 0; font-weight: 600; }
-.person-row { display: grid; grid-template-columns: minmax(150px, 260px) 1fr; gap: 0.75rem; align-items: start; }
+/* The name first, as in the workbook; the FIDE ID after it, narrow. Swapped
+   round until 19 November 2026, and a club filled both the wrong way. */
+.person-row { display: grid; grid-template-columns: 1fr minmax(150px, 260px); gap: 0.75rem; align-items: start; }
 .organizer-dropdown {
   position: absolute;
   z-index: 20;

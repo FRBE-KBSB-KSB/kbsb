@@ -161,6 +161,9 @@ MANDATORY_ALWAYS = [
     "contact_email",
 ]
 
+# Every FIDE-ID box on the form: arbiters and organizers.
+FIDE_ID_FIELDS = [key for key, _label in FIDE_FIELDS if key.endswith("_fide_id")]
+
 OPENPAIRINGS = "OpenPairings (With Ainalrami)"
 
 LOOKUP_DATA = {
@@ -679,6 +682,18 @@ def validate_form(form, lang):
         ):
             logger.error(f"{key} is not a valid e-mail address")
             errors.append(f"{t_fields.get(key, key)} {t_msg['invalid_email']}")
+
+    # A FIDE ID is digits. On 17 November 2026 a club typed the chief arbiter's
+    # and the chief organizer's name into the FIDE-ID box and the number into
+    # the name box ("Tournoi Hiver 2026 2027"); the workbook went out that way
+    # and the dataplatform found a licensed arbiter "missing".
+    for key in FIDE_ID_FIELDS:
+        value = form.get(key)
+        if value in (None, ""):
+            continue
+        if not re.fullmatch(r"\d+", str(value).strip()):
+            logger.error(f"{key} is not a FIDE ID: {value!r}")
+            errors.append(f"{t_fields.get(key, key)} {t_msg['fide_id_digits_only']}")
 
     event_name = form.get("event_name", "")
     if event_name and not re.fullmatch(r"[A-Za-z0-9 -]+", event_name):
