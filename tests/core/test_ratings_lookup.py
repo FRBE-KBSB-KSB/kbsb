@@ -59,3 +59,55 @@ def test_a_refused_batch_falls_back_to_one_by_one(monkeypatch):
     monkeypatch.setattr(eloserver, "get_fideelo", one)
 
     assert asyncio.run(eloserver.get_fideelos([11, 12, None])) == [1800, 1500, 0]
+
+
+def test_the_snapshot_fetches_the_ratings_csv_with_the_key(monkeypatch):
+    # "Take new snapshot" (interclubs, Reports) answered Internal Server Error:
+    # header= instead of headers=, and "//api/..." which httpx reads as a host.
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, text="first_name,last_name,national_id\r\n")
+
+    monkeypatch.setattr(
+        eloserver, "_get_eloserver_asynclient", lambda: _client(handler)
+    )
+    monkeypatch.setattr(eloserver, "get_secret", lambda name: "the-key")
+
+    text = asyncio.run(eloserver.get_ratingcsv())
+
+    assert text.startswith("first_name,")
+    assert seen[0].url.path == "/api/v1/players_national/ratings.csv"
+    assert seen[0].headers["x-api-key"] == "the-key"
+
+
+def test_a_refused_snapshot_is_an_error_not_a_file(monkeypatch):
+    import pytest
+    from fastapi.exceptions import HTTPException
+
+    monkeypatch.setattr(
+        eloserver,
+        "_get_eloserver_asynclient",
+        lambda: _client(lambda r: httpx.Response(403, text="forbidden")),
+    )
+    monkeypatch.setattr(eloserver, "get_secret", lambda name: "the-key")
+
+    with pytest.raises(HTTPException) as refused:
+        asyncio.run(eloserver.get_ratingcsv())
+    assert refused.value.status_code == 403
+
+
+def test_one_rating_goes_to_the_configured_path(monkeypatch):
+    seen = []
+
+    def handler(request):
+        seen.append(request)
+        return httpx.Response(200, json={"rating": {"standard": 1999}})
+
+    monkeypatch.setattr(
+        eloserver, "_get_eloserver_asynclient", lambda: _client(handler)
+    )
+
+    assert asyncio.run(eloserver.get_fideelo(11)) == 1999
+    assert seen[0].url.path == "/api/v1/public/rating/11"

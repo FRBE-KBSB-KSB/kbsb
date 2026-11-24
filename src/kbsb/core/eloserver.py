@@ -38,8 +38,10 @@ async def get_fideelo(id: str | int) -> int:
     client = _get_eloserver_asynclient()
     headers = {"x-api-key": eloserver_secret}
     try:
+        # path_rating already starts with "/"; a second one ("//api/...")
+        # makes httpx read "api" as a host and drop it from the path.
         response = await client.get(
-            f"/{eloserver_params['path_rating']}/{id}", headers=headers
+            f"{eloserver_params['path_rating']}/{id}", headers=headers
         )
     except httpx.RequestError:
         logger.exception("Failed to get_fideelo from eloserver")
@@ -106,9 +108,11 @@ async def get_ratingcsv():
     client = _get_eloserver_asynclient()
     headers = {"x-api-key": get_secret("eloserver")}
     try:
-        response = await client.get(
-            f"/{eloserver_params['path_ratingcsv']}", header=headers
-        )
+        # headers=, not header= (a TypeError, so "Take new snapshot" answered
+        # Internal Server Error); the path as configured, it starts with "/";
+        # and a refusal raised, so an error page is never stored as a snapshot.
+        response = await client.get(eloserver_params["path_ratingcsv"], headers=headers)
+        response.raise_for_status()
     except httpx.RequestError:
         logger.exception("Failed calling get_ratingscsv from eloserver")
         raise HTTPException(status_code=502, detail="Bad Gateway")
