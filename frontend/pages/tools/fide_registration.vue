@@ -691,7 +691,27 @@ CACHED_FIELDS.forEach(field => {
 })
 
 const noLicenseArbiters = ref(new Set())
+const notFoundArbiters = ref(new Set())
 const arbiterInfo = ref({})
+
+// The badge beside an arbiter's name belongs to the arbiter it was looked up
+// for. Editing the name or the FIDE ID drops it, so an earlier pick's badge
+// ("NA") does not stay beside someone else (Kuijpers, 225070, 25 Nov 2026:
+// a player, not in FIDE's arbiter register, shown with another's "NA").
+function clearArbiterBadge(nameField) {
+  if (arbiterInfo.value[nameField] !== undefined) {
+    const info = { ...arbiterInfo.value }
+    delete info[nameField]
+    arbiterInfo.value = info
+  }
+  for (const set of [noLicenseArbiters, notFoundArbiters]) {
+    if (set.value.has(nameField)) {
+      const updated = new Set(set.value)
+      updated.delete(nameField)
+      set.value = updated
+    }
+  }
+}
 
 // Live arbiters search from kbsb-dataplatform API
 const arbiterResults = ref({})
@@ -700,6 +720,7 @@ const arbiterSearchTimers = {}
 const arbiterAbortControllers = {}
 
 function searchArbiter(nameField) {
+  clearArbiterBadge(nameField)
   const q = form.value[nameField]
   clearTimeout(arbiterSearchTimers[nameField])
   if (arbiterAbortControllers[nameField]) {
@@ -737,6 +758,7 @@ function searchArbiter(nameField) {
 }
 
 function selectArbiter(nameField, idField, arbiter) {
+  clearArbiterBadge(nameField)
   form.value[nameField] = arbiter.name
   form.value[idField] = String(arbiter.fide_id)
   arbiterResults.value = { ...arbiterResults.value, [nameField]: [] }
@@ -770,6 +792,7 @@ function selectTopArbiterResult(nameField, idField) {
 
 async function lookupArbiterById(nameField, idField) {
   const id = String(form.value[idField] || '').trim()
+  clearArbiterBadge(nameField)
   if (!id || !/^\d+$/.test(id)) return
   try {
     const res = await $backend("arbiters", "lookup", { fide_id: id })
@@ -787,7 +810,13 @@ async function lookupArbiterById(nameField, idField) {
       noLicenseArbiters.value = updated
     }
   } catch (error) {
-    console.error(error?.message)
+    // 404: no arbiter under that FIDE ID in FIDE's register. A warning only;
+    // the form can still be sent, and the federation checks it.
+    if (error?.response?.status === 404 && String(form.value[idField] || '').trim() === id) {
+      notFoundArbiters.value = new Set(notFoundArbiters.value).add(nameField)
+    } else {
+      console.error(error?.message)
+    }
   }
 }
 
@@ -1378,6 +1407,7 @@ definePageMeta({
             <span v-if="arbiterInfo['chief_arbiter_name'] && !noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill">{{ arbiterInfo['chief_arbiter_name'] }}</span>
             <span v-if="noLicenseArbiters.has('chief_arbiter_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('chief_arbiter_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['chief_arbiter_name'] && arbiterResults['chief_arbiter_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['chief_arbiter_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('chief_arbiter_name', 'chief_arbiter_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -1385,7 +1415,7 @@ definePageMeta({
           </ul>
         </label>
         <label><span class="required-label">{{ tField('chief_arbiter_fide_id') }}</span>
-          <input type="text" v-model="form.chief_arbiter_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" @keydown.enter.prevent="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
+          <input type="text" v-model="form.chief_arbiter_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('chief_arbiter_name')" @blur="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" @keydown.enter.prevent="lookupArbiterById('chief_arbiter_name', 'chief_arbiter_fide_id')" required>
         </label>
       </div>
 
@@ -1400,6 +1430,7 @@ definePageMeta({
             <span v-if="arbiterInfo['dep_chief_arbiter1_name'] && !noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter1_name'] }}</span>
             <span v-if="noLicenseArbiters.has('dep_chief_arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('dep_chief_arbiter1_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['dep_chief_arbiter1_name'] && arbiterResults['dep_chief_arbiter1_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['dep_chief_arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -1407,7 +1438,7 @@ definePageMeta({
           </ul>
         </label>
         <label><span>{{ tField('dep_chief_arbiter1_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
+          <input type="text" v-model="form.dep_chief_arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('dep_chief_arbiter1_name')" @blur="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter1_name', 'dep_chief_arbiter1_fide_id')">
         </label>
       </div>
 
@@ -1422,6 +1453,7 @@ definePageMeta({
             <span v-if="arbiterInfo['dep_chief_arbiter2_name'] && !noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['dep_chief_arbiter2_name'] }}</span>
             <span v-if="noLicenseArbiters.has('dep_chief_arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('dep_chief_arbiter2_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['dep_chief_arbiter2_name'] && arbiterResults['dep_chief_arbiter2_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['dep_chief_arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
@@ -1429,7 +1461,7 @@ definePageMeta({
           </ul>
         </label>
         <label><span>{{ tField('dep_chief_arbiter2_fide_id') }}</span>
-          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
+          <input type="text" v-model="form.dep_chief_arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('dep_chief_arbiter2_name')" @blur="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('dep_chief_arbiter2_name', 'dep_chief_arbiter2_fide_id')">
         </label>
       </div>
 
@@ -1452,13 +1484,14 @@ definePageMeta({
             <span v-if="arbiterInfo['arbiter1_name'] && !noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill">{{ arbiterInfo['arbiter1_name'] }}</span>
             <span v-if="noLicenseArbiters.has('arbiter1_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('arbiter1_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['arbiter1_name'] && arbiterResults['arbiter1_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter1_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter1_name', 'arbiter1_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
             </li>
           </ul>
         </label>
-        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')"></label>
+        <label><span>{{ tField('arbiter1_fide_id') }}</span><input type="text" v-model="form.arbiter1_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('arbiter1_name')" @blur="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter1_name', 'arbiter1_fide_id')"></label>
       </div>
       <div class="person-row">
         <label style="position: relative;">
@@ -1471,13 +1504,14 @@ definePageMeta({
             <span v-if="arbiterInfo['arbiter2_name'] && !noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill">{{ arbiterInfo['arbiter2_name'] }}</span>
             <span v-if="noLicenseArbiters.has('arbiter2_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('arbiter2_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['arbiter2_name'] && arbiterResults['arbiter2_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter2_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter2_name', 'arbiter2_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
             </li>
           </ul>
         </label>
-        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')"></label>
+        <label><span>{{ tField('arbiter2_fide_id') }}</span><input type="text" v-model="form.arbiter2_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('arbiter2_name')" @blur="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter2_name', 'arbiter2_fide_id')"></label>
       </div>
       <div class="person-row">
         <label style="position: relative;">
@@ -1490,13 +1524,14 @@ definePageMeta({
             <span v-if="arbiterInfo['arbiter3_name'] && !noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill">{{ arbiterInfo['arbiter3_name'] }}</span>
             <span v-if="noLicenseArbiters.has('arbiter3_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('arbiter3_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['arbiter3_name'] && arbiterResults['arbiter3_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter3_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter3_name', 'arbiter3_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
             </li>
           </ul>
         </label>
-        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')"></label>
+        <label><span>{{ tField('arbiter3_fide_id') }}</span><input type="text" v-model="form.arbiter3_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('arbiter3_name')" @blur="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter3_name', 'arbiter3_fide_id')"></label>
       </div>
       <div class="person-row">
         <label style="position: relative;">
@@ -1509,13 +1544,14 @@ definePageMeta({
             <span v-if="arbiterInfo['arbiter4_name'] && !noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill">{{ arbiterInfo['arbiter4_name'] }}</span>
             <span v-if="noLicenseArbiters.has('arbiter4_name')" class="arbiter-pill no-license">⚠ No license</span>
           </div>
+          <small v-if="notFoundArbiters.has('arbiter4_name')" class="arbiter-note">{{ tMsg('arbiter_not_in_register') }}</small>
           <ul v-if="arbiterResults['arbiter4_name'] && arbiterResults['arbiter4_name'].length" class="organizer-dropdown">
             <li v-for="a in arbiterResults['arbiter4_name']" :key="a.fide_id" @mousedown.prevent="selectArbiter('arbiter4_name', 'arbiter4_fide_id', a)">
               {{ a.name }} <span class="organizer-dropdown-meta">{{ a.fed }} · {{ a.title || 'Arbiter' }} · {{ a.licensed ? 'Licensed' : 'No License' }} · {{ a.fide_id }}</span>
             </li>
           </ul>
         </label>
-        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @blur="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')"></label>
+        <label><span>{{ tField('arbiter4_fide_id') }}</span><input type="text" v-model="form.arbiter4_fide_id" inputmode="numeric" pattern="[0-9]*" :title="tMsg('fide_id_digits_only')" @input="clearArbiterBadge('arbiter4_name')" @blur="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')" @keydown.enter.prevent="lookupArbiterById('arbiter4_name', 'arbiter4_fide_id')"></label>
       </div>
 
       <div style="grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin-top: -0.25rem; font-style: italic;">{{ tUI('more_arbiters_note') }}</div>
@@ -1937,6 +1973,13 @@ button[type="submit"]:focus-visible { outline: 2px solid var(--focus-ring, #a5d6
   background: #fef2f2;
   border: 1px solid rgba(185, 28, 28, 0.25);
   font-size: 0.75rem;
+}
+.arbiter-note {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--error, #b91c1c);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 :deep(.v-application),
