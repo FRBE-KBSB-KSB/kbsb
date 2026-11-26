@@ -1890,7 +1890,8 @@ const exportingSwarFile = ref({})
 const exportTargets = computed(() => {
   const trn = selectedAdminTournament.value
   const cats = (trn && Array.isArray(trn.categories)) ? trn.categories : []
-  if (!trn || !trn.export_per_category || cats.length < 2) return [{ key: "all", label: "" }]
+  // A team tournament exports whole: the API refuses a category of one.
+  if (!trn || trn.team_tournament || !trn.export_per_category || cats.length < 2) return [{ key: "all", label: "" }]
   return cats.map((c, i) => ({ key: String(i), label: c }))
 })
 const refreshEloLoading = ref(false)
@@ -2432,11 +2433,10 @@ onMounted(() => {
                 <template v-for="x in exportTargets" :key="'exp-' + x.key">
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingCsv[x.key]" @click="exportCsv(x.key)">{{ t('trnreg.admin_export_csv') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                   <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwar[x.key]" @click="exportSwar(x.key)">{{ t('trnreg.admin_export_swar') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
-                  <!-- Not for a team tournament: these would make one individual tournament of its players. -->
-                  <template v-if="!selectedAdminTournament.team_tournament">
-                    <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingOpenPairings[x.key]" @click="exportOpenPairings(x.key)">{{ t('trnreg.admin_export_openpairings') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
-                    <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwarFile[x.key]" @click="exportSwarFile(x.key)">{{ t('trnreg.admin_export_swarfile') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
-                  </template>
+                  <!-- A team tournament goes to OpenPairings as teams, players in board order. -->
+                  <v-btn size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingOpenPairings[x.key]" @click="exportOpenPairings(x.key)">{{ t('trnreg.admin_export_openpairings') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
+                  <!-- Not for a team tournament: .swar would make one individual tournament of its players. -->
+                  <v-btn v-if="!selectedAdminTournament.team_tournament" size="small" variant="tonal" color="green-darken-2" prepend-icon="mdi-download" :loading="!!exportingSwarFile[x.key]" @click="exportSwarFile(x.key)">{{ t('trnreg.admin_export_swarfile') }}<span v-if="x.label">&nbsp;({{ x.label }})</span></v-btn>
                 </template>
                 <v-btn size="small" variant="tonal" color="blue-darken-2" prepend-icon="mdi-refresh" :loading="refreshEloLoading" @click="refreshElo">{{ t('trnreg.admin_refresh_elo') }}</v-btn>
               </v-col>

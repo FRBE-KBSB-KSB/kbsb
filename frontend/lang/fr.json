@@ -740,6 +740,6 @@
 "trnreg.team_edit_title": "Modifier l'équipe",
 "trnreg.team_delete_confirm": "Supprimer l'équipe {name} et tous ses joueurs ?",
 "trnreg.team_deleted": "Équipe supprimée.",
-"trnreg.team_export_note": "Les exports OpenPairings et .swar ne sont pas encore disponibles pour les tournois par équipes ; le CSV et le CSV SWAR listent chaque joueur.",
+"trnreg.team_export_note": "L'export OpenPairings reprend les équipes, avec leurs joueurs dans l'ordre des échiquiers. Un export .swar n'est pas encore disponible pour les tournois par équipes ; le CSV et le CSV SWAR listent chaque joueur.",
 "ZZZ": "ZZZ"
 }

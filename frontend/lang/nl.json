@@ -740,6 +740,6 @@
 "trnreg.team_edit_title": "Team bewerken",
 "trnreg.team_delete_confirm": "Team {name} en al zijn spelers verwijderen?",
 "trnreg.team_deleted": "Team verwijderd.",
-"trnreg.team_export_note": "De OpenPairings- en .swar-export zijn nog niet beschikbaar voor teamtoernooien; de CSV en SWAR-CSV tonen elke speler.",
+"trnreg.team_export_note": "De OpenPairings-export neemt de teams mee, met hun spelers in bordvolgorde. Een .swar-export is nog niet beschikbaar voor teamtoernooien; de CSV en SWAR-CSV tonen elke speler.",
 "ZZZ": "ZZZ"
 }

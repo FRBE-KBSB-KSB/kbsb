@@ -740,6 +740,6 @@
 "trnreg.team_edit_title": "Mannschaft bearbeiten",
 "trnreg.team_delete_confirm": "Mannschaft {name} und alle ihre Spieler löschen?",
 "trnreg.team_deleted": "Mannschaft gelöscht.",
-"trnreg.team_export_note": "Die Exporte OpenPairings und .swar gibt es für Mannschaftsturniere noch nicht; CSV und SWAR-CSV listen jeden Spieler.",
+"trnreg.team_export_note": "Der OpenPairings-Export übernimmt die Mannschaften, mit ihren Spielern in Brettreihenfolge. Einen .swar-Export gibt es für Mannschaftsturniere noch nicht; CSV und SWAR-CSV listen jeden Spieler.",
 "ZZZ": "ZZZ"
 }

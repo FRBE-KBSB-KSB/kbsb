@@ -740,6 +740,6 @@
 "trnreg.team_edit_title": "Edit team",
 "trnreg.team_delete_confirm": "Delete team {name} and all its players?",
 "trnreg.team_deleted": "Team deleted.",
-"trnreg.team_export_note": "OpenPairings and .swar exports are not available for team tournaments yet; the CSV and SWAR CSV list every player.",
+"trnreg.team_export_note": "The OpenPairings export brings the teams, with their players in board order. A .swar export is not available for team tournaments yet; the CSV and SWAR CSV list every player.",
 "ZZZ": "ZZZ"
 }
