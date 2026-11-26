@@ -188,6 +188,7 @@ _ALLOWED_PATHS = [
         rf"{_SEG}",
         rf"{_SEG}/lookup",
         rf"{_SEG}/registrations",
+        rf"{_SEG}/teams",
         r"admin/login",
         r"admin/tournaments",
         r"admin/tournaments/mine",
@@ -196,6 +197,7 @@ _ALLOWED_PATHS = [
         rf"admin/tournaments/{_SEG}/admins/{_SEG}",
         rf"admin/tournaments/{_SEG}/export/swar/{_SEG}",
         rf"admin/registrations/{_SEG}",
+        rf"admin/teams/{_SEG}",
     )
 ]
 

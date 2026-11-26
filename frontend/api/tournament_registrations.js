@@ -46,6 +46,12 @@ export default {
     return await axios.post(`${prefix}/${id}/registrations`, registration);
   },
 
+  // A team of a team tournament: name, contact and its players, in board order.
+  createTeam: async function (options) {
+    const { id, ...team } = options;
+    return await axios.post(`${prefix}/${id}/teams`, team);
+  },
+
   // ---- admin (Authorization: Bearer <tournament_registrations JWT>) ----
 
   // Logging in with a KBSB Odoo account: the website checks it with Odoo and
@@ -132,6 +138,22 @@ export default {
   admin_deleteRegistration: async function (options) {
     const { id, token } = options;
     return await axios.delete(`${prefix}/admin/registrations/${id}`, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
+  // A team's name and contact; its players are edited one by one.
+  admin_updateTeam: async function (options) {
+    const { id, token, ...team } = options;
+    return await axios.put(`${prefix}/admin/teams/${id}`, team, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
+  // The team and all its players.
+  admin_deleteTeam: async function (options) {
+    const { id, token } = options;
+    return await axios.delete(`${prefix}/admin/teams/${id}`, {
       headers: { Authorization: "Bearer " + token },
     });
   },

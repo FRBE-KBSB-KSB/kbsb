@@ -22,6 +22,9 @@ from kbsb.tournament_registrations.api_tournament_registrations import (
         "admin/tournaments/42/export/csv",
         "admin/tournaments/42/export/swar/all",
         "admin/tournaments/42/registrations",
+        # A team of a team tournament, and the admin's edit/delete of one.
+        "42/teams",
+        "admin/teams/7",
     ],
 )
 def test_frontend_shapes_are_forwarded(path):
@@ -48,6 +51,13 @@ def test_frontend_shapes_are_forwarded(path):
         "admin/tournaments/42/export/swarfilex",
         "admin/tournaments/42/export/swarfile.swar",
         "../players_fide/export/swarfile",
+        "42/teams/x",
+        "42/teams/..",
+        "../teams",
+        "admin/teams/7/x",
+        "admin/teams/..",
+        "admin/teams/../tournaments",
+        "admin/teams/7%2F..",
     ],
 )
 def test_anything_else_is_refused(path):

@@ -54,6 +54,8 @@ axios.interceptors.response.use(
         // registrations_not_open / registrations_closed) -- undefined for
         // every response that doesn't set one, same as today.
         errorCode: error.response.data.code,
+        // Which player of a team a tournament registration refusal is about.
+        board: error.response.data.board,
         headers: error.response.headers,
         message:
           detail ||
