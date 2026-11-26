@@ -133,3 +133,30 @@ export function teamsForList(registrations, teams, trn) {
       return { id: tm.id, name: tm.name, club, rating, boards, reserves }
     })
 }
+
+// The first empty board slot with a filled one after it, or -1. The form
+// sends the filled slots only, so a gap moved every player after it up a
+// board and the server's "board 3" named the wrong box (bug scan, 26 Nov
+// 2026). Empty slots at the end are fine: a team may register short.
+export function teamGap(players, filled) {
+  let empty = -1
+  for (let i = 0; i < players.length; i++) {
+    if (!filled(players[i])) {
+      if (empty === -1) empty = i
+    } else if (empty !== -1) {
+      return empty
+    }
+  }
+  return -1
+}
+
+// The category after the birth year changed: `index` is the one the year
+// fits (null for none). A category picked by hand stays; one picked from
+// the year follows it, and goes when the year fits none (it used to stay,
+// and the server kept a category that did not fit).
+export function autoCategory({ current, auto, index }) {
+  const picked = current !== "" && current !== null && current !== undefined
+  if (picked && !auto) return { category_index: current, auto: false }
+  if (index === null || index === undefined) return { category_index: "", auto: false }
+  return { category_index: index, auto: true }
+}

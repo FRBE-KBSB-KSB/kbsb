@@ -24,7 +24,7 @@ import { storeToRefs } from "pinia"
 import { useTournamentRegTokenStore } from "@/store/tournamentregtoken"
 import PlayerFields from "@/components/tournament_registrations/PlayerFields.vue"
 import { categoryRanges, categoryDisplay } from "@/util/trnreg_categories"
-import { isSingleDay, spreadRoundDates, moveBoard, teamsForList } from "@/util/trnreg_form"
+import { isSingleDay, spreadRoundDates, moveBoard, teamsForList, teamGap } from "@/util/trnreg_form"
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -511,6 +511,10 @@ async function submitRegistration() {
       regError.value = t("trnreg.registrations_not_open_yet")
     } else if (error.errorCode === "registrations_closed") {
       regError.value = t("trnreg.registrations_closed")
+    } else if (error.errorCode === "bad_characters") {
+      regError.value = t("trnreg.bad_characters")
+    } else if (error.errorCode === "note_too_long") {
+      regError.value = t("trnreg.note_too_long")
     } else {
       regError.value = error.message || t("trnreg.submit_failed")
     }
@@ -590,6 +594,11 @@ async function submitTeam() {
     regError.value = t("trnreg.team_need_player")
     return
   }
+  const gap = teamGap(teamForm.value.players, teamSlotFilled)
+  if (gap !== -1) {
+    regError.value = t("trnreg.team_gap", { board: boardLabel(gap, teamSize.value) })
+    return
+  }
   regSubmitting.value = true
   try {
     const reply = await $backend("tournament_registrations", "createTeam", {
@@ -615,6 +624,10 @@ async function submitTeam() {
       regError.value = t("trnreg.registrations_not_open_yet")
     } else if (error.errorCode === "registrations_closed") {
       regError.value = t("trnreg.registrations_closed")
+    } else if (error.errorCode === "bad_characters" && board) {
+      regError.value = t("trnreg.team_board_error", { board, message: t("trnreg.bad_characters") })
+    } else if (error.errorCode === "bad_characters") {
+      regError.value = t("trnreg.bad_characters")
     } else if (board) {
       regError.value = t("trnreg.team_board_error", { board, message: error.message })
     } else {
@@ -2051,7 +2064,13 @@ async function saveTournament() {
       selectedAdminTournament.value = reply.data.tournament
     }
   } catch (error) {
-    tournamentFormError.value = error.message || t("trnreg.admin_save_tournament_failed")
+    if (error.errorCode === "team_too_big") {
+      tournamentFormError.value = t("trnreg.team_too_big")
+    } else if (error.errorCode === "team_tournament_locked") {
+      tournamentFormError.value = t("trnreg.team_tournament_locked")
+    } else {
+      tournamentFormError.value = error.message || t("trnreg.admin_save_tournament_failed")
+    }
   } finally {
     tournamentSubmitting.value = false
   }
@@ -2402,7 +2421,7 @@ onMounted(() => {
                     duplicated that without ever being required or checked.
                   -->
                   <v-col cols="12">
-                    <v-textarea v-model="regForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2"></v-textarea>
+                    <v-textarea v-model="regForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2" maxlength="1000" counter="1000"></v-textarea>
                   </v-col>
                 </v-row>
 
@@ -2533,7 +2552,7 @@ onMounted(() => {
                   <td>{{ r.birth_year || "" }}</td>
                   <td>{{ r.national_club_name || r.national_club }}</td>
                   <td>{{ categoryLabel(tournament, r.category_index) }}</td>
-                  <td>{{ r.stamnummer || '' }}</td>
+                  <td>{{ r.stamnummer || r.national_id || '' }}</td>
                   <td>{{ r.fide_id }}</td>
                   <td>{{ effectiveRating(r, tournament) || '' }}</td>
                 </tr>
@@ -2700,7 +2719,7 @@ onMounted(() => {
               </div>
               <!-- Players by board; the arrows change the order. -->
               <div v-for="(r, bi) in teamPlayers(tm)" :key="'tp-' + r.id" class="d-flex align-center ga-1 pl-3">
-                <span class="text-caption text-grey-darken-1" style="min-width: 5.5rem">{{ boardLabel(bi, Number(selectedAdminTournament.team_size) || 0) }}</span>
+                <span class="text-caption text-grey-darken-1" style="min-width: 5.5rem">{{ boardLabel((Number(r.team_board) || bi + 1) - 1, Number(selectedAdminTournament.team_size) || 0) }}</span>
                 <span class="text-body-2">{{ displayName(r) }}</span>
                 <v-btn icon="mdi-arrow-up" size="x-small" variant="text" color="green-darken-2" :disabled="bi === 0 || teamBusy === tm.id" :title="t('trnreg.board_up')" :aria-label="t('trnreg.board_up')" @click="moveTeamPlayer(tm, bi, -1)"></v-btn>
                 <v-btn icon="mdi-arrow-down" size="x-small" variant="text" color="green-darken-2" :disabled="bi === teamPlayers(tm).length - 1 || teamBusy === tm.id" :title="t('trnreg.board_down')" :aria-label="t('trnreg.board_down')" @click="moveTeamPlayer(tm, bi, 1)"></v-btn>
@@ -2874,7 +2893,7 @@ onMounted(() => {
             </v-col>
             <v-col cols="12" sm="6"><v-text-field v-model="editRegForm.rounds_absent" :label="t('trnreg.field_rounds_absent')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="6" class="d-flex align-center"><v-checkbox v-model="editRegForm.g_license" :label="t('trnreg.field_g_license')" color="green-darken-2" density="compact" hide-details></v-checkbox></v-col>
-            <v-col cols="12"><v-textarea v-model="editRegForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2"></v-textarea></v-col>
+            <v-col cols="12"><v-textarea v-model="editRegForm.note" :label="t('trnreg.field_note')" variant="outlined" color="green-darken-2" density="compact" rows="2" maxlength="1000" counter="1000"></v-textarea></v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>

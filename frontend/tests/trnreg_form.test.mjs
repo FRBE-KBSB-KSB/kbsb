@@ -11,6 +11,8 @@ import {
   birthDateFromYear,
   moveBoard,
   teamsForList,
+  teamGap,
+  autoCategory,
 } from "../util/trnreg_form.js"
 
 test("a tournament of one day, or without an end date, is a single day", () => {
@@ -89,4 +91,27 @@ test("the public list of a team tournament shows teams, players by board, reserv
   assert.equal(a.rating, 1700)
   assert.equal(teams[1].rating, null)
   assert.equal(teams[1].boards.length, 1)
+})
+
+// Bug scan of 26 Nov 2026.
+
+test("a filled board after an empty one is a gap; empty boards at the end are not", () => {
+  const filled = (p) => !!p.last_name
+  assert.equal(teamGap([{ last_name: "A" }, { last_name: "" }, { last_name: "C" }], filled), 1)
+  assert.equal(teamGap([{ last_name: "" }, { last_name: "B" }], filled), 0)
+  assert.equal(teamGap([{ last_name: "A" }, { last_name: "B" }, { last_name: "" }, { last_name: "" }], filled), -1)
+  assert.equal(teamGap([], filled), -1)
+})
+
+test("a category picked from the birth year goes when the year fits no category", () => {
+  // Picked automatically, the year now fits none: cleared.
+  assert.deepEqual(autoCategory({ current: 3, auto: true, index: null }), { category_index: "", auto: false })
+  // Picked automatically, the year fits another: that one.
+  assert.deepEqual(autoCategory({ current: 3, auto: true, index: 1 }), { category_index: 1, auto: true })
+  // Nothing picked yet: the one the year fits, or still nothing.
+  assert.deepEqual(autoCategory({ current: "", auto: false, index: 2 }), { category_index: 2, auto: true })
+  assert.deepEqual(autoCategory({ current: "", auto: false, index: null }), { category_index: "", auto: false })
+  // Picked by hand: kept, whatever the year.
+  assert.deepEqual(autoCategory({ current: 0, auto: false, index: null }), { category_index: 0, auto: false })
+  assert.deepEqual(autoCategory({ current: 0, auto: false, index: 2 }), { category_index: 0, auto: false })
 })

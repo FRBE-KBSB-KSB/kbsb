@@ -20,7 +20,7 @@
 import { ref, computed, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { categoryRanges, categoryDisplay, categoryForBirthYear, birthYearOf } from "@/util/trnreg_categories"
-import { parseBirthInput, formatBirthInput, birthDateFromYear } from "@/util/trnreg_form"
+import { parseBirthInput, formatBirthInput, birthDateFromYear, autoCategory } from "@/util/trnreg_form"
 
 // Number fields keep only digits (see the page for why not type="number").
 const vDigits = {
@@ -211,11 +211,13 @@ watch(
   () => [p.date_birth, p.birth_year, ranges.value.length],
   () => {
     if (!manyCategories.value) return
-    if (p.category_index !== "" && p.category_index !== null && !categoryAuto.value) return
-    const index = categoryForBirthYear(props.tournament, birthYearOf(p))
-    if (index === null) return
-    p.category_index = index
-    categoryAuto.value = true
+    const next = autoCategory({
+      current: p.category_index,
+      auto: categoryAuto.value,
+      index: categoryForBirthYear(props.tournament, birthYearOf(p)),
+    })
+    p.category_index = next.category_index
+    categoryAuto.value = next.auto
   },
   { immediate: true }
 )
