@@ -10,10 +10,17 @@
 // sex has no default, the national number says the search fills it in, the
 // club is picked from the club list, and the category is chosen from the
 // birth year.
+//
+// Luc's remarks, 26 Nov 2026: the birth date is typed (a day, or a year
+// alone, which is 1 January of it) and a search pick fills 1 January of the
+// year it found when nothing is typed yet; no "no match" line right after a
+// pick; a team's later boards and reserves are optional, so their rules only
+// apply once something is filled in.
 
 import { ref, computed, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { categoryRanges, categoryDisplay, categoryForBirthYear, birthYearOf } from "@/util/trnreg_categories"
+import { parseBirthInput, formatBirthInput, birthDateFromYear } from "@/util/trnreg_form"
 
 // Number fields keep only digits (see the page for why not type="number").
 const vDigits = {
@@ -38,6 +45,8 @@ const props = defineProps({
   clubs: { type: Array, default: () => [] },
   // "Board 2" above a team's player; nothing for a single registration.
   heading: { type: String, default: "" },
+  // A team's player beyond the first: may stay empty, checked once filled.
+  optional: { type: Boolean, default: false },
 })
 
 const { t } = useI18n()
@@ -46,16 +55,22 @@ const { $backend } = useNuxtApp()
 const p = props.player
 
 const req = (key) => `${t(key)} *`
-const requiredRule = (v) => (v !== null && v !== undefined && String(v).trim() !== "") || t("trnreg.rule_required")
+// Something typed that says who the player is; an optional slot without it
+// is left out of the team.
+const filled = computed(() => ["last_name", "first_name", "national_id", "fide_id"].some((k) => String(p[k] ?? "").trim() !== ""))
+const requiredRule = (v) => (props.optional && !filled.value) || (v !== null && v !== undefined && String(v).trim() !== "") || t("trnreg.rule_required")
 
 // ---- search -------------------------------------------------------------
 
 const lookupQuery = ref("")
 const lookupResults = ref([])
 const lookupSearching = ref(false)
+// Just picked: the box holds the picked name, which is no new search.
+const picked = ref(false)
 let lookupTimer = null
 
 function onLookupInput() {
+  picked.value = false
   clearTimeout(lookupTimer)
   const q = lookupQuery.value
   if (!q || q.trim().length < 2) {
@@ -105,12 +120,38 @@ function selectLookupResult(r) {
   p.fide_title = r.fide_title || ""
   p.fide_federation = r.fide_federation || ""
   p.nationality = r.fide_federation || ""
-  // Only the year comes back, never a date: date_birth stays what is typed.
-  // The year is sent along so the API can pick the category from it.
+  // Only the year comes back, never a date. It is sent along so the API can
+  // pick the category from it, and stands as 1 January of it in the date box
+  // when nothing is typed there (or only an earlier pick's year was).
   p.birth_year = r.birth_year || null
+  if (!p.date_birth || birthFromYear.value) {
+    p.date_birth = birthDateFromYear(r.birth_year)
+    birthFromYear.value = !!p.date_birth
+    birthText.value = formatBirthInput(p.date_birth)
+  }
   lookupQuery.value = r.name || `${r.first_name} ${r.last_name}`
   lookupResults.value = []
+  picked.value = true
 }
+
+// ---- birth date ---------------------------------------------------------
+
+// Typed as 31/12/2009 or as a year alone; stored as YYYY-MM-DD.
+const birthText = ref(formatBirthInput(p.date_birth))
+const birthFromYear = ref(false)
+watch(
+  () => p.date_birth,
+  (v) => {
+    if (parseBirthInput(birthText.value) !== (v || "")) birthText.value = formatBirthInput(v)
+  }
+)
+function onBirthInput(v) {
+  birthText.value = v
+  birthFromYear.value = false
+  const parsed = parseBirthInput(v)
+  if (parsed !== null) p.date_birth = parsed
+}
+const birthFormatRule = (v) => parseBirthInput(v) !== null || t("trnreg.rule_birth_date_format")
 
 // ---- fields -------------------------------------------------------------
 
@@ -215,7 +256,7 @@ function pickCategory(v) {
             <span class="trnreg-dropdown-meta">{{ r.birth_year || '' }} {{ r.club ? `${r.club} ${clubName(r.club)}` : '' }}</span>
           </li>
         </ul>
-        <div v-if="!lookupSearching && lookupQuery.trim().length >= 2 && !lookupResults.length" class="trnreg-searching-hint">{{ t('trnreg.lookup_no_results') }}</div>
+        <div v-if="!picked && !lookupSearching && lookupQuery.trim().length >= 2 && !lookupResults.length" class="trnreg-searching-hint">{{ t('trnreg.lookup_no_results') }}</div>
       </div>
     </v-sheet>
 
@@ -232,11 +273,12 @@ function pickCategory(v) {
       </v-col>
       <v-col cols="12" sm="4">
         <v-text-field
-          v-model="p.date_birth" type="date"
+          :model-value="birthText" @update:model-value="onBirthInput"
           :label="hasFideId ? t('trnreg.field_date_birth') : req('trnreg.field_date_birth')"
-          variant="outlined" color="green-darken-2" density="compact"
-          :class="hasFideId ? '' : 'trnreg-required'" :rules="[birthDateRule]"
-          :hint="hasFideId ? t('trnreg.birth_date_optional_hint') : (p.birth_year ? (t('trnreg.birth_year_hint') + ': ' + p.birth_year) : '')"
+          :placeholder="t('trnreg.birth_date_placeholder')" persistent-placeholder
+          variant="outlined" color="green-darken-2" density="compact" autocomplete="off"
+          :class="hasFideId ? '' : 'trnreg-required'" :rules="[birthFormatRule, birthDateRule]"
+          :hint="birthFromYear ? t('trnreg.birth_date_from_year_hint') : (hasFideId ? t('trnreg.birth_date_optional_hint') : t('trnreg.birth_date_input_hint'))"
           persistent-hint
         ></v-text-field>
       </v-col>

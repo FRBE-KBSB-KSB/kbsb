@@ -158,6 +158,22 @@ export default {
     });
   },
 
+  // A player added to a team, on its next board (up to the reserves).
+  admin_addTeamPlayer: async function (options) {
+    const { id, token, ...player } = options;
+    return await axios.post(`${prefix}/admin/teams/${id}/players`, player, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
+  // The team's board order: every registration id of the team, board 1 first.
+  admin_setTeamBoards: async function (options) {
+    const { id, token, order } = options;
+    return await axios.put(`${prefix}/admin/teams/${id}/boards`, { order }, {
+      headers: { Authorization: "Bearer " + token },
+    });
+  },
+
   // CSV/SWAR exports return a raw file, not JSON -- responseType "blob" so
   // axios doesn't try to parse it, and the page turns the blob into a
   // download via an object URL. Note: on an error response (e.g. scoped 403)

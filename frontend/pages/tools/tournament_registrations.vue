@@ -24,6 +24,7 @@ import { storeToRefs } from "pinia"
 import { useTournamentRegTokenStore } from "@/store/tournamentregtoken"
 import PlayerFields from "@/components/tournament_registrations/PlayerFields.vue"
 import { categoryRanges, categoryDisplay } from "@/util/trnreg_categories"
+import { isSingleDay, spreadRoundDates, moveBoard, teamsForList } from "@/util/trnreg_form"
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -123,12 +124,23 @@ const EMPTY_TOURNAMENT = {
   // What the form shows of each category beside its SWAR value: a label and
   // birth years, one entry per category.
   category_details: [],
-  // A team tournament takes teams of team_size players (the boards).
+  // A team tournament takes teams of team_size players (the boards), and up
+  // to team_reserves more (2 when empty).
   team_tournament: false,
   team_size: "",
+  team_reserves: "",
 }
 
 const MAX_TEAM_SIZE = 20
+const MAX_TEAM_RESERVES = 10
+const DEFAULT_TEAM_RESERVES = 2
+
+// The reserves a team may bring: the tournament's own number, else 2.
+function teamReserves(trn) {
+  const v = trn ? trn.team_reserves : null
+  const n = Number(v)
+  return v !== null && v !== undefined && String(v).trim() !== "" && Number.isInteger(n) && n >= 0 ? n : DEFAULT_TEAM_RESERVES
+}
 
 const SWAR_FIDE_ID_RANGES = 16
 
@@ -366,6 +378,8 @@ function cleanRegistrationPayload(form) {
   // Which team and board a player is on is not edited here.
   delete payload.team_id
   delete payload.team_board
+  // The team form's own key for a slot.
+  delete payload.uid
   ;["fide_rating_standard", "fide_rating_rapid", "fide_rating_blitz", "category_index"].forEach((k) => {
     const v = payload[k]
     payload[k] = v === "" || v === null || v === undefined ? null : Number(v)
@@ -381,6 +395,7 @@ function cleanTournamentPayload(form, obligatoryPresenceTimeValue, closingTimeVa
   payload.rounds = form.rounds === "" || form.rounds === null || form.rounds === undefined ? null : Number(form.rounds)
   payload.team_tournament = !!form.team_tournament
   payload.team_size = form.team_tournament && String(form.team_size ?? "").trim() !== "" ? Number(form.team_size) : null
+  payload.team_reserves = form.team_tournament && String(form.team_reserves ?? "").trim() !== "" ? Number(form.team_reserves) : null
   // obligatory_presence is edited as a bare HH:MM (see obligatoryPresenceTime
   // below) and must be recombined with date_start into a full timestamp here
   // -- form.obligatory_presence may still hold a stale leftover value (e.g.
@@ -515,21 +530,52 @@ function resetRegForm() {
 }
 
 // ---------------------------------------------------------------------
-// team registration (a team tournament): a name, a contact, and exactly
-// team_size players in board order, each with the same fields as a single
-// registration
+// team registration (a team tournament): a name, a contact, and the players
+// known so far in board order, each with the same fields as a single
+// registration. A box per board to start with; empty ones are left out, and
+// reserves are added up to the tournament's number of them. The organiser
+// adds players and changes the order later (Luc's remarks, 26 Nov 2026).
 // ---------------------------------------------------------------------
 
 const teamForm = ref({ name: "", contact_name: "", contact_email: "", contact_phone: "", players: [] })
 const submittedTeam = ref(null)
 
+// A slot keeps its key when the boards are reordered, so its search box and
+// fields move along with it.
+let teamSlotUid = 0
+function emptyTeamSlot() {
+  return { ...EMPTY_REGISTRATION, category_index: categoryDefault(), uid: ++teamSlotUid }
+}
+
+const teamSize = computed(() => Number(tournament.value && tournament.value.team_size) || 0)
+const teamMaxPlayers = computed(() => teamSize.value + teamReserves(tournament.value))
+
 function resetTeamForm() {
-  const size = Number(tournament.value && tournament.value.team_size) || 0
   teamForm.value = {
     name: "", contact_name: "", contact_email: "", contact_phone: "",
-    players: Array.from({ length: size }, () => ({ ...EMPTY_REGISTRATION, category_index: categoryDefault() })),
+    players: Array.from({ length: teamSize.value }, emptyTeamSlot),
   }
   regFormKey.value++
+}
+
+// Something that says who the player is; the rest is checked by the form.
+function teamSlotFilled(p) {
+  return ["last_name", "first_name", "national_id", "fide_id"].some((k) => String(p[k] ?? "").trim() !== "")
+}
+
+function addTeamSlot() {
+  if (teamForm.value.players.length < teamMaxPlayers.value) teamForm.value.players.push(emptyTeamSlot())
+}
+function removeTeamSlot(i) {
+  teamForm.value.players.splice(i, 1)
+}
+function moveTeamSlot(i, step) {
+  teamForm.value.players = moveBoard(teamForm.value.players, i, step)
+}
+
+// "Board 2" for the first team_size places, "Reserve 1" after them.
+function boardLabel(i, size) {
+  return i < size ? t("trnreg.team_board", { n: i + 1 }) : t("trnreg.team_reserve", { n: i - size + 1 })
 }
 
 async function submitTeam() {
@@ -537,6 +583,11 @@ async function submitTeam() {
   const { valid } = await regFormRef.value.validate()
   if (!valid) {
     regError.value = t("trnreg.rule_required")
+    return
+  }
+  const players = teamForm.value.players.filter(teamSlotFilled)
+  if (!players.length) {
+    regError.value = t("trnreg.team_need_player")
     return
   }
   regSubmitting.value = true
@@ -548,7 +599,7 @@ async function submitTeam() {
       contact_name: teamForm.value.contact_name,
       contact_email: teamForm.value.contact_email,
       contact_phone: teamForm.value.contact_phone,
-      players: teamForm.value.players.map((p) => ({
+      players: players.map((p) => ({
         ...cleanRegistrationPayload(p),
         nationality: p.fide_federation || "",
       })),
@@ -705,6 +756,24 @@ const filteredRegistrations = computed(() => {
 // "Last, First", as SWAR writes it; no comma when there is no first name.
 function displayName(r) {
   return [r.last_name, r.first_name].filter(Boolean).join(", ")
+}
+
+// A team tournament's public list: the teams, each with its players by board
+// and its reserves (Jorian, 26 Nov 2026). The filter keeps a team when its
+// name or one of its players matches.
+const publicTeamCards = computed(() => {
+  if (!tournament.value || !tournament.value.team_tournament) return []
+  const needle = listFilter.value.trim().toLowerCase()
+  const rows = registrations.value.filter((r) => matchesCategory(r, listCategoryFilter.value))
+  const all = teamsForList(rows, publicTeams.value, tournament.value)
+  if (!needle) return all
+  return all.filter((tm) => String(tm.name || "").toLowerCase().includes(needle) || [...tm.boards, ...tm.reserves].some((r) => matchesFilter(r, needle)))
+})
+
+function teamClubLabel(tm) {
+  if (!tm.club) return ""
+  const r = [...tm.boards, ...tm.reserves].find((p) => Number(p.national_club) === tm.club)
+  return `${tm.club} ${(r && r.national_club_name) || ""}`.trim()
 }
 
 const sortedRegistrations = computed(() => {
@@ -1013,6 +1082,7 @@ const adminTournaments = ref([])
 const loadingAdminTournaments = ref(false)
 const adminActionError = ref("")
 const adminActionNotice = ref("")
+const adminActionWarning = ref("")
 
 const selectedAdminTournament = ref(null)
 watch(() => selectedAdminTournament.value && selectedAdminTournament.value.id, () => { adminCategoryFilter.value = "" })
@@ -1077,6 +1147,36 @@ const newAdminNationalId = ref("")
 const adminsBusy = ref(false)
 const adminsError = ref("")
 
+// A member found by name, or a member number typed (Luc, 26 Nov 2026).
+const newAdminQuery = ref("")
+const adminLookupResults = ref([])
+let adminLookupTimer = null
+
+function onAdminLookupInput() {
+  newAdminNationalId.value = ""
+  clearTimeout(adminLookupTimer)
+  const q = newAdminQuery.value
+  if (!q || q.trim().length < 2 || /^-?\d+$/.test(q.trim())) {
+    adminLookupResults.value = []
+    return
+  }
+  adminLookupTimer = setTimeout(async () => {
+    try {
+      const reply = await $backend("tournament_registrations", "lookupGlobal", { q })
+      if (newAdminQuery.value !== q) return
+      adminLookupResults.value = ((reply.data && reply.data.players) || []).filter((r) => r.national_id)
+    } catch (error) {
+      if (newAdminQuery.value === q) adminLookupResults.value = []
+    }
+  }, 300)
+}
+
+function pickAdminLookup(r) {
+  newAdminNationalId.value = String(r.national_id)
+  newAdminQuery.value = `${r.name || [r.last_name, r.first_name].filter(Boolean).join(", ")} (${r.national_id})`
+  adminLookupResults.value = []
+}
+
 function isMine(trn) {
   return !!trn && trn.owner === myOwner.value
 }
@@ -1097,7 +1197,8 @@ async function loadTournamentAdmins() {
 }
 
 async function addTournamentAdmin() {
-  const id = String(newAdminNationalId.value || "").trim()
+  const typed = String(newAdminQuery.value || "").trim()
+  const id = String(newAdminNationalId.value || (/^-?\d+$/.test(typed) ? typed : "")).trim()
   if (!/^-?\d+$/.test(id)) {
     adminsError.value = t("trnreg.share_need_number")
     return
@@ -1112,6 +1213,7 @@ async function addTournamentAdmin() {
     })
     tournamentAdmins.value = reply.data.admins || []
     newAdminNationalId.value = ""
+    newAdminQuery.value = ""
   } catch (error) {
     adminsError.value = error.code === 404 ? t("trnreg.share_no_member", { id: id }) : error.message
   } finally {
@@ -1234,6 +1336,80 @@ async function loadAdminRegistrations() {
 
 function teamPlayerCount(team) {
   return adminRegistrations.value.filter((r) => r.team_id === team.id).length
+}
+
+// A team's players in board order, for the admin's teams card.
+function teamPlayers(team) {
+  return adminRegistrations.value
+    .filter((r) => r.team_id === team.id)
+    .sort((a, b) => (a.team_board || 0) - (b.team_board || 0) || a.id - b.id)
+}
+
+const adminTeamMax = computed(() => {
+  const trn = selectedAdminTournament.value
+  return (Number(trn && trn.team_size) || 0) + teamReserves(trn)
+})
+
+// One player a board up (-1) or down (+1); the API takes the whole order.
+const teamBusy = ref(null)
+async function moveTeamPlayer(team, index, step) {
+  const order = moveBoard(teamPlayers(team).map((r) => r.id), index, step)
+  teamBusy.value = team.id
+  adminActionError.value = ""
+  try {
+    await $backend("tournament_registrations", "admin_setTeamBoards", { id: team.id, token: token.value, order })
+    await loadAdminRegistrations()
+  } catch (error) {
+    adminActionError.value = error.message || t("trnreg.update_failed")
+  } finally {
+    teamBusy.value = null
+  }
+}
+
+// A player added to a team registered with the players known then.
+const addTeamPlayerDialog = ref(false)
+const addTeamPlayerTeam = ref(null)
+const addTeamPlayerForm = ref({ ...EMPTY_REGISTRATION })
+const addTeamPlayerError = ref("")
+const addTeamPlayerSubmitting = ref(false)
+const addTeamPlayerFormRef = ref(null)
+const addTeamPlayerKey = ref(0)
+
+function openAddTeamPlayer(team) {
+  const trn = selectedAdminTournament.value
+  const count = trn && Array.isArray(trn.categories) ? trn.categories.length : 0
+  addTeamPlayerTeam.value = team
+  addTeamPlayerForm.value = { ...EMPTY_REGISTRATION, category_index: count === 1 ? 0 : "" }
+  addTeamPlayerError.value = ""
+  addTeamPlayerKey.value++
+  addTeamPlayerDialog.value = true
+}
+
+async function saveAddTeamPlayer() {
+  addTeamPlayerError.value = ""
+  const { valid } = await addTeamPlayerFormRef.value.validate()
+  if (!valid) {
+    addTeamPlayerError.value = t("trnreg.rule_required")
+    return
+  }
+  addTeamPlayerSubmitting.value = true
+  try {
+    const form = addTeamPlayerForm.value
+    await $backend("tournament_registrations", "admin_addTeamPlayer", {
+      id: addTeamPlayerTeam.value.id,
+      token: token.value,
+      ...cleanRegistrationPayload(form),
+      nationality: form.fide_federation || "",
+    })
+    addTeamPlayerDialog.value = false
+    await loadAdminRegistrations()
+  } catch (error) {
+    if (error.errorCode === "team_full") addTeamPlayerError.value = t("trnreg.team_full", { n: adminTeamMax.value })
+    else if (error.code === 409) addTeamPlayerError.value = t("trnreg.team_player_already")
+    else addTeamPlayerError.value = error.message || t("trnreg.submit_failed")
+  } finally {
+    addTeamPlayerSubmitting.value = false
+  }
 }
 
 const editTeamDialog = ref(false)
@@ -1512,6 +1688,7 @@ function openEditTournament(trn) {
     }),
     team_tournament: !!trn.team_tournament,
     team_size: trn.team_size ?? "",
+    team_reserves: trn.team_reserves ?? "",
     date_start: toDateInputValue(trn.date_start),
     date_end: toDateInputValue(trn.date_end),
     opening_registrations: toDateInputValue(trn.opening_registrations),
@@ -1596,8 +1773,9 @@ function tournamentFormProblem() {
     if (problem) return problem
   } else {
     const codes = eventCodeSlots.value.map((_, i) => String(f.event_codes[i] || "").trim())
+    // No code yet is no reason to refuse: the API saves it with a warning
+    // and the code is filled in later (Luc, 26 Nov 2026).
     if (codes.some((c) => c && !/^\d{1,12}$/.test(c))) return t("trnreg.rule_event_code_number")
-    if (f.fide_homologated && !codes.some((c) => c)) return t("trnreg.rule_event_code_required")
   }
   if (ROBIN_SYSTEMS.includes(f.system) && f.tiebreak_system && f.tiebreak_system !== "_TB_PERSONEL") {
     return t("trnreg.rule_robin_tiebreaks")
@@ -1605,6 +1783,8 @@ function tournamentFormProblem() {
   if (f.team_tournament) {
     const size = Number(f.team_size)
     if (!Number.isInteger(size) || size < 1 || size > MAX_TEAM_SIZE) return t("trnreg.rule_team_size")
+    const reserves = String(f.team_reserves ?? "").trim()
+    if (reserves !== "" && (!/^\d+$/.test(reserves) || Number(reserves) > MAX_TEAM_RESERVES)) return t("trnreg.rule_team_reserves")
   }
   const yearOk = (v) => String(v ?? "").trim() === "" || (/^\d{4}$/.test(String(v).trim()) && Number(v) >= 1900 && Number(v) <= 2100)
   for (const d of f.category_details || []) {
@@ -1696,7 +1876,8 @@ function cleanFideIdRanges() {
 // The same checks the API makes.
 function fideIdRangesProblem() {
   const ranges = cleanFideIdRanges()
-  if (ranges.length === 0) return t("trnreg.rule_event_code_required")
+  // None yet: saved with a warning, like a missing event code.
+  if (ranges.length === 0) return ""
   if (ranges.length > SWAR_FIDE_ID_RANGES) return t("trnreg.rule_fide_range_max")
   if (ranges.some((r) => !/^\d{1,10}$/.test(r.fide_tournament_id) || Number(r.fide_tournament_id) <= 0)) {
     return t("trnreg.rule_event_code_number")
@@ -1735,24 +1916,19 @@ const roundDateSlots = computed(() => {
   return Number.isInteger(n) && n > 0 && n <= 60 ? Array.from({ length: n }, (_, i) => i + 1) : []
 })
 
-// Start and end on the same day: every round is on that day, so the form
-// asks for no dates and the export gets that day for each round.
-const singleDay = computed(() => {
-  const f = tournamentForm.value
-  return !!f.date_start && f.date_start === f.date_end
-})
+// Start and end on the same day (or no end date): every round is on that
+// day, so the form shows the dates filled in and the export gets that day for
+// each round.
+const singleDay = computed(() => isSingleDay(tournamentForm.value.date_start, tournamentForm.value.date_end))
 
-// Consecutive days from the first round's date (or the start date), a
-// starting point to correct rather than type 9 dates by hand.
+// One day per round from the first round's date (or the start date), never
+// past the end date: with fewer days than rounds, several a day, in order.
+// A starting point to correct rather than type 9 dates by hand.
 function fillRoundDatesDaily() {
   const f = tournamentForm.value
   const first = f.round_dates[0] || f.date_start
   if (!first) return
-  const [y, m, d] = first.split("-").map(Number)
-  f.round_dates = roundDateSlots.value.map((_, i) => {
-    const dt = new Date(Date.UTC(y, m - 1, d + i))
-    return dt.toISOString().slice(0, 10)
-  })
+  f.round_dates = spreadRoundDates(first, f.date_end || first, roundDateSlots.value.length)
 }
 
 function addTiebreakRow() {
@@ -1829,6 +2005,7 @@ async function saveTournament() {
   if (tournamentFormError.value) return
   tournamentSubmitting.value = true
   adminActionNotice.value = ""
+  adminActionWarning.value = ""
   try {
     const kept = tournamentForm.value.categories
       .map((c, i) => ({ value: c, details: tournamentForm.value.category_details[i] || {} }))
@@ -1864,6 +2041,11 @@ async function saveTournament() {
     }
     tournamentFormDialog.value = false
     adminActionNotice.value = t("trnreg.admin_save_tournament_success")
+    // Saved, with what is still missing (a FIDE event code).
+    const warnings = (reply.data && reply.data.warnings) || []
+    adminActionWarning.value = warnings
+      .map((w) => (w.code === "fide_event_code_missing" ? t("trnreg.warning_event_code_missing") : w.message))
+      .join(" ")
     await loadAdminTournaments()
     if (reply.data && reply.data.tournament && selectedAdminTournament.value && selectedAdminTournament.value.id === reply.data.tournament.id) {
       selectedAdminTournament.value = reply.data.tournament
@@ -2151,7 +2333,7 @@ onMounted(() => {
           <v-card v-else-if="tournament.team_tournament" class="elevation-2">
             <v-card-text>
               <h3 class="text-subtitle-1 font-weight-bold text-green-darken-3 mb-1">{{ t('trnreg.team_form_title') }}</h3>
-              <div class="text-body-2 mb-3">{{ t('trnreg.team_intro', { n: tournament.team_size }) }}</div>
+              <div class="text-body-2 mb-3">{{ t('trnreg.team_intro', { n: tournament.team_size, r: teamReserves(tournament) }) }}</div>
               <div class="text-caption text-medium-emphasis mb-3">{{ t('trnreg.required_legend') }}</div>
               <v-alert v-if="regError" type="error" class="mb-4">{{ regError }}</v-alert>
               <v-form ref="regFormRef" @submit.prevent="submitTeam">
@@ -2169,11 +2351,21 @@ onMounted(() => {
                     <v-text-field v-model="teamForm.contact_phone" :label="req('trnreg.field_contact_phone')" maxlength="40" variant="outlined" color="green-darken-2" density="compact" class="trnreg-required" :rules="[requiredRule]"></v-text-field>
                   </v-col>
                 </v-row>
-                <template v-for="(p, i) in teamForm.players" :key="`board-${regFormKey}-${i}`">
+                <template v-for="(p, i) in teamForm.players" :key="`board-${regFormKey}-${p.uid}`">
                   <v-divider class="my-4" />
-                  <PlayerFields :player="p" :tournament="tournament" :clubs="clubs" :heading="t('trnreg.team_board', { n: i + 1 })" />
+                  <div class="d-flex align-center ga-1 mb-2">
+                    <span class="text-subtitle-1 font-weight-bold text-green-darken-3">{{ boardLabel(i, teamSize) }}</span>
+                    <v-spacer />
+                    <v-btn icon="mdi-arrow-up" size="small" variant="text" color="green-darken-2" :disabled="i === 0" :title="t('trnreg.board_up')" :aria-label="t('trnreg.board_up')" @click="moveTeamSlot(i, -1)"></v-btn>
+                    <v-btn icon="mdi-arrow-down" size="small" variant="text" color="green-darken-2" :disabled="i === teamForm.players.length - 1" :title="t('trnreg.board_down')" :aria-label="t('trnreg.board_down')" @click="moveTeamSlot(i, 1)"></v-btn>
+                    <v-btn v-if="i >= teamSize" icon="mdi-close" size="small" variant="text" color="red-darken-2" :title="t('trnreg.team_remove_slot')" :aria-label="t('trnreg.team_remove_slot')" @click="removeTeamSlot(i)"></v-btn>
+                  </div>
+                  <PlayerFields :player="p" :tournament="tournament" :clubs="clubs" :optional="i > 0" />
                 </template>
-                <v-btn type="submit" color="green-darken-2" :loading="regSubmitting" class="mt-4">{{ t('trnreg.submit_team_btn') }}</v-btn>
+                <div class="mt-4 d-flex flex-wrap align-center ga-2">
+                  <v-btn v-if="teamForm.players.length < teamMaxPlayers" variant="tonal" color="green-darken-2" prepend-icon="mdi-account-plus" @click="addTeamSlot">{{ t('trnreg.team_add_player') }}</v-btn>
+                  <v-btn type="submit" color="green-darken-2" :loading="regSubmitting">{{ t('trnreg.submit_team_btn') }}</v-btn>
+                </div>
               </v-form>
             </v-card-text>
           </v-card>
@@ -2243,7 +2435,8 @@ onMounted(() => {
         <v-col cols="12" sm="6">
           <h2 class="text-h6 font-weight-bold text-green-darken-3">
             {{ t('trnreg.list_title') }}<span v-if="tournament"> - {{ tournament.name }}</span>
-            <span class="text-body-2 text-grey-darken-1 font-weight-regular"> ({{ sortedRegistrations.length }} {{ t('trnreg.list_count') }})</span>
+            <span v-if="tournament && tournament.team_tournament" class="text-body-2 text-grey-darken-1 font-weight-regular"> ({{ publicTeamCards.length }} {{ t('trnreg.teams_count') }}, {{ sortedRegistrations.length }} {{ t('trnreg.list_count') }})</span>
+            <span v-else class="text-body-2 text-grey-darken-1 font-weight-regular"> ({{ sortedRegistrations.length }} {{ t('trnreg.list_count') }})</span>
           </h2>
         </v-col>
         <v-col cols="12" sm="6">
@@ -2256,7 +2449,46 @@ onMounted(() => {
       </v-row>
       <v-card v-else class="elevation-2">
         <v-card-text class="pa-0">
-          <div v-if="!sortedRegistrations.length" class="text-center py-8 text-grey-darken-1">{{ t('trnreg.list_empty') }}</div>
+          <div v-if="tournament && tournament.team_tournament ? !publicTeamCards.length : !sortedRegistrations.length" class="text-center py-8 text-grey-darken-1">{{ t('trnreg.list_empty') }}</div>
+          <!-- A team tournament: its teams, players by board, reserves after them. -->
+          <div v-else-if="tournament && tournament.team_tournament" class="pa-3">
+            <div v-for="tm in publicTeamCards" :key="'pt-' + tm.id" class="trnreg-team-card mb-3">
+              <div class="d-flex flex-wrap align-baseline ga-3 px-3 pt-2 pb-1">
+                <strong class="text-subtitle-1 text-green-darken-3">{{ tm.name }}</strong>
+                <span v-if="tm.club" class="text-body-2">{{ teamClubLabel(tm) }}</span>
+                <span class="text-body-2 text-grey-darken-1">{{ t('trnreg.team_avg_rating') }}: {{ tm.rating || '-' }}</span>
+              </div>
+              <div class="trnreg-table-scroll">
+                <v-table density="compact">
+                  <thead class="bg-green-lighten-5">
+                    <tr>
+                      <th style="width: 6rem">{{ t('trnreg.col_board') }}</th>
+                      <th>{{ t('trnreg.col_name') }}</th>
+                      <th>{{ t('trnreg.col_club') }}</th>
+                      <th>{{ t('trnreg.col_fide_id') }}</th>
+                      <th>{{ t('trnreg.col_rating') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(r, bi) in tm.boards" :key="r.id">
+                      <td>{{ bi + 1 }}</td>
+                      <td>{{ displayName(r) }}</td>
+                      <td>{{ r.national_club_name || r.national_club }}</td>
+                      <td>{{ r.fide_id }}</td>
+                      <td>{{ effectiveRating(r, tournament) || '' }}</td>
+                    </tr>
+                    <tr v-for="(r, ri) in tm.reserves" :key="r.id" class="text-grey-darken-1">
+                      <td>{{ t('trnreg.team_reserve', { n: ri + 1 }) }}</td>
+                      <td>{{ displayName(r) }}</td>
+                      <td>{{ r.national_club_name || r.national_club }}</td>
+                      <td>{{ r.fide_id }}</td>
+                      <td>{{ effectiveRating(r, tournament) || '' }}</td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </div>
+            </div>
+          </div>
           <div v-else class="trnreg-table-scroll">
             <v-table hover>
               <thead class="bg-green-lighten-5">
@@ -2355,6 +2587,7 @@ onMounted(() => {
     <div v-if="view === 'admin' && token">
       <v-alert v-if="adminActionError" type="error" closable class="mb-4" @click:close="adminActionError = ''">{{ adminActionError }}</v-alert>
       <v-alert v-if="adminActionNotice" type="success" closable class="mb-4" @click:close="adminActionNotice = ''">{{ adminActionNotice }}</v-alert>
+      <v-alert v-if="adminActionWarning" type="warning" closable class="mb-4" @click:close="adminActionWarning = ''">{{ adminActionWarning }}</v-alert>
 
       <div v-if="!selectedAdminTournament">
         <v-row class="mb-2 align-center" justify="space-between">
@@ -2456,12 +2689,22 @@ onMounted(() => {
               <span class="text-body-2 text-grey-darken-1 font-weight-regular">, {{ t('trnreg.th_team_size') }}: {{ selectedAdminTournament.team_size }}</span>
             </div>
             <div v-if="!adminTeams.length" class="text-body-2 text-grey-darken-1">{{ t('trnreg.no_teams') }}</div>
-            <div v-for="tm in adminTeams" :key="'team-' + tm.id" class="d-flex align-center flex-wrap ga-2 py-1">
-              <strong class="text-body-2">{{ tm.name }}</strong>
-              <span class="text-body-2 text-grey-darken-1">{{ t('trnreg.team_players_count', { n: teamPlayerCount(tm) }) }}</span>
-              <span class="text-body-2">{{ [tm.contact_name, tm.contact_email, tm.contact_phone].filter(Boolean).join(', ') }}</span>
-              <v-btn size="x-small" variant="text" color="green-darken-2" @click="openEditTeam(tm)">{{ t('trnreg.edit_btn') }}</v-btn>
-              <v-btn size="x-small" variant="text" color="red-darken-2" @click="deleteTeam(tm)">{{ t('trnreg.delete_btn') }}</v-btn>
+            <div v-for="tm in adminTeams" :key="'team-' + tm.id" class="py-2 trnreg-admin-team">
+              <div class="d-flex align-center flex-wrap ga-2">
+                <strong class="text-body-2">{{ tm.name }}</strong>
+                <span class="text-body-2 text-grey-darken-1">{{ t('trnreg.team_players_count', { n: teamPlayerCount(tm) }) }}</span>
+                <span class="text-body-2">{{ [tm.contact_name, tm.contact_email, tm.contact_phone].filter(Boolean).join(', ') }}</span>
+                <v-btn size="x-small" variant="text" color="green-darken-2" @click="openEditTeam(tm)">{{ t('trnreg.edit_btn') }}</v-btn>
+                <v-btn size="x-small" variant="text" color="green-darken-2" prepend-icon="mdi-account-plus" :disabled="teamPlayerCount(tm) >= adminTeamMax" @click="openAddTeamPlayer(tm)">{{ t('trnreg.team_add_player') }}</v-btn>
+                <v-btn size="x-small" variant="text" color="red-darken-2" @click="deleteTeam(tm)">{{ t('trnreg.delete_btn') }}</v-btn>
+              </div>
+              <!-- Players by board; the arrows change the order. -->
+              <div v-for="(r, bi) in teamPlayers(tm)" :key="'tp-' + r.id" class="d-flex align-center ga-1 pl-3">
+                <span class="text-caption text-grey-darken-1" style="min-width: 5.5rem">{{ boardLabel(bi, Number(selectedAdminTournament.team_size) || 0) }}</span>
+                <span class="text-body-2">{{ displayName(r) }}</span>
+                <v-btn icon="mdi-arrow-up" size="x-small" variant="text" color="green-darken-2" :disabled="bi === 0 || teamBusy === tm.id" :title="t('trnreg.board_up')" :aria-label="t('trnreg.board_up')" @click="moveTeamPlayer(tm, bi, -1)"></v-btn>
+                <v-btn icon="mdi-arrow-down" size="x-small" variant="text" color="green-darken-2" :disabled="bi === teamPlayers(tm).length - 1 || teamBusy === tm.id" :title="t('trnreg.board_down')" :aria-label="t('trnreg.board_down')" @click="moveTeamPlayer(tm, bi, 1)"></v-btn>
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -2482,12 +2725,21 @@ onMounted(() => {
               <v-btn v-if="isMine(selectedAdminTournament)" size="x-small" variant="text" color="red-darken-2" :disabled="adminsBusy" @click="removeTournamentAdmin(a)">{{ t('trnreg.share_remove') }}</v-btn>
             </div>
             <v-form v-if="isMine(selectedAdminTournament)" class="d-flex align-start ga-2 mt-2" @submit.prevent="addTournamentAdmin">
-              <v-text-field
-                v-model="newAdminNationalId"
-                :label="t('trnreg.share_member_number')"
-                variant="outlined" color="green-darken-2" density="compact" hide-details
-                style="max-width: 220px"
-              ></v-text-field>
+              <div class="trnreg-lookup-wrap" style="width: 100%; max-width: 360px">
+                <v-text-field
+                  v-model="newAdminQuery"
+                  :label="t('trnreg.share_member_search')"
+                  prepend-inner-icon="mdi-magnify"
+                  variant="outlined" color="green-darken-2" density="compact" hide-details autocomplete="off"
+                  @input="onAdminLookupInput"
+                  @blur="adminLookupResults = []"
+                ></v-text-field>
+                <ul v-if="adminLookupResults.length" class="trnreg-dropdown">
+                  <li v-for="r in adminLookupResults" :key="'adm-' + r.national_id" @mousedown.prevent="pickAdminLookup(r)">
+                    {{ r.name }} <span class="trnreg-dropdown-meta">#{{ r.national_id }} {{ r.club || '' }}</span>
+                  </li>
+                </ul>
+              </div>
               <v-btn type="submit" color="green-darken-2" variant="tonal" :loading="adminsBusy">{{ t('trnreg.share_add') }}</v-btn>
             </v-form>
           </v-card-text>
@@ -2652,6 +2904,24 @@ onMounted(() => {
       </v-card>
     </v-dialog>
 
+    <!-- ============ dialog: add a player to a team (admin) ============ -->
+    <v-dialog v-model="addTeamPlayerDialog" max-width="900" scrollable>
+      <v-card>
+        <v-card-title>{{ t('trnreg.team_add_player_title', { name: addTeamPlayerTeam ? addTeamPlayerTeam.name : '' }) }}</v-card-title>
+        <v-card-text>
+          <v-alert v-if="addTeamPlayerError" type="error" class="mb-3">{{ addTeamPlayerError }}</v-alert>
+          <v-form v-if="selectedAdminTournament" ref="addTeamPlayerFormRef" @submit.prevent="saveAddTeamPlayer">
+            <PlayerFields :key="`add-team-player-${addTeamPlayerKey}`" :player="addTeamPlayerForm" :tournament="selectedAdminTournament" :clubs="clubs" />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="addTeamPlayerDialog = false">{{ t('trnreg.cancel_btn') }}</v-btn>
+          <v-btn color="green-darken-2" :loading="addTeamPlayerSubmitting" @click="saveAddTeamPlayer">{{ t('trnreg.team_add_player') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- ============ dialog: create/edit tournament (admin) ============ -->
     <v-dialog v-model="tournamentFormDialog" max-width="900" scrollable>
       <v-card>
@@ -2675,7 +2945,7 @@ onMounted(() => {
               <v-select v-model="tournamentForm.system" :items="SYSTEM_OPTIONS.map((s) => ({ title: t('trnreg.system_' + s), value: s }))" :label="t('trnreg.field_system')" variant="outlined" color="green-darken-2" density="compact"
                 :hint="tournamentForm.system === 'SWISS_BAKU' ? t('trnreg.system_baku_hint') : ''" persistent-hint></v-select>
             </v-col>
-            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.rounds" v-digits :label="t('trnreg.field_rounds')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
+            <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.rounds" v-digits :label="t('trnreg.field_rounds')" :hint="ROBIN_SYSTEMS.includes(tournamentForm.system) ? t('trnreg.rounds_robin_hint') : ''" persistent-hint variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
             <v-col cols="12" sm="4">
               <v-select v-model="tournamentForm.time_control" :items="TIME_CONTROL_OPTIONS.map((s) => ({ title: t('trnreg.tc_' + s), value: s }))" :label="t('trnreg.field_time_control')" variant="outlined" color="green-darken-2" density="compact"></v-select>
             </v-col>
@@ -2732,6 +3002,9 @@ onMounted(() => {
             </v-col>
             <v-col cols="12" sm="4" v-if="tournamentForm.team_tournament">
               <v-text-field v-model="tournamentForm.team_size" v-digits :label="req('trnreg.field_team_size')" :hint="t('trnreg.team_size_hint')" persistent-hint maxlength="2" variant="outlined" color="green-darken-2" density="compact" class="trnreg-required"></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="4" v-if="tournamentForm.team_tournament">
+              <v-text-field v-model="tournamentForm.team_reserves" v-digits :label="t('trnreg.field_team_reserves')" :placeholder="String(DEFAULT_TEAM_RESERVES)" persistent-placeholder :hint="t('trnreg.team_reserves_hint')" persistent-hint maxlength="2" variant="outlined" color="green-darken-2" density="compact"></v-text-field>
             </v-col>
 
             <v-col cols="12" sm="4"><v-text-field v-model="tournamentForm.url" :label="t('trnreg.field_url')" variant="outlined" color="green-darken-2" density="compact"></v-text-field></v-col>
@@ -2835,7 +3108,7 @@ onMounted(() => {
                   variant="outlined" color="green-darken-2" density="compact"
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" class="text-caption text-medium-emphasis mt-n2">{{ eventCodeSlots.length > 1 ? t('trnreg.event_code_per_category_hint') : t('trnreg.rule_event_code_required') }}</v-col>
+              <v-col cols="12" class="text-caption text-medium-emphasis mt-n2">{{ eventCodeSlots.length > 1 ? t('trnreg.event_code_per_category_hint') : t('trnreg.event_code_hint') }}</v-col>
             </template>
 
             <!-- ============ SWAR: tie-breaks and round dates ============ -->
@@ -2869,12 +3142,13 @@ onMounted(() => {
             <v-col cols="12">
               <div class="text-body-2 font-weight-bold mb-1">{{ t('trnreg.field_round_dates') }}</div>
               <div v-if="!roundDateSlots.length" class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_need_rounds') }}</div>
-              <div v-else-if="singleDay" class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_single_day') }}</div>
               <template v-else>
                 <v-row dense>
                   <v-col v-for="r in roundDateSlots" :key="'rd-' + r" cols="6" sm="3" md="2">
                     <v-text-field
-                      v-model="tournamentForm.round_dates[r - 1]"
+                      :model-value="singleDay ? tournamentForm.date_start : tournamentForm.round_dates[r - 1]"
+                      @update:model-value="(v) => (tournamentForm.round_dates[r - 1] = v)"
+                      :readonly="singleDay"
                       type="date"
                       :min="tournamentForm.date_start || undefined"
                       :max="tournamentForm.date_end || undefined"
@@ -2883,7 +3157,8 @@ onMounted(() => {
                     ></v-text-field>
                   </v-col>
                 </v-row>
-                <div class="d-flex align-center ga-2 mt-1">
+                <div v-if="singleDay" class="text-caption text-medium-emphasis mt-1">{{ t('trnreg.round_dates_single_day') }}</div>
+                <div v-else class="d-flex align-center ga-2 mt-1">
                   <v-btn size="small" variant="text" color="green-darken-2" prepend-icon="mdi-calendar-arrow-right" :disabled="!tournamentForm.round_dates[0] && !tournamentForm.date_start" @click="fillRoundDatesDaily">{{ t('trnreg.round_dates_fill_daily') }}</v-btn>
                   <span class="text-caption text-medium-emphasis">{{ t('trnreg.round_dates_hint') }}</span>
                 </div>
@@ -3074,6 +3349,15 @@ onMounted(() => {
 }
 .trnreg-lookup-wrap {
   position: relative;
+}
+/* A team on the public list of a team tournament. */
+.trnreg-team-card {
+  border: 1px solid #c8e6c9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.trnreg-admin-team + .trnreg-admin-team {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 .trnreg-dropdown {
   position: absolute;

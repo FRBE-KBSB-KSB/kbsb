@@ -25,6 +25,9 @@ from kbsb.tournament_registrations.api_tournament_registrations import (
         # A team of a team tournament, and the admin's edit/delete of one.
         "42/teams",
         "admin/teams/7",
+        # An admin adds a player to a team, or changes its board order.
+        "admin/teams/7/players",
+        "admin/teams/7/boards",
     ],
 )
 def test_frontend_shapes_are_forwarded(path):
@@ -58,6 +61,9 @@ def test_frontend_shapes_are_forwarded(path):
         "admin/teams/..",
         "admin/teams/../tournaments",
         "admin/teams/7%2F..",
+        "admin/teams/7/players/x",
+        "admin/teams/7/boards/..",
+        "admin/teams/../players",
     ],
 )
 def test_anything_else_is_refused(path):

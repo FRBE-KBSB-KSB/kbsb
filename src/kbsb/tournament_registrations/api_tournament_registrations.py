@@ -198,6 +198,7 @@ _ALLOWED_PATHS = [
         rf"admin/tournaments/{_SEG}/export/swar/{_SEG}",
         rf"admin/registrations/{_SEG}",
         rf"admin/teams/{_SEG}",
+        rf"admin/teams/{_SEG}/(players|boards)",
     )
 ]
 
