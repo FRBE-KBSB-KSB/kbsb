@@ -100,6 +100,43 @@ def get_mail_bridge_secret() -> str:
         )
 
 
+_odoo_login_secret_cache = None
+
+
+def get_odoo_login_secret() -> str:
+    # The secret the Odoo login presents to the API's /admin/odoo-login, kept
+    # apart from the mail bridge's (security review 19 Nov 2026, finding 12):
+    # that one rides on every confirmation mail request and should not also
+    # be enough to log in as any member. The API side is ODOO_LOGIN_SECRET in
+    # /etc/kbsb/dataplatform-api.env; the secret here is
+    # tournament-registrations-odoo-login in Secret Manager, or
+    # TOURNAMENT_REG_ODOO_LOGIN_SECRET for local dev. Until it exists this
+    # falls back to the bridge secret, uncached, so the switch needs no restart.
+    global _odoo_login_secret_cache
+    if _odoo_login_secret_cache:
+        return _odoo_login_secret_cache
+
+    env_override = os.environ.get("TOURNAMENT_REG_ODOO_LOGIN_SECRET")
+    if env_override:
+        _odoo_login_secret_cache = env_override
+        return _odoo_login_secret_cache
+
+    try:
+        _, project_id = google.auth.default()
+    except Exception:
+        project_id = "website-kbsb-prod"
+
+    try:
+        client = secretmanager.SecretManagerServiceClient()
+        name = f"projects/{project_id}/secrets/tournament-registrations-odoo-login/versions/latest"
+        response = client.access_secret_version(request={"name": name})
+        _odoo_login_secret_cache = response.payload.data.decode("UTF-8").strip()
+        return _odoo_login_secret_cache
+    except Exception:
+        logger.warning("No Odoo login secret yet; using the mail bridge secret")
+        return get_mail_bridge_secret()
+
+
 class SendConfirmationPayload(BaseModel):
     subject: str
     html: str
@@ -280,7 +317,7 @@ async def _tournament_session_for(reply) -> Response:
                 f"{TARGET_BASE_URL}/admin/odoo-login",
                 headers={
                     "x-api-key": get_api_key(),
-                    "x-bridge-secret": get_mail_bridge_secret(),
+                    "x-bridge-secret": get_odoo_login_secret(),
                 },
                 json={"national_id": national_id},
                 timeout=30.0,
